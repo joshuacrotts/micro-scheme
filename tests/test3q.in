@@ -1,0 +1,50 @@
+//
+// Bitwise operator testing.
+//
+
+void printlnd(int n) {
+	printd(n);
+	printc('\n');
+}
+
+int create_argb_color(int a, int r, int g, int b) {
+	return ((a&0xff)<<24)|((r&0xff)<<16)|((g&0xff)<<8)|(b&0xff);
+}
+
+int create_rgb_color(int r, int g, int b) {
+	return create_argb_color(0, r, g, b);
+}
+
+void print_argb_color(int c) {
+	prints("a:");
+	printlnd(c>>24&0xff);
+	prints("r:");
+	printlnd(c>>16&0xff);
+	prints("g:");
+	printlnd(c>>8&0xff);
+	prints("b:");
+	printlnd(c&0xff);
+}
+
+void main() {
+	int x = 0;
+	int y = 1;
+	int z = 10;
+	int w = 1;
+	
+	y = y << 3; 
+	printlnd(y==8); // test left shift
+	y = y >> w;
+	printlnd(y==4); // test right shift
+	z = 10 ^ 10;
+	printlnd(z==0); // test XOR
+	x = x | 127;
+	printlnd(x == 127); // test OR
+	printlnd(((x + 1) >> 4) == 8); // multiple ops
+	x = -1;
+	printlnd(x & (1<<31)); // AND (should be min neg)
+	printlnd(create_argb_color(0xff, 0xff, 0, 0));
+	printlnd(create_rgb_color(0,0xff,0));
+	print_argb_color(0xffffffff);
+	printlnd(x>>31==1); // checks sign bit should print 0
+}
