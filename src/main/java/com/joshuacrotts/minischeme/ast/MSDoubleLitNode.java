@@ -8,8 +8,17 @@ public class MSDoubleLitNode extends MSSyntaxTree {
     private double value;
 
     public MSDoubleLitNode(String value) {
+        this(Double.parseDouble(value));
+    }
+
+    public MSDoubleLitNode(double value) {
         super(MSNodeType.MS_NUM);
-        this.value = Double.parseDouble(value);
+        this.value = value;
+    }
+
+    @Override
+    public MSDoubleLitNode copy() {
+        return new MSDoubleLitNode(this.value);
     }
 
     public double getValue() {

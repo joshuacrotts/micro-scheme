@@ -7,7 +7,7 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
     /**
      *
      */
-    private ArrayList<MSSyntaxTree> body;
+    private MSSyntaxTree body;
 
     /**
      *
@@ -19,14 +19,30 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
      */
     private MSSyntaxTree identifier;
 
-    public MSProcedureDefinitionNode(MSSyntaxTree identifier, ArrayList<MSSyntaxTree> params, ArrayList<MSSyntaxTree> body) {
+    public MSProcedureDefinitionNode(MSSyntaxTree identifier, ArrayList<MSSyntaxTree> params, MSSyntaxTree body) {
         super(MSNodeType.MS_PROCDECL);
         this.identifier = identifier;
         this.parameters = params;
         this.body = body;
     }
 
-    public ArrayList<MSSyntaxTree> getBody() {
+
+    public int getArgumentLoc(String idStr) {
+        for (int i = 0; i < this.parameters.size(); i++) {
+            MSIdentifierNode id = (MSIdentifierNode) this.parameters.get(i);
+            if (id.getIdentifier().equals(idStr)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public MSSyntaxTree copy() {
+        return null;
+    }
+
+    public MSSyntaxTree getBody() {
         return this.body;
     }
 
@@ -43,10 +59,8 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
             sb.append(" ");
         }
 
-        for (MSSyntaxTree expr : this.body) {
-            sb.append(expr.getStringRep());
-            sb.append(" ");
-        }
+        sb.append(this.body.getStringRep());
+        sb.append(" ");
         return sb.toString();
     }
 
@@ -63,10 +77,8 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
             sb.append(") ");
         }
 
-        for (MSSyntaxTree expr : this.body) {
-            sb.append(expr.toString());
-            sb.append(" ");
-        }
+        sb.append(this.body.toString());
+        sb.append(" ");
         sb.append(")");
         return sb.toString();
     }

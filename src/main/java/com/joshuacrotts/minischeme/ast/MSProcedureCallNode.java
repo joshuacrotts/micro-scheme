@@ -24,6 +24,10 @@ public class MSProcedureCallNode extends MSSyntaxTree {
         return this.identifier;
     }
 
+    public ArrayList<MSSyntaxTree> getArguments() {
+        return this.args;
+    }
+
     @Override
     public String getStringRep() {
         StringBuilder sb = new StringBuilder(this.identifier + " ");

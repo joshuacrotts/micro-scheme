@@ -70,10 +70,10 @@ procdecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN)
         ;
 
 procparams: expr*;
-procbody: expr+;
+procbody: expr;
 
 expr: (OPEN_PAREN (PLUS | MINUS | STAR | SLASH) expr* CLOSE_PAREN)      #exprOp
-    | (OPEN_PAREN term expr CLOSE_PAREN)                                #exprProcCall
+    | (OPEN_PAREN term expr* CLOSE_PAREN)                               #exprProcCall
     | term                                                              #exprTerm
     ;
 

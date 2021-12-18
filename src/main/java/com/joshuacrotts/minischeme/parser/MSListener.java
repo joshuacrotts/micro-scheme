@@ -69,10 +69,7 @@ public class MSListener extends MiniSchemeBaseListener {
         MSSyntaxTree id = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> params = new ArrayList<>();
         for (ParseTree pt : ctx.procparams().expr()) { params.add(this.map.get(pt)); }
-
-        ArrayList<MSSyntaxTree> body = new ArrayList<>();
-        for (ParseTree pt : ctx.procbody().expr()) { body.add(this.map.get(pt)); }
-
+        MSSyntaxTree body = this.map.get(ctx.procbody().expr());
         MSSyntaxTree proc = new MSProcedureDefinitionNode(id, params, body);
         symbolTable.addProcedure(ctx.term().getText(), proc);
         this.map.put(ctx, proc);
@@ -84,10 +81,7 @@ public class MSListener extends MiniSchemeBaseListener {
         // TODO check to see if the procedure is defined and is not a variable.
         MSSyntaxTree id = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
-        for (ParseTree pt : ctx.expr()) {
-            args.add(this.map.get(pt));
-        }
-        System.out.println(args);
+        for (ParseTree pt : ctx.expr()) { args.add(this.map.get(pt)); }
         this.map.put(ctx, new MSProcedureCallNode(id, args));
     }
 

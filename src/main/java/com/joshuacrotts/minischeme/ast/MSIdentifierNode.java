@@ -13,6 +13,15 @@ public class MSIdentifierNode extends MSSyntaxTree {
     }
 
     @Override
+    public MSSyntaxTree copy() {
+        return new MSIdentifierNode(this.id);
+    }
+
+    public String getIdentifier() {
+        return this.id;
+    }
+
+    @Override
     public String getStringRep() {
         return this.id;
     }

@@ -14,6 +14,25 @@ public class MSOpExpression extends MSSyntaxTree {
         this.opType = opType;
     }
 
+    private MSOpExpression(int opType) {
+        super(MSNodeType.MS_OP);
+        this.opType = opType;
+    }
+
+    @Override
+    public MSSyntaxTree copy() {
+        MSOpExpression exp = new MSOpExpression(this.opType);
+        for (MSSyntaxTree ch : this.getChildren()) {
+            exp.addChild(ch.copy());
+        }
+        return exp;
+    }
+
+    /**
+     *
+     * @param opType
+     * @return
+     */
     private String getOpTypeString(int opType) {
         switch (opType) {
             case MiniSchemeParser.PLUS: return "+";
@@ -45,12 +64,6 @@ public class MSOpExpression extends MSSyntaxTree {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("(OP " + getOpTypeString(this.opType));
-
-        for (int i = 0; i < this.getChildrenSize() - 1; i++) {
-            sb.append(this.getChild(i));
-            sb.append(", ");
-        }
-        sb.append(this.getChild(this.getChildrenSize() - 1).toString()).append(")");
         return sb.toString();
     }
 }
