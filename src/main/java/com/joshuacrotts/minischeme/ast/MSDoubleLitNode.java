@@ -17,7 +17,7 @@ public class MSDoubleLitNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSDoubleLitNode copy() {
+    public MSSyntaxTree copy() {
         return new MSDoubleLitNode(this.value);
     }
 

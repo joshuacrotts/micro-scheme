@@ -8,5 +8,7 @@ public enum MSNodeType {
     MS_VAR,
     MS_PROCDECL,
     MS_PROCCALL,
-    MS_ID
+    MS_ID,
+    MS_IF,
+    MS_BOOL
 }

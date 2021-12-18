@@ -1,0 +1,7 @@
+(define (sq x) (* x x))
+(sq 5)                          // 25
+(* (sq 9) 3)                    // 243
+(define (add x y) (+ x y))
+(define (add_weird x y z) (+ 2 x y z))
+(add (sq 9) (sq 10))            // 181
+(add_weird (add 4 5) (sq 5) 5)  // 2 + (9 + 25 + 5) = (2 + 39) = 41

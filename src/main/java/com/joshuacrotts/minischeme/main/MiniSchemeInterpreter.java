@@ -20,7 +20,10 @@ public class MiniSchemeInterpreter {
     public void execute() {
         for (MSSyntaxTree ch : this.tree.getChildren()) {
             LValue lhs = this.interpretTree(ch);
-            if (lhs.type == LValue.LValueType.LVAL_NUM) { System.out.println(lhs); }
+            if (lhs.type == LValue.LValueType.NUM
+                    || lhs.type == LValue.LValueType.BOOL) {
+                System.out.println(lhs);
+            }
         }
     }
 
@@ -30,13 +33,15 @@ public class MiniSchemeInterpreter {
      * @return
      */
     protected LValue interpretTree(MSSyntaxTree tree) {
-        if (tree == null) { return new LValue(LValue.LValueType.LVAL_NULL); }
+        if (tree == null) { return new LValue(LValue.LValueType.NULL); }
         switch (tree.getNodeType()) {
             case MS_ROOT: return this.interpretTree(tree.getChild(0));
             case MS_NUM: return this.interpretNumber(tree);
+            case MS_BOOL: return this.interpretBoolean(tree);
             case MS_OP: return this.interpretOperator(tree);
             case MS_ID: return this.interpretIdentifier(tree);
             case MS_PROCCALL: return this.interpretProcCall(tree);
+            case MS_IF: return this.interpretIf(tree);
         }
         return new LValue();
     }
@@ -47,6 +52,15 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretNumber(MSSyntaxTree tree) {
         return new LValue(((MSDoubleLitNode) tree).getValue());
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
+    private LValue interpretBoolean(MSSyntaxTree tree) {
+        return new LValue(((MSBooleanLitNode) tree).getValue());
     }
 
     /**
@@ -85,6 +99,15 @@ public class MiniSchemeInterpreter {
      * @param tree
      * @return
      */
+    private LValue interpretIf(MSSyntaxTree tree) {
+        return null;
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
     private LValue interpretProcCall(MSSyntaxTree tree) {
         MSProcedureCallNode procCall = (MSProcedureCallNode) tree;
         String id = procCall.getIdentifier().getStringRep();
@@ -92,9 +115,8 @@ public class MiniSchemeInterpreter {
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         for (int i = 0; i < procCall.getArguments().size(); i++) {
             LValue lhs = this.interpretTree(procCall.getArguments().get(i));
-            if (lhs.type == LValue.LValueType.LVAL_NUM) {
-                args.add(new MSDoubleLitNode(lhs.dval));
-            }
+            if (lhs.type == LValue.LValueType.NUM) { args.add(new MSDoubleLitNode(lhs.dval)); }
+            else if(lhs.type == LValue.LValueType.BOOL) { args.add(new MSBooleanLitNode(lhs.bval)); }
         }
 
         MSSyntaxTree body = def.getBody().copy();
@@ -117,6 +139,12 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.SLASH: return new LValue(lhs.dval / rhs.dval);
             case MiniSchemeParser.MODULO: return new LValue(lhs.dval % rhs.dval);
             case MiniSchemeParser.EXPONENTIATION: return new LValue(Math.pow(lhs.dval, rhs.dval));
+            case MiniSchemeParser.LOGICAL_EQ: return new LValue(lhs.dval == rhs.dval);
+            case MiniSchemeParser.LOGICAL_NE: return new LValue(lhs.dval != rhs.dval);
+            case MiniSchemeParser.LOGICAL_LT: return new LValue(lhs.dval < rhs.dval);
+            case MiniSchemeParser.LOGICAL_LE: return new LValue(lhs.dval <= rhs.dval);
+            case MiniSchemeParser.LOGICAL_GT: return new LValue(lhs.dval > rhs.dval);
+            case MiniSchemeParser.LOGICAL_GE: return new LValue(lhs.dval >= rhs.dval);
         }
 
         throw new IllegalArgumentException("ERR invalid binop type " + opType);

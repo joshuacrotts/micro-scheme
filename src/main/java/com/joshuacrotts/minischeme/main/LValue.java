@@ -15,33 +15,45 @@ public class LValue {
      */
     protected double dval;
 
+    /**
+     *
+     */
+    protected boolean bval;
+
     protected LValue(LValueType type) {
         this.type = type;
     }
 
     protected LValue(double dval) {
-        this(LValueType.LVAL_NUM);
+        this(LValueType.NUM);
         this.dval = dval;
     }
 
+    protected LValue(boolean bval) {
+        this(LValueType.BOOL);
+        this.bval = bval;
+    }
+
     protected LValue() {
-        this(LValueType.LVAL_NULL);
+        this(LValueType.NULL);
     }
 
     /**
      *
      */
     protected enum LValueType {
-        LVAL_NUM, LVAL_STR, LVAL_DEF, LVAL_NULL
+        NUM, BOOL, STR, DEF, NULL
     }
 
     @Override
     public String toString() {
         switch (this.type) {
-            case LVAL_NUM:
+            case NUM:
                 return ((int) this.dval == this.dval)
                         ? Integer.toString((int) this.dval)
                         : Double.toString(this.dval);
+            case BOOL:
+                return this.bval ? "#t" : "#f";
         }
         return "";
     }

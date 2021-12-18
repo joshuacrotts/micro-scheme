@@ -36,7 +36,7 @@ public class MSListener extends MiniSchemeBaseListener {
         this.parser = parser;
         this.root = new MSSyntaxTree();
         this.map = new ParseTreeProperty<>();
-        this.symbolTable = new SymbolTable();
+        symbolTable = new SymbolTable();
     }
 
     @Override
@@ -106,6 +106,9 @@ public class MSListener extends MiniSchemeBaseListener {
         switch (tokType) {
             case MiniSchemeParser.NUMBERLIT:
                 term = new MSDoubleLitNode(ctx.getText());
+                break;
+            case MiniSchemeParser.BOOLLIT:
+                term = new MSBooleanLitNode(ctx.getText());
                 break;
             case MiniSchemeParser.ID:
                 term = new MSIdentifierNode(ctx.getText());

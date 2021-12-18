@@ -55,8 +55,11 @@ DECREMENT: '--';
 NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
 CHARLIT: '\'' .? '\'' ;
 STRINGLIT: '"' [.]* '"';
+BOOLLIT: '#'[tf];
 
 DEFINE: 'define';
+IF:  'if';
+COND: 'cond';
 SIN: 'sin';
 COS: 'cos';
 TAN: 'tan';
@@ -83,9 +86,19 @@ procbody: expr;
 expr: term                                                                  #exprTerm
     |(OPEN_PAREN
             (PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
-            | SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT)
+            | SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | LOGICAL_GT
+            | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE | LOGICAL_EQ | LOGICAL_NE)
        expr* CLOSE_PAREN)                                                   #exprOp
+    |((PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION | SIN | COS
+    | TAN | ASIN | ACOS | ATAN | SQRT | LOGICAL_GT | LOGICAL_GE
+    | LOGICAL_LT | LOGICAL_LE | LOGICAL_EQ | LOGICAL_NE)
+       expr*)                                                               #exprOp
     | (OPEN_PAREN term expr* CLOSE_PAREN)                                   #exprProcCall
+    | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse)           #exprIf
     ;
 
-term: NUMBERLIT | CHARLIT | STRINGLIT | ID;
+ifcond: expr;
+ifbody: expr;
+ifelse: expr;
+
+term: NUMBERLIT | CHARLIT | STRINGLIT | BOOLLIT | ID;
