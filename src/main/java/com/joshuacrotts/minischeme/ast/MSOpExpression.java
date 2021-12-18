@@ -34,14 +34,8 @@ public class MSOpExpression extends MSSyntaxTree {
      * @return
      */
     private String getOpTypeString(int opType) {
-        switch (opType) {
-            case MiniSchemeParser.PLUS: return "+";
-            case MiniSchemeParser.MINUS: return "-";
-            case MiniSchemeParser.STAR: return "*";
-            case MiniSchemeParser.SLASH: return "/";
-            default:
-                throw new IllegalArgumentException("ERR invalid operator " + opType);
-        }
+        String literalName = MiniSchemeParser.VOCABULARY.getLiteralName(opType);
+        return literalName.substring(1, literalName.length() - 1);
     }
 
     public int getOpType() {
@@ -63,7 +57,12 @@ public class MSOpExpression extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("(OP " + getOpTypeString(this.opType));
+        StringBuilder sb = new StringBuilder("OP " + getOpTypeString(this.opType) + "(");
+        for (int i = 0; i < this.getChildrenSize() - 1; i++) {
+            sb.append(this.getChild(i).toString()).append(" ");
+        }
+
+        sb.append(this.getChild(this.getChildrenSize() - 1).toString()).append(")");
         return sb.toString();
     }
 }

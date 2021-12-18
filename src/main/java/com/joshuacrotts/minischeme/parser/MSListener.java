@@ -3,9 +3,7 @@ package com.joshuacrotts.minischeme.parser;
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
-import com.joshuacrotts.minischeme.main.Symbol;
-import com.joshuacrotts.minischeme.main.SymbolTable;
-import com.joshuacrotts.minischeme.main.Variable;
+import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -89,10 +87,8 @@ public class MSListener extends MiniSchemeBaseListener {
     public void exitExprOp(MiniSchemeParser.ExprOpContext ctx) {
         super.exitExprOp(ctx);
         int symbol = ((TerminalNode) ctx.getChild(1)).getSymbol().getType();
-        MSOpExpression expr = new MSOpExpression(symbol);
-        for (int i = 0; i < ctx.expr().size(); i++) {
-            expr.addChild(this.map.get(ctx.expr(i)));
-        }
+        MSSyntaxTree expr = new MSOpExpression(symbol);
+        for (int i = 0; i < ctx.expr().size(); i++) { expr.addChild(this.map.get(ctx.expr(i))); }
         this.map.put(ctx, expr);
     }
 

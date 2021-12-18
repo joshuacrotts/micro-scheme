@@ -57,7 +57,15 @@ CHARLIT: '\'' .? '\'' ;
 STRINGLIT: '"' [.]* '"';
 
 DEFINE: 'define';
-ID: [a-zA-Z_][a-zA-Z0-9_]*;
+SIN: 'sin';
+COS: 'cos';
+TAN: 'tan';
+ASIN: 'asin';
+ACOS: 'acos';
+ATAN: 'atan';
+SQRT: 'sqrt';
+
+ID: [a-zA-Z_-][a-zA-Z0-9_-]*;
 
 // ================= Parser rules. ==================== //
 minischeme: (vardecl | procdecl | expr)* EOF;
@@ -72,9 +80,12 @@ procdecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN)
 procparams: expr*;
 procbody: expr;
 
-expr: (OPEN_PAREN (PLUS | MINUS | STAR | SLASH) expr* CLOSE_PAREN)      #exprOp
-    | (OPEN_PAREN term expr* CLOSE_PAREN)                               #exprProcCall
-    | term                                                              #exprTerm
+expr: term                                                                  #exprTerm
+    |(OPEN_PAREN
+            (PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
+            | SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT)
+       expr* CLOSE_PAREN)                                                   #exprOp
+    | (OPEN_PAREN term expr* CLOSE_PAREN)                                   #exprProcCall
     ;
 
 term: NUMBERLIT | CHARLIT | STRINGLIT | ID;

@@ -1,4 +1,4 @@
-package com.joshuacrotts.minischeme.main;
+package com.joshuacrotts.minischeme.symbol;
 
 public abstract class Symbol {
 

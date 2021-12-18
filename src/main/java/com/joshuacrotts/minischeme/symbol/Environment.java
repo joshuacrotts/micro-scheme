@@ -1,9 +1,7 @@
-package com.joshuacrotts.minischeme.main;
+package com.joshuacrotts.minischeme.symbol;
 
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Stack;
 
 public class Environment {

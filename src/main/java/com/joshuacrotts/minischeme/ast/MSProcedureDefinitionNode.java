@@ -26,20 +26,31 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
         this.body = body;
     }
 
-
+    /**
+     *
+     * @param idStr
+     * @return
+     */
     public int getArgumentLoc(String idStr) {
         for (int i = 0; i < this.parameters.size(); i++) {
             MSIdentifierNode id = (MSIdentifierNode) this.parameters.get(i);
-            if (id.getIdentifier().equals(idStr)) {
-                return i;
-            }
+            if (id.getIdentifier().equals(idStr)) { return i; }
         }
         return -1;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return null;
+        // First, copy the identifier.
+        MSSyntaxTree idCopy = this.identifier.copy();
+
+        // Now copy the parameters.
+        ArrayList<MSSyntaxTree> newParams = new ArrayList<>();
+        for (MSSyntaxTree oldParam : this.parameters) { newParams.add(oldParam.copy()); }
+
+        // Lastly, copy the body over.
+        MSSyntaxTree body = this.body.copy();
+        return new MSProcedureDefinitionNode(idCopy, newParams, body);
     }
 
     public MSSyntaxTree getBody() {
@@ -53,7 +64,7 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
     @Override
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
-        sb.append(this.identifier + ": ");
+        sb.append(this.identifier).append(": ");
         for (MSSyntaxTree params : this.parameters) {
             sb.append(params.getStringRep());
             sb.append(" ");
@@ -71,7 +82,7 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("(PROCDECL " + this.identifier + ": ");
+        sb.append("(PROCDECL " + this.identifier);
         for (MSSyntaxTree params : this.parameters) {
             sb.append("(PARAM " + params.toString());
             sb.append(") ");

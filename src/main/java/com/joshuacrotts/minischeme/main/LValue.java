@@ -38,7 +38,10 @@ public class LValue {
     @Override
     public String toString() {
         switch (this.type) {
-            case LVAL_NUM: return Double.toString(this.dval);
+            case LVAL_NUM:
+                return ((int) this.dval == this.dval)
+                        ? Integer.toString((int) this.dval)
+                        : Double.toString(this.dval);
         }
         return "";
     }
