@@ -56,15 +56,25 @@ NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
 CHARLIT: '\'' .? '\'' ;
 STRINGLIT: '"' [.]* '"';
 
-ID: [a-zA-Z_][a-zA-Z0-9_]*;
 DEFINE: 'define';
+ID: [a-zA-Z_][a-zA-Z0-9_]*;
 
 // ================= Parser rules. ==================== //
-minischeme: expr*;
+minischeme: (vardecl | procdecl | expr)* EOF;
 
-expr: term                                              #exprTerm
-    | ( '(' DEFINE ID expr ')' )                        #exprVariableDecl
-    | ('(' (PLUS | MINUS | STAR | SLASH) expr* ')')     #exprOp
+vardecl: OPEN_PAREN DEFINE term expr CLOSE_PAREN
+       ;
+
+procdecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN)
+                    procbody CLOSE_PAREN)
+        ;
+
+procparams: expr*;
+procbody: expr+;
+
+expr: (OPEN_PAREN (PLUS | MINUS | STAR | SLASH) expr* CLOSE_PAREN)      #exprOp
+    | (OPEN_PAREN term expr CLOSE_PAREN)                                #exprProcCall
+    | term                                                              #exprTerm
     ;
 
 term: NUMBERLIT | CHARLIT | STRINGLIT | ID;

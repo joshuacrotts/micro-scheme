@@ -25,12 +25,8 @@ public class Environment {
         this.environments.peek().addVariable(identifier, value);
     }
 
-    public void addProcedure(String identifier, MSSyntaxTree ... body) {
-        this.environments.peek().addProcedure(identifier, new ArrayList<MSSyntaxTree>(Arrays.asList(body)));
-    }
-
-    public void addProcedure(String identifier, ArrayList<MSSyntaxTree> body) {
-        this.environments.peek().addProcedure(identifier, body);
+    public void addProcedure(String identifier, MSSyntaxTree procDef) {
+        this.environments.peek().addProcedure(identifier, procDef);
     }
 
     public boolean hasSymbol(String identifier) {

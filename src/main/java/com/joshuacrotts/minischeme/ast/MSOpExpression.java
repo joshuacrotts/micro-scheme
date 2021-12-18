@@ -44,7 +44,7 @@ public class MSOpExpression extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("OP " + getOpTypeString(this.opType) + "(");
+        StringBuilder sb = new StringBuilder("(OP " + getOpTypeString(this.opType));
 
         for (int i = 0; i < this.getChildrenSize() - 1; i++) {
             sb.append(this.getChild(i));
@@ -52,6 +52,5 @@ public class MSOpExpression extends MSSyntaxTree {
         }
         sb.append(this.getChild(this.getChildrenSize() - 1).toString()).append(")");
         return sb.toString();
-
     }
 }

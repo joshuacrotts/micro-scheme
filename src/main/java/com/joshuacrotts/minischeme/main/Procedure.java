@@ -10,24 +10,14 @@ public class Procedure extends Symbol {
     /**
      *
      */
-    private ArrayList<MSSyntaxTree> functionBody;
+    private MSSyntaxTree procDef;
 
-    /**
-     *
-     */
-    private int parameters;
-
-    public Procedure(String identifier, int parameters, ArrayList<MSSyntaxTree> functionBody) {
+    public Procedure(MSSyntaxTree procDef) {
         super(SymbolType.SYMBOL_PROC);
-        this.parameters = parameters;
-        this.functionBody = functionBody;
+        this.procDef = procDef;
     }
 
-    public int getParameters() {
-        return this.parameters;
-    }
-
-    public ArrayList<MSSyntaxTree> getFunctionBody() {
-        return this.functionBody;
+    public MSSyntaxTree getProcDef() {
+        return this.procDef;
     }
 }

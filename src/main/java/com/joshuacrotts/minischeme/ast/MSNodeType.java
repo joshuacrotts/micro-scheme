@@ -6,5 +6,7 @@ public enum MSNodeType {
     MS_NUM,
     MS_PAIR,
     MS_VAR,
-    MS_PROC
+    MS_PROCDECL,
+    MS_PROCCALL,
+    MS_ID
 }

@@ -53,7 +53,9 @@ public class MSSyntaxTree {
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
         for (MSSyntaxTree child : this.getChildren()) {
-            sb.append(child.getStringRep());
+            if (child != null) {
+                sb.append(child.getStringRep());
+            }
         }
         return sb.toString();
     }
@@ -62,7 +64,9 @@ public class MSSyntaxTree {
     public String toString() {
         StringBuilder sb = new StringBuilder("ROOT (");
         for (MSSyntaxTree child : this.getChildren()) {
-            sb.append(child.toString());
+            if (child != null) {
+                sb.append(child.toString());
+            }
         }
         sb.append(")");
         return sb.toString();

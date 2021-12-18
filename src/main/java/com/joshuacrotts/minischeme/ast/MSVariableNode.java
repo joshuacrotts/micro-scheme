@@ -2,26 +2,17 @@ package com.joshuacrotts.minischeme.ast;
 
 public class MSVariableNode extends MSSyntaxTree {
 
-    /**
-     *
-     */
-    private MSSyntaxTree expr;
-
-    /**
-     *
-     */
-    private String identifier;
-
-    public MSVariableNode(String identifier, MSSyntaxTree expr) {
-        this.identifier = identifier;
-        this.expr = expr;
+    public MSVariableNode(MSSyntaxTree identifier, MSSyntaxTree expr) {
+        super(MSNodeType.MS_VAR);
+        this.addChild(identifier);
+        this.addChild(expr);
     }
 
     public String getStringRep() {
-        return this.identifier + ": " + this.expr.getStringRep();
+        return this.getChild(0).getStringRep() + ": " + this.getChild(1).getStringRep();
     }
 
     public String toString() {
-        return "(VAR " + this.expr.toString() + ")";
+        return "(VAR " + this.getChild(0).toString() + ": " + this.getChild(1).toString() + ")";
     }
 }
