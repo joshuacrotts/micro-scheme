@@ -1,5 +1,10 @@
 package com.joshuacrotts.minischeme.ast;
 
+/**
+ * Defines a Scheme variable. Variables have two components: the
+ * identifier (i.e., the name of the variable), and the expression
+ * which that variable represents.
+ */
 public class MSVariableNode extends MSSyntaxTree {
 
     public MSVariableNode(MSSyntaxTree identifier, MSSyntaxTree expr) {

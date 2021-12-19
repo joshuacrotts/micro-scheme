@@ -10,5 +10,7 @@ public enum MSNodeType {
     MS_PROCCALL,
     MS_ID,
     MS_IF,
-    MS_BOOL
+    MS_BOOL,
+    MS_COND,
+    MS_STR
 }

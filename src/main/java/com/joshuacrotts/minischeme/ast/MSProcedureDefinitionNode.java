@@ -2,6 +2,13 @@ package com.joshuacrotts.minischeme.ast;
 
 import java.util.ArrayList;
 
+/**
+ * Defines a Scheme procedure definition. A Scheme procedure consists
+ * of three primary components: the identifier (i.e., the name of the
+ * procedure), its parameters (which may be empty), and then an expression
+ * defining the body of a procedure. Note that the body expression can
+ * be as complex as it ought to be since expressions are recursive.
+ */
 public class MSProcedureDefinitionNode extends MSSyntaxTree {
 
     /**

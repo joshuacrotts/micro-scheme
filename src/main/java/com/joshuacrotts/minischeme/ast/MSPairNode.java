@@ -1,5 +1,7 @@
 package com.joshuacrotts.minischeme.ast;
 
+import java.util.ArrayList;
+
 public class MSPairNode extends MSSyntaxTree {
 
     /**
@@ -10,9 +12,10 @@ public class MSPairNode extends MSSyntaxTree {
     /**
      *
      */
-    private MSSyntaxTree cdr;
+    private ArrayList<MSSyntaxTree> cdr;
 
-    public MSPairNode(MSSyntaxTree car, MSSyntaxTree cdr) {
-        super(MSNodeType.MS_PAIR, car, cdr);
+    public MSPairNode(MSSyntaxTree car, ArrayList<MSSyntaxTree> cdr) {
+        super(MSNodeType.MS_PAIR);
+        throw new UnsupportedOperationException("Unsupported");
     }
 }

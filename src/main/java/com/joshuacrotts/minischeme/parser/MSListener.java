@@ -93,8 +93,25 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitExprCond(MiniSchemeParser.ExprCondContext ctx) {
+        super.exitExprCond(ctx);
+        ArrayList<MSSyntaxTree> condCondList = new ArrayList<>();
+        ArrayList<MSSyntaxTree> condBodyList = new ArrayList<>();
+
+        for (int i = 0; i < ctx.condcond().size(); i++) {
+            condCondList.add(this.map.get(ctx.condcond().get(i).expr()));
+            condBodyList.add(this.map.get(ctx.condbody().get(i).expr()));
+        }
+
+        condBodyList.add(this.map.get(ctx.condbody().get(ctx.condbody().size() - 1).expr()));
+        this.map.put(ctx, new MSCondNode(condCondList, condBodyList));
+    }
+
+    @Override
     public void exitExprOp(MiniSchemeParser.ExprOpContext ctx) {
         super.exitExprOp(ctx);
+        // If there's an opening parenthesis, we need to grab the second
+        // token and not the first.
         int idx = ctx.getChild(0).getText().startsWith("(") ? 1 : 0;
         int symbol = ((TerminalNode) ctx.getChild(idx)).getSymbol().getType();
         MSSyntaxTree expr = new MSOpExpression(symbol);
@@ -123,6 +140,8 @@ public class MSListener extends MiniSchemeBaseListener {
             case MiniSchemeParser.ID:
                 term = new MSIdentifierNode(ctx.getText());
                 break;
+            default:
+                throw new UnsupportedOperationException("Cannot support this token yet");
         }
 
         this.map.put(ctx, term);

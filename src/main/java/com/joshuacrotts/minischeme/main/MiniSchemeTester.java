@@ -82,7 +82,6 @@ public class MiniSchemeTester {
             MSSyntaxTree tree = parser.getSyntaxTree();
             if (tree == null) { System.exit(1); }
 
-            //tree.printSyntaxTree();
             MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter(tree);
             interpreter.execute();
         }

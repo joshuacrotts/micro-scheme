@@ -42,6 +42,7 @@ public class MiniSchemeInterpreter {
             case MS_ID: return this.interpretIdentifier(tree);
             case MS_PROCCALL: return this.interpretProcCall(tree);
             case MS_IF: return this.interpretIf(tree);
+            case MS_COND: return this.interpretCond(tree);
         }
         return new LValue();
     }
@@ -113,10 +114,38 @@ public class MiniSchemeInterpreter {
      * @param tree
      * @return
      */
+    private LValue interpretCond(MSSyntaxTree tree) {
+        int condIdx = 0;
+        int bodyIdx = 1;
+        boolean execLastBlock = true;
+
+        while (condIdx < tree.getChildrenSize()
+                && bodyIdx < tree.getChildrenSize()) {
+            LValue condCond = this.interpretTree(tree.getChild(condIdx));
+            // If the condition is true, evaluate that expression.
+            if (condCond.bval) {
+                execLastBlock = false;
+                break;
+            } else {
+                condIdx += 2;
+                bodyIdx += 2;
+            }
+        }
+
+        bodyIdx = execLastBlock ? bodyIdx - 1 : bodyIdx;
+        return this.interpretTree(tree.getChild(bodyIdx));
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
     private LValue interpretProcCall(MSSyntaxTree tree) {
         MSProcedureCallNode procCall = (MSProcedureCallNode) tree;
         String id = procCall.getIdentifier().getStringRep();
-        MSProcedureDefinitionNode def = (MSProcedureDefinitionNode) MSListener.symbolTable.getProcedure(id).getProcDef();
+        MSProcedureDefinitionNode def = (MSProcedureDefinitionNode)
+                MSListener.symbolTable.getProcedure(id).getProcDef();
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         for (int i = 0; i < procCall.getArguments().size(); i++) {
             LValue lhs = this.interpretTree(procCall.getArguments().get(i));
@@ -170,6 +199,7 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.ACOS: return new LValue(Math.acos(lhs.dval));
             case MiniSchemeParser.ATAN: return new LValue(Math.atan(lhs.dval));
             case MiniSchemeParser.SQRT: return new LValue(Math.sqrt(lhs.dval));
+            case MiniSchemeParser.NOT: return new LValue(!lhs.bval);
         }
 
         throw new IllegalArgumentException("ERR invalid unary type " + opType);

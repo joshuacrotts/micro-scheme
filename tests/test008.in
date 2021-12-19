@@ -1,0 +1,8 @@
+(define (fac n)
+    (cond   [(= n 0) 1]
+            [else (* n (fac (- n 1)))]
+    )
+)
+
+(define x (* 2 3))
+(fac x)

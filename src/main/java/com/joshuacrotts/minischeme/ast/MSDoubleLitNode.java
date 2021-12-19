@@ -1,5 +1,8 @@
 package com.joshuacrotts.minischeme.ast;
 
+/**
+ *
+ */
 public class MSDoubleLitNode extends MSSyntaxTree {
 
     /**

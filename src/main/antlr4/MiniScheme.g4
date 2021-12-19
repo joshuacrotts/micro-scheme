@@ -37,8 +37,8 @@ MODULO: '%';
 EXPONENTIATION: '**';
 
 LOGICAL_NOT: '!';
-LOGICAL_AND: '&&';
-LOGICAL_OR: '||';
+LOGICAL_AND: 'and';
+LOGICAL_OR: 'or';
 LOGICAL_EQ: '=';
 LOGICAL_LE: '<=';
 LOGICAL_GE: '>=';
@@ -58,6 +58,7 @@ BOOLLIT: '#'[tf];
 DEFINE: 'define';
 IF:  'if';
 COND: 'cond';
+ELSE: 'else';
 
 NOT: 'not';
 SIN: 'sin';
@@ -114,12 +115,12 @@ expr: term                                                                      
     | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse CLOSE_PAREN)   #exprIf
     | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
       condcond CLOSE_PAREN condbody CLOSE_BRACKET)*
-      (OPEN_BRACKET ELSE condbody CLOSE_BRACKET) CLOSE_PAREN)                   #exprCond
+      (OPEN_BRACKET ELSE? condbody CLOSE_BRACKET) CLOSE_PAREN)                   #exprCond
     ;
 
-unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT | DISPLAY
-       | NUMBER_FN | BOOL_FN | STRING_FN | LIST_FN | ZERO_FN | NULL_FN
-       | ATOM_FN | CAR | CDR | POSITIVE_FN | NEGATIVE_FN;
+unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT | LOGICAL_AND
+       | LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN | STRING_FN | LIST_FN
+       | ZERO_FN | NULL_FN | ATOM_FN | CAR | CDR | POSITIVE_FN | NEGATIVE_FN;
 naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
         | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
         | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN;
