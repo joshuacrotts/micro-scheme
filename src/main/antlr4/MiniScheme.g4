@@ -24,6 +24,8 @@ fragment ANYCHAR_MOD: (.+?);
 
 OPEN_PAREN: '(';
 CLOSE_PAREN: ')';
+OPEN_BRACKET: '[';
+CLOSE_BRACKET: ']';
 PLUS: '+';
 MINUS: '-';
 STAR: '*';
@@ -47,9 +49,6 @@ LOGICAL_NE: '!=';
 BITWISE_SHL: '<<';
 BITWISE_SHR: '>>';
 BITWISE_NEG: '~' ;
-
-INCREMENT: '++';
-DECREMENT: '--';
 
 NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
 CHARLIT: '\'' .? '\'' ;
@@ -81,6 +80,9 @@ LIST_FN: 'list?';
 ZERO_FN: 'zero?';
 NULL_FN: 'null?';
 ATOM_FN: 'atom?';
+POSITIVE_FN: 'positive?';
+NEGATIVE_FN: 'negative?';
+MEMBER_FN: 'member?';
 
 ID: [a-zA-Z_-][a-zA-Z0-9_-]*;
 
@@ -110,15 +112,20 @@ expr: term                                                                      
        expr*)                                                                   #exprOp
     | (OPEN_PAREN term expr* CLOSE_PAREN)                                       #exprProcCall
     | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse CLOSE_PAREN)   #exprIf
+    | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
+      condcond CLOSE_PAREN condbody CLOSE_BRACKET)*
+      (OPEN_BRACKET ELSE condbody CLOSE_BRACKET) CLOSE_PAREN)                   #exprCond
     ;
 
 unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT | DISPLAY
        | NUMBER_FN | BOOL_FN | STRING_FN | LIST_FN | ZERO_FN | NULL_FN
-       | ATOM_FN | CAR | CDR;
+       | ATOM_FN | CAR | CDR | POSITIVE_FN | NEGATIVE_FN;
 naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
         | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
-        | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND;
+        | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN;
 
+condcond: expr;
+condbody: expr;
 ifcond: expr;
 ifbody: expr;
 ifelse: expr;
