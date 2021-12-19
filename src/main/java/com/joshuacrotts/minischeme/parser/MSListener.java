@@ -84,9 +84,19 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitExprIf(MiniSchemeParser.ExprIfContext ctx) {
+        super.exitExprIf(ctx);
+        MSSyntaxTree ifCondNode = this.map.get(ctx.ifcond().expr());
+        MSSyntaxTree ifBodyNode = this.map.get(ctx.ifbody().expr());
+        MSSyntaxTree ifElseNode = this.map.get(ctx.ifelse().expr());
+        this.map.put(ctx, new MSIfNode(ifCondNode, ifBodyNode, ifElseNode));
+    }
+
+    @Override
     public void exitExprOp(MiniSchemeParser.ExprOpContext ctx) {
         super.exitExprOp(ctx);
-        int symbol = ((TerminalNode) ctx.getChild(1)).getSymbol().getType();
+        int idx = ctx.getChild(0).getText().startsWith("(") ? 1 : 0;
+        int symbol = ((TerminalNode) ctx.getChild(idx)).getSymbol().getType();
         MSSyntaxTree expr = new MSOpExpression(symbol);
         for (int i = 0; i < ctx.expr().size(); i++) { expr.addChild(this.map.get(ctx.expr(i))); }
         this.map.put(ctx, expr);

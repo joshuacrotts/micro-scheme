@@ -19,15 +19,6 @@ public class MSOpExpression extends MSSyntaxTree {
         this.opType = opType;
     }
 
-    @Override
-    public MSSyntaxTree copy() {
-        MSOpExpression exp = new MSOpExpression(this.opType);
-        for (MSSyntaxTree ch : this.getChildren()) {
-            exp.addChild(ch.copy());
-        }
-        return exp;
-    }
-
     /**
      *
      * @param opType
@@ -43,14 +34,19 @@ public class MSOpExpression extends MSSyntaxTree {
     }
 
     @Override
+    public MSSyntaxTree copy() {
+        MSOpExpression exp = new MSOpExpression(this.opType);
+        for (MSSyntaxTree ch : this.getChildren()) { exp.addChild(ch.copy()); }
+        return exp;
+    }
+
+    @Override
     public String getStringRep() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("(").append(getOpTypeString(this.opType)).append(" ");
-
         for (int i = 0; i < this.getChildrenSize() - 1; i++) {
             stringBuilder.append(this.getChild(i).getStringRep()).append(" ");
         }
-
         stringBuilder.append(this.getChild(this.getChildrenSize() - 1).getStringRep()).append(")");
         return stringBuilder.toString();
     }
@@ -61,7 +57,6 @@ public class MSOpExpression extends MSSyntaxTree {
         for (int i = 0; i < this.getChildrenSize() - 1; i++) {
             sb.append(this.getChild(i).toString()).append(" ");
         }
-
         sb.append(this.getChild(this.getChildrenSize() - 1).toString()).append(")");
         return sb.toString();
     }

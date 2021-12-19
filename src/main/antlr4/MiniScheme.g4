@@ -33,12 +33,11 @@ PIPE: '|';
 CARAT: '^';
 MODULO: '%';
 EXPONENTIATION: '**';
-EQUAL: '=';
 
 LOGICAL_NOT: '!';
 LOGICAL_AND: '&&';
 LOGICAL_OR: '||';
-LOGICAL_EQ: '==';
+LOGICAL_EQ: '=';
 LOGICAL_LE: '<=';
 LOGICAL_GE: '>=';
 LOGICAL_LT: '<';
@@ -60,6 +59,7 @@ BOOLLIT: '#'[tf];
 DEFINE: 'define';
 IF:  'if';
 COND: 'cond';
+NOT: 'not';
 SIN: 'sin';
 COS: 'cos';
 TAN: 'tan';
@@ -83,20 +83,24 @@ procdecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN)
 procparams: expr*;
 procbody: expr;
 
-expr: term                                                                  #exprTerm
+expr: term                                                                      #exprTerm
     |(OPEN_PAREN
             (PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
             | SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | LOGICAL_GT
-            | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE | LOGICAL_EQ | LOGICAL_NE)
-       expr* CLOSE_PAREN)                                                   #exprOp
+            | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE | LOGICAL_EQ
+            | LOGICAL_NE | NOT)
+       expr* CLOSE_PAREN)                                                       #exprOp
     |((PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION | SIN | COS
     | TAN | ASIN | ACOS | ATAN | SQRT | LOGICAL_GT | LOGICAL_GE
-    | LOGICAL_LT | LOGICAL_LE | LOGICAL_EQ | LOGICAL_NE)
-       expr*)                                                               #exprOp
-    | (OPEN_PAREN term expr* CLOSE_PAREN)                                   #exprProcCall
-    | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse)           #exprIf
+    | LOGICAL_LT | LOGICAL_LE | LOGICAL_EQ | LOGICAL_NE | NOT)
+       expr*)                                                                   #exprOp
+    | (OPEN_PAREN term expr* CLOSE_PAREN)                                       #exprProcCall
+    | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse CLOSE_PAREN)   #exprIf
     ;
 
+//unaryop:
+//binaryop:
+/
 ifcond: expr;
 ifbody: expr;
 ifelse: expr;

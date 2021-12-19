@@ -100,6 +100,11 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretIf(MSSyntaxTree tree) {
+        LValue ifCond = this.interpretTree(tree.getChild(0));
+        if (ifCond.type == LValue.LValueType.BOOL) {
+            return ifCond.bval ? this.interpretTree(tree.getChild(1))
+                               : this.interpretTree(tree.getChild(2));
+        }
         return null;
     }
 
