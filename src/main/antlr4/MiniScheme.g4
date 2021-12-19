@@ -59,6 +59,7 @@ BOOLLIT: '#'[tf];
 DEFINE: 'define';
 IF:  'if';
 COND: 'cond';
+
 NOT: 'not';
 SIN: 'sin';
 COS: 'cos';
@@ -67,6 +68,19 @@ ASIN: 'asin';
 ACOS: 'acos';
 ATAN: 'atan';
 SQRT: 'sqrt';
+CAR: 'car';
+CDR: 'cdr';
+
+DISPLAY: 'display';
+STRING_APPEND: 'string-append';
+
+NUMBER_FN: 'number?';
+BOOL_FN: 'bool?';
+STRING_FN: 'string?';
+LIST_FN: 'list?';
+ZERO_FN: 'zero?';
+NULL_FN: 'null?';
+ATOM_FN: 'atom?';
 
 ID: [a-zA-Z_-][a-zA-Z0-9_-]*;
 
@@ -98,9 +112,13 @@ expr: term                                                                      
     | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse CLOSE_PAREN)   #exprIf
     ;
 
-//unaryop:
-//binaryop:
-/
+unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT | DISPLAY
+       | NUMBER_FN | BOOL_FN | STRING_FN | LIST_FN | ZERO_FN | NULL_FN
+       | ATOM_FN | CAR | CDR;
+naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
+        | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
+        | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND;
+
 ifcond: expr;
 ifbody: expr;
 ifelse: expr;
