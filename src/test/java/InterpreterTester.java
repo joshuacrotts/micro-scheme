@@ -259,8 +259,40 @@ public class InterpreterTester {
         goodFileTest("test016");
     }
 
-//    @Test
-//    public void doGoodTestQ() {
-//        goodFileTest("test017");
-//    }
+    @Test
+    public void doGoodTestQ() {
+        goodFileTest("test017");
+    }
+
+    // Not working yet - empty list doesn't work when being returned...
+    @Test
+    public void doGoodTestR() {
+        goodFileTest("test018");
+    }
+
+    @Test
+    public void doGoodTestS() {
+        goodFileTest("test019");
+    }
+
+    @Test
+    public void doGoodTestT() {
+        goodFileTest("test020");
+    }
+
+    @Test
+    public void doGoodTestU() {
+        goodFileTest("test021");
+    }
+
+    @Test
+    public void doGoodTestV() {
+        goodFileTest("test022");
+    }
+
+    // Not working due to same bug as R
+    @Test
+    public void doGoodTestW() {
+        goodFileTest("test023");
+    }
 }

@@ -1,0 +1,6 @@
+(define x 5)
+(define str1 "Hello")
+(equal? x 5)
+(equal? str1 "Hello")
+(equal? str1 x)
+(equal? (- 12 7) x)

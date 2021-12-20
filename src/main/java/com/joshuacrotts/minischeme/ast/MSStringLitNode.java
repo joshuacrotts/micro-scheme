@@ -22,6 +22,11 @@ public class MSStringLitNode extends MSSyntaxTree {
 
     @Override
     public String getStringRep() {
+        if (this.value.startsWith("\"")
+            && this.value.endsWith("\"")
+            && this.value.length() >= 2) {
+            return this.value.substring(1, this.value.length() - 1);
+        }
         return this.value;
     }
 

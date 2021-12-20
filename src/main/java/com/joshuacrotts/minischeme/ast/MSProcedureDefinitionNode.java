@@ -33,6 +33,10 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
         this.body = body;
     }
 
+    public MSSyntaxTree getIdentifier() {
+        return this.identifier;
+    }
+
     @Override
     public MSSyntaxTree copy() {
         // First, copy the identifier.

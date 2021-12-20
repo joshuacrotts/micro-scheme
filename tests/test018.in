@@ -1,0 +1,8 @@
+(define (countdown n)
+    // Not sure why this is causing a problem...
+    (if (= n 0) '()
+        (cons n (countdown (- n 1)))
+    )
+)
+
+(countdown 5)

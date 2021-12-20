@@ -33,11 +33,13 @@ public class MiniSchemeInterpreter {
     public void execute() {
         for (MSSyntaxTree ch : this.tree.getChildren()) {
             LValue lhs = this.interpretTree(ch);
-            switch (lhs.type) {
+            switch (lhs.getType()) {
                 case NUM:
                 case BOOL:
                 case PAIR:
+                case STR:
                     System.out.println(lhs);
+                    break;
             }
         }
     }
@@ -95,6 +97,8 @@ public class MiniSchemeInterpreter {
                     return this.interpretNumber(tree);
                 case BOOL:
                     return this.interpretBoolean(tree);
+                case STR:
+                    return this.interpretString(tree);
                 case PAIR:
                     return this.interpretPair(tree);
                 case LIST:
@@ -117,7 +121,7 @@ public class MiniSchemeInterpreter {
      * @param tree
      */
     private LValue interpretNumber(MSSyntaxTree tree) {
-        return new LValue(((MSDoubleLitNode) tree).getValue());
+        return new LValue(((MSDoubleLitNode) tree));
     }
 
     /**
@@ -125,7 +129,16 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretBoolean(MSSyntaxTree tree) {
-        return new LValue(((MSBooleanLitNode) tree).getValue());
+        return new LValue(((MSBooleanLitNode) tree));
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
+    private LValue interpretString(MSSyntaxTree tree) {
+        return new LValue((MSStringLitNode) tree);
     }
 
     /**
@@ -140,38 +153,44 @@ public class MiniSchemeInterpreter {
 
         MSSyntaxTree carNode = null;
         MSSyntaxTree cdrNode = null;
-        switch (carEval.type) {
+        switch (carEval.getType()) {
             case NUM:
-                carNode = new MSDoubleLitNode(carEval.dval);
+                carNode = new MSDoubleLitNode(carEval.getDoubleValue());
                 break;
             case BOOL:
-                carNode = new MSBooleanLitNode(carEval.bval);
+                carNode = new MSBooleanLitNode(carEval.getBoolValue());
+                break;
+            case STR:
+                carNode = new MSStringLitNode(carEval.getStringValue());
                 break;
             case PAIR:
-                carNode = carEval.tval;
+                carNode = carEval.getTreeValue();
                 break;
             case NULL:
                 break;
             default:
                 throw new UnsupportedOperationException(
-                    "Cannot make a pair out of datatype " + carEval.type + " yet.");
+                    "Cannot make a pair out of datatype " + carEval.getType() + " yet.");
         }
 
-        switch (cdrEval.type) {
+        switch (cdrEval.getType()) {
             case NUM:
-                cdrNode = new MSDoubleLitNode(cdrEval.dval);
+                cdrNode = new MSDoubleLitNode(cdrEval.getDoubleValue());
                 break;
             case BOOL:
-                cdrNode = new MSBooleanLitNode(cdrEval.bval);
+                cdrNode = new MSBooleanLitNode(cdrEval.getBoolValue());
+                break;
+            case STR:
+                cdrNode = new MSStringLitNode(cdrEval.getStringValue());
                 break;
             case PAIR:
-                cdrNode = cdrEval.tval;
+                cdrNode = cdrEval.getTreeValue();
                 break;
             case NULL:
                 break;
             default:
                 throw new UnsupportedOperationException(
-                    "Cannot make a pair out of datatype " + cdrEval.type + " yet.");
+                    "Cannot make a pair out of datatype " + cdrEval.getType() + " yet.");
         }
 
         return new LValue(new MSPairNode(MSNodeType.PAIR, carNode, cdrNode));
@@ -190,38 +209,43 @@ public class MiniSchemeInterpreter {
 
         MSSyntaxTree carNode = null;
         MSSyntaxTree cdrNode = null;
-        switch (carEval.type) {
+        switch (carEval.getType()) {
             case NUM:
-                carNode = new MSDoubleLitNode(carEval.dval);
+                carNode = new MSDoubleLitNode(carEval.getDoubleValue());
                 break;
             case BOOL:
-                carNode = new MSBooleanLitNode(carEval.bval);
+                carNode = new MSBooleanLitNode(carEval.getBoolValue());
+                break;
+            case STR:
+                carNode = new MSStringLitNode(carEval.getStringValue());
                 break;
             case PAIR:
-                carNode = carEval.tval;
+                carNode = carEval.getTreeValue();
                 break;
             case NULL:
                 break;
             default:
                 throw new UnsupportedOperationException(
-                    "Cannot make a list out of datatype " + carEval.type + " yet.");
+                    "Cannot make a list out of datatype " + carEval.getType() + " yet.");
         }
 
-        switch (cdrEval.type) {
+        switch (cdrEval.getType()) {
             case NUM:
-                cdrNode = new MSDoubleLitNode(cdrEval.dval);
+                cdrNode = new MSDoubleLitNode(cdrEval.getDoubleValue());
                 break;
             case BOOL:
-                cdrNode = new MSBooleanLitNode(cdrEval.bval);
+                cdrNode = new MSBooleanLitNode(cdrEval.getBoolValue());
                 break;
+            case STR:
+                cdrNode = new MSStringLitNode(cdrEval.getStringValue());
             case PAIR:
-                cdrNode = cdrEval.tval;
+                cdrNode = cdrEval.getTreeValue();
                 break;
             case NULL:
                 break;
             default:
                 throw new UnsupportedOperationException(
-                    "Cannot make a list out of datatype " + cdrEval.type + " yet.");
+                    "Cannot make a list out of datatype " + cdrEval.getType() + " yet.");
         }
         return new LValue(new MSPairNode(MSNodeType.LIST, carNode, cdrNode));
     }
@@ -252,8 +276,12 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretIdentifier(MSSyntaxTree tree) {
         String id = tree.getStringRep();
-        MSSyntaxTree expr = MSListener.symbolTable.getVariable(id).getExpression().getChild(1);
-        return this.interpretTree(expr);
+        if (MSListener.symbolTable.isVariable(id)) {
+            return this.interpretTree(MSListener.symbolTable.getVariable(id).getExpression().getChild(1));
+        } else {
+            MSProcedureDefinitionNode procDef = (MSProcedureDefinitionNode) MSListener.symbolTable.getProcedure(id).getProcDef();
+            return new LValue(LValueType.PROCCALL, procDef.getIdentifier());
+        }
     }
 
     /**
@@ -262,9 +290,10 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretIf(MSSyntaxTree tree) {
         LValue ifCond = this.interpretTree(tree.getChild(0));
-        if (ifCond.type == LValue.LValueType.BOOL) {
-            return ifCond.bval ? this.interpretTree(tree.getChild(1))
-                : this.interpretTree(tree.getChild(2));
+        if (ifCond.getType() == LValue.LValueType.BOOL) {
+            return ifCond.getBoolValue()
+                    ? this.interpretTree(tree.getChild(1))
+                    : this.interpretTree(tree.getChild(2));
         }
         return null;
     }
@@ -282,7 +311,7 @@ public class MiniSchemeInterpreter {
             && bodyIdx < tree.getChildrenSize()) {
             LValue condCond = this.interpretTree(tree.getChild(condIdx));
             // If the condition is true, evaluate that expression.
-            if (condCond.bval) {
+            if (condCond.getBoolValue()) {
                 execLastBlock = false;
                 break;
             } else {
@@ -307,19 +336,20 @@ public class MiniSchemeInterpreter {
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         for (int i = 0; i < procCall.getArguments().size(); i++) {
             LValue lhs = this.interpretTree(procCall.getArguments().get(i));
-            if (lhs.type == LValue.LValueType.NUM) {
-                args.add(new MSDoubleLitNode(lhs.dval));
-            } else if (lhs.type == LValue.LValueType.BOOL) {
-                args.add(new MSBooleanLitNode(lhs.bval));
-            } else if (lhs.type == LValueType.STR) {
-                args.add(new MSStringLitNode(lhs.sval));
-            } else if (lhs.type == LValueType.PAIR) {
+            if (lhs.getType() == LValue.LValueType.NUM) {
+                args.add(new MSDoubleLitNode(lhs.getDoubleValue()));
+            } else if (lhs.getType() == LValue.LValueType.BOOL) {
+                args.add(new MSBooleanLitNode(lhs.getBoolValue()));
+            } else if (lhs.getType() == LValueType.STR) {
+                args.add(new MSStringLitNode(lhs.getStringValue()));
+            } else if (lhs.getType() == LValueType.PROCCALL) {
+                args.add(lhs.getTreeValue());
+            } else if (lhs.getType() == LValueType.PAIR) {
                 // If it is null, then evaluate the null list.
-                if (lhs.tval == null) {
+                if (lhs.getTreeValue() == null) {
                     args.add(new MSPairNode());
                 } else {
-                    MSPairNode pair = (MSPairNode) lhs.tval.copy();
-                    args.add(lhs.tval.copy());
+                    args.add(lhs.getTreeValue().copy());
                 }
             }
         }
@@ -338,29 +368,35 @@ public class MiniSchemeInterpreter {
     private LValue interpretPrimitiveBinaryOp(LValue lhs, int opType, LValue rhs) {
         switch (opType) {
             case MiniSchemeParser.PLUS:
-                return new LValue(lhs.dval + rhs.dval);
+                return new LValue(lhs.getDoubleValue() + rhs.getDoubleValue());
             case MiniSchemeParser.MINUS:
-                return new LValue(lhs.dval - rhs.dval);
+                return new LValue(lhs.getDoubleValue() - rhs.getDoubleValue());
             case MiniSchemeParser.STAR:
-                return new LValue(lhs.dval * rhs.dval);
+                return new LValue(lhs.getDoubleValue() * rhs.getDoubleValue());
             case MiniSchemeParser.SLASH:
-                return new LValue(lhs.dval / rhs.dval);
+                return new LValue(lhs.getDoubleValue() / rhs.getDoubleValue());
             case MiniSchemeParser.MODULO:
-                return new LValue(lhs.dval % rhs.dval);
+                return new LValue(lhs.getDoubleValue() % rhs.getDoubleValue());
             case MiniSchemeParser.EXPONENTIATION:
-                return new LValue(Math.pow(lhs.dval, rhs.dval));
+                return new LValue(Math.pow(lhs.getDoubleValue(), rhs.getDoubleValue()));
             case MiniSchemeParser.LOGICAL_EQ:
-                return new LValue(lhs.dval == rhs.dval);
+                return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_NE:
-                return new LValue(lhs.dval != rhs.dval);
+                return new LValue(lhs.getDoubleValue() != rhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_LT:
-                return new LValue(lhs.dval < rhs.dval);
+                return new LValue(lhs.getDoubleValue() < rhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_LE:
-                return new LValue(lhs.dval <= rhs.dval);
+                return new LValue(lhs.getDoubleValue() <= rhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_GT:
-                return new LValue(lhs.dval > rhs.dval);
+                return new LValue(lhs.getDoubleValue() > rhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_GE:
-                return new LValue(lhs.dval >= rhs.dval);
+                return new LValue(lhs.getDoubleValue() >= rhs.getDoubleValue());
+            case MiniSchemeParser.STRING_APPEND:
+                return new LValue(lhs.getStringValue() + rhs.getStringValue());
+            case MiniSchemeParser.EQ_FN:
+                return this.interpretEqFn(lhs, rhs);
+            case MiniSchemeParser.EQUAL_FN:
+                return this.interpretEqualFn(lhs, rhs);
         }
 
         throw new IllegalArgumentException("ERR invalid binop type " + opType);
@@ -373,32 +409,71 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretPrimitiveUnaryOp(LValue lhs, int opType) {
         switch (opType) {
+            case MiniSchemeParser.DISPLAY:
+                System.out.println(lhs.toDisplayString());
+                return new LValue(LValueType.DISP);
             case MiniSchemeParser.SIN:
-                return new LValue(Math.sin(lhs.dval));
+                return new LValue(Math.sin(lhs.getDoubleValue()));
             case MiniSchemeParser.COS:
-                return new LValue(Math.cos(lhs.dval));
+                return new LValue(Math.cos(lhs.getDoubleValue()));
             case MiniSchemeParser.TAN:
-                return new LValue(Math.tan(lhs.dval));
+                return new LValue(Math.tan(lhs.getDoubleValue()));
             case MiniSchemeParser.ASIN:
-                return new LValue(Math.asin(lhs.dval));
+                return new LValue(Math.asin(lhs.getDoubleValue()));
             case MiniSchemeParser.ACOS:
-                return new LValue(Math.acos(lhs.dval));
+                return new LValue(Math.acos(lhs.getDoubleValue()));
             case MiniSchemeParser.ATAN:
-                return new LValue(Math.atan(lhs.dval));
+                return new LValue(Math.atan(lhs.getDoubleValue()));
             case MiniSchemeParser.SQRT:
-                return new LValue(Math.sqrt(lhs.dval));
+                return new LValue(Math.sqrt(lhs.getDoubleValue()));
             case MiniSchemeParser.NOT:
-                return new LValue(!lhs.bval);
+                return new LValue(!lhs.getBoolValue());
             case MiniSchemeParser.CAR:
-                return new LValue(((MSPairNode) lhs.tval).getCar());
+                return new LValue(((MSPairNode) lhs.getTreeValue()).getCar());
             case MiniSchemeParser.CDR:
-                return new LValue(((MSPairNode) lhs.tval).getCdr());
+                return new LValue(((MSPairNode) lhs.getTreeValue()).getCdr());
             case MiniSchemeParser.NULL_FN:
-                return new LValue(lhs.tval == null || ((MSPairNode) lhs.tval).isNull());
-            case MiniSchemeParser.ZERO_FN:
-                return new LValue(lhs.dval == 0 && lhs.type == LValueType.NUM);
+                return new LValue(lhs.getTreeValue() == null || ((MSPairNode) lhs.getTreeValue()).isNull());
+            case MiniSchemeParser.NUMBER_FN:
+                return new LValue(lhs.getType() == LValueType.NUM);
+            case MiniSchemeParser.BOOL_FN:
+                return new LValue(lhs.getType() == LValueType.BOOL);
+            case MiniSchemeParser.STRING_FN:
+                return new LValue(lhs.getType() == LValueType.STR);
         }
 
         throw new IllegalArgumentException("ERR invalid unary type " + opType);
+    }
+
+    /**
+     *
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    private LValue interpretEqualFn(LValue lhs, LValue rhs) {
+        if (lhs.getType() == rhs.getType()) {
+            switch (lhs.getType()) {
+                case NUM: return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
+                case BOOL: return new LValue(lhs.getBoolValue() == rhs.getBoolValue());
+                case STR: return new LValue(lhs.getStringValue().equals(rhs.getStringValue()));
+                case PAIR:
+                case NULL:
+                default:
+                    throw new UnsupportedOperationException("Not yet!");
+            }
+        }
+        return new LValue(false);
+    }
+
+    /**
+     *
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    private LValue interpretEqFn(LValue lhs, LValue rhs) {
+        return new LValue((lhs.getType() == rhs.getType())
+                && ((lhs == rhs) || (lhs.getDoubleValue() == rhs.getDoubleValue())));
     }
 }

@@ -2,18 +2,7 @@ package com.joshuacrotts.minischeme.parser;
 
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
-import com.joshuacrotts.minischeme.ast.MSBooleanLitNode;
-import com.joshuacrotts.minischeme.ast.MSCondNode;
-import com.joshuacrotts.minischeme.ast.MSDoubleLitNode;
-import com.joshuacrotts.minischeme.ast.MSIdentifierNode;
-import com.joshuacrotts.minischeme.ast.MSIfNode;
-import com.joshuacrotts.minischeme.ast.MSNodeType;
-import com.joshuacrotts.minischeme.ast.MSOpExpression;
-import com.joshuacrotts.minischeme.ast.MSPairNode;
-import com.joshuacrotts.minischeme.ast.MSProcedureCallNode;
-import com.joshuacrotts.minischeme.ast.MSProcedureDefinitionNode;
-import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
-import com.joshuacrotts.minischeme.ast.MSVariableNode;
+import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import java.util.ArrayList;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -168,8 +157,10 @@ public class MSListener extends MiniSchemeBaseListener {
             case MiniSchemeParser.BOOLLIT:
                 term = new MSBooleanLitNode(ctx.getText());
                 break;
-            case MiniSchemeParser.PROCID:
-            case MiniSchemeParser.VARID:
+            case MiniSchemeParser.STRINGLIT:
+                term = new MSStringLitNode(ctx.getText());
+                break;
+            case MiniSchemeParser.ID:
                 term = new MSIdentifierNode(ctx.getText());
                 break;
             default:

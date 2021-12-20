@@ -1,0 +1,11 @@
+(define x '())
+(define (proc l)
+    (cond [(null? l) '()]
+          [else '(1)]
+    )
+)
+(proc '(1 2 3 4 5))
+(proc x)
+(proc '())
+(null? '())
+(equal? '() '())

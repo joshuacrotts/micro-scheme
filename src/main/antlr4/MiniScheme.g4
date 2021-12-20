@@ -12,6 +12,7 @@ fragment LOWER_CASE_LTR: [A-Z];
 fragment ANY_CASE_LTR: [a-zA-Z];
 fragment UNDERSCORE: '_';
 fragment SINGLE_QUOTE: '\'';
+fragment QUOTCHAR: '\\' .;
 fragment DOUBLE_QUOTE: '"';
 fragment ANYCHAR: .;
 fragment NEWLINE: '\n';
@@ -37,7 +38,7 @@ MODULO: '%';
 EXPONENTIATION: '**';
 QUOTE: '\'';
 
-LOGICAL_NOT: '!';
+LOGICAL_NOT: 'not';
 LOGICAL_AND: 'and';
 LOGICAL_OR: 'or';
 LOGICAL_EQ: '=';
@@ -53,7 +54,7 @@ BITWISE_NEG: '~' ;
 
 NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
 CHARLIT: '\'' .? '\'' ;
-STRINGLIT: '"' [.]* '"';
+STRINGLIT: '"' ( QUOTCHAR | ~ ["\\] )* '"';
 BOOLLIT: '#'[tf];
 
 DEFINE: 'define';
@@ -61,7 +62,6 @@ IF:  'if';
 COND: 'cond';
 ELSE: 'else';
 
-NOT: 'not';
 SIN: 'sin';
 COS: 'cos';
 TAN: 'tan';
@@ -79,15 +79,14 @@ NUMBER_FN: 'number?';
 BOOL_FN: 'bool?';
 STRING_FN: 'string?';
 LIST_FN: 'list?';
-ZERO_FN: 'zero?';
 NULL_FN: 'null?';
 ATOM_FN: 'atom?';
-POSITIVE_FN: 'positive?';
-NEGATIVE_FN: 'negative?';
+EQ_FN: 'eq?';
+EQUAL_FN: 'equal?';
 MEMBER_FN: 'member?';
 
-PROCID: [a-zA-Z_-][a-zA-Z0-9_-]*'?'?;
-VARID: [a-zA-Z_-][a-zA-Z0-9_-]*;
+ID: [a-zA-Z_-][a-zA-Z0-9_-]*('?')?;
+// VARID: [a-zA-Z_-][a-zA-Z0-9_-]*;
 
 // ================= Parser rules. ==================== //
 
@@ -124,9 +123,10 @@ ifbody: expr;
 ifelse: expr;
 
 // All unary operators.
-unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT | LOGICAL_AND
-       | LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN | STRING_FN | LIST_FN
-       | ZERO_FN | NULL_FN | ATOM_FN | CAR | CDR | POSITIVE_FN | NEGATIVE_FN;
+unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | LOGICAL_NOT
+        | LOGICAL_AND LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN
+        | STRING_FN | LIST_FN | EQ_FN | EQUAL_FN | NULL_FN
+        | ATOM_FN | CAR | CDR;
 
 // All n-ary operators. An n-ary operator is an operator that takes at least two parameters. The
 // semantic analyzer should check to make sure the argument count is correct for binary operators.
@@ -134,4 +134,4 @@ naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
         | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
         | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN;
 
-term: NUMBERLIT | CHARLIT | STRINGLIT | BOOLLIT | VARID | PROCID;
+term: NUMBERLIT | CHARLIT | STRINGLIT | BOOLLIT | ID;
