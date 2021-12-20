@@ -20,7 +20,7 @@ public class MSUtils {
      */
     public static int randomInt(int min, int max) {
         if (min > max) {
-            throw new IllegalArgumentException(" Max must be smaller than min.");
+            throw new IllegalArgumentException("Max must be smaller than min.");
         }
 
         return ThreadLocalRandom.current().nextInt(min, max + 1);
@@ -37,9 +37,9 @@ public class MSUtils {
     }
 
     /**
-     * Determines if there is a connection to the internet (as the name implies!).
-     * Sends a connection request to google.com (which we assume is always online :D)
-     * and if it finds the connection, we return true and false otherwise.
+     * Determines if there is a connection to the internet (as the name implies!). Sends a
+     * connection request to google.com (which we assume is always online :D) and if it finds the
+     * connection, we return true and false otherwise.
      *
      * @return
      */
@@ -75,9 +75,9 @@ public class MSUtils {
      * @param <T>
      * @return
      */
+    @SafeVarargs
     public static <T> Set<T> union(Collection<T>... sets) {
         Set<T> distinct = new HashSet<T>();
-
         for (Collection<T> list : sets) {
             distinct.addAll(list);
         }
@@ -90,17 +90,6 @@ public class MSUtils {
      * @return
      */
     public static int sbCompareTo(StringBuilder _s1, StringBuilder _s2) {
-        if (_s1.length() > _s2.length()) return 1;
-        else if (_s1.length() < _s2.length()) return -1;
-        else {
-            for (int i = 0; i < _s1.length(); i++) {
-                if (_s1.charAt(i) < _s2.charAt(i))
-                    return -1;
-                else if (_s1.charAt(i) > _s2.charAt(i))
-                    return 1;
-            }
-
-            return 0;
-        }
+        return _s1.toString().compareTo(_s2.toString());
     }
 }

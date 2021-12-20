@@ -20,8 +20,8 @@ public class MSIfNode extends MSSyntaxTree {
     @Override
     public String getStringRep() {
         return "(IF " + this.getChild(0).getStringRep()
-                + " ? " + this.getChild(1).getStringRep()
-                + " : " + this.getChild(2).getStringRep() + ")";
+            + " ? " + this.getChild(1).getStringRep()
+            + " : " + this.getChild(2).getStringRep() + ")";
     }
 
     @Override

@@ -5,7 +5,7 @@ public class MSBooleanLitNode extends MSSyntaxTree {
     /**
      *
      */
-    private boolean value;
+    private final boolean value;
 
     public MSBooleanLitNode(String value) {
         super(MSNodeType.BOOL);
@@ -22,10 +22,6 @@ public class MSBooleanLitNode extends MSSyntaxTree {
         return new MSBooleanLitNode(this.value);
     }
 
-    public boolean getValue() {
-        return this.value;
-    }
-
     @Override
     public String getStringRep() {
         return Boolean.toString(value);
@@ -34,5 +30,9 @@ public class MSBooleanLitNode extends MSSyntaxTree {
     @Override
     public String toString() {
         return "(BOOL " + this.value + ")";
+    }
+
+    public boolean getValue() {
+        return this.value;
     }
 }

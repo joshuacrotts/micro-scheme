@@ -2,35 +2,42 @@ package com.joshuacrotts.minischeme.parser;
 
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
-import com.joshuacrotts.minischeme.ast.*;
+import com.joshuacrotts.minischeme.ast.MSBooleanLitNode;
+import com.joshuacrotts.minischeme.ast.MSCondNode;
+import com.joshuacrotts.minischeme.ast.MSDoubleLitNode;
+import com.joshuacrotts.minischeme.ast.MSIdentifierNode;
+import com.joshuacrotts.minischeme.ast.MSIfNode;
+import com.joshuacrotts.minischeme.ast.MSNodeType;
+import com.joshuacrotts.minischeme.ast.MSOpExpression;
+import com.joshuacrotts.minischeme.ast.MSPairNode;
+import com.joshuacrotts.minischeme.ast.MSProcedureCallNode;
+import com.joshuacrotts.minischeme.ast.MSProcedureDefinitionNode;
+import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+import com.joshuacrotts.minischeme.ast.MSVariableNode;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
+import java.util.ArrayList;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
-
-import java.util.ArrayList;
 
 public class MSListener extends MiniSchemeBaseListener {
 
     /**
      *
      */
+    public static SymbolTable symbolTable;
+    /**
+     *
+     */
     private final ParseTreeProperty<MSSyntaxTree> map;
-
     /**
      *
      */
     private final MSSyntaxTree root;
-
     /**
      *
      */
     private final MiniSchemeParser parser;
-
-    /**
-     *
-     */
-    public static SymbolTable symbolTable;
 
     public MSListener(MiniSchemeParser parser) {
         this.parser = parser;
@@ -66,7 +73,9 @@ public class MSListener extends MiniSchemeBaseListener {
         // TODO check to see if it's already defined.
         MSSyntaxTree id = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> params = new ArrayList<>();
-        for (ParseTree pt : ctx.procparams().expr()) { params.add(this.map.get(pt)); }
+        for (ParseTree pt : ctx.procparams().expr()) {
+            params.add(this.map.get(pt));
+        }
         MSSyntaxTree body = this.map.get(ctx.procbody().expr());
         MSSyntaxTree proc = new MSProcedureDefinitionNode(id, params, body);
         symbolTable.addProcedure(ctx.term().getText(), proc);
@@ -91,7 +100,8 @@ public class MSListener extends MiniSchemeBaseListener {
             prevPair = new MSPairNode(MSNodeType.LIST, rexpr, prevPair);
         }
 
-        parentPair = prevPair;
+        // If they enter the empty list, then we need to add a "blank" pair node.
+        parentPair = prevPair != null ? prevPair : new MSPairNode();
         this.map.put(ctx, parentPair);
     }
 
@@ -101,7 +111,9 @@ public class MSListener extends MiniSchemeBaseListener {
         // TODO check to see if the procedure is defined and is not a variable.
         MSSyntaxTree id = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
-        for (ParseTree pt : ctx.expr()) { args.add(this.map.get(pt)); }
+        for (ParseTree pt : ctx.expr()) {
+            args.add(this.map.get(pt));
+        }
         this.map.put(ctx, new MSProcedureCallNode(id, args));
     }
 
@@ -130,12 +142,11 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprOp(MiniSchemeParser.ExprOpContext ctx) {
         super.exitExprOp(ctx);
-        // If there's an opening parenthesis, we need to grab the second
-        // token and not the first.
-        int idx = ctx.getChild(0).getText().startsWith("(") ? 1 : 0;
-        int symbol = ((TerminalNode) ctx.getChild(idx)).getSymbol().getType();
+        int symbol = getTokenFromSymbol(ctx);
         MSSyntaxTree expr = new MSOpExpression(symbol);
-        for (int i = 0; i < ctx.expr().size(); i++) { expr.addChild(this.map.get(ctx.expr(i))); }
+        for (int i = 0; i < ctx.expr().size(); i++) {
+            expr.addChild(this.map.get(ctx.expr(i)));
+        }
         this.map.put(ctx, expr);
     }
 
@@ -157,7 +168,8 @@ public class MSListener extends MiniSchemeBaseListener {
             case MiniSchemeParser.BOOLLIT:
                 term = new MSBooleanLitNode(ctx.getText());
                 break;
-            case MiniSchemeParser.ID:
+            case MiniSchemeParser.PROCID:
+            case MiniSchemeParser.VARID:
                 term = new MSIdentifierNode(ctx.getText());
                 break;
             default:
@@ -169,5 +181,20 @@ public class MSListener extends MiniSchemeBaseListener {
 
     public MSSyntaxTree getSyntaxTree() {
         return this.root;
+    }
+
+    /**
+     * @param ctx
+     * @return
+     */
+    private static int getTokenFromSymbol(MiniSchemeParser.ExprOpContext ctx) {
+        if (ctx.unaryop() != null) {
+            return ((TerminalNode) ctx.unaryop().getChild(0)).getSymbol().getType();
+        } else if (ctx.naryop() != null) {
+            return ((TerminalNode) ctx.naryop().getChild(0)).getSymbol().getType();
+        }
+
+        throw new IllegalArgumentException("Internal interpreter error: could not find a unary or "
+            + "nary op from ExprOpContext. This should never happen...");
     }
 }

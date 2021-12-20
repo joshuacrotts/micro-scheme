@@ -1,7 +1,6 @@
 package com.joshuacrotts.minischeme.symbol;
 
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
-
 import java.util.Stack;
 
 public class Environment {
@@ -9,7 +8,7 @@ public class Environment {
     /**
      *
      */
-    private Stack<SymbolTable> environments;
+    private final Stack<SymbolTable> environments;
 
     public Environment() {
         this.environments = new Stack<>();

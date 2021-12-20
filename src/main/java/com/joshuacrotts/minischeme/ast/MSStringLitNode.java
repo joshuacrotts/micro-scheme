@@ -8,26 +8,29 @@ public class MSStringLitNode extends MSSyntaxTree {
     /**
      *
      */
-    private String value;
+    private final String value;
 
     public MSStringLitNode(String value) {
         super(MSNodeType.STR);
         this.value = value;
-        throw new UnsupportedOperationException("Unsupported");
     }
 
     @Override
     public MSSyntaxTree copy() {
-        throw new UnsupportedOperationException("Unsupported");
+        return new MSStringLitNode(this.value);
     }
 
     @Override
     public String getStringRep() {
-        throw new UnsupportedOperationException("Unsupported");
+        return this.value;
     }
 
     @Override
     public String toString() {
-        throw new UnsupportedOperationException("Unsupported");
+        return "(STR " + this.value + ")";
+    }
+
+    public String getValue() {
+        return this.value;
     }
 }

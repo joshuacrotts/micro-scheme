@@ -5,7 +5,7 @@ public abstract class Symbol {
     /**
      *
      */
-    private SymbolType type;
+    private final SymbolType type;
 
     public Symbol(SymbolType type) {
         this.type = type;

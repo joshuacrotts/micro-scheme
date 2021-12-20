@@ -3,47 +3,34 @@ package com.joshuacrotts.minischeme.ast;
 import java.util.ArrayList;
 
 /**
- * Defines a Scheme procedure definition. A Scheme procedure consists
- * of three primary components: the identifier (i.e., the name of the
- * procedure), its parameters (which may be empty), and then an expression
- * defining the body of a procedure. Note that the body expression can
- * be as complex as it ought to be since expressions are recursive.
+ * Defines a Scheme procedure definition. A Scheme procedure consists of three primary components:
+ * the identifier (i.e., the name of the procedure), its parameters (which may be empty), and then
+ * an expression defining the body of a procedure. Note that the body expression can be as complex
+ * as it ought to be since expressions are recursive.
  */
 public class MSProcedureDefinitionNode extends MSSyntaxTree {
 
     /**
      *
      */
-    private MSSyntaxTree body;
+    private final MSSyntaxTree body;
 
     /**
      *
      */
-    private ArrayList<MSSyntaxTree> parameters;
+    private final ArrayList<MSSyntaxTree> parameters;
 
     /**
      *
      */
-    private MSSyntaxTree identifier;
+    private final MSSyntaxTree identifier;
 
-    public MSProcedureDefinitionNode(MSSyntaxTree identifier, ArrayList<MSSyntaxTree> params, MSSyntaxTree body) {
+    public MSProcedureDefinitionNode(MSSyntaxTree identifier, ArrayList<MSSyntaxTree> params,
+        MSSyntaxTree body) {
         super(MSNodeType.PROCDECL);
         this.identifier = identifier;
         this.parameters = params;
         this.body = body;
-    }
-
-    /**
-     *
-     * @param idStr
-     * @return
-     */
-    public int getArgumentLoc(String idStr) {
-        for (int i = 0; i < this.parameters.size(); i++) {
-            MSIdentifierNode id = (MSIdentifierNode) this.parameters.get(i);
-            if (id.getIdentifier().equals(idStr)) { return i; }
-        }
-        return -1;
     }
 
     @Override
@@ -53,19 +40,16 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
 
         // Now copy the parameters.
         ArrayList<MSSyntaxTree> newParams = new ArrayList<>();
-        for (MSSyntaxTree oldParam : this.parameters) { newParams.add(oldParam.copy()); }
+        for (MSSyntaxTree oldParam : this.parameters) {
+            newParams.add(oldParam.copy());
+        }
 
         // Lastly, copy the body over.
         MSSyntaxTree body = this.body.copy();
         return new MSProcedureDefinitionNode(idCopy, newParams, body);
     }
 
-    public MSSyntaxTree getBody() {
-        return this.body;
-    }
-
     /**
-     *
      * @return
      */
     @Override
@@ -83,7 +67,6 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
     }
 
     /**
-     *
      * @return
      */
     @Override
@@ -99,5 +82,23 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
         sb.append(" ");
         sb.append(")");
         return sb.toString();
+    }
+
+    /**
+     * @param idStr
+     * @return
+     */
+    public int getArgumentLoc(String idStr) {
+        for (int i = 0; i < this.parameters.size(); i++) {
+            MSIdentifierNode id = (MSIdentifierNode) this.parameters.get(i);
+            if (id.getIdentifier().equals(idStr)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public MSSyntaxTree getBody() {
+        return this.body;
     }
 }

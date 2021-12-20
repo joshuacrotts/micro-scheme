@@ -1,12 +1,11 @@
 package com.joshuacrotts.minischeme.main;
 
-import java.io.IOException;
-import java.nio.file.NoSuchFileException;
-
 import com.joshuacrotts.minischeme.MiniSchemeLexer;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.parser.MSListener;
+import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -15,23 +14,30 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class MiniSchemeTester {
 
-    private static MSListener parseStream(CharStream input) {
-        // "input" is the character-by-character input - connect to lexer
-        MiniSchemeLexer lexer = new MiniSchemeLexer(input);
+    /**
+     * Command line interface -- one argument is filename, and if omitted then input is taken from
+     * standard input.
+     *
+     * @param argv command line arguments
+     */
+    public static void main(String[] argv) {
+        MSListener parser;
+        if (argv.length > 1) {
+            System.err.println("Can provide at most one command line argument (an input filename)");
+            return;
+        } else if (argv.length == 1) {
+            parser = parseFromFile(argv[0]);
+        } else {
+            parser = parseFromStdin();
+            assert parser != null;
+            MSSyntaxTree tree = parser.getSyntaxTree();
+            if (tree == null) {
+                System.exit(1);
+            }
 
-        // Connect token stream to lexer
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-        // Connect parser to token stream
-        MiniSchemeParser parser = new MiniSchemeParser(tokens);
-        ParseTree tree = parser.minischeme();
-
-        // Now do the parsing, and walk the parse tree with our listeners
-        ParseTreeWalker walker = new ParseTreeWalker();
-        MSListener compiler = new MSListener(parser);
-        walker.walk(compiler, tree);
-
-        return compiler;
+            MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter(tree);
+            interpreter.execute();
+        }
     }
 
     /**
@@ -64,27 +70,22 @@ public class MiniSchemeTester {
         return null;
     }
 
-    /**
-     * Command line interface -- one argument is filename, and if omitted then input
-     * is taken from standard input.
-     *
-     * @param argv command line arguments
-     */
-    public static void main(String[] argv) {
-        MSListener parser;
-        if (argv.length > 1) {
-            System.err.println("Can provide at most one command line argument (an input filename)");
-            return;
-        } else if (argv.length == 1) {
-            parser = parseFromFile(argv[0]);
-        } else {
-            parser = parseFromStdin();
-            assert parser != null;
-            MSSyntaxTree tree = parser.getSyntaxTree();
-            if (tree == null) { System.exit(1); }
+    private static MSListener parseStream(CharStream input) {
+        // "input" is the character-by-character input - connect to lexer
+        MiniSchemeLexer lexer = new MiniSchemeLexer(input);
 
-            MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter(tree);
-            interpreter.execute();
-        }
+        // Connect token stream to lexer
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+        // Connect parser to token stream
+        MiniSchemeParser parser = new MiniSchemeParser(tokens);
+        ParseTree tree = parser.minischeme();
+
+        // Now do the parsing, and walk the parse tree with our listeners
+        ParseTreeWalker walker = new ParseTreeWalker();
+        MSListener compiler = new MSListener(parser);
+        walker.walk(compiler, tree);
+
+        return compiler;
     }
 }

@@ -7,9 +7,9 @@ public class MSOpExpression extends MSSyntaxTree {
     /**
      *
      */
-    private int opType;
+    private final int opType;
 
-    public MSOpExpression(int opType, MSSyntaxTree ... children) {
+    public MSOpExpression(int opType, MSSyntaxTree... children) {
         super(MSNodeType.OP, children);
         this.opType = opType;
     }
@@ -19,24 +19,12 @@ public class MSOpExpression extends MSSyntaxTree {
         this.opType = opType;
     }
 
-    /**
-     *
-     * @param opType
-     * @return
-     */
-    private String getOpTypeString(int opType) {
-        String literalName = MiniSchemeParser.VOCABULARY.getLiteralName(opType);
-        return literalName.substring(1, literalName.length() - 1);
-    }
-
-    public int getOpType() {
-        return this.opType;
-    }
-
     @Override
     public MSSyntaxTree copy() {
         MSOpExpression exp = new MSOpExpression(this.opType);
-        for (MSSyntaxTree ch : this.getChildren()) { exp.addChild(ch.copy()); }
+        for (MSSyntaxTree ch : this.getChildren()) {
+            exp.addChild(ch.copy());
+        }
         return exp;
     }
 
@@ -59,5 +47,18 @@ public class MSOpExpression extends MSSyntaxTree {
         }
         sb.append(this.getChild(this.getChildrenSize() - 1).toString()).append(")");
         return sb.toString();
+    }
+
+    public int getOpType() {
+        return this.opType;
+    }
+
+    /**
+     * @param opType
+     * @return
+     */
+    private String getOpTypeString(int opType) {
+        String literalName = MiniSchemeParser.VOCABULARY.getLiteralName(opType);
+        return literalName.substring(1, literalName.length() - 1);
     }
 }

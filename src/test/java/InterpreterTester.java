@@ -224,10 +224,10 @@ public class InterpreterTester {
         goodFileTest("test009");
     }
 
-//    @Test
-//    public void doGoodTestJ() {
-//        goodFileTest("test010");
-//    }
+    @Test
+    public void doGoodTestJ() {
+        goodFileTest("test010");
+    }
 
     @Test
     public void doGoodTestK() {
@@ -237,5 +237,20 @@ public class InterpreterTester {
     @Test
     public void doGoodTestL() {
         goodFileTest("test012");
+    }
+
+    @Test
+    public void doGoodTestM() {
+        goodFileTest("test013");
+    }
+
+    @Test
+    public void doGoodTestN() {
+        goodFileTest("test014");
+    }
+
+    @Test
+    public void doGoodTestO() {
+        goodFileTest("test015");
     }
 }

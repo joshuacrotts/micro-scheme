@@ -1,12 +1,11 @@
 package com.joshuacrotts.minischeme.symbol;
 
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
-
 import java.util.HashMap;
 
 public class SymbolTable {
 
-    private HashMap<String, Symbol> table;
+    private final HashMap<String, Symbol> table;
 
     public SymbolTable() {
         this.table = new HashMap<>();
@@ -33,10 +32,12 @@ public class SymbolTable {
     }
 
     public boolean isVariable(String identifier) {
-        return this.hasSymbol(identifier) && this.table.get(identifier).getType() == SymbolType.SYMBOL_VAR;
+        return this.hasSymbol(identifier)
+            && this.table.get(identifier).getType() == SymbolType.SYMBOL_VAR;
     }
 
     public boolean isProcedure(String identifier) {
-        return this.hasSymbol(identifier) && this.table.get(identifier).getType() == SymbolType.SYMBOL_PROC;
+        return this.hasSymbol(identifier)
+            && this.table.get(identifier).getType() == SymbolType.SYMBOL_PROC;
     }
 }

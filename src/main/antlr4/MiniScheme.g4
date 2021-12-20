@@ -75,7 +75,6 @@ CONS: 'cons';
 
 DISPLAY: 'display';
 STRING_APPEND: 'string-append';
-
 NUMBER_FN: 'number?';
 BOOL_FN: 'bool?';
 STRING_FN: 'string?';
@@ -87,57 +86,52 @@ POSITIVE_FN: 'positive?';
 NEGATIVE_FN: 'negative?';
 MEMBER_FN: 'member?';
 
-ID: [a-zA-Z_-][a-zA-Z0-9_-]*;
+PROCID: [a-zA-Z_-][a-zA-Z0-9_-]*'?'?;
+VARID: [a-zA-Z_-][a-zA-Z0-9_-]*;
 
 // ================= Parser rules. ==================== //
+
+// This is the root rule applied.
 minischeme: (vardecl | procdecl | expr)* EOF;
 
-vardecl: OPEN_PAREN DEFINE term expr CLOSE_PAREN
-       ;
+// Variable declaration. Takes the form (define var <expr>)
+vardecl: OPEN_PAREN DEFINE term expr CLOSE_PAREN;
 
-procdecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN)
-                    procbody CLOSE_PAREN)
-        ;
-
+// Procedure declaration. Takes the form (define (proc <params ...>) (<expr>))
+procdecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN) procbody CLOSE_PAREN);
 procparams: expr*;
 procbody: expr;
 
+// Defines an expression. An expression is either a term, "cons", an operator, a list construction,
+// a procedure call, an if expression, or a cond expression.
 expr: term                                                                      #exprTerm
     | (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                   #exprCons
-    | (OPEN_PAREN (PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
-                           | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
-                           | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
-                           | SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT
-                           | LOGICAL_AND | LOGICAL_OR | DISPLAY | NUMBER_FN
-                           | BOOL_FN | STRING_FN | LIST_FN | ZERO_FN | NULL_FN
-                           | ATOM_FN | CAR | CDR
-                           | POSITIVE_FN | NEGATIVE_FN) expr* CLOSE_PAREN)      #exprOp
-    | ((PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
-                | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
-                | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
-                | SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT
-                | LOGICAL_AND | LOGICAL_OR | DISPLAY | NUMBER_FN
-                | BOOL_FN | STRING_FN | LIST_FN | ZERO_FN | NULL_FN
-                | ATOM_FN | CAR | CDR | POSITIVE_FN | NEGATIVE_FN) expr*)       #exprOp
+    | (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)                         #exprOp
+    | ((unaryop | naryop) expr*)                                                #exprOp
     | (QUOTE OPEN_PAREN expr* CLOSE_PAREN)                                      #exprList
     | (OPEN_PAREN term expr* CLOSE_PAREN)                                       #exprProcCall
     | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse CLOSE_PAREN)   #exprIf
     | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
-      condcond CLOSE_PAREN condbody CLOSE_BRACKET)*
-      (OPEN_BRACKET ELSE? condbody CLOSE_BRACKET) CLOSE_PAREN)                  #exprCond
+        condcond CLOSE_PAREN condbody CLOSE_BRACKET)*
+        (OPEN_BRACKET ELSE? condbody CLOSE_BRACKET) CLOSE_PAREN)                #exprCond
     ;
 
-unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT | LOGICAL_AND
-       | LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN | STRING_FN | LIST_FN
-       | ZERO_FN | NULL_FN | ATOM_FN | CAR | CDR | POSITIVE_FN | NEGATIVE_FN;
-naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
-        | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
-        | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN;
-
+// Separates the "expressions" for a cond or if expression to make it clearer in the parser.
 condcond: expr;
 condbody: expr;
 ifcond: expr;
 ifbody: expr;
 ifelse: expr;
 
-term: NUMBERLIT | CHARLIT | STRINGLIT | BOOLLIT | ID;
+// All unary operators.
+unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT | LOGICAL_AND
+       | LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN | STRING_FN | LIST_FN
+       | ZERO_FN | NULL_FN | ATOM_FN | CAR | CDR | POSITIVE_FN | NEGATIVE_FN;
+
+// All n-ary operators. An n-ary operator is an operator that takes at least two parameters. The
+// semantic analyzer should check to make sure the argument count is correct for binary operators.
+naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
+        | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
+        | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN;
+
+term: NUMBERLIT | CHARLIT | STRINGLIT | BOOLLIT | VARID | PROCID;

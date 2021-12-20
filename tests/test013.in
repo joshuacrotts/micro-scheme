@@ -1,0 +1,8 @@
+(define (my-is-null l)
+  (if (null? l)
+    #t
+    #f
+  )
+)
+
+(my-is-null '(1 2 3 4))

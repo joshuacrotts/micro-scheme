@@ -1,0 +1,11 @@
+(define (map-add l)
+	(cond [(null? l) '()]
+		  [else (cons (add1 (car l)) (map-add (cdr l)))]
+	)
+)
+
+(define (add1 x)
+	(+ x 1)
+)
+
+(map-add '(1 2 3 4 5))

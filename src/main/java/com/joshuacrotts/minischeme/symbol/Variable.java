@@ -7,7 +7,7 @@ public class Variable extends Symbol {
     /**
      *
      */
-    private MSSyntaxTree expr;
+    private final MSSyntaxTree expr;
 
     public Variable(MSSyntaxTree expression) {
         super(SymbolType.SYMBOL_VAR);

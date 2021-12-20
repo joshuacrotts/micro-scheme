@@ -8,7 +8,7 @@ public class MSDoubleLitNode extends MSSyntaxTree {
     /**
      *
      */
-    private double value;
+    private final double value;
 
     public MSDoubleLitNode(String value) {
         this(Double.parseDouble(value));
@@ -24,19 +24,19 @@ public class MSDoubleLitNode extends MSSyntaxTree {
         return new MSDoubleLitNode(this.value);
     }
 
-    public double getValue() {
-        return this.value;
-    }
-
     @Override
     public String getStringRep() {
         return ((int) this.value) == this.value
-                    ? Integer.toString((int) this.value)
-                    : Double.toString(this.value);
+            ? Integer.toString((int) this.value)
+            : Double.toString(this.value);
     }
 
     @Override
     public String toString() {
         return "(DOUBLE " + this.getStringRep() + ")";
+    }
+
+    public double getValue() {
+        return this.value;
     }
 }

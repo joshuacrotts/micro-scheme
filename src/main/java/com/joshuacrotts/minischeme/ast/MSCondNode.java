@@ -20,7 +20,7 @@ public class MSCondNode extends MSSyntaxTree {
     private boolean hasElse;
 
     public MSCondNode(ArrayList<MSSyntaxTree> condCond,
-                      ArrayList<MSSyntaxTree> condBody) {
+        ArrayList<MSSyntaxTree> condBody) {
         super(MSNodeType.COND);
         for (int i = 0; i < condCond.size(); i++) {
             this.addChild(condCond.get(i));
@@ -37,8 +37,8 @@ public class MSCondNode extends MSSyntaxTree {
     }
 
     private MSCondNode(ArrayList<MSSyntaxTree> condCond,
-                       ArrayList<MSSyntaxTree> condBody,
-                       boolean hasElse) {
+        ArrayList<MSSyntaxTree> condBody,
+        boolean hasElse) {
         this(condCond, condBody);
         this.hasElse = hasElse;
     }
@@ -47,15 +47,17 @@ public class MSCondNode extends MSSyntaxTree {
     public MSSyntaxTree copy() {
         ArrayList<MSSyntaxTree> condCondCopy = new ArrayList<>();
         ArrayList<MSSyntaxTree> condBodyCopy = new ArrayList<>();
-        for (int i = 0; i < this.condCondCount; i += 2) { condCondCopy.add(this.getChild(i).copy()); }
-        for (int i = 1; i < this.condBodyCount; i += 2) { condBodyCopy.add(this.getChild(i)); }
-        if (this.hasElse) { condBodyCopy.add(this.getChild(this.getChildrenSize() - 1).copy()); }
+        for (int i = 0; i < this.condCondCount; i += 2) {
+            condCondCopy.add(this.getChild(i).copy());
+        }
+        for (int i = 1; i < this.condBodyCount; i += 2) {
+            condBodyCopy.add(this.getChild(i));
+        }
+        if (this.hasElse) {
+            condBodyCopy.add(this.getChild(this.getChildrenSize() - 1).copy());
+        }
 
         return new MSCondNode(condCondCopy, condBodyCopy, this.hasElse);
-    }
-
-    public boolean hasElse() {
-        return this.hasElse;
     }
 
     @Override
@@ -82,6 +84,10 @@ public class MSCondNode extends MSSyntaxTree {
 
         sb.append(")");
         return sb.toString();
+    }
+
+    public boolean hasElse() {
+        return this.hasElse;
     }
 }
 

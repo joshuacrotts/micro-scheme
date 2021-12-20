@@ -3,9 +3,8 @@ package com.joshuacrotts.minischeme.ast;
 import java.util.ArrayList;
 
 /**
- * Defines a call to a Scheme procedure. A procedure is defined via
- * (define (proc param1 param2...) (expr)). The children of a
- * MSProcedureCall node are the identifier (i.e., the procedure being
+ * Defines a call to a Scheme procedure. A procedure is defined via (define (proc param1 param2...)
+ * (expr)). The children of a MSProcedureCall node are the identifier (i.e., the procedure being
  * called) and its arguments.
  */
 public class MSProcedureCallNode extends MSSyntaxTree {
@@ -21,18 +20,10 @@ public class MSProcedureCallNode extends MSSyntaxTree {
         // Just copy the identifier and the children over.
         MSSyntaxTree identifierCopy = this.getChild(0).copy();
         ArrayList<MSSyntaxTree> argsCopy = new ArrayList<>();
-        for (int i = 1; i < this.getChildrenSize(); i++) { argsCopy.add(this.getChild(i).copy()); }
+        for (int i = 1; i < this.getChildrenSize(); i++) {
+            argsCopy.add(this.getChild(i).copy());
+        }
         return new MSProcedureCallNode(identifierCopy, argsCopy);
-    }
-
-    public MSSyntaxTree getIdentifier() {
-        return this.getChild(0);
-    }
-
-    public ArrayList<MSSyntaxTree> getArguments() {
-        ArrayList<MSSyntaxTree> args = new ArrayList<>();
-        for (int i = 1; i < this.getChildrenSize(); i++) { args.add(this.getChild(i)); }
-        return args;
     }
 
     @Override
@@ -56,5 +47,17 @@ public class MSProcedureCallNode extends MSSyntaxTree {
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    public MSSyntaxTree getIdentifier() {
+        return this.getChild(0);
+    }
+
+    public ArrayList<MSSyntaxTree> getArguments() {
+        ArrayList<MSSyntaxTree> args = new ArrayList<>();
+        for (int i = 1; i < this.getChildrenSize(); i++) {
+            args.add(this.getChild(i));
+        }
+        return args;
     }
 }

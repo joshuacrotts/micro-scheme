@@ -1,7 +1,6 @@
 package com.joshuacrotts.minischeme.ast;
 
 import com.joshuacrotts.minischeme.main.MSUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -10,12 +9,12 @@ public class MSSyntaxTree implements Copyable {
     /**
      *
      */
-    private ArrayList<MSSyntaxTree> children;
+    private final ArrayList<MSSyntaxTree> children;
 
     /**
      *
      */
-    private MSNodeType nodeType;
+    private final MSNodeType nodeType;
 
     public MSSyntaxTree() {
         this(MSNodeType.ROOT);
@@ -26,7 +25,7 @@ public class MSSyntaxTree implements Copyable {
         this.nodeType = nodeType;
     }
 
-    public MSSyntaxTree(MSNodeType nodeType, MSSyntaxTree ... children) {
+    public MSSyntaxTree(MSNodeType nodeType, MSSyntaxTree... children) {
         this.children = new ArrayList<>();
         this.nodeType = nodeType;
         this.children.addAll(Arrays.asList(children));
@@ -39,13 +38,9 @@ public class MSSyntaxTree implements Copyable {
         return t;
     }
 
-    /**
-     *
-     * @param root
-     * @param newTree
-     */
-    private void copyHelper(MSSyntaxTree root, MSSyntaxTree newTree) {
-        for (MSSyntaxTree child : root.getChildren()) { newTree.addChild(child.copy()); }
+    @Override
+    public String toString() {
+        return "ROOT";
     }
 
     /**
@@ -55,10 +50,54 @@ public class MSSyntaxTree implements Copyable {
         System.out.println(this.printSyntaxTreeHelper(0));
     }
 
+    public void addChild(MSSyntaxTree tree) {
+        this.children.add(tree);
+    }
+
+    public int getChildrenSize() {
+        return this.children.size();
+    }
+
+    public ArrayList<MSSyntaxTree> getChildren() {
+        return this.children;
+    }
+
+    public MSSyntaxTree getChild(int idx) {
+        return this.children.get(idx);
+    }
+
+    public void setChild(int idx, MSSyntaxTree tree) {
+        this.children.set(idx, tree);
+    }
+
+    public MSNodeType getNodeType() {
+        return this.nodeType;
+    }
+
+    public String getStringRep() {
+        StringBuilder sb = new StringBuilder();
+        for (MSSyntaxTree child : this.getChildren()) {
+            if (child != null) {
+                sb.append(child.getStringRep());
+            }
+        }
+        return sb.toString();
+    }
+
     /**
-     * Recursive function to print a syntax tree. The current depth is passed
-     * as the "indent" parameter so that the output looks properly nested.
-     * Each recursive call for a child is indented by two additional spaces.
+     * @param root
+     * @param newTree
+     */
+    private void copyHelper(MSSyntaxTree root, MSSyntaxTree newTree) {
+        for (MSSyntaxTree child : root.getChildren()) {
+            newTree.addChild(child.copy());
+        }
+    }
+
+    /**
+     * Recursive function to print a syntax tree. The current depth is passed as the "indent"
+     * parameter so that the output looks properly nested. Each recursive call for a child is
+     * indented by two additional spaces.
      *
      * @param indent current indentation level
      * @return a string representation of this syntax tree node (and its descendants)
@@ -83,40 +122,5 @@ public class MSSyntaxTree implements Copyable {
         }
 
         return sb;
-    }
-
-    public void addChild(MSSyntaxTree tree) {
-        this.children.add(tree);
-    }
-
-    public int getChildrenSize() {
-        return this.children.size();
-    }
-
-    public ArrayList<MSSyntaxTree> getChildren() {
-        return this.children;
-    }
-
-    public MSSyntaxTree getChild(int idx) { return this.children.get(idx); }
-
-    public void setChild(int idx, MSSyntaxTree tree) { this.children.set(idx, tree); }
-
-    public MSNodeType getNodeType() {
-        return this.nodeType;
-    }
-
-    public String getStringRep() {
-        StringBuilder sb = new StringBuilder();
-        for (MSSyntaxTree child : this.getChildren()) {
-            if (child != null) {
-                sb.append(child.getStringRep());
-            }
-        }
-        return sb.toString();
-    }
-
-    @Override
-    public String toString() {
-        return "ROOT";
     }
 }
