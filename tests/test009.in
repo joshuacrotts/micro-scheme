@@ -1,0 +1,2 @@
+(define x 0)
+(zero? x)

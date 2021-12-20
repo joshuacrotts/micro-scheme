@@ -8,13 +8,13 @@ package com.joshuacrotts.minischeme.ast;
 public class MSVariableNode extends MSSyntaxTree {
 
     public MSVariableNode(MSSyntaxTree identifier, MSSyntaxTree expr) {
-        super(MSNodeType.MS_VAR);
+        super(MSNodeType.VAR);
         this.addChild(identifier);
         this.addChild(expr);
     }
 
     private MSVariableNode() {
-        super(MSNodeType.MS_VAR);
+        super(MSNodeType.VAR);
     }
 
     @Override

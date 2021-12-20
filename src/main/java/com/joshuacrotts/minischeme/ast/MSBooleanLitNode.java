@@ -8,12 +8,12 @@ public class MSBooleanLitNode extends MSSyntaxTree {
     private boolean value;
 
     public MSBooleanLitNode(String value) {
-        super(MSNodeType.MS_BOOL);
+        super(MSNodeType.BOOL);
         this.value = value.equals("#t");
     }
 
     public MSBooleanLitNode(boolean value) {
-        super(MSNodeType.MS_BOOL);
+        super(MSNodeType.BOOL);
         this.value = value;
     }
 

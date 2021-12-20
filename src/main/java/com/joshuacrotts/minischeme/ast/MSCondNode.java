@@ -21,7 +21,7 @@ public class MSCondNode extends MSSyntaxTree {
 
     public MSCondNode(ArrayList<MSSyntaxTree> condCond,
                       ArrayList<MSSyntaxTree> condBody) {
-        super(MSNodeType.MS_COND);
+        super(MSNodeType.COND);
         for (int i = 0; i < condCond.size(); i++) {
             this.addChild(condCond.get(i));
             this.addChild(condBody.get(i));

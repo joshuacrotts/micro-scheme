@@ -35,6 +35,7 @@ PIPE: '|';
 CARAT: '^';
 MODULO: '%';
 EXPONENTIATION: '**';
+QUOTE: '\'';
 
 LOGICAL_NOT: '!';
 LOGICAL_AND: 'and';
@@ -70,6 +71,7 @@ ATAN: 'atan';
 SQRT: 'sqrt';
 CAR: 'car';
 CDR: 'cdr';
+CONS: 'cons';
 
 DISPLAY: 'display';
 STRING_APPEND: 'string-append';
@@ -101,21 +103,28 @@ procparams: expr*;
 procbody: expr;
 
 expr: term                                                                      #exprTerm
-    |(OPEN_PAREN
-            (PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
-            | SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | LOGICAL_GT
-            | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE | LOGICAL_EQ
-            | LOGICAL_NE | NOT)
-       expr* CLOSE_PAREN)                                                       #exprOp
-    |((PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION | SIN | COS
-    | TAN | ASIN | ACOS | ATAN | SQRT | LOGICAL_GT | LOGICAL_GE
-    | LOGICAL_LT | LOGICAL_LE | LOGICAL_EQ | LOGICAL_NE | NOT)
-       expr*)                                                                   #exprOp
+    | (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                   #exprCons
+    | (OPEN_PAREN (PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
+                           | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
+                           | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
+                           | SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT
+                           | LOGICAL_AND | LOGICAL_OR | DISPLAY | NUMBER_FN
+                           | BOOL_FN | STRING_FN | LIST_FN | ZERO_FN | NULL_FN
+                           | ATOM_FN | CAR | CDR
+                           | POSITIVE_FN | NEGATIVE_FN) expr* CLOSE_PAREN)      #exprOp
+    | ((PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
+                | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
+                | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
+                | SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT
+                | LOGICAL_AND | LOGICAL_OR | DISPLAY | NUMBER_FN
+                | BOOL_FN | STRING_FN | LIST_FN | ZERO_FN | NULL_FN
+                | ATOM_FN | CAR | CDR | POSITIVE_FN | NEGATIVE_FN) expr*)       #exprOp
+    | (QUOTE OPEN_PAREN expr* CLOSE_PAREN)                                      #exprList
     | (OPEN_PAREN term expr* CLOSE_PAREN)                                       #exprProcCall
     | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse CLOSE_PAREN)   #exprIf
     | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
       condcond CLOSE_PAREN condbody CLOSE_BRACKET)*
-      (OPEN_BRACKET ELSE? condbody CLOSE_BRACKET) CLOSE_PAREN)                   #exprCond
+      (OPEN_BRACKET ELSE? condbody CLOSE_BRACKET) CLOSE_PAREN)                  #exprCond
     ;
 
 unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | NOT | LOGICAL_AND

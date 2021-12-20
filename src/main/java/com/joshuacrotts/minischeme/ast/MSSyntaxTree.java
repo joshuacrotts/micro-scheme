@@ -18,7 +18,7 @@ public class MSSyntaxTree implements Copyable {
     private MSNodeType nodeType;
 
     public MSSyntaxTree() {
-        this(MSNodeType.MS_ROOT);
+        this(MSNodeType.ROOT);
     }
 
     public MSSyntaxTree(MSNodeType nodeType) {

@@ -11,7 +11,7 @@ public class MSStringLitNode extends MSSyntaxTree {
     private String value;
 
     public MSStringLitNode(String value) {
-        super(MSNodeType.MS_STR);
+        super(MSNodeType.STR);
         this.value = value;
         throw new UnsupportedOperationException("Unsupported");
     }

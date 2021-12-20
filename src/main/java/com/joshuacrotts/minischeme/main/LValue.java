@@ -1,5 +1,11 @@
 package com.joshuacrotts.minischeme.main;
 
+import com.joshuacrotts.minischeme.ast.MSBooleanLitNode;
+import com.joshuacrotts.minischeme.ast.MSDoubleLitNode;
+import com.joshuacrotts.minischeme.ast.MSNodeType;
+import com.joshuacrotts.minischeme.ast.MSPairNode;
+import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+
 /**
  *
  */
@@ -20,6 +26,11 @@ public class LValue {
      */
     protected boolean bval;
 
+    /**
+     *
+     */
+    protected MSSyntaxTree tval;
+
     protected LValue(LValueType type) {
         this.type = type;
     }
@@ -34,6 +45,19 @@ public class LValue {
         this.bval = bval;
     }
 
+    protected LValue(MSSyntaxTree tval) {
+        if (tval instanceof MSDoubleLitNode) {
+            this.type = LValueType.NUM;
+            this.dval = ((MSDoubleLitNode) tval).getValue();
+        } else if (tval instanceof MSBooleanLitNode) {
+            this.type = LValueType.BOOL;
+            this.bval = ((MSBooleanLitNode) tval).getValue();
+        } else {
+            this.type = LValueType.PAIR;
+            this.tval = tval;
+        }
+    }
+
     protected LValue() {
         this(LValueType.NULL);
     }
@@ -42,7 +66,7 @@ public class LValue {
      *
      */
     protected enum LValueType {
-        NUM, BOOL, STR, DEF, NULL
+        NUM, BOOL, PAIR, STR, DEF, NULL
     }
 
     @Override
@@ -54,6 +78,8 @@ public class LValue {
                         : Double.toString(this.dval);
             case BOOL:
                 return this.bval ? "#t" : "#f";
+            case PAIR:
+                return ((MSPairNode) this.tval).getStringRep();
         }
         return "";
     }

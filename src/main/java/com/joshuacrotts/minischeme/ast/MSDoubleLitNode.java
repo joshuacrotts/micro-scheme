@@ -15,7 +15,7 @@ public class MSDoubleLitNode extends MSSyntaxTree {
     }
 
     public MSDoubleLitNode(double value) {
-        super(MSNodeType.MS_NUM);
+        super(MSNodeType.NUM);
         this.value = value;
     }
 
@@ -30,11 +30,13 @@ public class MSDoubleLitNode extends MSSyntaxTree {
 
     @Override
     public String getStringRep() {
-        return Double.toString(value);
+        return ((int) this.value) == this.value
+                    ? Integer.toString((int) this.value)
+                    : Double.toString(this.value);
     }
 
     @Override
     public String toString() {
-        return "(DOUBLE " + this.value + ")";
+        return "(DOUBLE " + this.getStringRep() + ")";
     }
 }

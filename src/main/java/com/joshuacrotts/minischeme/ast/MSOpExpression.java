@@ -10,12 +10,12 @@ public class MSOpExpression extends MSSyntaxTree {
     private int opType;
 
     public MSOpExpression(int opType, MSSyntaxTree ... children) {
-        super(MSNodeType.MS_OP, children);
+        super(MSNodeType.OP, children);
         this.opType = opType;
     }
 
     private MSOpExpression(int opType) {
-        super(MSNodeType.MS_OP);
+        super(MSNodeType.OP);
         this.opType = opType;
     }
 

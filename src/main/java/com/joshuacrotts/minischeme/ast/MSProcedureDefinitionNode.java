@@ -27,7 +27,7 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
     private MSSyntaxTree identifier;
 
     public MSProcedureDefinitionNode(MSSyntaxTree identifier, ArrayList<MSSyntaxTree> params, MSSyntaxTree body) {
-        super(MSNodeType.MS_PROCDECL);
+        super(MSNodeType.PROCDECL);
         this.identifier = identifier;
         this.parameters = params;
         this.body = body;

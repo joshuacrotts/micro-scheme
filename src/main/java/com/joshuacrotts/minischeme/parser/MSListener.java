@@ -74,6 +74,28 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitExprCons(MiniSchemeParser.ExprConsContext ctx) {
+        super.exitExprCons(ctx);
+        MSSyntaxTree lhsExpr = this.map.get(ctx.expr(0));
+        MSSyntaxTree rhsExpr = this.map.get(ctx.expr(1));
+        this.map.put(ctx, new MSPairNode(MSNodeType.PAIR, lhsExpr, rhsExpr));
+    }
+
+    @Override
+    public void exitExprList(MiniSchemeParser.ExprListContext ctx) {
+        super.exitExprList(ctx);
+        MSPairNode parentPair = null;
+        MSPairNode prevPair = null;
+        for (int i = ctx.expr().size() - 1; i >= 0; i--) {
+            MSSyntaxTree rexpr = this.map.get(ctx.expr(i));
+            prevPair = new MSPairNode(MSNodeType.LIST, rexpr, prevPair);
+        }
+
+        parentPair = prevPair;
+        this.map.put(ctx, parentPair);
+    }
+
+    @Override
     public void exitExprProcCall(MiniSchemeParser.ExprProcCallContext ctx) {
         super.exitExprProcCall(ctx);
         // TODO check to see if the procedure is defined and is not a variable.
@@ -97,12 +119,10 @@ public class MSListener extends MiniSchemeBaseListener {
         super.exitExprCond(ctx);
         ArrayList<MSSyntaxTree> condCondList = new ArrayList<>();
         ArrayList<MSSyntaxTree> condBodyList = new ArrayList<>();
-
         for (int i = 0; i < ctx.condcond().size(); i++) {
             condCondList.add(this.map.get(ctx.condcond().get(i).expr()));
             condBodyList.add(this.map.get(ctx.condbody().get(i).expr()));
         }
-
         condBodyList.add(this.map.get(ctx.condbody().get(ctx.condbody().size() - 1).expr()));
         this.map.put(ctx, new MSCondNode(condCondList, condBodyList));
     }

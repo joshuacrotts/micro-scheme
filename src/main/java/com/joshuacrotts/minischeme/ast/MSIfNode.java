@@ -3,7 +3,7 @@ package com.joshuacrotts.minischeme.ast;
 public class MSIfNode extends MSSyntaxTree {
 
     public MSIfNode(MSSyntaxTree ifCond, MSSyntaxTree ifBody, MSSyntaxTree ifElse) {
-        super(MSNodeType.MS_IF);
+        super(MSNodeType.IF);
         this.addChild(ifCond);
         this.addChild(ifBody);
         this.addChild(ifElse);
