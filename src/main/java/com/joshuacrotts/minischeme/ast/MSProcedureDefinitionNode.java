@@ -33,10 +33,6 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
         this.body = body;
     }
 
-    public MSSyntaxTree getIdentifier() {
-        return this.identifier;
-    }
-
     @Override
     public MSSyntaxTree copy() {
         // First, copy the identifier.
@@ -76,7 +72,7 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("(PROCDECL " + this.identifier);
+        sb.append("(PROCDECL ").append(this.identifier);
         for (MSSyntaxTree params : this.parameters) {
             sb.append("(PARAM " + params.toString());
             sb.append(") ");
@@ -86,6 +82,10 @@ public class MSProcedureDefinitionNode extends MSSyntaxTree {
         sb.append(" ");
         sb.append(")");
         return sb.toString();
+    }
+
+    public MSSyntaxTree getIdentifier() {
+        return this.identifier;
     }
 
     /**

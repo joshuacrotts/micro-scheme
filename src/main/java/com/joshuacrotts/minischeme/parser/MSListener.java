@@ -2,7 +2,19 @@ package com.joshuacrotts.minischeme.parser;
 
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
-import com.joshuacrotts.minischeme.ast.*;
+import com.joshuacrotts.minischeme.ast.MSBooleanNode;
+import com.joshuacrotts.minischeme.ast.MSCondNode;
+import com.joshuacrotts.minischeme.ast.MSNumberNode;
+import com.joshuacrotts.minischeme.ast.MSIdentifierNode;
+import com.joshuacrotts.minischeme.ast.MSIfNode;
+import com.joshuacrotts.minischeme.ast.MSNodeType;
+import com.joshuacrotts.minischeme.ast.MSOpExpression;
+import com.joshuacrotts.minischeme.ast.MSPairNode;
+import com.joshuacrotts.minischeme.ast.MSProcedureCallNode;
+import com.joshuacrotts.minischeme.ast.MSProcedureDefinitionNode;
+import com.joshuacrotts.minischeme.ast.MSStringNode;
+import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+import com.joshuacrotts.minischeme.ast.MSVariableNode;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import java.util.ArrayList;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -152,13 +164,13 @@ public class MSListener extends MiniSchemeBaseListener {
         int tokType = ((TerminalNode) ctx.getChild(0)).getSymbol().getType();
         switch (tokType) {
             case MiniSchemeParser.NUMBERLIT:
-                term = new MSDoubleLitNode(ctx.getText());
+                term = new MSNumberNode(ctx.getText());
                 break;
             case MiniSchemeParser.BOOLLIT:
-                term = new MSBooleanLitNode(ctx.getText());
+                term = new MSBooleanNode(ctx.getText());
                 break;
             case MiniSchemeParser.STRINGLIT:
-                term = new MSStringLitNode(ctx.getText());
+                term = new MSStringNode(ctx.getText());
                 break;
             case MiniSchemeParser.ID:
                 term = new MSIdentifierNode(ctx.getText());
@@ -168,10 +180,6 @@ public class MSListener extends MiniSchemeBaseListener {
         }
 
         this.map.put(ctx, term);
-    }
-
-    public MSSyntaxTree getSyntaxTree() {
-        return this.root;
     }
 
     /**
@@ -186,6 +194,10 @@ public class MSListener extends MiniSchemeBaseListener {
         }
 
         throw new IllegalArgumentException("Internal interpreter error: could not find a unary or "
-            + "nary op from ExprOpContext. This should never happen...");
+                                               + "nary op from ExprOpContext. This should never happen...");
+    }
+
+    public MSSyntaxTree getSyntaxTree() {
+        return this.root;
     }
 }

@@ -1,25 +1,25 @@
 package com.joshuacrotts.minischeme.ast;
 
-public class MSBooleanLitNode extends MSSyntaxTree {
+public class MSBooleanNode extends MSSyntaxTree {
 
     /**
      *
      */
     private final boolean value;
 
-    public MSBooleanLitNode(String value) {
+    public MSBooleanNode(String value) {
         super(MSNodeType.BOOL);
         this.value = value.equals("#t");
     }
 
-    public MSBooleanLitNode(boolean value) {
+    public MSBooleanNode(boolean value) {
         super(MSNodeType.BOOL);
         this.value = value;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSBooleanLitNode(this.value);
+        return new MSBooleanNode(this.value);
     }
 
     @Override

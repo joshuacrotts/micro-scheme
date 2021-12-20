@@ -3,21 +3,21 @@ package com.joshuacrotts.minischeme.ast;
 /**
  *
  */
-public class MSStringLitNode extends MSSyntaxTree {
+public class MSStringNode extends MSSyntaxTree {
 
     /**
      *
      */
     private final String value;
 
-    public MSStringLitNode(String value) {
+    public MSStringNode(String value) {
         super(MSNodeType.STR);
         this.value = value;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSStringLitNode(this.value);
+        return new MSStringNode(this.value);
     }
 
     @Override

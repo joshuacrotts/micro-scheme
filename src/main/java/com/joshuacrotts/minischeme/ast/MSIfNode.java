@@ -1,5 +1,16 @@
 package com.joshuacrotts.minischeme.ast;
 
+/**
+ * Defines an if expression node. An if expression has the condition, the expression to evaluate
+ * when the condition is true, then the false expression.
+ *
+ * CHILD 0: if condition expression.
+ * CHILD 1: expression to be evaluated when CHILD 0 is true.
+ * CHILD 2: expression to be evaluated when CHILD 0 is false.
+ *
+ * @author Joshua Crotts
+ * @version 12/20/2021
+ */
 public class MSIfNode extends MSSyntaxTree {
 
     public MSIfNode(MSSyntaxTree ifCond, MSSyntaxTree ifBody, MSSyntaxTree ifElse) {

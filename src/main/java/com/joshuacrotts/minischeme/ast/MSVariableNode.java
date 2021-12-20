@@ -25,10 +25,12 @@ public class MSVariableNode extends MSSyntaxTree {
         return varCopy;
     }
 
+    @Override
     public String getStringRep() {
         return this.getChild(0).getStringRep() + ": " + this.getChild(1).getStringRep();
     }
 
+    @Override
     public String toString() {
         return "(VAR " + this.getChild(0).toString() + ": " + this.getChild(1).toString() + ")";
     }

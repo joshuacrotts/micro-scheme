@@ -6,6 +6,9 @@ import java.util.ArrayList;
  * Defines a call to a Scheme procedure. A procedure is defined via (define (proc param1 param2...)
  * (expr)). The children of a MSProcedureCall node are the identifier (i.e., the procedure being
  * called) and its arguments.
+ *
+ * CHILD 0: Identifier
+ * CHILD 1...n: Arguments for procedure call.
  */
 public class MSProcedureCallNode extends MSSyntaxTree {
 

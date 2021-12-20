@@ -1,15 +1,15 @@
 package com.joshuacrotts.minischeme.main;
 
 import com.joshuacrotts.minischeme.MiniSchemeParser;
-import com.joshuacrotts.minischeme.ast.MSBooleanLitNode;
-import com.joshuacrotts.minischeme.ast.MSDoubleLitNode;
+import com.joshuacrotts.minischeme.ast.MSBooleanNode;
+import com.joshuacrotts.minischeme.ast.MSNumberNode;
 import com.joshuacrotts.minischeme.ast.MSIdentifierNode;
 import com.joshuacrotts.minischeme.ast.MSNodeType;
 import com.joshuacrotts.minischeme.ast.MSOpExpression;
 import com.joshuacrotts.minischeme.ast.MSPairNode;
 import com.joshuacrotts.minischeme.ast.MSProcedureCallNode;
 import com.joshuacrotts.minischeme.ast.MSProcedureDefinitionNode;
-import com.joshuacrotts.minischeme.ast.MSStringLitNode;
+import com.joshuacrotts.minischeme.ast.MSStringNode;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.main.LValue.LValueType;
 import com.joshuacrotts.minischeme.parser.MSListener;
@@ -25,23 +25,6 @@ public class MiniSchemeInterpreter {
 
     public MiniSchemeInterpreter(MSSyntaxTree tree) {
         this.tree = tree;
-    }
-
-    /**
-     *
-     */
-    public void execute() {
-        for (MSSyntaxTree ch : this.tree.getChildren()) {
-            LValue lhs = this.interpretTree(ch);
-            switch (lhs.getType()) {
-                case NUM:
-                case BOOL:
-                case PAIR:
-                case STR:
-                    System.out.println(lhs);
-                    break;
-            }
-        }
     }
 
     /**
@@ -64,9 +47,12 @@ public class MiniSchemeInterpreter {
      */
     private static void replaceParamsHelper(MSProcedureDefinitionNode procDef,
         MSSyntaxTree body, MSSyntaxTree arg, int replaceIdx) {
+        // If the body is null then there's nothing to replace.
+        if (body == null) { return; }
         for (int i = 0; i < body.getChildrenSize(); i++) {
             MSSyntaxTree child = body.getChild(i);
-            if (child.getNodeType() == MSNodeType.ID) {
+            // The child is realistically only null with the empty list.
+            if (child != null && child.getNodeType() == MSNodeType.ID) {
                 MSIdentifierNode id = (MSIdentifierNode) child;
                 if (procDef.getArgumentLoc(id.getIdentifier()) == replaceIdx) {
                     body.setChild(i, arg);
@@ -78,13 +64,28 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     *
+     */
+    public void execute() {
+        for (MSSyntaxTree ch : this.tree.getChildren()) {
+            LValue lhs = this.interpretTree(ch);
+            switch (lhs.getType()) {
+                case NUM:
+                case BOOL:
+                case PAIR:
+                case STR:
+                    System.out.println(lhs);
+                    break;
+            }
+        }
+    }
+
+    /**
      * @param tree
      * @return
      */
     protected LValue interpretTree(MSSyntaxTree tree) {
-        if (tree == null) {
-            return new LValue(LValue.LValueType.NULL);
-        }
+        if (tree == null) { return new LValue(LValue.LValueType.NULL); }
         try {
             switch (tree.getNodeType()) {
                 case ROOT:
@@ -121,7 +122,7 @@ public class MiniSchemeInterpreter {
      * @param tree
      */
     private LValue interpretNumber(MSSyntaxTree tree) {
-        return new LValue(((MSDoubleLitNode) tree));
+        return new LValue(((MSNumberNode) tree));
     }
 
     /**
@@ -129,16 +130,15 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretBoolean(MSSyntaxTree tree) {
-        return new LValue(((MSBooleanLitNode) tree));
+        return new LValue(((MSBooleanNode) tree));
     }
 
     /**
-     *
      * @param tree
      * @return
      */
     private LValue interpretString(MSSyntaxTree tree) {
-        return new LValue((MSStringLitNode) tree);
+        return new LValue(tree);
     }
 
     /**
@@ -155,13 +155,13 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree cdrNode = null;
         switch (carEval.getType()) {
             case NUM:
-                carNode = new MSDoubleLitNode(carEval.getDoubleValue());
+                carNode = new MSNumberNode(carEval.getDoubleValue());
                 break;
             case BOOL:
-                carNode = new MSBooleanLitNode(carEval.getBoolValue());
+                carNode = new MSBooleanNode(carEval.getBoolValue());
                 break;
             case STR:
-                carNode = new MSStringLitNode(carEval.getStringValue());
+                carNode = new MSStringNode(carEval.getStringValue());
                 break;
             case PAIR:
                 carNode = carEval.getTreeValue();
@@ -175,13 +175,13 @@ public class MiniSchemeInterpreter {
 
         switch (cdrEval.getType()) {
             case NUM:
-                cdrNode = new MSDoubleLitNode(cdrEval.getDoubleValue());
+                cdrNode = new MSNumberNode(cdrEval.getDoubleValue());
                 break;
             case BOOL:
-                cdrNode = new MSBooleanLitNode(cdrEval.getBoolValue());
+                cdrNode = new MSBooleanNode(cdrEval.getBoolValue());
                 break;
             case STR:
-                cdrNode = new MSStringLitNode(cdrEval.getStringValue());
+                cdrNode = new MSStringNode(cdrEval.getStringValue());
                 break;
             case PAIR:
                 cdrNode = cdrEval.getTreeValue();
@@ -211,13 +211,13 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree cdrNode = null;
         switch (carEval.getType()) {
             case NUM:
-                carNode = new MSDoubleLitNode(carEval.getDoubleValue());
+                carNode = new MSNumberNode(carEval.getDoubleValue());
                 break;
             case BOOL:
-                carNode = new MSBooleanLitNode(carEval.getBoolValue());
+                carNode = new MSBooleanNode(carEval.getBoolValue());
                 break;
             case STR:
-                carNode = new MSStringLitNode(carEval.getStringValue());
+                carNode = new MSStringNode(carEval.getStringValue());
                 break;
             case PAIR:
                 carNode = carEval.getTreeValue();
@@ -231,13 +231,13 @@ public class MiniSchemeInterpreter {
 
         switch (cdrEval.getType()) {
             case NUM:
-                cdrNode = new MSDoubleLitNode(cdrEval.getDoubleValue());
+                cdrNode = new MSNumberNode(cdrEval.getDoubleValue());
                 break;
             case BOOL:
-                cdrNode = new MSBooleanLitNode(cdrEval.getBoolValue());
+                cdrNode = new MSBooleanNode(cdrEval.getBoolValue());
                 break;
             case STR:
-                cdrNode = new MSStringLitNode(cdrEval.getStringValue());
+                cdrNode = new MSStringNode(cdrEval.getStringValue());
             case PAIR:
                 cdrNode = cdrEval.getTreeValue();
                 break;
@@ -277,9 +277,11 @@ public class MiniSchemeInterpreter {
     private LValue interpretIdentifier(MSSyntaxTree tree) {
         String id = tree.getStringRep();
         if (MSListener.symbolTable.isVariable(id)) {
-            return this.interpretTree(MSListener.symbolTable.getVariable(id).getExpression().getChild(1));
+            return this
+                .interpretTree(MSListener.symbolTable.getVariable(id).getExpression().getChild(1));
         } else {
-            MSProcedureDefinitionNode procDef = (MSProcedureDefinitionNode) MSListener.symbolTable.getProcedure(id).getProcDef();
+            MSProcedureDefinitionNode procDef = (MSProcedureDefinitionNode) MSListener.symbolTable
+                .getProcedure(id).getProcDef();
             return new LValue(LValueType.PROCCALL, procDef.getIdentifier());
         }
     }
@@ -292,8 +294,8 @@ public class MiniSchemeInterpreter {
         LValue ifCond = this.interpretTree(tree.getChild(0));
         if (ifCond.getType() == LValue.LValueType.BOOL) {
             return ifCond.getBoolValue()
-                    ? this.interpretTree(tree.getChild(1))
-                    : this.interpretTree(tree.getChild(2));
+                   ? this.interpretTree(tree.getChild(1))
+                   : this.interpretTree(tree.getChild(2));
         }
         return null;
     }
@@ -337,11 +339,11 @@ public class MiniSchemeInterpreter {
         for (int i = 0; i < procCall.getArguments().size(); i++) {
             LValue lhs = this.interpretTree(procCall.getArguments().get(i));
             if (lhs.getType() == LValue.LValueType.NUM) {
-                args.add(new MSDoubleLitNode(lhs.getDoubleValue()));
+                args.add(new MSNumberNode(lhs.getDoubleValue()));
             } else if (lhs.getType() == LValue.LValueType.BOOL) {
-                args.add(new MSBooleanLitNode(lhs.getBoolValue()));
+                args.add(new MSBooleanNode(lhs.getBoolValue()));
             } else if (lhs.getType() == LValueType.STR) {
-                args.add(new MSStringLitNode(lhs.getStringValue()));
+                args.add(new MSStringNode(lhs.getStringValue()));
             } else if (lhs.getType() == LValueType.PROCCALL) {
                 args.add(lhs.getTreeValue());
             } else if (lhs.getType() == LValueType.PAIR) {
@@ -426,14 +428,15 @@ public class MiniSchemeInterpreter {
                 return new LValue(Math.atan(lhs.getDoubleValue()));
             case MiniSchemeParser.SQRT:
                 return new LValue(Math.sqrt(lhs.getDoubleValue()));
-            case MiniSchemeParser.NOT:
+            case MiniSchemeParser.LOGICAL_NOT:
                 return new LValue(!lhs.getBoolValue());
             case MiniSchemeParser.CAR:
                 return new LValue(((MSPairNode) lhs.getTreeValue()).getCar());
             case MiniSchemeParser.CDR:
                 return new LValue(((MSPairNode) lhs.getTreeValue()).getCdr());
             case MiniSchemeParser.NULL_FN:
-                return new LValue(lhs.getTreeValue() == null || ((MSPairNode) lhs.getTreeValue()).isNull());
+                return new LValue(
+                    lhs.getTreeValue() == null || ((MSPairNode) lhs.getTreeValue()).isNull());
             case MiniSchemeParser.NUMBER_FN:
                 return new LValue(lhs.getType() == LValueType.NUM);
             case MiniSchemeParser.BOOL_FN:
@@ -446,7 +449,6 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
      * @param lhs
      * @param rhs
      * @return
@@ -454,9 +456,12 @@ public class MiniSchemeInterpreter {
     private LValue interpretEqualFn(LValue lhs, LValue rhs) {
         if (lhs.getType() == rhs.getType()) {
             switch (lhs.getType()) {
-                case NUM: return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
-                case BOOL: return new LValue(lhs.getBoolValue() == rhs.getBoolValue());
-                case STR: return new LValue(lhs.getStringValue().equals(rhs.getStringValue()));
+                case NUM:
+                    return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
+                case BOOL:
+                    return new LValue(lhs.getBoolValue() == rhs.getBoolValue());
+                case STR:
+                    return new LValue(lhs.getStringValue().equals(rhs.getStringValue()));
                 case PAIR:
                 case NULL:
                 default:
@@ -467,13 +472,12 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
      * @param lhs
      * @param rhs
      * @return
      */
     private LValue interpretEqFn(LValue lhs, LValue rhs) {
         return new LValue((lhs.getType() == rhs.getType())
-                && ((lhs == rhs) || (lhs.getDoubleValue() == rhs.getDoubleValue())));
+                              && ((lhs == rhs) || (lhs.getDoubleValue() == rhs.getDoubleValue())));
     }
 }

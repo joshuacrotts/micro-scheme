@@ -3,37 +3,37 @@ package com.joshuacrotts.minischeme.ast;
 /**
  *
  */
-public class MSDoubleLitNode extends MSSyntaxTree {
+public class MSNumberNode extends MSSyntaxTree {
 
     /**
      *
      */
     private final double value;
 
-    public MSDoubleLitNode(String value) {
+    public MSNumberNode(String value) {
         this(Double.parseDouble(value));
     }
 
-    public MSDoubleLitNode(double value) {
+    public MSNumberNode(double value) {
         super(MSNodeType.NUM);
         this.value = value;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSDoubleLitNode(this.value);
+        return new MSNumberNode(this.value);
     }
 
     @Override
     public String getStringRep() {
         return ((int) this.value) == this.value
-            ? Integer.toString((int) this.value)
-            : Double.toString(this.value);
+               ? Integer.toString((int) this.value)
+               : Double.toString(this.value);
     }
 
     @Override
     public String toString() {
-        return "(DOUBLE " + this.getStringRep() + ")";
+        return "(NUMBER " + this.getStringRep() + ")";
     }
 
     public double getValue() {
