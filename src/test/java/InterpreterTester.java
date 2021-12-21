@@ -264,7 +264,6 @@ public class InterpreterTester {
         goodFileTest("test017");
     }
 
-    // Not working yet - empty list doesn't work when being returned...
     @Test
     public void doGoodTestR() {
         goodFileTest("test018");
@@ -290,9 +289,18 @@ public class InterpreterTester {
         goodFileTest("test022");
     }
 
-    // Not working due to same bug as R
     @Test
     public void doGoodTestW() {
         goodFileTest("test023");
+    }
+
+    @Test
+    public void doGoodTestX() {
+        goodFileTest("test024");
+    }
+
+    @Test
+    public void doGoodTestY() {
+        goodFileTest("test025");
     }
 }

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class MSProcedureCallNode extends MSSyntaxTree {
 
     public MSProcedureCallNode(MSSyntaxTree identifier, ArrayList<MSSyntaxTree> args) {
-        super(MSNodeType.PROCCALL);
+        super(MSNodeType.PROC_CALL);
         this.addChild(identifier);
         args.forEach(this::addChild);
     }

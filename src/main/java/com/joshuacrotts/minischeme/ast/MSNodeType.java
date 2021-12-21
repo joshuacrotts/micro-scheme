@@ -9,8 +9,10 @@ public enum MSNodeType {
     PAIR,
     LIST,
     VAR,
-    PROCDECL,
-    PROCCALL,
+    PROC_DECL,
+    PROC_CALL,
+    LAMBDA_DECL,
+    EXPR_LAMBDA_DECL,
     IF,
     COND,
     BOOL

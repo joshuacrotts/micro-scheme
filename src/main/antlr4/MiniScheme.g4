@@ -5,7 +5,7 @@ grammar MiniScheme;
 /* Miscellaneous and skippable lexemes. */
 WHITESPACE: [ \r\n\t]+ -> skip;
 COMMENT:
-	'//' (.)*? NEWLINE -> skip; // Match any text that has // preceding.
+	';' (.)*? NEWLINE -> skip; // Match any text that has ; preceding.
 fragment DIGIT: [0-9];
 fragment UPPER_CASE_LTR: [a-z];
 fragment LOWER_CASE_LTR: [A-Z];
@@ -61,6 +61,7 @@ DEFINE: 'define';
 IF:  'if';
 COND: 'cond';
 ELSE: 'else';
+LAMBDA: 'lambda' | 'λ';
 
 SIN: 'sin';
 COS: 'cos';
@@ -69,12 +70,17 @@ ASIN: 'asin';
 ACOS: 'acos';
 ATAN: 'atan';
 SQRT: 'sqrt';
+ROUND: 'round';
+FLOOR: 'floor';
+CEILING: 'ceiling';
+TRUNCATE: 'truncate';
 CAR: 'car';
 CDR: 'cdr';
 CONS: 'cons';
 
 DISPLAY: 'display';
 STRING_APPEND: 'string-append';
+CREATE_LIST_FN: 'list';
 NUMBER_FN: 'number?';
 BOOL_FN: 'bool?';
 STRING_FN: 'string?';
@@ -84,17 +90,26 @@ ATOM_FN: 'atom?';
 EQ_FN: 'eq?';
 EQUAL_FN: 'equal?';
 MEMBER_FN: 'member?';
+STRLEN_FN: 'string-length';
 
 ID: [a-zA-Z_-][a-zA-Z0-9_-]*('?')?;
-// VARID: [a-zA-Z_-][a-zA-Z0-9_-]*;
 
 // ================= Parser rules. ==================== //
 
 // This is the root rule applied.
-minischeme: (vardecl | procdecl | expr)* EOF;
+minischeme: (vardecl | lambdadecl | procdecl | expr)* EOF;
 
 // Variable declaration. Takes the form (define var <expr>)
 vardecl: OPEN_PAREN DEFINE term expr CLOSE_PAREN;
+
+// Lambda declaration. Takes the form
+// (define (proc <params ...>) (lambda (lparams) (lambdabody)))
+lambdadecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN)
+             (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaparams CLOSE_PAREN)
+             (OPEN_PAREN lambdabody CLOSE_PAREN) CLOSE_PAREN) CLOSE_PAREN);
+
+lambdaparams: expr*;
+lambdabody: expr;
 
 // Procedure declaration. Takes the form (define (proc <params ...>) (<expr>))
 procdecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN) procbody CLOSE_PAREN);
@@ -108,11 +123,15 @@ expr: term                                                                      
     | (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)                         #exprOp
     | ((unaryop | naryop) expr*)                                                #exprOp
     | (QUOTE OPEN_PAREN expr* CLOSE_PAREN)                                      #exprList
+    | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN)                             #exprList
     | (OPEN_PAREN term expr* CLOSE_PAREN)                                       #exprProcCall
+    | (OPEN_PAREN OPEN_PAREN LAMBDA (OPEN_PAREN expr+ CLOSE_PAREN)?
+        OPEN_PAREN expr CLOSE_PAREN CLOSE_PAREN expr* CLOSE_PAREN)              #exprLambdaDecl
+    | (OPEN_PAREN (OPEN_PAREN term expr* CLOSE_PAREN) expr* CLOSE_PAREN)        #exprLambdaCall
     | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse CLOSE_PAREN)   #exprIf
     | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
         condcond CLOSE_PAREN condbody CLOSE_BRACKET)*
-        (OPEN_BRACKET ELSE? condbody CLOSE_BRACKET) CLOSE_PAREN)                #exprCond
+        (OPEN_BRACKET (ELSE)? condbody CLOSE_BRACKET) CLOSE_PAREN)              #exprCond
     ;
 
 // Separates the "expressions" for a cond or if expression to make it clearer in the parser.
@@ -123,15 +142,22 @@ ifbody: expr;
 ifelse: expr;
 
 // All unary operators.
-unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | LOGICAL_NOT
-        | LOGICAL_AND LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN
-        | STRING_FN | LIST_FN | EQ_FN | EQUAL_FN | NULL_FN
-        | ATOM_FN | CAR | CDR;
+unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
+        | FLOOR | CEILING | TRUNCATE | LOGICAL_NOT | LOGICAL_AND
+        | LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN | LIST_FN
+        | EQ_FN | EQUAL_FN | NULL_FN | ATOM_FN | CAR | CDR
+        | STRLEN_FN
+        ;
 
 // All n-ary operators. An n-ary operator is an operator that takes at least two parameters. The
 // semantic analyzer should check to make sure the argument count is correct for binary operators.
 naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
-        | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
-        | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN;
+      | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
+      | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
+      ;
 
-term: NUMBERLIT | CHARLIT | STRINGLIT | BOOLLIT | ID;
+term: NUMBERLIT
+    | CHARLIT
+    | STRINGLIT
+    | BOOLLIT
+    | ID;

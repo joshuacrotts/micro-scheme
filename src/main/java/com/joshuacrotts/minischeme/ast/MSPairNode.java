@@ -14,23 +14,27 @@ public class MSPairNode extends MSSyntaxTree {
     public MSSyntaxTree copy() {
         MSSyntaxTree carCopy = this.getCar();
         MSSyntaxTree cdrCopy = this.getCdr();
-        if (carCopy != null) { carCopy = carCopy.copy(); }
-        if (cdrCopy != null) { cdrCopy = cdrCopy.copy(); }
+        if (carCopy != null) {
+            carCopy = carCopy.copy();
+        }
+        if (cdrCopy != null) {
+            cdrCopy = cdrCopy.copy();
+        }
         return new MSPairNode(this.getNodeType(), carCopy, cdrCopy);
     }
 
     @Override
     public String getStringRep() {
         return this.getNodeType() == MSNodeType.PAIR
-               ? this.getPairStringRep()
-               : this.getListStringRep();
+                ? this.getPairStringRep()
+                : this.getListStringRep();
     }
 
     @Override
     public String toString() {
         return this.getNodeType() == MSNodeType.LIST
-               ? this.getPairToString()
-               : this.getListToString();
+                ? this.getPairToString()
+                : this.getListToString();
     }
 
     public MSSyntaxTree getCar() {
@@ -50,11 +54,27 @@ public class MSPairNode extends MSSyntaxTree {
      * null). If its tail is not a pair then it is by definition improper. We recursively check the
      * tail until we hit the null/empty list or an element as the tail, whichever comes first.
      *
+     * A "list" is proper if the last element is the empty list and all previous tails are lists.
+     *
      * @return true if the pair is proper, false otherwise.
      */
     public boolean isProper() {
-        if (this.getCar() == null && this.getCdr() == null) { return true; } else if (
-            this.getCdr().getNodeType() != MSNodeType.PAIR) { return false; } else {
+        // We're on the empty list.
+        if (this.getCar() == null && this.getCdr() == null) {
+            return true;
+        }
+        // We're on the last element of a list and the head is a node but the tail is ().
+        else if (this.getCar() != null && this.getCdr() == null
+                && this.getNodeType() == MSNodeType.LIST) {
+            return true;
+        }
+        // Check to make sure the tail is either a pair or a list.
+        else if (this.getCdr().getNodeType() != MSNodeType.PAIR &&
+                   this.getCdr().getNodeType() != MSNodeType.LIST) {
+            return false;
+        }
+        // Recurse.
+        else {
             return ((MSPairNode) this.getCdr()).isProper();
         }
     }
@@ -66,10 +86,10 @@ public class MSPairNode extends MSSyntaxTree {
         if (this.isNull()) {
             return "()";
         }
-        // If the list is proper, then we don't print dot notation.
+        // If the pair is proper, then we don't print dot notation.
         if (this.isProper()) {
             StringBuilder sb = new StringBuilder("(");
-            this.getProperPairStringRep(this, sb);
+            this.getProperStringRep(this, sb);
             sb.append(")");
             return sb.toString();
         } else {
@@ -78,28 +98,9 @@ public class MSPairNode extends MSSyntaxTree {
                 return "(" + this.getCar().getStringRep() + ")";
             } else {
                 return "(" + this.getCar().getStringRep()
-                    + (this.isProper() ? " " : " . ")
-                    + this.getCdr().getStringRep()
-                    + ")";
-            }
-        }
-    }
-
-    /**
-     * @param curr
-     * @param sb
-     */
-    private void getProperPairStringRep(MSSyntaxTree curr, StringBuilder sb) {
-        MSPairNode currPair = (MSPairNode) curr;
-        if (currPair.isNull()) {
-            // Trim the last space.
-            sb.setLength(sb.length() - 1);
-        } else {
-            // Append the head then check the cdr.
-            sb.append(currPair.getCar().getStringRep());
-            if (currPair.getCdr() != null) {
-                sb.append(" ");
-                getProperPairStringRep(currPair.getCdr(), sb);
+                        + (this.isProper() ? " " : " . ")
+                        + this.getCdr().getStringRep()
+                        + ")";
             }
         }
     }
@@ -114,9 +115,9 @@ public class MSPairNode extends MSSyntaxTree {
             return "PAIR (" + this.getCar().toString() + ")";
         } else {
             return "PAIR (" + this.getCar().toString()
-                + " . "
-                + this.getCdr().toString()
-                + ")";
+                    + " . "
+                    + this.getCdr().toString()
+                    + ")";
         }
     }
 
@@ -124,16 +125,7 @@ public class MSPairNode extends MSSyntaxTree {
      * @return
      */
     private String getListStringRep() {
-        if (this.isNull()) {
-            return "()";
-        } else if (this.getCdr() == null) {
-            return "(" + this.getCar().getStringRep() + ")";
-        } else {
-            return "(" + this.getCar().getStringRep()
-                + " "
-                + this.getCdr().getStringRep()
-                + ")";
-        }
+        return this.getPairStringRep();
     }
 
     /**
@@ -146,9 +138,28 @@ public class MSPairNode extends MSSyntaxTree {
             return "LIST (" + this.getCar().toString() + ")";
         } else {
             return "LIST (" + this.getCar().toString()
-                + " "
-                + this.getCdr().toString()
-                + ")";
+                    + " "
+                    + this.getCdr().toString()
+                    + ")";
+        }
+    }
+
+    /**
+     * @param curr
+     * @param sb
+     */
+    private void getProperStringRep(MSSyntaxTree curr, StringBuilder sb) {
+        MSPairNode currPair = (MSPairNode) curr;
+        if (currPair.isNull()) {
+            // Trim the last space.
+            sb.setLength(sb.length() - 1);
+        } else {
+            // Append the head then check the cdr.
+            sb.append(currPair.getCar().getStringRep());
+            if (currPair.getCdr() != null) {
+                sb.append(" ");
+                getProperStringRep(currPair.getCdr(), sb);
+            }
         }
     }
 }

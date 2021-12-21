@@ -19,6 +19,10 @@ public class SymbolTable {
         this.table.put(identifier, new Procedure(procDef));
     }
 
+    public void addLambda(String identifier, MSSyntaxTree lambdaDef) {
+        this.table.put(identifier, new Lambda(lambdaDef));
+    }
+
     public Variable getVariable(String sym) {
         return this.isVariable(sym) ? (Variable) this.table.get(sym) : null;
     }
@@ -26,6 +30,8 @@ public class SymbolTable {
     public Procedure getProcedure(String sym) {
         return this.isProcedure(sym) ? (Procedure) this.table.get(sym) : null;
     }
+
+    public Lambda getLambda(String sym) { return this.isLambda(sym) ? (Lambda) this.table.get(sym) : null; }
 
     public boolean hasSymbol(String identifier) {
         return this.table.containsKey(identifier);
@@ -39,5 +45,10 @@ public class SymbolTable {
     public boolean isProcedure(String identifier) {
         return this.hasSymbol(identifier)
             && this.table.get(identifier).getType() == SymbolType.SYMBOL_PROC;
+    }
+
+    public boolean isLambda(String identifier) {
+        return this.hasSymbol(identifier)
+            && this.table.get(identifier).getType() == SymbolType.SYMBOL_LAMBDA;
     }
 }

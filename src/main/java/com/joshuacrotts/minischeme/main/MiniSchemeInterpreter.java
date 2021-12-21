@@ -64,7 +64,7 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
+     * @param
      */
     public void execute() {
         for (MSSyntaxTree ch : this.tree.getChildren()) {
@@ -108,7 +108,7 @@ public class MiniSchemeInterpreter {
                     return this.interpretIf(tree);
                 case COND:
                     return this.interpretCond(tree);
-                case PROCCALL:
+                case PROC_CALL:
                     return this.interpretProcCall(tree);
             }
         } catch (MSSemanticError err) {
@@ -428,6 +428,14 @@ public class MiniSchemeInterpreter {
                 return new LValue(Math.atan(lhs.getDoubleValue()));
             case MiniSchemeParser.SQRT:
                 return new LValue(Math.sqrt(lhs.getDoubleValue()));
+            case MiniSchemeParser.ROUND:
+                return new LValue(Math.round(lhs.getDoubleValue()));
+            case MiniSchemeParser.FLOOR:
+                return new LValue(Math.floor(lhs.getDoubleValue()));
+            case MiniSchemeParser.CEILING:
+                return new LValue(Math.ceil(lhs.getDoubleValue()));
+            case MiniSchemeParser.TRUNCATE:
+                return new LValue((int) lhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_NOT:
                 return new LValue(!lhs.getBoolValue());
             case MiniSchemeParser.CAR:
@@ -435,14 +443,16 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.CDR:
                 return new LValue(((MSPairNode) lhs.getTreeValue()).getCdr());
             case MiniSchemeParser.NULL_FN:
-                return new LValue(
-                    lhs.getTreeValue() == null || ((MSPairNode) lhs.getTreeValue()).isNull());
+                return new LValue(lhs.getTreeValue() == null
+                            || ((MSPairNode) lhs.getTreeValue()).isNull());
             case MiniSchemeParser.NUMBER_FN:
                 return new LValue(lhs.getType() == LValueType.NUM);
             case MiniSchemeParser.BOOL_FN:
                 return new LValue(lhs.getType() == LValueType.BOOL);
             case MiniSchemeParser.STRING_FN:
                 return new LValue(lhs.getType() == LValueType.STR);
+            case MiniSchemeParser.STRLEN_FN:
+                return new LValue(lhs.getStringValue().length());
         }
 
         throw new IllegalArgumentException("ERR invalid unary type " + opType);
@@ -463,7 +473,9 @@ public class MiniSchemeInterpreter {
                 case STR:
                     return new LValue(lhs.getStringValue().equals(rhs.getStringValue()));
                 case PAIR:
+                    return new LValue(lhs.toString().equals(rhs.toString()));
                 case NULL:
+                    return new LValue(true);
                 default:
                     throw new UnsupportedOperationException("Not yet!");
             }
@@ -477,7 +489,19 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretEqFn(LValue lhs, LValue rhs) {
-        return new LValue((lhs.getType() == rhs.getType())
-                              && ((lhs == rhs) || (lhs.getDoubleValue() == rhs.getDoubleValue())));
+        // If they're the same reference then return true.
+        if (lhs == rhs) {
+            return new LValue(true);
+        } else if (lhs.getType() == rhs.getType()) {
+            // Doubles are a special case.
+            if (lhs.getType() == LValueType.NUM) {
+                return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
+            }
+
+            // If the identifiers are the same then... we need to return true...
+            // but how do we do that without their definition?
+        }
+
+        return new LValue(false);
     }
 }
