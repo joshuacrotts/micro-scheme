@@ -19,7 +19,7 @@ public class MSUtils {
      * @return random integer
      */
     public static int randomInt(int min, int max) {
-        if (min > max) {
+        if (min >= max) {
             throw new IllegalArgumentException("Max must be smaller than min.");
         }
 
@@ -34,6 +34,20 @@ public class MSUtils {
      */
     public static int randomInt(int max) {
         return randomInt(0, max);
+    }
+
+    /**
+     *
+     * @param min
+     * @param max
+     * @return
+     */
+    public static double randomDouble(double min, double max) {
+        if (min >= max) {
+            throw new IllegalArgumentException("Max must be smaller than min.");
+        }
+
+        return ThreadLocalRandom.current().nextDouble(min, max);
     }
 
     /**

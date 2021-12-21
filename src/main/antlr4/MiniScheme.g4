@@ -91,6 +91,15 @@ EQ_FN: 'eq?';
 EQUAL_FN: 'equal?';
 MEMBER_FN: 'member?';
 STRLEN_FN: 'string-length';
+RANDINT_FN: 'random-integer';
+RANDDOUBLE_FN: 'random-double';
+RAND_FN: 'random';
+READLINE_FN: 'read-line';
+READINT_FN: 'read-integer';
+READCHAR_FN: 'read-char';
+READDOUBLE_FN: 'read-double';
+STRTONUM_FN: 'string-to-number';
+NUMTOSTR_FN: 'number-to-string';
 
 ID: [a-zA-Z_-][a-zA-Z0-9_-]*('?')?;
 
@@ -118,10 +127,11 @@ procbody: expr;
 
 // Defines an expression. An expression is either a term, "cons", an operator, a list construction,
 // a procedure call, an if expression, or a cond expression.
-expr: term                                                                      #exprTerm
-    | (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                   #exprCons
+expr: (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                   #exprCons
     | (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)                         #exprOp
     | ((unaryop | naryop) expr*)                                                #exprOp
+    | (OPEN_PAREN
+      (READLINE_FN | READDOUBLE_FN | READINT_FN | READCHAR_FN) CLOSE_PAREN)     #exprRead
     | (QUOTE OPEN_PAREN expr* CLOSE_PAREN)                                      #exprList
     | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN)                             #exprList
     | (OPEN_PAREN term expr* CLOSE_PAREN)                                       #exprProcCall
@@ -132,6 +142,7 @@ expr: term                                                                      
     | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
         condcond CLOSE_PAREN condbody CLOSE_BRACKET)*
         (OPEN_BRACKET (ELSE)? condbody CLOSE_BRACKET) CLOSE_PAREN)              #exprCond
+    | term                                                                      #exprTerm
     ;
 
 // Separates the "expressions" for a cond or if expression to make it clearer in the parser.
@@ -154,6 +165,7 @@ unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
 naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
       | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
       | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
+      | RANDINT_FN | RANDDOUBLE_FN | RAND_FN
       ;
 
 term: NUMBERLIT

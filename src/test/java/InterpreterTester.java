@@ -303,4 +303,9 @@ public class InterpreterTester {
     public void doGoodTestY() {
         goodFileTest("test025");
     }
+
+    @Test
+    public void doGoodTestZ() {
+        goodFileTest("test026");
+    }
 }
