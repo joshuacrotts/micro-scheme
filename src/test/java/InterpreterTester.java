@@ -180,132 +180,149 @@ public class InterpreterTester {
     }
 
     @Test
-    public void doGoodTestA() {
-        goodFileTest("test001");
-    }
+    public void doGoodTest001() { goodFileTest("test001"); }
 
     @Test
-    public void doGoodTestB() {
+    public void doGoodTest002() {
         goodFileTest("test002");
     }
 
     @Test
-    public void doGoodTestC() {
+    public void doGoodTest003() {
         goodFileTest("test003");
     }
 
     @Test
-    public void doGoodTestD() {
+    public void doGoodTest004() {
         goodFileTest("test004");
     }
 
     @Test
-    public void doGoodTestE() {
+    public void doGoodTest005() {
         goodFileTest("test005");
     }
 
     @Test
-    public void doGoodTestF() {
+    public void doGoodTest006() {
         goodFileTest("test006");
     }
 
     @Test
-    public void doGoodTestG() {
+    public void doGoodTest007() {
         goodFileTest("test007");
     }
 
     @Test
-    public void doGoodTestH() {
+    public void doGoodTest008() {
         goodFileTest("test008");
     }
 
     @Test
-    public void doGoodTestI() {
+    public void doGoodTest009() {
         goodFileTest("test009");
     }
 
     @Test
-    public void doGoodTestJ() {
+    public void doGoodTest010() {
         goodFileTest("test010");
     }
 
     @Test
-    public void doGoodTestK() {
+    public void doGoodTest011() {
         goodFileTest("test011");
     }
 
     @Test
-    public void doGoodTestL() {
+    public void doGoodTest012() {
         goodFileTest("test012");
     }
 
     @Test
-    public void doGoodTestM() {
+    public void doGoodTest013() {
         goodFileTest("test013");
     }
 
     @Test
-    public void doGoodTestN() {
+    public void doGoodTest014() {
         goodFileTest("test014");
     }
 
     @Test
-    public void doGoodTestO() {
+    public void doGoodTest015() {
         goodFileTest("test015");
     }
 
     @Test
-    public void doGoodTestP() {
+    public void doGoodTest016() {
         goodFileTest("test016");
     }
 
     @Test
-    public void doGoodTestQ() {
-        goodFileTest("test017");
-    }
+    public void doGoodTest017() { goodFileTest("test017"); }
 
     @Test
-    public void doGoodTestR() {
+    public void doGoodTest018() {
         goodFileTest("test018");
     }
 
     @Test
-    public void doGoodTestS() {
+    public void doGoodTest019() {
         goodFileTest("test019");
     }
 
     @Test
-    public void doGoodTestT() {
+    public void doGoodTest020() {
         goodFileTest("test020");
     }
 
     @Test
-    public void doGoodTestU() {
+    public void doGoodTest021() {
         goodFileTest("test021");
     }
 
     @Test
-    public void doGoodTestV() {
+    public void doGoodTest022() {
         goodFileTest("test022");
     }
 
     @Test
-    public void doGoodTestW() {
+    public void doGoodTest023() {
         goodFileTest("test023");
     }
 
     @Test
-    public void doGoodTestX() {
+    public void doGoodTest024() {
         goodFileTest("test024");
     }
 
     @Test
-    public void doGoodTestY() {
+    public void doGoodTest025() {
         goodFileTest("test025");
     }
 
     @Test
-    public void doGoodTestZ() {
+    public void doGoodTest026() {
         goodFileTest("test026");
     }
+
+    @Test
+    public void doGoodTest027() {
+        goodFileTest("test027");
+    }
+
+    @Test
+    public void doGoodTest028() {
+        goodFileTest("test028");
+    }
+
+    @Test
+    public void doGoodTest029() {
+        goodFileTest("test029");
+    }
+
+    @Test
+    public void doGoodTest030() {
+        goodFileTest("test030");
+    }
+
 }

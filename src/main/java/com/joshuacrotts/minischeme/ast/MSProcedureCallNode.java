@@ -42,14 +42,7 @@ public class MSProcedureCallNode extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("(PROCCALL ");
-        sb.append(this.getChild(0).toString());
-        for (MSSyntaxTree args : this.getArguments()) {
-            sb.append("(ARG ").append(args.toString());
-            sb.append(") ");
-        }
-        sb.append(")");
-        return sb.toString();
+        return this.getNodeType().toString();
     }
 
     public MSSyntaxTree getIdentifier() {

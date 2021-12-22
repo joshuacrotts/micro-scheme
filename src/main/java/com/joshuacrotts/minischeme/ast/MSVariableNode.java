@@ -35,6 +35,6 @@ public class MSVariableNode extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        return "(VAR " + this.getChild(0).toString() + ": " + this.getChild(1).toString() + ")";
+        return this.getNodeType().toString();
     }
 }

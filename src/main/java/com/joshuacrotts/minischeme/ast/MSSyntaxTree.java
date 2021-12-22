@@ -116,7 +116,9 @@ public class MSSyntaxTree implements Copyable {
                     sb.append(",\n");
                 }
                 isFirstChild = false;
-                sb.append(child.printSyntaxTreeHelper(indent + 2));
+                if (child != null) {
+                    sb.append(child.printSyntaxTreeHelper(indent + 2));
+                }
             }
             sb.append(")");
         }

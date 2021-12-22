@@ -2,19 +2,7 @@ package com.joshuacrotts.minischeme.parser;
 
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
-import com.joshuacrotts.minischeme.ast.MSBooleanNode;
-import com.joshuacrotts.minischeme.ast.MSCondNode;
-import com.joshuacrotts.minischeme.ast.MSNumberNode;
-import com.joshuacrotts.minischeme.ast.MSIdentifierNode;
-import com.joshuacrotts.minischeme.ast.MSIfNode;
-import com.joshuacrotts.minischeme.ast.MSNodeType;
-import com.joshuacrotts.minischeme.ast.MSOpExpression;
-import com.joshuacrotts.minischeme.ast.MSPairNode;
-import com.joshuacrotts.minischeme.ast.MSProcedureCallNode;
-import com.joshuacrotts.minischeme.ast.MSProcedureDefinitionNode;
-import com.joshuacrotts.minischeme.ast.MSStringNode;
-import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
-import com.joshuacrotts.minischeme.ast.MSVariableNode;
+import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import java.util.ArrayList;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -74,11 +62,14 @@ public class MSListener extends MiniSchemeBaseListener {
         // TODO check to see if it's already defined.
         MSSyntaxTree id = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> params = new ArrayList<>();
-        for (ParseTree pt : ctx.procparams().expr()) {
-            params.add(this.map.get(pt));
+        // If we have parameters, get them now.
+        if (ctx.procparams() != null) {
+            for (ParseTree pt : ctx.procparams().expr()) {
+                params.add(this.map.get(pt));
+            }
         }
         MSSyntaxTree body = this.map.get(ctx.procbody().expr());
-        MSSyntaxTree proc = new MSProcedureDefinitionNode(id, params, body);
+        MSSyntaxTree proc = new MSProcedureDeclarationNode(id, params, body);
         symbolTable.addProcedure(ctx.term().getText(), proc);
         this.map.put(ctx, proc);
     }
@@ -116,6 +107,42 @@ public class MSListener extends MiniSchemeBaseListener {
             args.add(this.map.get(pt));
         }
         this.map.put(ctx, new MSProcedureCallNode(id, args));
+    }
+
+    @Override
+    public void exitExprLambdaDecl(MiniSchemeParser.ExprLambdaDeclContext ctx) {
+        super.exitExprLambdaDecl(ctx);
+        ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
+        for (ParseTree pt : ctx.lambdaParams().expr()) {
+            lambdaParams.add(this.map.get(pt));
+        }
+        MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
+        this.map.put(ctx, new MSLambdaDeclarationNode(lambdaParams, lambdaBody));
+    }
+
+    @Override
+    public void exitExprLambdaCall(MiniSchemeParser.ExprLambdaCallContext ctx) {
+        super.exitExprLambdaCall(ctx);
+        MSSyntaxTree identifier = this.map.get(ctx.term());
+        ArrayList<MSSyntaxTree> procArgs = new ArrayList<>();
+        // If there are parameters to use for the PROCEDURE, get them now.
+        if (ctx.procparams() != null) {
+            for (ParseTree pt : ctx.procparams().expr()) {
+                procArgs.add(this.map.get(pt));
+            }
+        }
+
+        ArrayList<MSSyntaxTree> lambdaArgs = new ArrayList<>();
+        for (ParseTree pt : ctx.lambdaArgs().expr()) {
+            lambdaArgs.add(this.map.get(pt));
+        }
+
+        this.map.put(ctx, new MSLambdaCallNode(identifier, procArgs, lambdaArgs));
+    }
+
+    @Override
+    public void exitExprLambdaDeclCall(MiniSchemeParser.ExprLambdaDeclCallContext ctx) {
+        super.exitExprLambdaDeclCall(ctx);
     }
 
     @Override

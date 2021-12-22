@@ -37,6 +37,6 @@ public class MSIfNode extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        return this.getStringRep();
+        return this.getNodeType().toString();
     }
 }

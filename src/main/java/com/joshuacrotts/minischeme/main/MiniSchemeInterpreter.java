@@ -8,7 +8,7 @@ import com.joshuacrotts.minischeme.ast.MSNodeType;
 import com.joshuacrotts.minischeme.ast.MSOpExpression;
 import com.joshuacrotts.minischeme.ast.MSPairNode;
 import com.joshuacrotts.minischeme.ast.MSProcedureCallNode;
-import com.joshuacrotts.minischeme.ast.MSProcedureDefinitionNode;
+import com.joshuacrotts.minischeme.ast.MSProcedureDeclarationNode;
 import com.joshuacrotts.minischeme.ast.MSStringNode;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.main.LValue.LValueType;
@@ -33,7 +33,7 @@ public class MiniSchemeInterpreter {
      * @param body
      * @param args
      */
-    private static void replaceParams(MSProcedureDefinitionNode procDef,
+    private static void replaceParams(MSProcedureDeclarationNode procDef,
                                       MSSyntaxTree body, ArrayList<MSSyntaxTree> args) {
         for (int i = 0; i < args.size(); i++) {
             replaceParamsHelper(procDef, body, args.get(i), i);
@@ -46,7 +46,7 @@ public class MiniSchemeInterpreter {
      * @param arg
      * @param replaceIdx
      */
-    private static void replaceParamsHelper(MSProcedureDefinitionNode procDef,
+    private static void replaceParamsHelper(MSProcedureDeclarationNode procDef,
                                             MSSyntaxTree body, MSSyntaxTree arg, int replaceIdx) {
         // If the body is null then there's nothing to replace.
         if (body == null) {
@@ -285,7 +285,7 @@ public class MiniSchemeInterpreter {
             return this
                     .interpretTree(MSListener.symbolTable.getVariable(id).getExpression().getChild(1));
         } else {
-            MSProcedureDefinitionNode procDef = (MSProcedureDefinitionNode) MSListener.symbolTable
+            MSProcedureDeclarationNode procDef = (MSProcedureDeclarationNode) MSListener.symbolTable
                     .getProcedure(id).getProcDef();
             return new LValue(LValueType.PROCCALL, procDef.getIdentifier());
         }
@@ -338,7 +338,7 @@ public class MiniSchemeInterpreter {
     private LValue interpretProcCall(MSSyntaxTree tree) {
         MSProcedureCallNode procCall = (MSProcedureCallNode) tree;
         String id = procCall.getIdentifier().getStringRep();
-        MSProcedureDefinitionNode def = (MSProcedureDefinitionNode)
+        MSProcedureDeclarationNode def = (MSProcedureDeclarationNode)
                 MSListener.symbolTable.getProcedure(id).getProcDef();
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         for (int i = 0; i < procCall.getArguments().size(); i++) {

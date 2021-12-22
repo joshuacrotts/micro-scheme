@@ -32,9 +32,7 @@ public class MSPairNode extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        return this.getNodeType() == MSNodeType.LIST
-                ? this.getPairToString()
-                : this.getListToString();
+        return this.getNodeType().toString();
     }
 
     public MSSyntaxTree getCar() {
@@ -108,40 +106,8 @@ public class MSPairNode extends MSSyntaxTree {
     /**
      * @return
      */
-    private String getPairToString() {
-        if (this.isNull()) {
-            return "PAIR ()";
-        } else if (this.getCdr() == null) {
-            return "PAIR (" + this.getCar().toString() + ")";
-        } else {
-            return "PAIR (" + this.getCar().toString()
-                    + " . "
-                    + this.getCdr().toString()
-                    + ")";
-        }
-    }
-
-    /**
-     * @return
-     */
     private String getListStringRep() {
         return this.getPairStringRep();
-    }
-
-    /**
-     * @return
-     */
-    private String getListToString() {
-        if (this.isNull()) {
-            return "LIST ()";
-        } else if (this.getCdr() == null) {
-            return "LIST (" + this.getCar().toString() + ")";
-        } else {
-            return "LIST (" + this.getCar().toString()
-                    + " "
-                    + this.getCdr().toString()
-                    + ")";
-        }
     }
 
     /**

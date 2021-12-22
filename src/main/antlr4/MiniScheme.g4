@@ -106,44 +106,42 @@ ID: [a-zA-Z_-][a-zA-Z0-9_-]*('?')?;
 // ================= Parser rules. ==================== //
 
 // This is the root rule applied.
-minischeme: (vardecl | lambdadecl | procdecl | expr)* EOF;
+minischeme: (vardecl | procdecl | expr)* EOF;
 
 // Variable declaration. Takes the form (define var <expr>)
 vardecl: OPEN_PAREN DEFINE term expr CLOSE_PAREN;
 
-// Lambda declaration. Takes the form
-// (define (proc <params ...>) (lambda (lparams) (lambdabody)))
-lambdadecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN)
-             (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaparams CLOSE_PAREN)
-             (OPEN_PAREN lambdabody CLOSE_PAREN) CLOSE_PAREN) CLOSE_PAREN);
-
-lambdaparams: expr*;
-lambdabody: expr;
-
 // Procedure declaration. Takes the form (define (proc <params ...>) (<expr>))
-procdecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams CLOSE_PAREN) procbody CLOSE_PAREN);
-procparams: expr*;
+procdecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procparams? CLOSE_PAREN) procbody CLOSE_PAREN);
+procparams: expr+;
 procbody: expr;
 
 // Defines an expression. An expression is either a term, "cons", an operator, a list construction,
 // a procedure call, an if expression, or a cond expression.
-expr: (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                   #exprCons
-    | (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)                         #exprOp
-    | ((unaryop | naryop) expr*)                                                #exprOp
+expr: (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                           #exprCons
+    | (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)                                 #exprOp
+    | ((unaryop | naryop) expr*)                                                        #exprOp
     | (OPEN_PAREN
-      (READLINE_FN | READDOUBLE_FN | READINT_FN | READCHAR_FN) CLOSE_PAREN)     #exprRead
-    | (QUOTE OPEN_PAREN expr* CLOSE_PAREN)                                      #exprList
-    | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN)                             #exprList
-    | (OPEN_PAREN term expr* CLOSE_PAREN)                                       #exprProcCall
-    | (OPEN_PAREN OPEN_PAREN LAMBDA (OPEN_PAREN expr+ CLOSE_PAREN)?
-        OPEN_PAREN expr CLOSE_PAREN CLOSE_PAREN expr* CLOSE_PAREN)              #exprLambdaDecl
-    | (OPEN_PAREN (OPEN_PAREN term expr* CLOSE_PAREN) expr* CLOSE_PAREN)        #exprLambdaCall
-    | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse CLOSE_PAREN)   #exprIf
+      (READLINE_FN | READDOUBLE_FN | READINT_FN | READCHAR_FN) CLOSE_PAREN)             #exprRead
+    | (QUOTE OPEN_PAREN expr* CLOSE_PAREN)                                              #exprList
+    | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN)                                     #exprList
+    | (OPEN_PAREN term expr* CLOSE_PAREN)                                               #exprProcCall
+    | (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams CLOSE_PAREN)
+        (OPEN_PAREN lambdaBody? CLOSE_PAREN) CLOSE_PAREN)                               #exprLambdaDecl
+    | (OPEN_PAREN (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams CLOSE_PAREN)
+        (OPEN_PAREN lambdaBody? CLOSE_PAREN) CLOSE_PAREN) lambdaArgs CLOSE_PAREN)       #exprLambdaDeclCall
+    | (OPEN_PAREN (OPEN_PAREN term procparams? CLOSE_PAREN) lambdaArgs CLOSE_PAREN)     #exprLambdaCall
+    | (OPEN_PAREN IF OPEN_PAREN ifcond CLOSE_PAREN ifbody ifelse CLOSE_PAREN)           #exprIf
     | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
         condcond CLOSE_PAREN condbody CLOSE_BRACKET)*
-        (OPEN_BRACKET (ELSE)? condbody CLOSE_BRACKET) CLOSE_PAREN)              #exprCond
-    | term                                                                      #exprTerm
+        (OPEN_BRACKET (ELSE)? condbody CLOSE_BRACKET) CLOSE_PAREN)                      #exprCond
+    | term                                                                              #exprTerm
     ;
+
+lambdaParams: expr+;
+lambdaBody: expr;
+lambdaArgs: expr+;
+
 
 // Separates the "expressions" for a cond or if expression to make it clearer in the parser.
 condcond: expr;

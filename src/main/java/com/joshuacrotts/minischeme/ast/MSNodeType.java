@@ -11,8 +11,9 @@ public enum MSNodeType {
     VAR,
     PROC_DECL,
     PROC_CALL,
-    LAMBDA_DECL,
     EXPR_LAMBDA_DECL,
+    EXPR_LAMBDA_CALL,
+    EXPR_LAMBDA_DECL_CALL,
     IF,
     COND,
     BOOL
