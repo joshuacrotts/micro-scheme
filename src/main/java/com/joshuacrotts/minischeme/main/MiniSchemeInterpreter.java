@@ -1,16 +1,7 @@
 package com.joshuacrotts.minischeme.main;
 
 import com.joshuacrotts.minischeme.MiniSchemeParser;
-import com.joshuacrotts.minischeme.ast.MSBooleanNode;
-import com.joshuacrotts.minischeme.ast.MSNumberNode;
-import com.joshuacrotts.minischeme.ast.MSIdentifierNode;
-import com.joshuacrotts.minischeme.ast.MSNodeType;
-import com.joshuacrotts.minischeme.ast.MSOpExpression;
-import com.joshuacrotts.minischeme.ast.MSPairNode;
-import com.joshuacrotts.minischeme.ast.MSProcedureCallNode;
-import com.joshuacrotts.minischeme.ast.MSProcedureDeclarationNode;
-import com.joshuacrotts.minischeme.ast.MSStringNode;
-import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.main.LValue.LValueType;
 import com.joshuacrotts.minischeme.parser.MSListener;
 import com.joshuacrotts.minischeme.parser.MSSemanticError;
@@ -33,7 +24,7 @@ public class MiniSchemeInterpreter {
      * @param body
      * @param args
      */
-    private static void replaceParams(MSProcedureDeclarationNode procDef,
+    private static void replaceParams(MSCallable procDef,
                                       MSSyntaxTree body, ArrayList<MSSyntaxTree> args) {
         for (int i = 0; i < args.size(); i++) {
             replaceParamsHelper(procDef, body, args.get(i), i);
@@ -46,7 +37,7 @@ public class MiniSchemeInterpreter {
      * @param arg
      * @param replaceIdx
      */
-    private static void replaceParamsHelper(MSProcedureDeclarationNode procDef,
+    private static void replaceParamsHelper(MSCallable procDef,
                                             MSSyntaxTree body, MSSyntaxTree arg, int replaceIdx) {
         // If the body is null then there's nothing to replace.
         if (body == null) {
@@ -115,6 +106,8 @@ public class MiniSchemeInterpreter {
                     return this.interpretCond(tree);
                 case PROC_CALL:
                     return this.interpretProcCall(tree);
+                case EXPR_LAMBDA_DECL_CALL:
+                    return this.interpretLambdaDeclCall(tree);
             }
         } catch (MSSemanticError err) {
             System.err.println(err.getMessage());
@@ -363,6 +356,39 @@ public class MiniSchemeInterpreter {
 
         MSSyntaxTree body = def.getBody().copy();
         replaceParams(def, body, args);
+        return this.interpretTree(body);
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
+    private LValue interpretLambdaDeclCall(MSSyntaxTree tree) {
+        //TODO evaluate the args.
+        MSLambdaDeclarationCall lambdaDeclCall = (MSLambdaDeclarationCall) tree;
+        MSSyntaxTree body = lambdaDeclCall.getLambdaBody().copy();
+        ArrayList<MSSyntaxTree> args = new ArrayList<>();
+        for (int i = 0; i < lambdaDeclCall.getLambdaArguments().size(); i++) {
+            LValue lhs = this.interpretTree(lambdaDeclCall.getLambdaArguments().get(i));
+            if (lhs.getType() == LValue.LValueType.NUM) {
+                args.add(new MSNumberNode(lhs.getDoubleValue()));
+            } else if (lhs.getType() == LValue.LValueType.BOOL) {
+                args.add(new MSBooleanNode(lhs.getBoolValue()));
+            } else if (lhs.getType() == LValueType.STR) {
+                args.add(new MSStringNode(lhs.getStringValue()));
+            } else if (lhs.getType() == LValueType.PROCCALL) {
+                args.add(lhs.getTreeValue());
+            } else if (lhs.getType() == LValueType.PAIR) {
+                // If it is null, then evaluate the null list.
+                if (lhs.getTreeValue() == null) {
+                    args.add(new MSPairNode());
+                } else {
+                    args.add(lhs.getTreeValue().copy());
+                }
+            }
+        }
+        replaceParams(lambdaDeclCall, body, args);
         return this.interpretTree(body);
     }
 

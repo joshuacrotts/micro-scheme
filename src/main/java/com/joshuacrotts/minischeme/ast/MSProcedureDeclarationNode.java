@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * an expression defining the body of a procedure. Note that the body expression can be as complex
  * as it ought to be since expressions are recursive.
  */
-public class MSProcedureDeclarationNode extends MSSyntaxTree {
+public class MSProcedureDeclarationNode extends MSSyntaxTree implements MSCallable {
 
     public MSProcedureDeclarationNode(MSSyntaxTree identifier, ArrayList<MSSyntaxTree> params,
                                       MSSyntaxTree body) {

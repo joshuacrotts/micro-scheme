@@ -1,10 +1,11 @@
 package com.joshuacrotts.minischeme.ast;
 
-import com.joshuacrotts.minischeme.parser.MSSemanticError;
-
 import java.util.ArrayList;
 
-public class MSLambdaDeclarationCall extends MSSyntaxTree {
+/**
+ *
+ */
+public class MSLambdaDeclarationCall extends MSSyntaxTree implements MSCallable {
 
     /**
      *
@@ -73,11 +74,30 @@ public class MSLambdaDeclarationCall extends MSSyntaxTree {
         return lambdaParams;
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<MSSyntaxTree> getLambdaArguments() {
         ArrayList<MSSyntaxTree> lambdaArgs = new ArrayList<MSSyntaxTree>();
         for (int i = 0; i < this.numLambdaArgs; i++) {
             lambdaArgs.add(this.getChild(i + 1 + this.numLambdaParams));
         }
         return lambdaArgs;
+    }
+
+    /**
+     * @param idStr
+     * @return
+     */
+    public int getArgumentLoc(String idStr) {
+        // Offset to account for the identifier and body being children.
+        for (int i = 0; i < this.numLambdaParams; i++) {
+            MSIdentifierNode id = (MSIdentifierNode) this.getChild(i);
+            if (id.getIdentifier().equals(idStr)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
