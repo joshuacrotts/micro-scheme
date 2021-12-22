@@ -80,7 +80,7 @@ public class MiniSchemeTester {
 
         // Connect parser to token stream
         MiniSchemeParser parser = new MiniSchemeParser(tokens);
-        ParseTree tree = parser.minischeme();
+        ParseTree tree = parser.miniScheme();
 
         // Now do the parsing, and walk the parse tree with our listeners
         ParseTreeWalker walker = new ParseTreeWalker();
