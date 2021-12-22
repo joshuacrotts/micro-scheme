@@ -67,23 +67,7 @@ public class MSCondNode extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("(COND ");
-        for (int i = 0; i < this.getChildrenSize() - 2; i += 2) {
-            sb.append("[(");
-            sb.append(this.getChild(i).toString());
-            sb.append(")");
-            sb.append(this.getChild(i + 1).toString());
-            sb.append("]");
-        }
-
-        if (this.hasElse) {
-            sb.append("[ELSE ");
-            sb.append(this.getChild(this.getChildrenSize() - 1).toString());
-            sb.append("]");
-        }
-
-        sb.append(")");
-        return sb.toString();
+        return this.getNodeType().toString();
     }
 
     public boolean hasElse() {

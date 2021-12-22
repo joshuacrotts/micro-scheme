@@ -126,6 +126,9 @@ expr: (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                   
     | (OPEN_PAREN term args? CLOSE_PAREN)                                           #exprProcCall
     | (OPEN_PAREN (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
         lambdaBody CLOSE_PAREN) lambdaArgs? CLOSE_PAREN)                            #exprLambdaDeclCall
+    | (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
+        lambdaBody CLOSE_PAREN)                                                     #exprLambdaDecl
+    | (OPEN_PAREN (OPEN_PAREN term args? CLOSE_PAREN) lambdaArgs? CLOSE_PAREN)      #exprLambdaCall
     | (OPEN_PAREN IF OPEN_PAREN ifCond CLOSE_PAREN ifBody ifElse CLOSE_PAREN)       #exprIf
     | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
         condCond CLOSE_PAREN condBody CLOSE_BRACKET)*

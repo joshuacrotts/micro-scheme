@@ -59,7 +59,7 @@ public class MSLambdaDeclarationCall extends MSSyntaxTree implements MSCallable 
 
     @Override
     public String toString() {
-        return "LAMBDA_CALL";
+        return "LAMBDA_DECL_CALL";
     }
 
     public MSSyntaxTree getLambdaBody() {

@@ -25,7 +25,8 @@ public class MiniSchemeInterpreter {
      * @param args
      */
     private static void replaceParams(MSCallable procDef,
-                                      MSSyntaxTree body, ArrayList<MSSyntaxTree> args) {
+                                      MSSyntaxTree body,
+                                      ArrayList<MSSyntaxTree> args) {
         for (int i = 0; i < args.size(); i++) {
             replaceParamsHelper(procDef, body, args.get(i), i);
         }
@@ -38,15 +39,15 @@ public class MiniSchemeInterpreter {
      * @param replaceIdx
      */
     private static void replaceParamsHelper(MSCallable procDef,
-                                            MSSyntaxTree body, MSSyntaxTree arg, int replaceIdx) {
+                                            MSSyntaxTree body,
+                                            MSSyntaxTree arg, int replaceIdx) {
         // If the body is null then there's nothing to replace.
-        if (body == null) {
-            return;
-        }
+        if (body == null) { return; }
         for (int i = 0; i < body.getChildrenSize(); i++) {
             MSSyntaxTree child = body.getChild(i);
+            if (child == null) { continue; }
             // The child is realistically only null with the empty list.
-            if (child != null && child.getNodeType() == MSNodeType.ID) {
+            if (child.getNodeType() == MSNodeType.ID) {
                 MSIdentifierNode id = (MSIdentifierNode) child;
                 if (procDef.getArgumentLoc(id.getIdentifier()) == replaceIdx) {
                     body.setChild(i, arg);
@@ -108,6 +109,8 @@ public class MiniSchemeInterpreter {
                     return this.interpretProcCall(tree);
                 case EXPR_LAMBDA_DECL_CALL:
                     return this.interpretLambdaDeclCall(tree);
+                case EXPR_LAMBDA_CALL:
+                    return this.interpretLambdaCall(tree);
             }
         } catch (MSSemanticError err) {
             System.err.println(err.getMessage());
@@ -365,7 +368,6 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretLambdaDeclCall(MSSyntaxTree tree) {
-        //TODO evaluate the args.
         MSLambdaDeclarationCall lambdaDeclCall = (MSLambdaDeclarationCall) tree;
         MSSyntaxTree body = lambdaDeclCall.getLambdaBody().copy();
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
@@ -386,10 +388,31 @@ public class MiniSchemeInterpreter {
                 } else {
                     args.add(lhs.getTreeValue().copy());
                 }
+            } else {
+                throw new IllegalStateException("Interpreter error - lambda decl call " +
+                        "found an incorrect lvalue. This should never happen...");
             }
         }
         replaceParams(lambdaDeclCall, body, args);
         return this.interpretTree(body);
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
+    private LValue interpretLambdaCall(MSSyntaxTree tree) {
+        MSLambdaCall lambdaCall = (MSLambdaCall) tree;
+        String id = lambdaCall.getIdentifier().getStringRep();
+        // We know that there must be a procedure definition - that's how we get here.
+        MSProcedureDeclarationNode procDecl = (MSProcedureDeclarationNode) MSListener.symbolTable.getProcedure(id).getProcDef();
+        MSLambdaDeclaration procBody = (MSLambdaDeclaration) procDecl.getBody();
+        // If there are any arguments for the *procedure*, replace them before evaluating the lambda.
+        replaceParams(procDecl, procBody, lambdaCall.getProcedureArguments());
+        MSLambdaDeclarationCall lambdaDeclCall = new MSLambdaDeclarationCall(procBody.getLambdaParameters(), procBody.getLambdaBody(), lambdaCall.getLambdaArguments());
+        // Now recursively evaluate the lambda.
+        return this.interpretTree(lambdaDeclCall);
     }
 
     /**

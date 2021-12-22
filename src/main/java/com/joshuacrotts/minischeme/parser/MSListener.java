@@ -111,6 +111,40 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitExprLambdaCall(MiniSchemeParser.ExprLambdaCallContext ctx) {
+        super.exitExprLambdaCall(ctx);
+        MSSyntaxTree procIdentifier = this.map.get(ctx.term());
+        ArrayList<MSSyntaxTree> procArgs = new ArrayList<>();
+        if (ctx.args() != null) {
+            for (ParseTree pt : ctx.args().expr()) {
+                procArgs.add(this.map.get(pt));
+            }
+        }
+
+        ArrayList<MSSyntaxTree> lambdaArgs = new ArrayList<>();
+        if (ctx.lambdaArgs() != null) {
+            for (ParseTree pt : ctx.lambdaArgs().expr()) {
+                lambdaArgs.add(this.map.get(pt));
+            }
+        }
+
+        this.map.put(ctx, new MSLambdaCall(procIdentifier, procArgs, lambdaArgs));
+    }
+
+    @Override
+    public void exitExprLambdaDecl(MiniSchemeParser.ExprLambdaDeclContext ctx) {
+        super.exitExprLambdaDecl(ctx);
+        ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
+        if (ctx.lambdaParams() != null) {
+            for (ParseTree pt : ctx.lambdaParams().expr()) {
+                lambdaParams.add(this.map.get(pt));
+            }
+        }
+        MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
+        this.map.put(ctx, new MSLambdaDeclaration(lambdaParams, lambdaBody));
+    }
+
+    @Override
     public void exitExprLambdaDeclCall(MiniSchemeParser.ExprLambdaDeclCallContext ctx) {
         super.exitExprLambdaDeclCall(ctx);
         // TODO check to make sure that the params and args are the same size.
