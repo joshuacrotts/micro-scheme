@@ -46,7 +46,7 @@ public class MSLambdaDeclarationCall extends MSSyntaxTree implements MSCallable 
         }
 
         for (int i = 0; i < this.numLambdaArgs; i++) {
-            argsCopy.add(this.getChild(i + 1 + this.numLambdaParams));
+            argsCopy.add(this.getChild(i + 1 + this.numLambdaParams).copy());
         }
 
         return new MSLambdaDeclarationCall(paramsCopy, bodyCopy, argsCopy);

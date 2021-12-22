@@ -7,7 +7,3 @@
 )
 
 (map-lambda-add '(1 2 3 4))
-(define l '(1 2 3))
-((lambda (x) (+ x 1)) (car l))
-
-(cons ((lambda (x) (+ x 1)) (car l)) '(2 3 4))

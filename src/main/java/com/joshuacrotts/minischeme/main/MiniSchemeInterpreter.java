@@ -40,12 +40,13 @@ public class MiniSchemeInterpreter {
      */
     private static void replaceParamsHelper(MSCallable procDef,
                                             MSSyntaxTree body,
-                                            MSSyntaxTree arg, int replaceIdx) {
+                                            MSSyntaxTree arg,
+                                            int replaceIdx) {
         // If the body is null then there's nothing to replace.
         if (body == null) { return; }
         for (int i = 0; i < body.getChildrenSize(); i++) {
             MSSyntaxTree child = body.getChild(i);
-            if (child == null) { continue; }
+            if (child == null) { return; }
             // The child is realistically only null with the empty list.
             if (child.getNodeType() == MSNodeType.ID) {
                 MSIdentifierNode id = (MSIdentifierNode) child;
@@ -369,7 +370,6 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretLambdaDeclCall(MSSyntaxTree tree) {
         MSLambdaDeclarationCall lambdaDeclCall = (MSLambdaDeclarationCall) tree;
-        MSSyntaxTree body = lambdaDeclCall.getLambdaBody().copy();
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         for (int i = 0; i < lambdaDeclCall.getLambdaArguments().size(); i++) {
             LValue lhs = this.interpretTree(lambdaDeclCall.getLambdaArguments().get(i));
@@ -393,6 +393,8 @@ public class MiniSchemeInterpreter {
                         "found an incorrect lvalue. This should never happen...");
             }
         }
+
+        MSSyntaxTree body = lambdaDeclCall.getLambdaBody().copy();
         replaceParams(lambdaDeclCall, body, args);
         return this.interpretTree(body);
     }
