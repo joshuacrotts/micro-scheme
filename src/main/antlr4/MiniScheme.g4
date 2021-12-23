@@ -87,9 +87,12 @@ STRING_FN: 'string?';
 LIST_FN: 'list?';
 NULL_FN: 'null?';
 ATOM_FN: 'atom?';
+PAIR_FN: 'pair?';
 EQ_FN: 'eq?';
 EQUAL_FN: 'equal?';
 MEMBER_FN: 'member?';
+TRUE_FN: 'true?';
+FALSE_FN: 'false?';
 STRLEN_FN: 'string-length';
 RANDINT_FN: 'random-integer';
 RANDDOUBLE_FN: 'random-double';
@@ -155,7 +158,8 @@ unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
         | FLOOR | CEILING | TRUNCATE | LOGICAL_NOT | LOGICAL_AND
         | LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN | LIST_FN
         | EQ_FN | EQUAL_FN | NULL_FN | ATOM_FN | CAR | CDR
-        | STRLEN_FN
+        | STRLEN_FN | PAIR_FN | TRUE_FN | FALSE_FN | STRTONUM_FN
+        | NUMTOSTR_FN
         ;
 
 // All n-ary operators. An n-ary operator is an operator that takes at least two parameters. The

@@ -5,14 +5,11 @@
     )
 )
 
-(define (flatten l)
-  (cond
-    [(null? l) '()]
-    [(list? l) (append (flatten (first l)) (flatten (rest l)))]
-    [else (list l)]
+(define (reverse l)
+  (if (null? l) '()
+     (append (reverse (cdr l)) (list (car l)))
   )
 )
 
-(define l1 (cons (cons 1 (cons 2 3)) (cons (cons 4 5) 6))
-l1
-(flatten l1)
+(reverse '(1 2 3 4))
+(reverse '("Joshua" "Viola" "Dookie" "Doodoo"))

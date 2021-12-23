@@ -49,6 +49,11 @@ public class LValue {
         this.bval = bval;
     }
 
+    protected LValue(MSStringNode sval) {
+        this(LValueType.STR);
+        this.sval = sval;
+    }
+
     protected LValue(double dval) {
         this(new MSNumberNode(dval));
     }
@@ -86,6 +91,24 @@ public class LValue {
         this(LValueType.NULL);
     }
 
+    /**
+     *
+     * @param lval
+     * @return
+     */
+    protected static MSSyntaxTree getAstFromLValue(LValue lval) {
+        switch (lval.getType()) {
+            case NUM: return new MSNumberNode(lval.getDoubleValue());
+            case BOOL: return new MSBooleanNode(lval.getBoolValue());
+            case STR: return new MSStringNode(lval.getStringValue());
+            case PAIR: return lval.getTreeValue();
+            case NULL:
+                return null;
+        }
+        throw new IllegalArgumentException("Internal interpreter error " +
+                "- cannot get AST from LValue of type " + lval.getType());
+    }
+
     @Override
     public String toString() {
         switch (this.type) {
@@ -109,12 +132,9 @@ public class LValue {
      * @return
      */
     protected String toDisplayString() {
-        switch (this.type) {
-            case STR:
-                return this.sval.getStringRep();
-            default:
-                return this.toString();
-        }
+        return this.type == LValueType.STR
+                ? this.sval.getStringRep()
+                : this.toString();
     }
 
     protected double getDoubleValue() {
@@ -122,7 +142,6 @@ public class LValue {
     }
 
     protected boolean getBoolValue() {
-        System.out.println(this.bval);
         return this.bval.getValue();
     }
 

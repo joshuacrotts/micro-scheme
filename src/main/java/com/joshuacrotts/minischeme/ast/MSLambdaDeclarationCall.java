@@ -62,10 +62,18 @@ public class MSLambdaDeclarationCall extends MSSyntaxTree implements MSCallable 
         return "LAMBDA_DECL_CALL";
     }
 
+    /**
+     *
+     * @return
+     */
     public MSSyntaxTree getLambdaBody() {
         return this.getChild(this.numLambdaParams);
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<MSSyntaxTree> getLambdaParameters() {
         ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<MSSyntaxTree>();
         for (int i = 0; i < this.numLambdaParams; i++) {
