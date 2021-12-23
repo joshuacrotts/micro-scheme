@@ -1,0 +1,11 @@
+(define (equals num)
+    (cond
+        [(= num 5) "Num is 5"]
+        [(< num 5) "Num is less than 5"]
+        [else "Num > 5"]
+    )
+)
+
+(equals 5)
+(equals 6)
+(equals 4)

@@ -1,0 +1,18 @@
+(define (append list1 list2)
+    (if (null? list1)
+        list2
+        (cons (car list1) (append (cdr list1) list2))
+    )
+)
+
+(define (flatten l)
+  (cond
+    [(null? l) '()]
+    [(list? l) (append (flatten (first l)) (flatten (rest l)))]
+    [else (list l)]
+  )
+)
+
+(define l1 (cons (cons 1 (cons 2 3)) (cons (cons 4 5) 6))
+l1
+(flatten l1)

@@ -47,16 +47,15 @@ public class MSCondNode extends MSSyntaxTree {
     public MSSyntaxTree copy() {
         ArrayList<MSSyntaxTree> condCondCopy = new ArrayList<>();
         ArrayList<MSSyntaxTree> condBodyCopy = new ArrayList<>();
-        for (int i = 0; i < this.condCondCount; i += 2) {
+        for (int i = 0; i < this.getChildrenSize(); i += 2) {
             condCondCopy.add(this.getChild(i).copy());
         }
-        for (int i = 1; i < this.condBodyCount; i += 2) {
-            condBodyCopy.add(this.getChild(i));
+        for (int i = 1; i < this.getChildrenSize(); i += 2) {
+            condBodyCopy.add(this.getChild(i).copy());
         }
         if (this.hasElse) {
             condBodyCopy.add(this.getChild(this.getChildrenSize() - 1).copy());
         }
-
         return new MSCondNode(condCondCopy, condBodyCopy, this.hasElse);
     }
 

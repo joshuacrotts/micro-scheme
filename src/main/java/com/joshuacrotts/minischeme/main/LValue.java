@@ -122,6 +122,7 @@ public class LValue {
     }
 
     protected boolean getBoolValue() {
+        System.out.println(this.bval);
         return this.bval.getValue();
     }
 

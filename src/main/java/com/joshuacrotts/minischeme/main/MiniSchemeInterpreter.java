@@ -47,12 +47,25 @@ public class MiniSchemeInterpreter {
         for (int i = 0; i < body.getChildrenSize(); i++) {
             MSSyntaxTree child = body.getChild(i);
             if (child == null) { return; }
-            // The child is realistically only null with the empty list.
+            // If it's an ID then we want to replace it.
             if (child.getNodeType() == MSNodeType.ID) {
                 MSIdentifierNode id = (MSIdentifierNode) child;
                 if (procDef.getArgumentLoc(id.getIdentifier()) == replaceIdx) {
                     body.setChild(i, arg);
                 }
+            }
+            // If the child of this node is a lambda call and ITS child is a
+            // lambda declaration, we can reduce this to a lambda decl call.
+            else if (child.getChildrenSize() > 0
+                    && child.getChild(0) != null
+                    && child.getNodeType() == MSNodeType.EXPR_LAMBDA_CALL
+                    && child.getChild(0).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL ){
+                MSLambdaDeclaration lambdaDecl = (MSLambdaDeclaration) child.getChild(0);
+                MSLambdaCall lambdaCall = (MSLambdaCall) child;
+                body.setChild(i, new MSLambdaDeclarationCall(lambdaDecl.getLambdaParameters(),
+                                                            lambdaDecl.getLambdaBody(),
+                                                            lambdaCall.getLambdaArguments()));
+                replaceParamsHelper(procDef, child, arg, replaceIdx);
             } else {
                 replaceParamsHelper(procDef, child, arg, replaceIdx);
             }
@@ -80,7 +93,7 @@ public class MiniSchemeInterpreter {
      * @param tree
      * @return
      */
-    protected LValue interpretTree(MSSyntaxTree tree) {
+    private LValue interpretTree(MSSyntaxTree tree) {
         if (tree == null) {
             return new LValue(LValue.LValueType.NULL);
         }
@@ -311,8 +324,7 @@ public class MiniSchemeInterpreter {
         int bodyIdx = 1;
         boolean execLastBlock = true;
 
-        while (condIdx < tree.getChildrenSize()
-                && bodyIdx < tree.getChildrenSize()) {
+        while (condIdx < tree.getChildrenSize() && bodyIdx < tree.getChildrenSize()) {
             LValue condCond = this.interpretTree(tree.getChild(condIdx));
             // If the condition is true, evaluate that expression.
             if (condCond.getBoolValue()) {
@@ -339,21 +351,32 @@ public class MiniSchemeInterpreter {
                 MSListener.symbolTable.getProcedure(id).getProcDef();
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         for (int i = 0; i < procCall.getArguments().size(); i++) {
-            LValue lhs = this.interpretTree(procCall.getArguments().get(i));
-            if (lhs.getType() == LValue.LValueType.NUM) {
-                args.add(new MSNumberNode(lhs.getDoubleValue()));
-            } else if (lhs.getType() == LValue.LValueType.BOOL) {
-                args.add(new MSBooleanNode(lhs.getBoolValue()));
-            } else if (lhs.getType() == LValueType.STR) {
-                args.add(new MSStringNode(lhs.getStringValue()));
-            } else if (lhs.getType() == LValueType.PROCCALL) {
-                args.add(lhs.getTreeValue());
-            } else if (lhs.getType() == LValueType.PAIR) {
-                // If it is null, then evaluate the null list.
-                if (lhs.getTreeValue() == null) {
-                    args.add(new MSPairNode());
+            // If it's a lambda declaration, we can't evaluate it - we pass it forward.
+            MSSyntaxTree procCallArg = procCall.getArguments().get(i);
+            if (procCall.getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+                args.add(procCallArg);
+            } else {
+                // Otherwise, evaluate the arg.
+                LValue lhs = this.interpretTree(procCallArg);
+                if (lhs.getType() == LValue.LValueType.NUM) {
+                    args.add(new MSNumberNode(lhs.getDoubleValue()));
+                } else if (lhs.getType() == LValue.LValueType.BOOL) {
+                    args.add(new MSBooleanNode(lhs.getBoolValue()));
+                } else if (lhs.getType() == LValueType.STR) {
+                    args.add(new MSStringNode(lhs.getStringValue()));
+                } else if (lhs.getType() == LValueType.PROCCALL) {
+                    args.add(lhs.getTreeValue());
+                } else if (lhs.getType() == LValueType.PAIR) {
+                    // If it is null, then evaluate the null list.
+                    if (lhs.getTreeValue() == null) {
+                        args.add(new MSPairNode());
+                    } else {
+                        args.add(lhs.getTreeValue());
+                    }
+                } else if (procCall.getArguments().get(i).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+                    args.add(procCall.getArguments().get(i));
                 } else {
-                    args.add(lhs.getTreeValue().copy());
+                    throw new IllegalArgumentException("Unable to replace " + lhs.getType() + ", " + procCall.getArguments().get(i).getStringRep());
                 }
             }
         }
@@ -372,25 +395,32 @@ public class MiniSchemeInterpreter {
         MSLambdaDeclarationCall lambdaDeclCall = (MSLambdaDeclarationCall) tree;
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         for (int i = 0; i < lambdaDeclCall.getLambdaArguments().size(); i++) {
-            LValue lhs = this.interpretTree(lambdaDeclCall.getLambdaArguments().get(i));
-            if (lhs.getType() == LValue.LValueType.NUM) {
-                args.add(new MSNumberNode(lhs.getDoubleValue()));
-            } else if (lhs.getType() == LValue.LValueType.BOOL) {
-                args.add(new MSBooleanNode(lhs.getBoolValue()));
-            } else if (lhs.getType() == LValueType.STR) {
-                args.add(new MSStringNode(lhs.getStringValue()));
-            } else if (lhs.getType() == LValueType.PROCCALL) {
-                args.add(lhs.getTreeValue());
-            } else if (lhs.getType() == LValueType.PAIR) {
-                // If it is null, then evaluate the null list.
-                if (lhs.getTreeValue() == null) {
-                    args.add(new MSPairNode());
-                } else {
-                    args.add(lhs.getTreeValue().copy());
-                }
+            // If it's a lambda declaration, we can't evaluate it - we pass it forward.
+            MSSyntaxTree lambdaDeclCallArg = lambdaDeclCall.getLambdaArguments().get(i);
+            if (lambdaDeclCallArg.getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+                args.add(lambdaDeclCallArg);
             } else {
-                throw new IllegalStateException("Interpreter error - lambda decl call " +
-                        "found an incorrect lvalue. This should never happen...");
+                // Otherwise, evaluate the arg.
+                LValue lhs = this.interpretTree(lambdaDeclCall.getLambdaArguments().get(i));
+                if (lhs.getType() == LValue.LValueType.NUM) {
+                    args.add(new MSNumberNode(lhs.getDoubleValue()));
+                } else if (lhs.getType() == LValue.LValueType.BOOL) {
+                    args.add(new MSBooleanNode(lhs.getBoolValue()));
+                } else if (lhs.getType() == LValueType.STR) {
+                    args.add(new MSStringNode(lhs.getStringValue()));
+                } else if (lhs.getType() == LValueType.PROCCALL) {
+                    args.add(lhs.getTreeValue());
+                } else if (lhs.getType() == LValueType.PAIR) {
+                    // If it is null, then evaluate the null list.
+                    if (lhs.getTreeValue() == null) {
+                        args.add(new MSPairNode());
+                    } else {
+                        args.add(lhs.getTreeValue());
+                    }
+                } else {
+                    throw new IllegalStateException("Interpreter error - lambda decl call " +
+                            "found an incorrect lvalue. This should never happen...");
+                }
             }
         }
 
