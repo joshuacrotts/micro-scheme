@@ -1,0 +1,62 @@
+;; append : list -> list
+(define (append list1 list2)
+    (if (null? list1)
+        list2
+        (cons (car list1) (append (cdr list1) list2))
+    )
+)
+
+
+;; sort : list-of-numbers -> list-of-numbers
+;; to create a list of numbers with the same
+;; numbers
+;; as alon sorted in descending order
+(define (sort alon)
+    (cond
+        [(null? alon) '()]
+        [(pair? alon) (insert (car alon) (sort (cdr alon)))]
+        [else '()]
+    )
+)
+
+
+;; insert : number sorted-number-list -> number-list
+;; to create a list of numbers from n and alon that is
+;; sorted in descending order; alon is sorted
+(define (insert n alon)
+    (cond
+        [(null? alon) (cons n '())]
+        [else
+            (cond
+                [(< n (car alon)) (cons n alon)]
+                [else (cons (car alon) (insert n (cdr alon)))]
+            )
+        ]
+    )
+)
+
+
+;; reverse : list -> list
+;; reverses the elements of a list
+(define (reverse l)
+  (if (null? l) '()
+     (append (reverse (cdr l)) (list (car l)))
+  )
+)
+
+
+(define num (** 2 8))
+(display (sort '(2 3 10 9 12 43 1 9 34)))
+(display (sort '(3.14 6.28 (+ 3 4 5) 1 1.01 4)))
+(display (sort '(3.14 6.28 (+ 9.999 (* 9.999 3.141527 num)) 1 1.01 4)))
+(display (sort '( 30    3    2    6   32   31   65   56  100   52
+                  11   95   49   82   80   22   24   14    7   71
+                  16   67   23   15   83   88   96   64   48   44
+                  94   55   36   78   73   25   77   66    9   38
+                  62   40   81   57   85    5   18   41   68   21
+                  59   27    1   58   79   19   29   87   45   12
+                  50   60   86   74   42   70   28   69   34    8
+                  76   53   97   51   13   37   72   63   89   91
+                  61   33   46   90   47   26   92   99   75   20
+                  17   39   98    4   54   84   93   35   10   43
+                  )))

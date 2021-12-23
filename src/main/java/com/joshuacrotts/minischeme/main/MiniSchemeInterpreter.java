@@ -471,11 +471,9 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.STRLEN_FN:
                 return new LValue(lhs.getStringValue().length());
             case MiniSchemeParser.NUMTOSTR_FN:
-                String sval = Double.toString(lhs.getDoubleValue());
-                return new LValue(new MSStringNode(sval));
+                return new LValue(new MSStringNode(lhs.toString()));
             case MiniSchemeParser.STRTONUM_FN:
-                double dval = Double.parseDouble(lhs.getStringValue());
-                return new LValue(new MSNumberNode(dval));
+                return new LValue(new MSNumberNode(Double.parseDouble(lhs.getStringValue())));
         }
 
         throw new IllegalArgumentException("ERR invalid unary type " + opType);
@@ -500,7 +498,8 @@ public class MiniSchemeInterpreter {
                 case NULL:
                     return new LValue(true);
                 default:
-                    throw new UnsupportedOperationException("Not yet!");
+                    throw new UnsupportedOperationException("Internal interpreter error " +
+                            "- cannot use equal? procedure on operands of type " + lhs.getType());
             }
         }
         return new LValue(false);
@@ -522,7 +521,8 @@ public class MiniSchemeInterpreter {
             }
 
             // If the identifiers are the same then... we need to return true...
-            // but how do we do that without their definition?
+            // but how do we do that without their definition? For now,
+            // just return false for everything.
         }
 
         return new LValue(false);

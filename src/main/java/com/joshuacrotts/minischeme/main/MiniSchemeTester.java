@@ -35,7 +35,6 @@ public class MiniSchemeTester {
                 System.exit(1);
             }
 
-            // tree.printSyntaxTree();
             MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter(tree);
             interpreter.execute();
         }
