@@ -20,4 +20,4 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Run tests with Maven
-        run: mvn compile install generate-sources test -Dtest=InterpreterTester
+        run: mvn compile generate-sources test -Dtest=InterpreterTester

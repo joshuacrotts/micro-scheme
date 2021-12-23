@@ -85,6 +85,7 @@ public class MiniSchemeInterpreter {
                 case STR:
                     System.out.println(lhs);
                     break;
+                default: // Do nothing for now...
             }
         }
     }
@@ -123,6 +124,9 @@ public class MiniSchemeInterpreter {
                     return this.interpretLambdaDeclCall(tree);
                 case EXPR_LAMBDA_CALL:
                     return this.interpretLambdaCall(tree);
+                default:
+                    throw new IllegalStateException("Internal interpreter error " +
+                            "- cannot evaluate node of type " + tree.getNodeType() + ". This should never happen...");
             }
         } catch (MSSemanticError err) {
             System.err.println(err.getMessage());
@@ -408,9 +412,9 @@ public class MiniSchemeInterpreter {
                 return this.interpretEqFn(lhs, rhs);
             case MiniSchemeParser.EQUAL_FN:
                 return this.interpretEqualFn(lhs, rhs);
+            default:
+                throw new IllegalArgumentException("ERR invalid binop type " + opType);
         }
-
-        throw new IllegalArgumentException("ERR invalid binop type " + opType);
     }
 
     /**
@@ -474,9 +478,9 @@ public class MiniSchemeInterpreter {
                 return new LValue(new MSStringNode(lhs.toString()));
             case MiniSchemeParser.STRTONUM_FN:
                 return new LValue(new MSNumberNode(Double.parseDouble(lhs.getStringValue())));
+            default:
+                throw new IllegalArgumentException("ERR invalid unary type " + opType);
         }
-
-        throw new IllegalArgumentException("ERR invalid unary type " + opType);
     }
 
     /**
