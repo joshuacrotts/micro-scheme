@@ -11,8 +11,8 @@ public class SymbolTable {
         this.table = new HashMap<>();
     }
 
-    public void addVariable(String identifier, MSSyntaxTree value) {
-        this.table.put(identifier, new Variable(value));
+    public void addVariable(String identifier, MSSyntaxTree varExpr) {
+        this.table.put(identifier, new Variable(varExpr));
     }
 
     public void addProcedure(String identifier, MSSyntaxTree procDef) {
@@ -33,11 +33,11 @@ public class SymbolTable {
 
     public Lambda getLambda(String sym) { return this.isLambda(sym) ? (Lambda) this.table.get(sym) : null; }
 
-    public void setVariable(String identifier, MSSyntaxTree value) {
+    public void setVariable(String identifier, MSSyntaxTree varExpr) {
         if (!this.table.containsKey(identifier)) {
             throw new IllegalArgumentException("ERR variable " + identifier + " undefined");
         }
-        this.table.put(identifier, new Variable(value));
+        this.table.put(identifier, new Variable(varExpr));
     }
 
     public boolean hasSymbol(String identifier) {

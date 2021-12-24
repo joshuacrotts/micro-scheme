@@ -105,6 +105,7 @@ STRTONUM_FN: 'string-to-number';
 NUMTOSTR_FN: 'number-to-string';
 SETCAR_FN: 'set-car!';
 SETCDR_FN: 'set-cdr!';
+SETVAR_FN: 'set!';
 
 ID: [a-zA-Z_-][a-zA-Z0-9_-]*('?')?;
 
@@ -174,7 +175,7 @@ naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
       ;
 
 // "Set" operations - allows redefining of variables.
-setop: SETCAR_FN | SETCDR_FN
+setop: SETCAR_FN | SETCDR_FN | SETVAR_FN
      ;
 
 term: NUMBERLIT

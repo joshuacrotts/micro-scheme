@@ -1,0 +1,9 @@
+(define l '(1 2 3 4))
+l
+(set-car! l 5)
+l
+(car l)
+(set-cdr! l 123)
+l
+(equal? (cons 5 123) l)
+(equal? (car l) 5)

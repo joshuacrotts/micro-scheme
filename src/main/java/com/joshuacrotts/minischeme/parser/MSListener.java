@@ -50,11 +50,8 @@ public class MSListener extends MiniSchemeBaseListener {
     public void exitVarDecl(MiniSchemeParser.VarDeclContext ctx) {
         super.exitVarDecl(ctx);
         // TODO check to see if it's already defined!
-        MSSyntaxTree id = this.map.get(ctx.term());
         MSSyntaxTree expr = this.map.get(ctx.expr());
-        MSVariableNode var = new MSVariableNode(id, expr);
-        symbolTable.addVariable(ctx.term().getText(), var);
-        this.map.put(ctx, var);
+        symbolTable.addVariable(ctx.term().getText(), expr);
     }
 
     @Override
