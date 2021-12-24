@@ -121,6 +121,7 @@ decl: (OPEN_PAREN DEFINE term expr CLOSE_PAREN)                                 
 // Defines an expression. An expression is either a term, "cons", an operator, a list construction,
 // a procedure call, an if expression, or a cond expression.
 expr: (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                       #exprCons
+    | (OPEN_PAREN setop term expr CLOSE_PAREN)                                      #exprSet
     | (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)                             #exprOp
     | ((unaryop | naryop) expr*)                                                    #exprOp
     | (OPEN_PAREN
@@ -171,6 +172,10 @@ naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
       | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
       | RANDINT_FN | RANDDOUBLE_FN | RAND_FN
       ;
+
+// "Set" operations - allows redefining of variables.
+setop: SETCAR_FN | SETCDR_FN
+     ;
 
 term: NUMBERLIT
     | CHARLIT

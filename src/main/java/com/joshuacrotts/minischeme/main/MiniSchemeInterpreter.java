@@ -104,6 +104,8 @@ public class MiniSchemeInterpreter {
                     return this.interpretIdentifier(tree);
                 case OP:
                     return this.interpretOperator(tree);
+                case SET:
+                    return this.interpretSetOp(tree);
                 case NUM:
                     return this.interpretNumber(tree);
                 case BOOL:
@@ -185,7 +187,7 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretOperator(MSSyntaxTree tree) {
-        int opType = ((MSOpExpression) tree).getOpType();
+        int opType = ((MSOpNode) tree).getOpType();
         LValue res = null;
         // Determine if it's a unary operator or nary.
         if (tree.getChildrenSize() == 1) {
@@ -477,6 +479,33 @@ public class MiniSchemeInterpreter {
                 return new LValue(new MSNumberNode(Double.parseDouble(lhs.getStringValue())));
             default:
                 throw new IllegalArgumentException("ERR invalid unary type " + opType);
+        }
+    }
+
+    /**
+     *
+     */
+    private LValue interpretSetOp(MSSyntaxTree tree) {
+        MSSetNode setNode = (MSSetNode) tree;
+        switch (setNode.getOpType()) {
+            case MiniSchemeParser.SETCAR_FN:
+                String idCar = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
+                MSPairNode pairCar = (MSPairNode) MSListener.symbolTable.getVariable(idCar).getExpression().getChild(1);
+                pairCar.setCar(setNode.getExpression());
+                MSVariableNode varNodeCar = new MSVariableNode(setNode.getIdentifier(), pairCar);
+                MSListener.symbolTable.setVariable(idCar, varNodeCar);
+                return new LValue();
+            case MiniSchemeParser.SETCDR_FN:
+                String idCdr = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
+                MSPairNode pairCdr = (MSPairNode) MSListener.symbolTable.getVariable(idCdr).getExpression().getChild(1);
+                pairCdr.setCdr(setNode.getExpression());
+                MSVariableNode varNode = new MSVariableNode(setNode.getIdentifier(), pairCdr);
+                MSListener.symbolTable.setVariable(idCdr, varNode);
+                return new LValue();
+            default:
+                throw new IllegalArgumentException("Internal interpreter error "
+                        + "- cannot set with operator of type " + tree.getNodeType()
+                        + ". This should never happen...");
         }
     }
 

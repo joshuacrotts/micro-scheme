@@ -16,5 +16,6 @@ public enum MSNodeType {
     EXPR_LAMBDA_DECL_CALL,
     IF,
     COND,
-    BOOL
+    BOOL,
+    SET
 }

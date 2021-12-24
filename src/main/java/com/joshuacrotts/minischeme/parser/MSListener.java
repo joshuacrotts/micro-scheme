@@ -6,7 +6,6 @@ import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import java.util.ArrayList;
 
-import com.joshuacrotts.minischeme.symbol.Variable;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -96,6 +95,14 @@ public class MSListener extends MiniSchemeBaseListener {
         // If they enter the empty list, then we need to add a "blank" pair node.
         parentPair = prevPair != null ? prevPair : new MSPairNode();
         this.map.put(ctx, parentPair);
+    }
+
+    @Override
+    public void exitExprSet(MiniSchemeParser.ExprSetContext ctx) {
+        MSSyntaxTree identifierNode = this.map.get(ctx.term());
+        MSSyntaxTree exprNode = this.map.get(ctx.expr());
+        int setOpType = ((TerminalNode) ctx.setop().getChild(0)).getSymbol().getType();
+        this.map.put(ctx, new MSSetNode(setOpType, identifierNode, exprNode));
     }
 
     @Override
@@ -197,7 +204,7 @@ public class MSListener extends MiniSchemeBaseListener {
     public void exitExprOp(MiniSchemeParser.ExprOpContext ctx) {
         super.exitExprOp(ctx);
         int symbol = getTokenFromSymbol(ctx);
-        MSSyntaxTree expr = new MSOpExpression(symbol);
+        MSSyntaxTree expr = new MSOpNode(symbol);
         for (int i = 0; i < ctx.expr().size(); i++) {
             expr.addChild(this.map.get(ctx.expr(i)));
         }

@@ -11,26 +11,26 @@ import com.joshuacrotts.minischeme.MiniSchemeParser;
  * @author Joshua Crotts
  * @version 12/20/2021
  */
-public class MSOpExpression extends MSSyntaxTree {
+public class MSOpNode extends MSSyntaxTree {
 
     /**
      * Operation type. This should be a token type from the parser.
      */
     private final int opType;
 
-    public MSOpExpression(int opType, MSSyntaxTree... children) {
+    public MSOpNode(int opType, MSSyntaxTree... children) {
         super(MSNodeType.OP, children);
         this.opType = opType;
     }
 
-    private MSOpExpression(int opType) {
+    private MSOpNode(int opType) {
         super(MSNodeType.OP);
         this.opType = opType;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        MSOpExpression exp = new MSOpExpression(this.opType);
+        MSOpNode exp = new MSOpNode(this.opType);
         for (MSSyntaxTree ch : this.getChildren()) {
             exp.addChild(ch.copy());
         }
