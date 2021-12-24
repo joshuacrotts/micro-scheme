@@ -124,9 +124,6 @@ public class MiniSchemeInterpreter {
                     return this.interpretLambdaDeclCall(tree);
                 case EXPR_LAMBDA_CALL:
                     return this.interpretLambdaCall(tree);
-                default:
-                    throw new IllegalStateException("Internal interpreter error " +
-                            "- cannot evaluate node of type " + tree.getNodeType() + ". This should never happen...");
             }
         } catch (MSSemanticError err) {
             System.err.println(err.getMessage());
