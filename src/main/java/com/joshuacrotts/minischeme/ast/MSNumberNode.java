@@ -6,7 +6,7 @@ package com.joshuacrotts.minischeme.ast;
 public class MSNumberNode extends MSSyntaxTree {
 
     /**
-     *
+     * Number associated with this node.
      */
     private final double value;
 

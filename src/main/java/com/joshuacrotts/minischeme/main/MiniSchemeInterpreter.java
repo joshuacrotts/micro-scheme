@@ -206,11 +206,9 @@ public class MiniSchemeInterpreter {
     private LValue interpretIdentifier(MSSyntaxTree tree) {
         String id = tree.getStringRep();
         if (MSListener.symbolTable.isVariable(id)) {
-            return this
-                    .interpretTree(MSListener.symbolTable.getVariable(id).getExpression().getChild(1));
+            return this.interpretTree(MSListener.symbolTable.getVariable(id).getExpression().getChild(1));
         } else {
-            MSProcedureDeclarationNode procDef = (MSProcedureDeclarationNode) MSListener.symbolTable
-                    .getProcedure(id).getProcDef();
+            MSProcedureDeclarationNode procDef = (MSProcedureDeclarationNode) MSListener.symbolTable.getProcedure(id).getProcDef();
             return new LValue(LValueType.PROCCALL, procDef.getIdentifier());
         }
     }
@@ -259,11 +257,13 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretProcCall(MSSyntaxTree tree) {
+        // Poll the procedure from the symbol table.
         MSProcedureCallNode procCall = (MSProcedureCallNode) tree;
         String id = procCall.getIdentifier().getStringRep();
         MSProcedureDeclarationNode def = (MSProcedureDeclarationNode)
                 MSListener.symbolTable.getProcedure(id).getProcDef();
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
+
         for (int i = 0; i < procCall.getArguments().size(); i++) {
             // If it's a lambda declaration, we can't evaluate it - we pass it forward.
             MSSyntaxTree procCallArg = procCall.getArguments().get(i);

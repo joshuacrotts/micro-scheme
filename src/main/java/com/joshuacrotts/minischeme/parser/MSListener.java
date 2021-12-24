@@ -5,6 +5,8 @@ import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import java.util.ArrayList;
+
+import com.joshuacrotts.minischeme.symbol.Variable;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;

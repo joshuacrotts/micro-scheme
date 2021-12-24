@@ -2,15 +2,21 @@ package com.joshuacrotts.minischeme.ast;
 
 import java.util.ArrayList;
 
+/**
+ *
+ *
+ * @author Joshua Crotts
+ * @version 12/23/2021
+ */
 public class MSLambdaCall extends MSSyntaxTree {
 
     /**
-     *
+     * Number of arguments passed to the procedure being called, if any.
      */
     private int numProcArgs;
 
     /**
-     *
+     * Number of arguments passed to the lambda being called, if any.
      */
     private int numLambdaArgs;
 

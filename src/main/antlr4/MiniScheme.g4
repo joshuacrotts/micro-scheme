@@ -103,6 +103,8 @@ READCHAR_FN: 'read-char';
 READDOUBLE_FN: 'read-double';
 STRTONUM_FN: 'string-to-number';
 NUMTOSTR_FN: 'number-to-string';
+SETCAR_FN: 'set-car!';
+SETCDR_FN: 'set-cdr!';
 
 ID: [a-zA-Z_-][a-zA-Z0-9_-]*('?')?;
 

@@ -6,6 +6,9 @@ package com.joshuacrotts.minischeme.ast;
  *
  * CHILD 0: identifier of variable.
  * CHILD 1: expression that binds to the variable.
+ *
+ * @author Joshua Crotts
+ * @version 12/23/2021
  */
 public class MSVariableNode extends MSSyntaxTree {
 

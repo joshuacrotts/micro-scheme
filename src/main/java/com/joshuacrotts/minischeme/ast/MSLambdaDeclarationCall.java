@@ -4,16 +4,19 @@ import java.util.ArrayList;
 
 /**
  *
+ *
+ * @author Joshua Crotts
+ * @version 12/23/2021
  */
 public class MSLambdaDeclarationCall extends MSSyntaxTree implements MSCallable {
 
     /**
-     *
+     * Number of parameters required to call this lambda.
      */
     private int numLambdaParams;
 
     /**
-     *
+     * Number of arguments passed to this lambda.
      */
     private int numLambdaArgs;
 

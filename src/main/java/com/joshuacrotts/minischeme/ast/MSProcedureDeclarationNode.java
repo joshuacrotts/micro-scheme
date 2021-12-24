@@ -10,9 +10,15 @@ import java.util.ArrayList;
  */
 public class MSProcedureDeclarationNode extends MSSyntaxTree implements MSCallable {
 
+    /**
+     *
+     */
+    private int numParams;
+
     public MSProcedureDeclarationNode(MSSyntaxTree identifier, ArrayList<MSSyntaxTree> params,
                                       MSSyntaxTree body) {
         super(MSNodeType.PROC_DECL);
+        this.numParams = params.size();
         this.addChild(identifier);
         for (int i = 0; i < params.size(); i++) {
             this.addChild(params.get(i));
@@ -27,9 +33,8 @@ public class MSProcedureDeclarationNode extends MSSyntaxTree implements MSCallab
 
         // Now copy the parameters.
         ArrayList<MSSyntaxTree> newParams = new ArrayList<>();
-        for (int i = 1; i < this.getChildrenSize() - 1; i++) {
-            MSSyntaxTree oldParam = this.getChild(i);
-            newParams.add(oldParam.copy());
+        for (int i = 0; i < this.numParams; i++) {
+            newParams.add(this.getChild(i + 1).copy());
         }
 
         // Lastly, copy the body over.
@@ -44,8 +49,8 @@ public class MSProcedureDeclarationNode extends MSSyntaxTree implements MSCallab
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getIdentifier()).append(": ");
-        for (int i = 1; i < this.getChildrenSize() - 1; i++) {
-            MSSyntaxTree param = this.getChild(i);
+        for (int i = 0; i < this.numParams; i++) {
+            MSSyntaxTree param = this.getChild(i + 1);
             sb.append(param.getStringRep());
             sb.append(" ");
         }
@@ -73,10 +78,10 @@ public class MSProcedureDeclarationNode extends MSSyntaxTree implements MSCallab
      */
     public int getArgumentLoc(String idStr) {
         // Offset to account for the identifier and body being children.
-        for (int i = 1; i < this.getChildrenSize() - 1; i++) {
-            MSIdentifierNode id = (MSIdentifierNode) this.getChild(i);
+        for (int i = 0; i < this.numParams; i++) {
+            MSIdentifierNode id = (MSIdentifierNode) this.getChild(i + 1);
             if (id.getIdentifier().equals(idStr)) {
-                return i - 1;
+                return i;
             }
         }
         return -1;

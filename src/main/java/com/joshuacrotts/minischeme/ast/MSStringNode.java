@@ -2,11 +2,14 @@ package com.joshuacrotts.minischeme.ast;
 
 /**
  *
+ *
+ * @author Joshua Crotts
+ * @version 12/23/2021
  */
 public class MSStringNode extends MSSyntaxTree {
 
     /**
-     *
+     * String associated with this node.
      */
     private final String value;
 

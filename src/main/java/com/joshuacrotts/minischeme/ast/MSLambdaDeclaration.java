@@ -2,10 +2,16 @@ package com.joshuacrotts.minischeme.ast;
 
 import java.util.ArrayList;
 
+/**
+ *
+ *
+ * @author Joshua Crotts
+ * @version 12/23/2021
+ */
 public class MSLambdaDeclaration extends MSSyntaxTree {
 
     /**
-     *
+     * Number of parameters required to call this lambda.
      */
     private int numParams;
 

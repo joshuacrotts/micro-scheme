@@ -1,5 +1,11 @@
 package com.joshuacrotts.minischeme.ast;
 
+/**
+ *
+ *
+ * @author Joshua Crotts
+ * @version 12/23/2021
+ */
 public class MSPairNode extends MSSyntaxTree {
 
     public MSPairNode(MSNodeType type, MSSyntaxTree car, MSSyntaxTree cdr) {
@@ -14,12 +20,8 @@ public class MSPairNode extends MSSyntaxTree {
     public MSSyntaxTree copy() {
         MSSyntaxTree carCopy = this.getCar();
         MSSyntaxTree cdrCopy = this.getCdr();
-        if (carCopy != null) {
-            carCopy = carCopy.copy();
-        }
-        if (cdrCopy != null) {
-            cdrCopy = cdrCopy.copy();
-        }
+        if (carCopy != null) { carCopy = carCopy.copy(); }
+        if (cdrCopy != null) { cdrCopy = cdrCopy.copy(); }
         return new MSPairNode(this.getNodeType(), carCopy, cdrCopy);
     }
 
@@ -39,8 +41,16 @@ public class MSPairNode extends MSSyntaxTree {
         return this.getChildrenSize() < 1 ? null : this.getChild(0);
     }
 
+    public void setCar(MSSyntaxTree newCar) {
+        this.setChild(0, newCar);
+    }
+
     public MSSyntaxTree getCdr() {
         return this.getChildrenSize() < 2 ? null : this.getChild(1);
+    }
+
+    public void setCdr(MSSyntaxTree newCdr) {
+        this.setChild(1, newCdr);
     }
 
     public boolean isNull() {
@@ -62,8 +72,7 @@ public class MSPairNode extends MSSyntaxTree {
             return true;
         }
         // We're on the last element of a list and the head is a node but the tail is ().
-        else if (this.getCar() != null && this.getCdr() == null
-                && this.getNodeType() == MSNodeType.LIST) {
+        else if (this.getCar() != null && this.getCdr() == null && this.getNodeType() == MSNodeType.LIST) {
             return true;
         }
         // Check to make sure the tail is either a pair or a list.

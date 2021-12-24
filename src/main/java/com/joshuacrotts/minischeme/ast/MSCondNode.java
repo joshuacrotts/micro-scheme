@@ -2,20 +2,27 @@ package com.joshuacrotts.minischeme.ast;
 
 import java.util.ArrayList;
 
+/**
+ *
+ *
+ * @author Joshua Crotts
+ * @version 12/23/2021
+ */
 public class MSCondNode extends MSSyntaxTree {
 
     /**
-     *
+     * Number of conditions (i.e., how many conditions to possibly check).
      */
     private int condCondCount = 0;
 
     /**
-     *
+     * Number of expression bodies. This should be a 1 to 1 ratio with condCondCount
+     * unless there is an else statement.
      */
     private int condBodyCount = 0;
 
     /**
-     *
+     * Keeps track of whether this cond has an else body.
      */
     private boolean hasElse;
 

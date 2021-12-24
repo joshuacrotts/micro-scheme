@@ -33,6 +33,13 @@ public class SymbolTable {
 
     public Lambda getLambda(String sym) { return this.isLambda(sym) ? (Lambda) this.table.get(sym) : null; }
 
+    public void setVariable(String identifier, MSSyntaxTree value) {
+        if (!this.table.containsKey(identifier)) {
+            throw new IllegalArgumentException("ERR variable " + identifier + " undefined");
+        }
+        this.table.put(identifier, new Variable(value));
+    }
+
     public boolean hasSymbol(String identifier) {
         return this.table.containsKey(identifier);
     }

@@ -4,15 +4,22 @@ import com.joshuacrotts.minischeme.main.MSUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ *
+ *
+ * @author Joshua Crotts
+ * @version 12/23/2021
+ */
 public class MSSyntaxTree implements Copyable {
 
     /**
-     *
+     * Each MSSyntaxTree has 0...n children associated with it. This
+     * list keeps track of them.
      */
     private final ArrayList<MSSyntaxTree> children;
 
     /**
-     *
+     * Type of MSSyntaxTree this is. Controls how the tree is evaluated.
      */
     private final MSNodeType nodeType;
 

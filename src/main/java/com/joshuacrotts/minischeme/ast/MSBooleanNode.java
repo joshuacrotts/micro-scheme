@@ -1,9 +1,12 @@
 package com.joshuacrotts.minischeme.ast;
 
+/**
+ *
+ */
 public class MSBooleanNode extends MSSyntaxTree {
 
     /**
-     *
+     * Boolean associated with this node.
      */
     private final boolean value;
 
