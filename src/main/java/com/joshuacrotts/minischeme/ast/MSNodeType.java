@@ -17,5 +17,7 @@ public enum MSNodeType {
     IF,
     COND,
     BOOL,
-    SET
+    SET,
+    SET_READ,
+    DECL_READ
 }

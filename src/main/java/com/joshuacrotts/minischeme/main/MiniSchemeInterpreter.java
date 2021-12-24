@@ -7,6 +7,7 @@ import com.joshuacrotts.minischeme.parser.MSListener;
 import com.joshuacrotts.minischeme.parser.MSSemanticError;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  *
@@ -98,39 +99,50 @@ public class MiniSchemeInterpreter {
         if (tree == null) { return new LValue(LValue.LValueType.NULL); }
         try {
             switch (tree.getNodeType()) {
-                case ROOT:
-                    return this.interpretTree(tree.getChild(0));
-                case ID:
-                    return this.interpretIdentifier(tree);
-                case OP:
-                    return this.interpretOperator(tree);
-                case SET:
-                    return this.interpretSetOp(tree);
-                case NUM:
-                    return this.interpretNumber(tree);
-                case BOOL:
-                    return this.interpretBoolean(tree);
-                case STR:
-                    return this.interpretString(tree);
-                case PAIR:
-                    return this.interpretPair(tree);
-                case LIST:
-                    return this.interpretList(tree);
-                case IF:
-                    return this.interpretIf(tree);
-                case COND:
-                    return this.interpretCond(tree);
-                case PROC_CALL:
-                    return this.interpretProcCall(tree);
-                case EXPR_LAMBDA_DECL_CALL:
-                    return this.interpretLambdaDeclCall(tree);
-                case EXPR_LAMBDA_CALL:
-                    return this.interpretLambdaCall(tree);
+                case ROOT: return this.interpretTree(tree.getChild(0));
+                case DECL_READ: return this.interpretDeclarationRead(tree);
+                case SET_READ: return this.interpretSetRead(tree);
+                case ID: return this.interpretIdentifier(tree);
+                case OP: return this.interpretOperator(tree);
+                case SET: return this.interpretSetOp(tree);
+                case NUM: return this.interpretNumber(tree);
+                case BOOL: return this.interpretBoolean(tree);
+                case STR: return this.interpretString(tree);
+                case PAIR: return this.interpretPair(tree);
+                case LIST: return this.interpretList(tree);
+                case IF: return this.interpretIf(tree);
+                case COND: return this.interpretCond(tree);
+                case PROC_CALL: return this.interpretProcCall(tree);
+                case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall(tree);
+                case EXPR_LAMBDA_CALL: return this.interpretLambdaCall(tree);
             }
         } catch (MSSemanticError err) {
             System.err.println(err.getMessage());
         }
 
+        return new LValue();
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
+    private LValue interpretDeclarationRead(MSSyntaxTree tree) {
+        MSDeclarationReadNode declRead = (MSDeclarationReadNode) tree;
+        String id = ((MSIdentifierNode) declRead.getIdentifier()).getIdentifier();
+        MSListener.symbolTable.setVariable(id, this.interpretReadFn(declRead.getOpType()));
+        return new LValue();
+    }
+
+    /**
+     *
+     * @param tree
+     */
+    private LValue interpretSetRead(MSSyntaxTree tree) {
+        MSSetReadNode setRead = (MSSetReadNode) tree;
+        String id = ((MSIdentifierNode) setRead.getIdentifier()).getIdentifier();
+        MSListener.symbolTable.setVariable(id, this.interpretReadFn(setRead.getOpType()));
         return new LValue();
     }
 
@@ -426,57 +438,37 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.DISPLAY:
                 System.out.println(lhs.toDisplayString());
                 return new LValue(LValueType.DISP);
-            case MiniSchemeParser.SIN:
-                return new LValue(Math.sin(lhs.getDoubleValue()));
-            case MiniSchemeParser.COS:
-                return new LValue(Math.cos(lhs.getDoubleValue()));
-            case MiniSchemeParser.TAN:
-                return new LValue(Math.tan(lhs.getDoubleValue()));
-            case MiniSchemeParser.ASIN:
-                return new LValue(Math.asin(lhs.getDoubleValue()));
-            case MiniSchemeParser.ACOS:
-                return new LValue(Math.acos(lhs.getDoubleValue()));
-            case MiniSchemeParser.ATAN:
-                return new LValue(Math.atan(lhs.getDoubleValue()));
-            case MiniSchemeParser.SQRT:
-                return new LValue(Math.sqrt(lhs.getDoubleValue()));
-            case MiniSchemeParser.ROUND:
-                return new LValue(Math.round(lhs.getDoubleValue()));
-            case MiniSchemeParser.FLOOR:
-                return new LValue(Math.floor(lhs.getDoubleValue()));
-            case MiniSchemeParser.CEILING:
-                return new LValue(Math.ceil(lhs.getDoubleValue()));
-            case MiniSchemeParser.TRUNCATE:
-                return new LValue((int) lhs.getDoubleValue());
-            case MiniSchemeParser.TRUE_FN:
-                return new LValue(lhs.getBoolValue());
+            case MiniSchemeParser.SIN: return new LValue(Math.sin(lhs.getDoubleValue()));
+            case MiniSchemeParser.COS: return new LValue(Math.cos(lhs.getDoubleValue()));
+            case MiniSchemeParser.TAN: return new LValue(Math.tan(lhs.getDoubleValue()));
+            case MiniSchemeParser.ASIN: return new LValue(Math.asin(lhs.getDoubleValue()));
+            case MiniSchemeParser.ACOS: return new LValue(Math.acos(lhs.getDoubleValue()));
+            case MiniSchemeParser.ATAN: return new LValue(Math.atan(lhs.getDoubleValue()));
+            case MiniSchemeParser.SQRT: return new LValue(Math.sqrt(lhs.getDoubleValue()));
+            case MiniSchemeParser.ROUND: return new LValue(Math.round(lhs.getDoubleValue()));
+            case MiniSchemeParser.FLOOR: return new LValue(Math.floor(lhs.getDoubleValue()));
+            case MiniSchemeParser.CEILING: return new LValue(Math.ceil(lhs.getDoubleValue()));
+            case MiniSchemeParser.TRUNCATE: return new LValue((int) lhs.getDoubleValue());
+            case MiniSchemeParser.TRUE_FN: return new LValue(lhs.getBoolValue());
             case MiniSchemeParser.FALSE_FN:
-                return new LValue(!lhs.getBoolValue());
             case MiniSchemeParser.LOGICAL_NOT:
                 return new LValue(!lhs.getBoolValue());
-            case MiniSchemeParser.CAR:
-                return new LValue(((MSPairNode) lhs.getTreeValue()).getCar());
-            case MiniSchemeParser.CDR:
-                return new LValue(((MSPairNode) lhs.getTreeValue()).getCdr());
-            case MiniSchemeParser.NULL_FN:
-                return new LValue(lhs.getTreeValue() == null || ((MSPairNode) lhs.getTreeValue()).isNull());
-            case MiniSchemeParser.NUMBER_FN:
-                return new LValue(lhs.getType() == LValueType.NUM);
-            case MiniSchemeParser.BOOL_FN:
-                return new LValue(lhs.getType() == LValueType.BOOL);
-            case MiniSchemeParser.STRING_FN:
-                return new LValue(lhs.getType() == LValueType.STR);
+            case MiniSchemeParser.CAR: return new LValue(((MSPairNode) lhs.getTreeValue()).getCar());
+            case MiniSchemeParser.CDR: return new LValue(((MSPairNode) lhs.getTreeValue()).getCdr());
+            case MiniSchemeParser.NULL_FN: return new LValue(lhs.getTreeValue() == null || ((MSPairNode) lhs.getTreeValue()).isNull());
+            case MiniSchemeParser.NUMBER_FN: return new LValue(lhs.getType() == LValueType.NUM);
+            case MiniSchemeParser.BOOL_FN: return new LValue(lhs.getType() == LValueType.BOOL);
+            case MiniSchemeParser.STRING_FN: return new LValue(lhs.getType() == LValueType.STR);
             case MiniSchemeParser.PAIR_FN:
                 // A "pair" cannot be the empty list.
                 return new LValue(lhs.getTreeValue() != null
                         && !((MSPairNode) lhs.getTreeValue()).isNull()
                         && lhs.getType() == LValueType.PAIR);
-            case MiniSchemeParser.STRLEN_FN:
-                return new LValue(lhs.getStringValue().length());
-            case MiniSchemeParser.NUMTOSTR_FN:
-                return new LValue(new MSStringNode(lhs.toString()));
-            case MiniSchemeParser.STRTONUM_FN:
-                return new LValue(new MSNumberNode(Double.parseDouble(lhs.getStringValue())));
+            case MiniSchemeParser.STRLEN_FN: return new LValue(lhs.getStringValue().length());
+            case MiniSchemeParser.NUMTOSTR_FN: return new LValue(new MSStringNode(lhs.toString()));
+            case MiniSchemeParser.STRTONUM_FN: return new LValue(new MSNumberNode(Double.parseDouble(lhs.getStringValue())));
+            case MiniSchemeParser.TODEG_FN: return new LValue(new MSNumberNode(Math.toDegrees(lhs.getDoubleValue())));
+            case MiniSchemeParser.TORAD_FN: return new LValue(new MSNumberNode(Math.toRadians(lhs.getDoubleValue())));
             default:
                 throw new IllegalArgumentException("ERR invalid unary type " + opType);
         }
@@ -582,5 +574,21 @@ public class MiniSchemeInterpreter {
         }
 
         return new LValue(false);
+    }
+
+    /**
+     *
+     * @param opType
+     * @return
+     */
+    private MSSyntaxTree interpretReadFn(int opType) {
+        Scanner in = new Scanner(System.in);
+        switch (opType) {
+            case MiniSchemeParser.READNUMBER_FN: return new MSNumberNode(in.nextDouble());
+            case MiniSchemeParser.READLINE_FN: return new MSStringNode(in.nextLine());
+            default:
+                throw new IllegalArgumentException("Internal interpreter error with reading input " +
+                        "- this should never happen...");
+        }
     }
 }

@@ -29,16 +29,16 @@ public class MiniSchemeTester {
             parser = parseFromFile(argv[0]);
         } else {
             parser = parseFromStdin();
-            assert parser != null;
-            MSSyntaxTree tree = parser.getSyntaxTree();
-            if (tree == null) {
-                System.exit(1);
-            }
-
-            tree.printSyntaxTree();
-            MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter(tree);
-            interpreter.execute();
         }
+        assert parser != null;
+        MSSyntaxTree tree = parser.getSyntaxTree();
+        if (tree == null) {
+            System.exit(1);
+        }
+
+        // tree.printSyntaxTree();
+        MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter(tree);
+        interpreter.execute();
     }
 
     /**

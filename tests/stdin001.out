@@ -1,0 +1,4 @@
+; Output depends on the user's input, but it should read two
+; numbers, display their sum, read in two more integers (which
+; overwrites the previous variable's values, then displays the
+; new sum.

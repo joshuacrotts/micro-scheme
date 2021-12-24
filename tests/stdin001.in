@@ -1,0 +1,11 @@
+(display "Enter two numbers.")
+(define num1 (read-number))
+(define num2 (read-number))
+(display "Their sum is")
+(display (+ num1 num2))
+
+(display "Enter two more numbers.")
+(set! num1 (read-number))
+(set! num2 (read-number))
+(display "Those two sum to")
+(display (+ num1 num2))

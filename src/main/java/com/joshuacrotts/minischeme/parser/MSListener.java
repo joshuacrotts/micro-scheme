@@ -55,6 +55,14 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitVarDeclRead(MiniSchemeParser.VarDeclReadContext ctx) {
+        super.exitVarDeclRead(ctx);
+        MSSyntaxTree identifier = this.map.get(ctx.term());
+        int readOpType = ((TerminalNode) ctx.readop().getChild(0)).getSymbol().getType();
+        this.map.put(ctx, new MSDeclarationReadNode(readOpType, identifier));
+    }
+
+    @Override
     public void exitProcDecl(MiniSchemeParser.ProcDeclContext ctx) {
         super.exitProcDecl(ctx);
         // TODO check to see if it's already defined.
@@ -100,6 +108,14 @@ public class MSListener extends MiniSchemeBaseListener {
         MSSyntaxTree exprNode = this.map.get(ctx.expr());
         int setOpType = ((TerminalNode) ctx.setop().getChild(0)).getSymbol().getType();
         this.map.put(ctx, new MSSetNode(setOpType, identifierNode, exprNode));
+    }
+
+    @Override
+    public void exitExprSetRead(MiniSchemeParser.ExprSetReadContext ctx) {
+        super.exitExprSetRead(ctx);
+        MSSyntaxTree identifier = this.map.get(ctx.term());
+        int readOpType = ((TerminalNode) ctx.readop().getChild(0)).getSymbol().getType();
+        this.map.put(ctx, new MSSetReadNode(readOpType, identifier));
     }
 
     @Override
