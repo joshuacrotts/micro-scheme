@@ -38,6 +38,11 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
         }
     }
 
+    public MSLambdaDeclarationCallNode(MSLambdaDeclarationNode declNode,
+                                       MSCallNode callNode) {
+        this(declNode.getLambdaParameters(), declNode.getBody(), callNode.getLambdaArguments());
+    }
+
     @Override
     public MSSyntaxTree copy() {
         ArrayList<MSSyntaxTree> paramsCopy = new ArrayList<>();

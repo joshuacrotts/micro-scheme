@@ -84,7 +84,7 @@ public class MiniSchemeTester {
 
         // Now do the parsing, and walk the parse tree with our listeners
         ParseTreeWalker walker = new ParseTreeWalker();
-        MSListener compiler = new MSListener(parser);
+        MSListener compiler = new MSListener();
         walker.walk(compiler, tree);
 
         return compiler;

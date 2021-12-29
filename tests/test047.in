@@ -1,0 +1,6 @@
+(define pi 3.141592653589793)
+(define (circumference-proc r) (* 2 pi r))
+(circumference-proc 5)
+
+(define circumference-lambda (lambda (r) (* 2 pi r)))
+(circumference-lambda 5)

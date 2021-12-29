@@ -22,13 +22,7 @@ public class MSListener extends MiniSchemeBaseListener {
      */
     private final MSSyntaxTree root;
 
-    /**
-     *
-     */
-    private final MiniSchemeParser parser;
-
-    public MSListener(MiniSchemeParser parser) {
-        this.parser = parser;
+    public MSListener() {
         this.root = new MSSyntaxTree();
         this.map = new ParseTreeProperty<>();
     }
@@ -62,7 +56,6 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitProcDecl(MiniSchemeParser.ProcDeclContext ctx) {
         super.exitProcDecl(ctx);
-        // TODO check to see if it's already defined.
         MSSyntaxTree id = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> params = new ArrayList<>();
         // If we have parameters, get them now.

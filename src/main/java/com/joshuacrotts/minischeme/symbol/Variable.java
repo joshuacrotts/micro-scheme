@@ -1,5 +1,6 @@
 package com.joshuacrotts.minischeme.symbol;
 
+import com.joshuacrotts.minischeme.ast.MSNodeType;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.ast.MSVariableDeclarationNode;
 
@@ -19,6 +20,9 @@ public class Variable extends Symbol {
     }
 
     public MSSyntaxTree getExpression() {
+        if (this.varDecl.getNodeType() != MSNodeType.VAR_DECL) {
+            return this.varDecl;
+        }
         return ((MSVariableDeclarationNode) this.varDecl).getExpression();
     }
 }

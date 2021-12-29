@@ -2,6 +2,8 @@ package com.joshuacrotts.minischeme.symbol;
 
 import com.joshuacrotts.minischeme.ast.MSNodeType;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+import com.joshuacrotts.minischeme.ast.MSVariableDeclarationNode;
+
 import java.util.HashMap;
 
 /**

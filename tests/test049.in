@@ -1,0 +1,18 @@
+(define pi 3.141592654)
+
+(define (circle-area radius)
+  (* pi radius radius))
+
+(define (circumference radius)
+  (* 2 pi radius))
+
+(define (sphere-surface-area radius)
+  (* 4 pi radius radius))                                
+
+(define (sphere-volume radius)
+  (* (/ 4 3) pi radius radius radius))
+
+(circle-area 45)
+(circumference 45)
+(sphere-surface-area 125)
+(sphere-volume 125)

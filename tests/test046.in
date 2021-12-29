@@ -1,0 +1,4 @@
+(define (proc func x)
+    (func x)
+)
+(proc (lambda (x) (+ x 1)) 5)

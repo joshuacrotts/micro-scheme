@@ -139,37 +139,6 @@ public class InterpreterTester {
     }
 
     /**
-     * The testing engine for a invalid LittleC program (the error should be
-     * detected, resulting in null being returned for the syntax tree. Any
-     * non-null result means the error was missed, so the test fails. Since
-     * there is not supposed to be any output, only the input file (with
-     * extension ".in") is required.
-     *
-     * @param testName the base name of the test case; files are stored in the
-     *                 tests project directory, with an ".in" extensions.
-     */
-    private static void errorFileTest(String testName) {
-        String inName = "tests/" + testName + ".in";
-
-        PrintStream origOut = System.out;
-        PrintStream origErr = System.err;
-        ByteArrayOutputStream captureOut = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(captureOut));
-        System.setErr(new PrintStream(captureOut));
-        MSListener parser = MiniSchemeTester.parseFromFile(inName);
-        if (parser == null)
-            return;
-
-        MSSyntaxTree result = parser.getSyntaxTree();
-        System.setErr(origErr);
-        System.setOut(origOut);
-        if (result != null)
-            throw new AssertionFailedError("Did not catch the error in input "+inName);
-
-        InterpreterTester.cleanup();
-    }
-
-    /**
      * Cleanup function. I originally used this with the @AfterEach tag, but because
      * there are group tests that rely on a cleanup, I had to force this into a
      * function and call it before the assertion in runICTest(...).
@@ -393,6 +362,36 @@ public class InterpreterTester {
     @Test
     public void doGoodTest044() {
         goodFileTest("test044");
+    }
+
+    @Test
+    public void doGoodTest045() {
+        goodFileTest("test045");
+    }
+
+    @Test
+    public void doGoodTest046() {
+        goodFileTest("test046");
+    }
+
+    @Test
+    public void doGoodTest047() {
+        goodFileTest("test047");
+    }
+
+    @Test
+    public void doGoodTest048() {
+        goodFileTest("test048");
+    }
+
+    @Test
+    public void doGoodTest049() {
+        goodFileTest("test049");
+    }
+
+    @Test
+    public void doGoodTest050() {
+        goodFileTest("test050");
     }
 
 }

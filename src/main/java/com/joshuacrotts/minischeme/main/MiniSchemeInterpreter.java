@@ -311,13 +311,20 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretCall(MSSyntaxTree tree) {
         MSCallNode callNode = (MSCallNode) tree;
-        String id = callNode.getIdentifier().getIdentifier();
-        if (this.symbolTable.isProcedure(id)) {
-            return this.interpretProcedureCall(tree);
-        } else if (this.symbolTable.isLambda(id)) {
-            return this.interpretLambdaCall(tree);
+        // First, check to see if child 0 is an expr lambda decl. If so, do a lambda decl call.
+        if (callNode.getChild(0).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+            return this.interpretTree(new MSLambdaDeclarationCallNode(
+                    (MSLambdaDeclarationNode) callNode.getChild(0), callNode));
         } else {
-            throw new IllegalArgumentException("ERR cannot identify " + id + " as procedure or named lambda.");
+            // Otherwise, determine if it's a stored procedure or lambda.
+            String id = callNode.getIdentifier().getIdentifier();
+            if (this.symbolTable.isProcedure(id)) {
+                return this.interpretProcedureCall(tree);
+            } else if (this.symbolTable.isLambda(id)) {
+                return this.interpretLambdaCall(tree);
+            } else {
+                throw new IllegalArgumentException("ERR cannot identify " + id + " as procedure or named lambda.");
+            }
         }
     }
 
@@ -362,12 +369,13 @@ public class MiniSchemeInterpreter {
             }
         }
 
+        // Replace the parameters with the arguments.
         MSSyntaxTree body = procDef.getBody().copy();
         replaceParams(procDef, body, args);
-        if (body.getChild(0).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
-            MSLambdaDeclarationNode lb = (MSLambdaDeclarationNode) body.getChild(0);
-            return this.interpretLambdaDeclCall(new MSLambdaDeclarationCallNode(lb.getLambdaParameters(),
-                        lb.getBody(), procCall.getLambdaArguments()));
+
+        // If the body is a lambda declaration, we need to call it with arguments.
+        if (body.getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+            body = new MSLambdaDeclarationCallNode((MSLambdaDeclarationNode) body, procCall);
         }
 
         return this.interpretTree(body);

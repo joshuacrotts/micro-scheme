@@ -1,0 +1,4 @@
+(define (make-adder num)
+  (lambda (x) (+ x num)))
+
+((make-adder 4) 7)
