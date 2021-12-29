@@ -3,7 +3,7 @@ package com.joshuacrotts.minischeme.ast;
 /**
  *
  */
-public class MSDeclarationReadNode extends MSSyntaxTree {
+public class MSDeclarationReadNode extends MSDeclaration {
 
     /**
      *
@@ -11,7 +11,8 @@ public class MSDeclarationReadNode extends MSSyntaxTree {
     private int opType;
 
     public MSDeclarationReadNode(int opType, MSSyntaxTree identifier) {
-        super(MSNodeType.DECL_READ, identifier);
+        super(MSNodeType.DECL_READ);
+        this.addChild(identifier);
         this.opType = opType;
     }
 

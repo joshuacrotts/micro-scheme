@@ -3,8 +3,8 @@ package com.joshuacrotts.minischeme.main;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.main.LValue.LValueType;
-import com.joshuacrotts.minischeme.parser.MSListener;
 import com.joshuacrotts.minischeme.parser.MSSemanticError;
+import com.joshuacrotts.minischeme.symbol.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -19,8 +19,14 @@ public class MiniSchemeInterpreter {
      */
     private final MSSyntaxTree tree;
 
+    /**
+     *
+     */
+    private final SymbolTable symbolTable;
+
     public MiniSchemeInterpreter(MSSyntaxTree tree) {
         this.tree = tree;
+        this.symbolTable = new SymbolTable();
     }
 
     /**
@@ -28,7 +34,7 @@ public class MiniSchemeInterpreter {
      * @param body
      * @param args
      */
-    private static void replaceParams(MSCallable procDef, MSSyntaxTree body,
+    private static void replaceParams(Callable procDef, MSSyntaxTree body,
                                       ArrayList<MSSyntaxTree> args) {
         for (int i = 0; i < args.size(); i++) {
             replaceParamsHelper(procDef, body, args.get(i), i);
@@ -36,12 +42,12 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * @param procDef
+     * @param definition
      * @param body
      * @param arg
      * @param replaceIdx
      */
-    private static void replaceParamsHelper(MSCallable procDef, MSSyntaxTree body,
+    private static void replaceParamsHelper(Callable definition, MSSyntaxTree body,
                                             MSSyntaxTree arg, int replaceIdx) {
         // If the body is null then there's nothing to replace.
         if (body == null) { return; }
@@ -51,24 +57,12 @@ public class MiniSchemeInterpreter {
             // If it's an ID then we want to replace it.
             if (child.getNodeType() == MSNodeType.ID) {
                 MSIdentifierNode id = (MSIdentifierNode) child;
-                if (procDef.getArgumentLoc(id.getIdentifier()) == replaceIdx) {
+                if (definition.getArgumentIndex(id.getIdentifier()) == replaceIdx) {
                     body.setChild(i, arg);
                 }
             }
-            // If the child of this node is a lambda call and ITS child is a
-            // lambda declaration, we can reduce this to a lambda decl call.
-            else if (child.getChildrenSize() > 0
-                    && child.getChild(0) != null
-                    && child.getNodeType() == MSNodeType.EXPR_LAMBDA_CALL
-                    && child.getChild(0).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL ){
-                MSLambdaDeclaration lambdaDecl = (MSLambdaDeclaration) child.getChild(0);
-                MSLambdaCall lambdaCall = (MSLambdaCall) child;
-                body.setChild(i, new MSLambdaDeclarationCall(lambdaDecl.getLambdaParameters(),
-                                                            lambdaDecl.getLambdaBody(),
-                                                            lambdaCall.getLambdaArguments()));
-                replaceParamsHelper(procDef, child, arg, replaceIdx);
-            } else {
-                replaceParamsHelper(procDef, child, arg, replaceIdx);
+            else {
+                replaceParamsHelper(definition, child, arg, replaceIdx);
             }
         }
     }
@@ -92,34 +86,73 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * @param tree
-     * @return
+     * Interprets a single tree node. This should be recursively defined.
+     *
+     * @param tree - tree of some node type.
+     *
+     * @return LValue dependent on the MSNodeType. If tree is null, the LValue
+     *         returned is null. If there is no case for the tree MSNodeType,
+     *         the returned LValue is a "blank" LValue.
      */
     private LValue interpretTree(MSSyntaxTree tree) {
         if (tree == null) { return new LValue(LValue.LValueType.NULL); }
-        try {
-            switch (tree.getNodeType()) {
-                case ROOT: return this.interpretTree(tree.getChild(0));
-                case DECL_READ: return this.interpretDeclarationRead(tree);
-                case SET_READ: return this.interpretSetRead(tree);
-                case ID: return this.interpretIdentifier(tree);
-                case OP: return this.interpretOperator(tree);
-                case SET: return this.interpretSetOp(tree);
-                case NUM: return this.interpretNumber(tree);
-                case BOOL: return this.interpretBoolean(tree);
-                case STR: return this.interpretString(tree);
-                case PAIR: return this.interpretPair(tree);
-                case LIST: return this.interpretList(tree);
-                case IF: return this.interpretIf(tree);
-                case COND: return this.interpretCond(tree);
-                case PROC_CALL: return this.interpretProcCall(tree);
-                case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall(tree);
-                case EXPR_LAMBDA_CALL: return this.interpretLambdaCall(tree);
-            }
-        } catch (MSSemanticError err) {
-            System.err.println(err.getMessage());
+        switch (tree.getNodeType()) {
+            case ROOT: return this.interpretTree(tree.getChild(0));
+            case VAR_DECL: return this.interpretVariableDeclaration(tree);
+            case PROC_DECL: return this.interpretProcedureDeclaration(tree);
+            case LAMBDA_DECL: return this.interpretLambdaDeclaration(tree);
+            case DECL_READ: return this.interpretDeclarationRead(tree);
+            case SET_READ: return this.interpretSetRead(tree);
+            case ID: return this.interpretIdentifier(tree);
+            case OP: return this.interpretOperator(tree);
+            case SET: return this.interpretSetOp(tree);
+            case NUM: return this.interpretNumber(tree);
+            case BOOL: return this.interpretBoolean(tree);
+            case STR: return this.interpretString(tree);
+            case PAIR: return this.interpretPair(tree);
+            case LIST: return this.interpretList(tree);
+            case IF: return this.interpretIf(tree);
+            case COND: return this.interpretCond(tree);
+            case CALL: return this.interpretCall(tree);
+            case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall(tree);
         }
 
+        return new LValue();
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
+    private LValue interpretVariableDeclaration(MSSyntaxTree tree) {
+        MSVariableDeclarationNode varDecl = (MSVariableDeclarationNode) tree;
+        String identifier = varDecl.getIdentifier().getIdentifier();
+        this.symbolTable.addVariable(identifier, varDecl);
+        return new LValue();
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
+    private LValue interpretProcedureDeclaration(MSSyntaxTree tree) {
+        MSProcedureDeclarationNode procDecl = (MSProcedureDeclarationNode) tree;
+        String identifier = procDecl.getIdentifier().getIdentifier();
+        this.symbolTable.addProcedure(identifier, procDecl);
+        return new LValue();
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
+    private LValue interpretLambdaDeclaration(MSSyntaxTree tree) {
+        MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) tree;
+        String identifier = lambdaDecl.getIdentifier().getIdentifier();
+        this.symbolTable.addLambda(identifier, lambdaDecl);
         return new LValue();
     }
 
@@ -131,7 +164,7 @@ public class MiniSchemeInterpreter {
     private LValue interpretDeclarationRead(MSSyntaxTree tree) {
         MSDeclarationReadNode declRead = (MSDeclarationReadNode) tree;
         String id = ((MSIdentifierNode) declRead.getIdentifier()).getIdentifier();
-        MSListener.symbolTable.setVariable(id, this.interpretReadFn(declRead.getOpType()));
+        this.symbolTable.setVariable(id, this.interpretReadFn(declRead.getOpType()));
         return new LValue();
     }
 
@@ -142,7 +175,7 @@ public class MiniSchemeInterpreter {
     private LValue interpretSetRead(MSSyntaxTree tree) {
         MSSetReadNode setRead = (MSSetReadNode) tree;
         String id = ((MSIdentifierNode) setRead.getIdentifier()).getIdentifier();
-        MSListener.symbolTable.setVariable(id, this.interpretReadFn(setRead.getOpType()));
+        this.symbolTable.setVariable(id, this.interpretReadFn(setRead.getOpType()));
         return new LValue();
     }
 
@@ -173,7 +206,7 @@ public class MiniSchemeInterpreter {
      * @param tree
      * @return
      */
-    private LValue interpretPair(MSSyntaxTree tree) throws MSSemanticError {
+    private LValue interpretPair(MSSyntaxTree tree) {
         MSPairNode pairNode = (MSPairNode) tree;
         // Evaluate the CAR and CDR.
         MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCar()));
@@ -186,7 +219,7 @@ public class MiniSchemeInterpreter {
      * @return
      * @throws MSSemanticError
      */
-    private LValue interpretList(MSSyntaxTree tree) throws MSSemanticError {
+    private LValue interpretList(MSSyntaxTree tree) {
         MSPairNode rootPair = (MSPairNode) tree;
         // We need to evaluate every element of the "list".
         MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(rootPair.getCar()));
@@ -219,11 +252,16 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretIdentifier(MSSyntaxTree tree) {
         String id = tree.getStringRep();
-        if (MSListener.symbolTable.isVariable(id)) {
-            return this.interpretTree(MSListener.symbolTable.getVariable(id).getExpression());
-        } else {
-            MSProcedureDeclarationNode procDef = (MSProcedureDeclarationNode) MSListener.symbolTable.getProcedure(id).getProcDef();
+        if (this.symbolTable.isVariable(id)) {
+            return this.interpretTree(this.symbolTable.getVariable(id).getExpression());
+        } else if (this.symbolTable.isProcedure(id)) {
+            MSProcedureDeclarationNode procDef = (MSProcedureDeclarationNode) this.symbolTable.getProcedure(id).getProcDef();
             return new LValue(LValueType.PROCCALL, procDef.getIdentifier());
+        } else if (this.symbolTable.isLambda(id)) {
+            MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getLambda(id).getLambdaDef();
+            return new LValue(LValueType.LAMBDACALL, lambdaDecl.getIdentifier());
+        } else {
+            throw new IllegalArgumentException("ERR cannot identify " + id + " as a variable, procedure, or lambda.");
         }
     }
 
@@ -267,21 +305,37 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     *
      * @param tree
      * @return
      */
-    private LValue interpretProcCall(MSSyntaxTree tree) {
+    private LValue interpretCall(MSSyntaxTree tree) {
+        MSCallNode callNode = (MSCallNode) tree;
+        String id = callNode.getIdentifier().getIdentifier();
+        if (this.symbolTable.isProcedure(id)) {
+            return this.interpretProcedureCall(tree);
+        } else if (this.symbolTable.isLambda(id)) {
+            return this.interpretLambdaCall(tree);
+        } else {
+            throw new IllegalArgumentException("ERR cannot identify " + id + " as procedure or named lambda.");
+        }
+    }
+
+    /**
+     * @param tree
+     * @return
+     */
+    private LValue interpretProcedureCall(MSSyntaxTree tree) {
         // Poll the procedure from the symbol table.
-        MSProcedureCallNode procCall = (MSProcedureCallNode) tree;
-        String id = procCall.getIdentifier().getStringRep();
-        MSProcedureDeclarationNode def = (MSProcedureDeclarationNode)
-                MSListener.symbolTable.getProcedure(id).getProcDef();
+        MSCallNode procCall = (MSCallNode) tree;
+        String id = procCall.getIdentifier().getIdentifier();
+        MSProcedureDeclarationNode procDef = (MSProcedureDeclarationNode) this.symbolTable.getProcedure(id).getProcDef();
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
 
-        for (int i = 0; i < procCall.getArguments().size(); i++) {
+        for (int i = 0; i < procCall.getProcedureArguments().size(); i++) {
             // If it's a lambda declaration, we can't evaluate it - we pass it forward.
-            MSSyntaxTree procCallArg = procCall.getArguments().get(i);
-            if (procCall.getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+            MSSyntaxTree procCallArg = procCall.getProcedureArguments().get(i);
+            if (procCallArg.getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
                 args.add(procCallArg);
             } else {
                 // Otherwise, evaluate the arg.
@@ -301,16 +355,21 @@ public class MiniSchemeInterpreter {
                     } else {
                         args.add(lhs.getTreeValue());
                     }
-                } else if (procCall.getArguments().get(i).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
-                    args.add(procCall.getArguments().get(i));
                 } else {
-                    throw new IllegalArgumentException("Unable to replace " + lhs.getType() + ", " + procCall.getArguments().get(i).getStringRep());
+                    throw new IllegalStateException("Interpreter error - proc decl call " +
+                            "found an incorrect lvalue. This should never happen...");
                 }
             }
         }
 
-        MSSyntaxTree body = def.getBody().copy();
-        replaceParams(def, body, args);
+        MSSyntaxTree body = procDef.getBody().copy();
+        replaceParams(procDef, body, args);
+        if (body.getChild(0).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+            MSLambdaDeclarationNode lb = (MSLambdaDeclarationNode) body.getChild(0);
+            return this.interpretLambdaDeclCall(new MSLambdaDeclarationCallNode(lb.getLambdaParameters(),
+                        lb.getBody(), procCall.getLambdaArguments()));
+        }
+
         return this.interpretTree(body);
     }
 
@@ -319,8 +378,21 @@ public class MiniSchemeInterpreter {
      * @param tree
      * @return
      */
+    private LValue interpretLambdaCall(MSSyntaxTree tree) {
+        MSCallNode lambdaCall = (MSCallNode) tree;
+        String id = lambdaCall.getIdentifier().getStringRep();
+        MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getLambda(id).getLambdaDef();
+        MSLambdaDeclarationCallNode lambdaDeclCall = new MSLambdaDeclarationCallNode(lambdaDecl.getLambdaParameters(), lambdaDecl.getBody(), lambdaCall.getProcedureArguments());
+        return this.interpretTree(lambdaDeclCall);
+    }
+
+    /**
+     *
+     * @param tree
+     * @return
+     */
     private LValue interpretLambdaDeclCall(MSSyntaxTree tree) {
-        MSLambdaDeclarationCall lambdaDeclCall = (MSLambdaDeclarationCall) tree;
+        MSLambdaDeclarationCallNode lambdaDeclCall = (MSLambdaDeclarationCallNode) tree;
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         for (int i = 0; i < lambdaDeclCall.getLambdaArguments().size(); i++) {
             // If it's a lambda declaration, we can't evaluate it - we pass it forward.
@@ -355,24 +427,6 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree body = lambdaDeclCall.getLambdaBody().copy();
         replaceParams(lambdaDeclCall, body, args);
         return this.interpretTree(body);
-    }
-
-    /**
-     *
-     * @param tree
-     * @return
-     */
-    private LValue interpretLambdaCall(MSSyntaxTree tree) {
-        MSLambdaCall lambdaCall = (MSLambdaCall) tree;
-        String id = lambdaCall.getIdentifier().getStringRep();
-        // We know that there must be a procedure definition - that's how we get here.
-        MSProcedureDeclarationNode procDecl = (MSProcedureDeclarationNode) MSListener.symbolTable.getProcedure(id).getProcDef();
-        MSLambdaDeclaration procBody = (MSLambdaDeclaration) procDecl.getBody();
-        // If there are any arguments for the *procedure*, replace them before evaluating the lambda.
-        replaceParams(procDecl, procBody, lambdaCall.getProcedureArguments());
-        MSLambdaDeclarationCall lambdaDeclCall = new MSLambdaDeclarationCall(procBody.getLambdaParameters(), procBody.getLambdaBody(), lambdaCall.getLambdaArguments());
-        // Now recursively evaluate the lambda.
-        return this.interpretTree(lambdaDeclCall);
     }
 
     /**
@@ -501,9 +555,9 @@ public class MiniSchemeInterpreter {
      */
     private void interpretSetCarFn(MSSetNode setNode) {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
-        MSPairNode pair = (MSPairNode) MSListener.symbolTable.getVariable(id).getExpression();
+        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id).getExpression();
         pair.setCar(setNode.getExpression());
-        MSListener.symbolTable.setVariable(id, pair);
+        this.symbolTable.setVariable(id, pair);
     }
 
     /**
@@ -512,9 +566,9 @@ public class MiniSchemeInterpreter {
      */
     private void interpretSetCdrFn(MSSetNode setNode) {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
-        MSPairNode pair = (MSPairNode) MSListener.symbolTable.getVariable(id).getExpression();
+        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id).getExpression();
         pair.setCdr(setNode.getExpression());
-        MSListener.symbolTable.setVariable(id, pair);
+        this.symbolTable.setVariable(id, pair);
     }
 
     /**
@@ -524,7 +578,7 @@ public class MiniSchemeInterpreter {
     private void interpretSetVariableFn(MSSetNode setNode) {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
         MSSyntaxTree tree = setNode.getExpression();
-        MSListener.symbolTable.setVariable(id, tree);
+        this.symbolTable.setVariable(id, tree);
     }
 
     /**

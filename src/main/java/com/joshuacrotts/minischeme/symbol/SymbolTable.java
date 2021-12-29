@@ -1,10 +1,17 @@
 package com.joshuacrotts.minischeme.symbol;
 
+import com.joshuacrotts.minischeme.ast.MSNodeType;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import java.util.HashMap;
 
+/**
+ *
+ */
 public class SymbolTable {
 
+    /**
+     *
+     */
     private final HashMap<String, Symbol> table;
 
     public SymbolTable() {
@@ -12,14 +19,29 @@ public class SymbolTable {
     }
 
     public void addVariable(String identifier, MSSyntaxTree varExpr) {
+        if (varExpr.getNodeType() != MSNodeType.VAR_DECL) {
+            throw new IllegalArgumentException("Internal interpreter error "
+                    + "- symbol table expects variable declaration node"
+                    + " but got " + varExpr.getNodeType());
+        }
         this.table.put(identifier, new Variable(varExpr));
     }
 
     public void addProcedure(String identifier, MSSyntaxTree procDef) {
+        if (procDef.getNodeType() != MSNodeType.PROC_DECL) {
+            throw new IllegalArgumentException("Internal interpreter error "
+                    + "- symbol table expects body/proc. declaration node"
+                    + " but got " + procDef.getNodeType());
+        }
         this.table.put(identifier, new Procedure(procDef));
     }
 
     public void addLambda(String identifier, MSSyntaxTree lambdaDef) {
+        if (lambdaDef.getNodeType() != MSNodeType.LAMBDA_DECL) {
+            throw new IllegalArgumentException("Internal interpreter error "
+                    + "- symbol table expects body/lambda declaration node"
+                    + " but got " + lambdaDef.getNodeType());
+        }
         this.table.put(identifier, new Lambda(lambdaDef));
     }
 

@@ -15,15 +15,13 @@ public class MSListener extends MiniSchemeBaseListener {
     /**
      *
      */
-    public static SymbolTable symbolTable;
-    /**
-     *
-     */
     private final ParseTreeProperty<MSSyntaxTree> map;
+
     /**
      *
      */
     private final MSSyntaxTree root;
+
     /**
      *
      */
@@ -33,7 +31,6 @@ public class MSListener extends MiniSchemeBaseListener {
         this.parser = parser;
         this.root = new MSSyntaxTree();
         this.map = new ParseTreeProperty<>();
-        symbolTable = new SymbolTable();
     }
 
     @Override
@@ -49,9 +46,9 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitVarDecl(MiniSchemeParser.VarDeclContext ctx) {
         super.exitVarDecl(ctx);
-        // TODO check to see if it's already defined!
+        MSSyntaxTree identifier = this.map.get(ctx.term());
         MSSyntaxTree expr = this.map.get(ctx.expr());
-        symbolTable.addVariable(ctx.term().getText(), expr);
+        this.map.put(ctx, new MSVariableDeclarationNode(identifier, expr));
     }
 
     @Override
@@ -75,9 +72,22 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
         MSSyntaxTree body = this.map.get(ctx.procBody().expr());
-        MSSyntaxTree proc = new MSProcedureDeclarationNode(id, params, body);
-        symbolTable.addProcedure(ctx.term().getText(), proc);
-        this.map.put(ctx, proc);
+        //symbolTable.addProcedure(ctx.term().getText(), proc);
+        this.map.put(ctx, new MSProcedureDeclarationNode(id, params, body));
+    }
+
+    @Override
+    public void exitLambdaDecl(MiniSchemeParser.LambdaDeclContext ctx) {
+        super.exitLambdaDecl(ctx);
+        MSSyntaxTree id = this.map.get(ctx.term());
+        ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
+        if (ctx.lambdaParams() != null) {
+            for (ParseTree pt : ctx.lambdaParams().expr()) {
+                lambdaParams.add(this.map.get(pt));
+            }
+        }
+        MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
+        this.map.put(ctx, new MSLambdaDeclarationNode(id, lambdaParams, lambdaBody));
     }
 
     @Override
@@ -119,23 +129,9 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitExprProcCall(MiniSchemeParser.ExprProcCallContext ctx) {
-        super.exitExprProcCall(ctx);
-        // TODO check to see if the procedure is defined and is not a variable.
+    public void exitExprCall(MiniSchemeParser.ExprCallContext ctx) {
+        super.exitExprCall(ctx);
         MSSyntaxTree id = this.map.get(ctx.term());
-        ArrayList<MSSyntaxTree> args = new ArrayList<>();
-        if (ctx.args() != null) {
-            for (ParseTree pt : ctx.args().expr()) {
-                args.add(this.map.get(pt));
-            }
-        }
-        this.map.put(ctx, new MSProcedureCallNode(id, args));
-    }
-
-    @Override
-    public void exitExprLambdaCall(MiniSchemeParser.ExprLambdaCallContext ctx) {
-        super.exitExprLambdaCall(ctx);
-        MSSyntaxTree procIdentifier = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> procArgs = new ArrayList<>();
         if (ctx.args() != null) {
             for (ParseTree pt : ctx.args().expr()) {
@@ -150,7 +146,7 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
 
-        this.map.put(ctx, new MSLambdaCall(procIdentifier, procArgs, lambdaArgs));
+        this.map.put(ctx, new MSCallNode(id, procArgs, lambdaArgs));
     }
 
     @Override
@@ -162,8 +158,9 @@ public class MSListener extends MiniSchemeBaseListener {
                 lambdaParams.add(this.map.get(pt));
             }
         }
+
         MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
-        this.map.put(ctx, new MSLambdaDeclaration(lambdaParams, lambdaBody));
+        this.map.put(ctx, new MSLambdaDeclarationNode(lambdaParams, lambdaBody));
     }
 
     @Override
@@ -188,7 +185,7 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
 
-        this.map.put(ctx, new MSLambdaDeclarationCall(lambdaParams, lambdaBody, lambdaArgs));
+        this.map.put(ctx, new MSLambdaDeclarationCallNode(lambdaParams, lambdaBody, lambdaArgs));
     }
 
     @Override

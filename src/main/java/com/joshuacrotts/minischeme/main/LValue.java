@@ -161,6 +161,6 @@ public class LValue {
      *
      */
     protected enum LValueType {
-        NUM, BOOL, PAIR, STR, DISP, PROCCALL, DEF, NULL
+        NUM, BOOL, PAIR, STR, DISP, PROCCALL, LAMBDACALL, DEF, NULL
     }
 }

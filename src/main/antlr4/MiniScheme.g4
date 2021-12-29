@@ -137,7 +137,9 @@ ID: [a-zA-Z_-][<>a-zA-Z0-9_-]*('?')?;
 miniScheme: (decl | expr)* EOF;
 
 // Declaration of an identifier. Takes the form (define var <expr>)
-decl: (OPEN_PAREN DEFINE term expr CLOSE_PAREN)                                             #varDecl
+decl: (OPEN_PAREN DEFINE term (OPEN_PAREN LAMBDA
+        (OPEN_PAREN lambdaParams? CLOSE_PAREN) lambdaBody CLOSE_PAREN) CLOSE_PAREN)         #lambdaDecl
+    | (OPEN_PAREN DEFINE term expr CLOSE_PAREN)                                             #varDecl
     | (OPEN_PAREN DEFINE term OPEN_PAREN readop CLOSE_PAREN CLOSE_PAREN)                    #varDeclRead
     | (OPEN_PAREN DEFINE (OPEN_PAREN term procParams? CLOSE_PAREN) procBody CLOSE_PAREN)    #procDecl
     ;
@@ -151,12 +153,12 @@ expr: (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                   
     | ((unaryop | naryop) expr*)                                                    #exprOp
     | (QUOTE OPEN_PAREN expr* CLOSE_PAREN)                                          #exprList
     | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN)                                 #exprList
-    | (OPEN_PAREN term args? CLOSE_PAREN)                                           #exprProcCall
+    | (OPEN_PAREN term args? CLOSE_PAREN)                                           #exprCall
+    | (OPEN_PAREN (OPEN_PAREN term args? CLOSE_PAREN) lambdaArgs? CLOSE_PAREN)      #exprCall
     | (OPEN_PAREN (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
         lambdaBody CLOSE_PAREN) lambdaArgs? CLOSE_PAREN)                            #exprLambdaDeclCall
     | (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
         lambdaBody CLOSE_PAREN)                                                     #exprLambdaDecl
-    | (OPEN_PAREN (OPEN_PAREN term args? CLOSE_PAREN) lambdaArgs? CLOSE_PAREN)      #exprLambdaCall
     | (OPEN_PAREN IF OPEN_PAREN ifCond CLOSE_PAREN ifBody ifElse CLOSE_PAREN)       #exprIf
     | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
         condCond CLOSE_PAREN condBody CLOSE_BRACKET)*

@@ -1,24 +1,24 @@
 package com.joshuacrotts.minischeme.symbol;
 
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+import com.joshuacrotts.minischeme.ast.MSVariableDeclarationNode;
 
+/**
+ *
+ */
 public class Variable extends Symbol {
 
     /**
      *
      */
-    private MSSyntaxTree expr;
+    private MSSyntaxTree varDecl;
 
-    public Variable(MSSyntaxTree expression) {
+    public Variable(MSSyntaxTree varDecl) {
         super(SymbolType.SYMBOL_VAR);
-        this.expr = expression;
+        this.varDecl = varDecl;
     }
 
     public MSSyntaxTree getExpression() {
-        return this.expr;
-    }
-
-    public void setExpression(MSSyntaxTree expr) {
-        this.expr = expr;
+        return ((MSVariableDeclarationNode) this.varDecl).getExpression();
     }
 }

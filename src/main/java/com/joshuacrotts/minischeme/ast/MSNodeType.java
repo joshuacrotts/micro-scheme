@@ -8,9 +8,9 @@ public enum MSNodeType {
     STR,
     PAIR,
     LIST,
-    VAR,
     PROC_DECL,
     PROC_CALL,
+    LAMBDA_DECL,
     EXPR_LAMBDA_DECL,
     EXPR_LAMBDA_CALL,
     EXPR_LAMBDA_DECL_CALL,
@@ -19,5 +19,7 @@ public enum MSNodeType {
     BOOL,
     SET,
     SET_READ,
-    DECL_READ
+    DECL_READ,
+    VAR_DECL,
+    CALL
 }

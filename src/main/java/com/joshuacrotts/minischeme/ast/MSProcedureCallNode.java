@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * CHILD 1...n: Arguments for procedure call.
  *
  * @author Joshua Crotts
- * @version 12/23/2021
+ * @version 12/28/2021
  */
 public class MSProcedureCallNode extends MSSyntaxTree {
 
@@ -48,8 +48,8 @@ public class MSProcedureCallNode extends MSSyntaxTree {
         return this.getNodeType().toString();
     }
 
-    public MSSyntaxTree getIdentifier() {
-        return this.getChild(0);
+    public MSIdentifierNode getIdentifier() {
+        return (MSIdentifierNode) this.getChild(0);
     }
 
     public ArrayList<MSSyntaxTree> getArguments() {

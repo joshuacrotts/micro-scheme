@@ -7,11 +7,18 @@ import java.util.ArrayList;
  * the identifier (i.e., the name of the procedure), its parameters (which may be empty), and then
  * an expression defining the body of a procedure. Note that the body expression can be as complex
  * as it ought to be since expressions are recursive.
+ *
+ * Child 0: Identifier of procedure.
+ * Child 1...n-1: Parameters of procedure, if any.
+ * Child n: Body of procedure.
+ *
+ * @author Joshua Crotts
+ * @version 12/28/2021
  */
-public class MSProcedureDeclarationNode extends MSSyntaxTree implements MSCallable {
+public class MSProcedureDeclarationNode extends MSDeclaration implements Callable {
 
     /**
-     *
+     * Number of parameters that this procedure requires.
      */
     private int numParams;
 
@@ -20,24 +27,19 @@ public class MSProcedureDeclarationNode extends MSSyntaxTree implements MSCallab
         super(MSNodeType.PROC_DECL);
         this.numParams = params.size();
         this.addChild(identifier);
-        for (int i = 0; i < params.size(); i++) {
-            this.addChild(params.get(i));
-        }
+        params.forEach(this::addChild);
         this.addChild(body);
     }
 
     @Override
     public MSSyntaxTree copy() {
-        // First, copy the identifier.
         MSSyntaxTree idCopy = this.getChild(0).copy();
 
-        // Now copy the parameters.
         ArrayList<MSSyntaxTree> newParams = new ArrayList<>();
         for (int i = 0; i < this.numParams; i++) {
             newParams.add(this.getChild(i + 1).copy());
         }
 
-        // Lastly, copy the body over.
         MSSyntaxTree body = this.getBody().copy();
         return new MSProcedureDeclarationNode(idCopy, newParams, body);
     }
@@ -68,15 +70,15 @@ public class MSProcedureDeclarationNode extends MSSyntaxTree implements MSCallab
         return this.getNodeType().toString();
     }
 
-    public MSSyntaxTree getIdentifier() {
-        return this.getChild(0);
+    public MSIdentifierNode getIdentifier() {
+        return (MSIdentifierNode) this.getChild(0);
     }
 
     /**
      * @param idStr
      * @return
      */
-    public int getArgumentLoc(String idStr) {
+    public int getArgumentIndex(String idStr) {
         // Offset to account for the identifier and body being children.
         for (int i = 0; i < this.numParams; i++) {
             MSIdentifierNode id = (MSIdentifierNode) this.getChild(i + 1);

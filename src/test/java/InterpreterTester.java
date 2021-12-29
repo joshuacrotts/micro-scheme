@@ -390,4 +390,9 @@ public class InterpreterTester {
         goodFileTest("test043");
     }
 
+    @Test
+    public void doGoodTest044() {
+        goodFileTest("test044");
+    }
+
 }

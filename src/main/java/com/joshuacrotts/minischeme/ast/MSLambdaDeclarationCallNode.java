@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @author Joshua Crotts
  * @version 12/23/2021
  */
-public class MSLambdaDeclarationCall extends MSSyntaxTree implements MSCallable {
+public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callable {
 
     /**
      * Number of parameters required to call this lambda.
@@ -20,9 +20,9 @@ public class MSLambdaDeclarationCall extends MSSyntaxTree implements MSCallable 
      */
     private int numLambdaArgs;
 
-    public MSLambdaDeclarationCall(ArrayList<MSSyntaxTree> lambdaParams,
-                                   MSSyntaxTree lambdaBody,
-                                   ArrayList<MSSyntaxTree> lambdaArgs) {
+    public MSLambdaDeclarationCallNode(ArrayList<MSSyntaxTree> lambdaParams,
+                                       MSSyntaxTree lambdaBody,
+                                       ArrayList<MSSyntaxTree> lambdaArgs) {
         super(MSNodeType.EXPR_LAMBDA_DECL_CALL);
         this.numLambdaParams = lambdaParams.size();
         this.numLambdaArgs = lambdaArgs.size();
@@ -52,7 +52,7 @@ public class MSLambdaDeclarationCall extends MSSyntaxTree implements MSCallable 
             argsCopy.add(this.getChild(i + 1 + this.numLambdaParams).copy());
         }
 
-        return new MSLambdaDeclarationCall(paramsCopy, bodyCopy, argsCopy);
+        return new MSLambdaDeclarationCallNode(paramsCopy, bodyCopy, argsCopy);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class MSLambdaDeclarationCall extends MSSyntaxTree implements MSCallable 
      * @param idStr
      * @return
      */
-    public int getArgumentLoc(String idStr) {
+    public int getArgumentIndex(String idStr) {
         // Offset to account for the identifier and body being children.
         for (int i = 0; i < this.numLambdaParams; i++) {
             MSIdentifierNode id = (MSIdentifierNode) this.getChild(i);

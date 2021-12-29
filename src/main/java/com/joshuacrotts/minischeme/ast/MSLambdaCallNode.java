@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @author Joshua Crotts
  * @version 12/23/2021
  */
-public class MSLambdaCall extends MSSyntaxTree {
+public class MSLambdaCallNode extends MSSyntaxTree {
 
     /**
      * Number of arguments passed to the procedure being called, if any.
@@ -20,9 +20,9 @@ public class MSLambdaCall extends MSSyntaxTree {
      */
     private int numLambdaArgs;
 
-    public MSLambdaCall(MSSyntaxTree procIdentifier,
-                         ArrayList<MSSyntaxTree> procArgs,
-                         ArrayList<MSSyntaxTree> lambdaArgs) {
+    public MSLambdaCallNode(MSSyntaxTree procIdentifier,
+                            ArrayList<MSSyntaxTree> procArgs,
+                            ArrayList<MSSyntaxTree> lambdaArgs) {
         super(MSNodeType.EXPR_LAMBDA_CALL);
         this.addChild(procIdentifier);
         this.numProcArgs = procArgs.size();
@@ -50,17 +50,17 @@ public class MSLambdaCall extends MSSyntaxTree {
             lambdaArgsCopy.add(this.getChild(i + 1 + this.numProcArgs).copy());
         }
 
-        return new MSLambdaCall(idCopy, procArgsCopy, lambdaArgsCopy);
+        return new MSLambdaCallNode(idCopy, procArgsCopy, lambdaArgsCopy);
     }
 
     @Override
     public String getStringRep() {
-        return "";
+        return this.getNodeType().toString();
     }
 
     @Override
     public String toString() {
-        return "LAMBDA_CALL";
+        return this.getNodeType().toString();
     }
 
     public MSSyntaxTree getIdentifier() {
