@@ -1,6 +1,7 @@
 package com.joshuacrotts.minischeme.ast;
 
 public enum MSNodeType {
+    // Data types.
     ROOT,
     ID,
     OP,
@@ -8,18 +9,27 @@ public enum MSNodeType {
     STR,
     PAIR,
     LIST,
-    PROC_DECL,
-    PROC_CALL,
-    LAMBDA_DECL,
-    EXPR_LAMBDA_DECL,
-    EXPR_LAMBDA_CALL,
-    EXPR_LAMBDA_DECL_CALL,
+    BOOL,
+
+    // Conditionals.
     IF,
     COND,
-    BOOL,
+
+    // Declarations.
+    PROC_DECL,
+    LAMBDA_DECL,
+    EXPR_LAMBDA_DECL,
+    VAR_DECL,
+    LET_DECL,
+
+    // Expression calls.
+    EXPR_LAMBDA_CALL,
+    EXPR_LAMBDA_DECL_CALL,
+    PROC_CALL,
+    CALL,
+
+    // I/O or set.
     SET,
     SET_READ,
     DECL_READ,
-    VAR_DECL,
-    CALL
 }
