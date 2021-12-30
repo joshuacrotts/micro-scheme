@@ -67,6 +67,8 @@ IF:  'if';
 COND: 'cond';
 ELSE: 'else';
 LET: 'let';
+LETSTAR: 'let*';
+LETREC: 'letrec';
 LAMBDA: 'lambda' | 'λ';
 
 // Math procedures.
@@ -163,7 +165,8 @@ expr: (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                   
     | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
         condCond CLOSE_PAREN condBody CLOSE_BRACKET)*
         (OPEN_BRACKET (ELSE)? condBody CLOSE_BRACKET) CLOSE_PAREN)                  #exprCond
-    | (OPEN_PAREN LET (OPEN_PAREN letDecl? CLOSE_PAREN) expr CLOSE_PAREN)           #exprLetDecl
+    | (OPEN_PAREN (LET | LETSTAR | LETREC)
+        (OPEN_PAREN letDecl? CLOSE_PAREN) expr CLOSE_PAREN)                         #exprLetDecl
     | term                                                                          #exprTerm
     ;
 

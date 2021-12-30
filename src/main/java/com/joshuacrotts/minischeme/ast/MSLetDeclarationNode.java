@@ -15,9 +15,17 @@ public class MSLetDeclarationNode extends MSDeclaration {
      */
     private int numDeclarations;
 
-    public MSLetDeclarationNode(ArrayList<MSSyntaxTree> variableDeclarations,
+    /**
+     * Keeps track of what "type" of let declaration this is. For instance,
+     * let vs let* vs letrec.
+     */
+    private int letType;
+
+    public MSLetDeclarationNode(int letType,
+                                ArrayList<MSSyntaxTree> variableDeclarations,
                                 MSSyntaxTree letBody) {
         super(MSNodeType.LET_DECL);
+        this.letType = letType;
         this.numDeclarations = variableDeclarations.size();
         variableDeclarations.forEach(this::addChild);
         this.addChild(letBody);
@@ -30,7 +38,11 @@ public class MSLetDeclarationNode extends MSDeclaration {
             variableDeclarations.add(this.getChild(i).copy());
         }
         MSSyntaxTree letBodyCopy = this.getChild(this.getChildrenSize() - 1).copy();
-        return new MSLetDeclarationNode(variableDeclarations, letBodyCopy);
+        return new MSLetDeclarationNode(this.letType, variableDeclarations, letBodyCopy);
+    }
+
+    public int getLetType() {
+        return this.letType;
     }
 
     @Override
