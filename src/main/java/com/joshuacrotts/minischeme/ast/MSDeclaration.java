@@ -1,9 +1,11 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
+ * Represents an abstract declaration type. There are five classifications
+ * of declarations: READ, PROC[edure], LAMBDA, VAR[iable], and LET.
  *
  * @author Joshua Crotts
- * @version 12/30/2021
+ * @version 12/31/2021
  */
 public abstract class MSDeclaration extends MSSyntaxTree {
 

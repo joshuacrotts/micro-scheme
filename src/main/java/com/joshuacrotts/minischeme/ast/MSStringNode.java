@@ -1,7 +1,7 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
- *
+ * Represents a String literal. Fairly straightforward.
  *
  * @author Joshua Crotts
  * @version 12/23/2021

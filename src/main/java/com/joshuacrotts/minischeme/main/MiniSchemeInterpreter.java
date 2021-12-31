@@ -4,9 +4,13 @@ import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.main.LValue.LValueType;
 import com.joshuacrotts.minischeme.parser.MSSemanticError;
+import com.joshuacrotts.minischeme.symbol.Symbol;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
+import com.joshuacrotts.minischeme.symbol.SymbolType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -17,7 +21,7 @@ public class MiniSchemeInterpreter {
     /**
      *
      */
-    private final MSSyntaxTree tree;
+    private final MSSyntaxTree interpreterTree;
 
     /**
      *
@@ -25,7 +29,7 @@ public class MiniSchemeInterpreter {
     private final SymbolTable symbolTable;
 
     public MiniSchemeInterpreter(MSSyntaxTree tree) {
-        this.tree = tree;
+        this.interpreterTree = tree;
         this.symbolTable = new SymbolTable();
     }
 
@@ -71,7 +75,9 @@ public class MiniSchemeInterpreter {
      * @param
      */
     public void execute() {
-        for (MSSyntaxTree ch : this.tree.getChildren()) {
+        // First, push the global environment.
+        this.symbolTable.addEnvironment();
+        for (MSSyntaxTree ch : this.interpreterTree.getChildren()) {
             LValue lhs = this.interpretTree(ch);
             switch (lhs.getType()) {
                 case NUM:
@@ -83,6 +89,8 @@ public class MiniSchemeInterpreter {
                 default: // Do nothing for now...
             }
         }
+        // Remove the global environment. Not really necessary.
+        this.symbolTable.popEnvironment();
     }
 
     /**
@@ -98,23 +106,26 @@ public class MiniSchemeInterpreter {
         if (tree == null) { return new LValue(LValue.LValueType.NULL); }
         switch (tree.getNodeType()) {
             case ROOT: return this.interpretTree(tree.getChild(0));
-            case VAR_DECL: return this.interpretVariableDeclaration(tree);
-            case PROC_DECL: return this.interpretProcedureDeclaration(tree);
-            case LAMBDA_DECL: return this.interpretLambdaDeclaration(tree);
-            case DECL_READ: return this.interpretDeclarationRead(tree);
-            case SET_READ: return this.interpretSetRead(tree);
-            case ID: return this.interpretIdentifier(tree);
-            case OP: return this.interpretOperator(tree);
-            case SET: return this.interpretSetOp(tree);
-            case NUM: return this.interpretNumber(tree);
-            case BOOL: return this.interpretBoolean(tree);
-            case STR: return this.interpretString(tree);
-            case PAIR: return this.interpretPair(tree);
-            case LIST: return this.interpretList(tree);
-            case IF: return this.interpretIf(tree);
-            case COND: return this.interpretCond(tree);
-            case CALL: return this.interpretCall(tree);
-            case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall(tree);
+            case LET_DECL: return this.interpretLet((MSLetDeclarationNode) tree);
+            case VAR_DECL: return this.interpretVariableDeclaration((MSVariableDeclarationNode) tree);
+            case PROC_DECL: return this.interpretProcedureDeclaration((MSProcedureDeclarationNode) tree);
+            case LAMBDA_DECL: return this.interpretLambdaDeclaration((MSLambdaDeclarationNode) tree);
+            case DECL_READ: return this.interpretDeclarationRead((MSDeclarationReadNode) tree);
+            case SET_READ: return this.interpretSetRead((MSSetReadNode) tree);
+            case ID: return this.interpretIdentifier((MSIdentifierNode) tree);
+            case OP: return this.interpretOperator((MSOpNode) tree);
+            case SET: return this.interpretSetOp((MSSetNode) tree);
+            case NUM: return this.interpretNumber((MSNumberNode) tree);
+            case BOOL: return this.interpretBoolean((MSBooleanNode) tree);
+            case STR: return this.interpretString((MSStringNode) tree);
+            case PAIR: return this.interpretPair((MSPairNode) tree);
+            case LIST: return this.interpretList((MSPairNode) tree);
+            case IF: return this.interpretIf((MSIfNode) tree);
+            case COND: return this.interpretCond((MSCondNode) tree);
+            case CALL: return this.interpretCall((MSCallNode) tree);
+            case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall((MSLambdaDeclarationCallNode) tree);
+            default:
+                break;
         }
 
         return new LValue();
@@ -122,92 +133,192 @@ public class MiniSchemeInterpreter {
 
     /**
      *
-     * @param tree
+     * @param varDecl
      * @return
      */
-    private LValue interpretVariableDeclaration(MSSyntaxTree tree) {
-        MSVariableDeclarationNode varDecl = (MSVariableDeclarationNode) tree;
+    private LValue interpretVariableDeclaration(MSVariableDeclarationNode varDecl) {
         String identifier = varDecl.getIdentifier().getIdentifier();
-        this.symbolTable.addVariable(identifier, varDecl);
+        this.symbolTable.addSymbol(identifier, SymbolType.VARIABLE, varDecl);
         return new LValue();
     }
 
     /**
      *
-     * @param tree
+     * @param procDecl
      * @return
      */
-    private LValue interpretProcedureDeclaration(MSSyntaxTree tree) {
-        MSProcedureDeclarationNode procDecl = (MSProcedureDeclarationNode) tree;
+    private LValue interpretProcedureDeclaration(MSProcedureDeclarationNode procDecl) {
         String identifier = procDecl.getIdentifier().getIdentifier();
-        this.symbolTable.addProcedure(identifier, procDecl);
+        this.symbolTable.addSymbol(identifier, SymbolType.PROCEDURE, procDecl);
         return new LValue();
     }
 
     /**
      *
-     * @param tree
+     * @param lambdaDecl
      * @return
      */
-    private LValue interpretLambdaDeclaration(MSSyntaxTree tree) {
-        MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) tree;
+    private LValue interpretLambdaDeclaration(MSLambdaDeclarationNode lambdaDecl) {
         String identifier = lambdaDecl.getIdentifier().getIdentifier();
-        this.symbolTable.addLambda(identifier, lambdaDecl);
+        this.symbolTable.addSymbol(identifier, SymbolType.LAMBDA, lambdaDecl);
         return new LValue();
     }
 
     /**
      *
-     * @param tree
+     * @param letDecl
      * @return
      */
-    private LValue interpretDeclarationRead(MSSyntaxTree tree) {
-        MSDeclarationReadNode declRead = (MSDeclarationReadNode) tree;
+    private LValue interpretLet(MSLetDeclarationNode letDecl) {
+        switch (letDecl.getLetType()) {
+            case MiniSchemeParser.LET: return this.interpretLetDeclaration(letDecl);
+            case MiniSchemeParser.LETSTAR: return this.interpretLetStarDeclaration(letDecl);
+            case MiniSchemeParser.LETREC: return this.interpretLetRecDeclaration(letDecl);
+            default:
+                throw new IllegalArgumentException("Internal interpreter error " +
+                        "- cannot interpret let of type " + letDecl.getLetType() + ".");
+        }
+    }
+
+    /**
+     *
+     * @param letDecl
+     * @return
+     */
+    private LValue interpretLetDeclaration(MSLetDeclarationNode letDecl) {
+        ArrayList<MSSyntaxTree> decls = letDecl.getDeclarations();
+        Map<MSIdentifierNode, MSSyntaxTree> results = new HashMap<>();
+
+        // Iterate over the declarations and evaluate their expressions.
+        // If we find a variable in the let decl that's not global, it's an error.
+        for (MSSyntaxTree t : decls) {
+            MSVariableDeclarationNode vd = (MSVariableDeclarationNode) t;
+            switch (vd.getExpression().getNodeType()) {
+                case EXPR_LAMBDA_DECL:
+                case PROC_DECL:
+                case LET_DECL:
+                    results.put(vd.getIdentifier(), vd.getExpression());
+                    break;
+                default:
+                    results.put(vd.getIdentifier(), LValue.getAstFromLValue(this.interpretTree(vd.getExpression())));
+            }
+        }
+
+        // Now push a new environment.
+        this.symbolTable.addEnvironment();
+
+        // Add all K/V results to the current table/environment.
+        for (Map.Entry<MSIdentifierNode, MSSyntaxTree> entry : results.entrySet()) {
+            MSIdentifierNode idNode = entry.getKey();
+            MSSyntaxTree exprNode = entry.getValue();
+            this.symbolTable.addSymbol(idNode.getIdentifier(),
+                    SymbolType.getSymbolTypeFromNodeType(exprNode.getNodeType()),
+                    exprNode);
+        }
+
+        LValue letVal = this.interpretTree(letDecl.getBody());
+        this.symbolTable.popEnvironment();
+        return letVal;
+    }
+
+    /**
+     * A let* evaluates its variable declaration expressions and stores them in the
+     * relevant environment immediately upon seeing them. This means that any variables
+     * declared prior to another in the let declarations is visible in that environment.
+     *
+     * @param letStarDecl - MSLetDeclarationNode.
+     *
+     * @return LValue of let body evaluation.
+     */
+    private LValue interpretLetStarDeclaration(MSLetDeclarationNode letStarDecl) {
+        ArrayList<MSSyntaxTree> varDecls = letStarDecl.getDeclarations();
+
+        // Add a new environment before anything else.
+        this.symbolTable.addEnvironment();
+
+        // Iterate over the variable declarations and evaluate their expressions.
+        // If we find a variable in the let decl that's not global, it's an error.
+        for (MSSyntaxTree t : varDecls) {
+            MSVariableDeclarationNode vd = (MSVariableDeclarationNode) t;
+            MSSyntaxTree resultExpr = null;
+            switch (vd.getExpression().getNodeType()) {
+                case EXPR_LAMBDA_DECL:
+                case PROC_DECL:
+                case LET_DECL:
+                    resultExpr = vd.getExpression();
+                    break;
+                default:
+                    resultExpr = LValue.getAstFromLValue(this.interpretTree(vd.getExpression()));
+            }
+
+            this.symbolTable.addSymbol(vd.getIdentifier().getIdentifier(),
+                    SymbolType.getSymbolTypeFromNodeType(vd.getExpression().getNodeType()), resultExpr);
+        }
+
+        // Evaluate the body of the let then pop the environment.
+        LValue letVal = this.interpretTree(letStarDecl.getBody());
+        this.symbolTable.popEnvironment();
+        return letVal;
+    }
+
+    /**
+     *
+     * @param letRecDecl
+     * @return
+     */
+    private LValue interpretLetRecDeclaration(MSLetDeclarationNode letRecDecl) {
+        throw new UnsupportedOperationException("Cannot support letrec yet!");
+    }
+
+    /**
+     *
+     * @param declRead
+     * @return
+     */
+    private LValue interpretDeclarationRead(MSDeclarationReadNode declRead) {
         String id = ((MSIdentifierNode) declRead.getIdentifier()).getIdentifier();
-        this.symbolTable.setVariable(id, this.interpretReadFn(declRead.getOpType()));
+        this.symbolTable.setSymbol(id, this.interpretReadFn(declRead.getOpType()));
         return new LValue();
     }
 
     /**
      *
-     * @param tree
+     * @param setRead
      */
-    private LValue interpretSetRead(MSSyntaxTree tree) {
-        MSSetReadNode setRead = (MSSetReadNode) tree;
+    private LValue interpretSetRead(MSSetReadNode setRead) {
         String id = ((MSIdentifierNode) setRead.getIdentifier()).getIdentifier();
-        this.symbolTable.setVariable(id, this.interpretReadFn(setRead.getOpType()));
+        this.symbolTable.setSymbol(id, this.interpretReadFn(setRead.getOpType()));
         return new LValue();
     }
 
     /**
-     * @param tree
+     * @param numberNode
      */
-    private LValue interpretNumber(MSSyntaxTree tree) {
-        return new LValue(((MSNumberNode) tree));
+    private LValue interpretNumber(MSNumberNode numberNode) {
+        return new LValue(numberNode);
     }
 
     /**
-     * @param tree
+     * @param booleanNode
      * @return
      */
-    private LValue interpretBoolean(MSSyntaxTree tree) {
-        return new LValue(((MSBooleanNode) tree));
+    private LValue interpretBoolean(MSBooleanNode booleanNode) {
+        return new LValue(booleanNode);
     }
 
     /**
-     * @param tree
+     * @param stringNode
      * @return
      */
-    private LValue interpretString(MSSyntaxTree tree) {
-        return new LValue(tree);
+    private LValue interpretString(MSStringNode stringNode) {
+        return new LValue(stringNode);
     }
 
     /**
-     * @param tree
+     * @param pairNode
      * @return
      */
-    private LValue interpretPair(MSSyntaxTree tree) {
-        MSPairNode pairNode = (MSPairNode) tree;
+    private LValue interpretPair(MSPairNode pairNode) {
         // Evaluate the CAR and CDR.
         MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCar()));
         MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCdr()));
@@ -215,12 +326,11 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * @param tree
+     * @param rootPair
      * @return
      * @throws MSSemanticError
      */
-    private LValue interpretList(MSSyntaxTree tree) {
-        MSPairNode rootPair = (MSPairNode) tree;
+    private LValue interpretList(MSPairNode rootPair) {
         // We need to evaluate every element of the "list".
         MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(rootPair.getCar()));
         MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(rootPair.getCdr()));
@@ -228,37 +338,37 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * @param tree
+     * @param opNode
      * @return
      */
-    private LValue interpretOperator(MSSyntaxTree tree) {
-        int opType = ((MSOpNode) tree).getOpType();
+    private LValue interpretOperator(MSOpNode opNode) {
+        int opType = opNode.getOpType();
         LValue res = null;
         // Determine if it's a unary operator or nary.
-        if (tree.getChildrenSize() == 1) {
-            res = this.interpretPrimitiveUnaryOp(this.interpretTree(tree.getChild(0)), opType);
+        if (opNode.getChildrenSize() == 1) {
+            res = this.interpretPrimitiveUnaryOp(this.interpretTree(opNode.getChild(0)), opType);
         } else {
-            res = this.interpretTree(tree.getChild(0));
-            for (int i = 1; i < tree.getChildrenSize(); i++) {
-                res = this.interpretPrimitiveBinaryOp(res, opType, this.interpretTree(tree.getChild(i)));
+            res = this.interpretTree(opNode.getChild(0));
+            for (int i = 1; i < opNode.getChildrenSize(); i++) {
+                res = this.interpretPrimitiveBinaryOp(res, opType, this.interpretTree(opNode.getChild(i)));
             }
         }
         return res;
     }
 
     /**
-     * @param tree
+     * @param idNode
      * @return
      */
-    private LValue interpretIdentifier(MSSyntaxTree tree) {
-        String id = tree.getStringRep();
+    private LValue interpretIdentifier(MSIdentifierNode idNode) {
+        String id = idNode.getIdentifier();
         if (this.symbolTable.isVariable(id)) {
-            return this.interpretTree(this.symbolTable.getVariable(id).getExpression());
+            return this.interpretTree(this.symbolTable.getVariable(id));
         } else if (this.symbolTable.isProcedure(id)) {
-            MSProcedureDeclarationNode procDef = (MSProcedureDeclarationNode) this.symbolTable.getProcedure(id).getProcDef();
-            return new LValue(LValueType.PROCCALL, procDef.getIdentifier());
+            MSProcedureDeclarationNode procDecl = (MSProcedureDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
+            return new LValue(LValueType.PROCCALL, procDecl.getIdentifier());
         } else if (this.symbolTable.isLambda(id)) {
-            MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getLambda(id).getLambdaDef();
+            MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
             return new LValue(LValueType.LAMBDACALL, lambdaDecl.getIdentifier());
         } else {
             throw new IllegalArgumentException("ERR cannot identify " + id + " as a variable, procedure, or lambda.");
@@ -266,30 +376,30 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * @param tree
+     * @param ifNode
      * @return
      */
-    private LValue interpretIf(MSSyntaxTree tree) {
-        LValue ifCond = this.interpretTree(tree.getChild(0));
+    private LValue interpretIf(MSIfNode ifNode) {
+        LValue ifCond = this.interpretTree(ifNode.getChild(0));
         if (ifCond.getType() == LValue.LValueType.BOOL) {
             return ifCond.getBoolValue()
-                    ? this.interpretTree(tree.getChild(1))
-                    : this.interpretTree(tree.getChild(2));
+                    ? this.interpretTree(ifNode.getChild(1))
+                    : this.interpretTree(ifNode.getChild(2));
         }
         return null;
     }
 
     /**
-     * @param tree
+     * @param condNode
      * @return
      */
-    private LValue interpretCond(MSSyntaxTree tree) {
+    private LValue interpretCond(MSCondNode condNode) {
         int condIdx = 0;
         int bodyIdx = 1;
         boolean execLastBlock = true;
 
-        while (condIdx < tree.getChildrenSize() && bodyIdx < tree.getChildrenSize()) {
-            LValue condCond = this.interpretTree(tree.getChild(condIdx));
+        while (condIdx < condNode.getChildrenSize() && bodyIdx < condNode.getChildrenSize()) {
+            LValue condCond = this.interpretTree(condNode.getChild(condIdx));
             // If the condition is true, evaluate that expression.
             if (condCond.getBoolValue()) {
                 execLastBlock = false;
@@ -301,16 +411,15 @@ public class MiniSchemeInterpreter {
         }
 
         bodyIdx = execLastBlock ? bodyIdx - 1 : bodyIdx;
-        return this.interpretTree(tree.getChild(bodyIdx));
+        return this.interpretTree(condNode.getChild(bodyIdx));
     }
 
     /**
      *
-     * @param tree
+     * @param callNode
      * @return
      */
-    private LValue interpretCall(MSSyntaxTree tree) {
-        MSCallNode callNode = (MSCallNode) tree;
+    private LValue interpretCall(MSCallNode callNode) {
         // First, check to see if child 0 is an expr lambda decl. If so, do a lambda decl call.
         if (callNode.getChild(0).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
             return this.interpretTree(new MSLambdaDeclarationCallNode(
@@ -319,9 +428,9 @@ public class MiniSchemeInterpreter {
             // Otherwise, determine if it's a stored procedure or lambda.
             String id = callNode.getIdentifier().getIdentifier();
             if (this.symbolTable.isProcedure(id)) {
-                return this.interpretProcedureCall(tree);
+                return this.interpretProcedureCall(callNode);
             } else if (this.symbolTable.isLambda(id)) {
-                return this.interpretLambdaCall(tree);
+                return this.interpretLambdaCall(callNode);
             } else {
                 throw new IllegalArgumentException("ERR cannot identify " + id + " as procedure or named lambda.");
             }
@@ -329,14 +438,14 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * @param tree
+     * @param procCall
      * @return
      */
-    private LValue interpretProcedureCall(MSSyntaxTree tree) {
+    private LValue interpretProcedureCall(MSCallNode procCall) {
         // Poll the procedure from the symbol table.
-        MSCallNode procCall = (MSCallNode) tree;
         String id = procCall.getIdentifier().getIdentifier();
-        MSProcedureDeclarationNode procDef = (MSProcedureDeclarationNode) this.symbolTable.getProcedure(id).getProcDef();
+        MSProcedureDeclarationNode procDef
+                = (MSProcedureDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
 
         for (int i = 0; i < procCall.getProcedureArguments().size(); i++) {
@@ -383,24 +492,23 @@ public class MiniSchemeInterpreter {
 
     /**
      *
-     * @param tree
+     * @param lambdaCall
      * @return
      */
-    private LValue interpretLambdaCall(MSSyntaxTree tree) {
-        MSCallNode lambdaCall = (MSCallNode) tree;
+    private LValue interpretLambdaCall(MSCallNode lambdaCall) {
         String id = lambdaCall.getIdentifier().getStringRep();
-        MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getLambda(id).getLambdaDef();
-        MSLambdaDeclarationCallNode lambdaDeclCall = new MSLambdaDeclarationCallNode(lambdaDecl.getLambdaParameters(), lambdaDecl.getBody(), lambdaCall.getProcedureArguments());
+        MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
+        MSLambdaDeclarationCallNode lambdaDeclCall = new MSLambdaDeclarationCallNode(
+                lambdaDecl.getLambdaParameters(), lambdaDecl.getBody(), lambdaCall.getProcedureArguments());
         return this.interpretTree(lambdaDeclCall);
     }
 
     /**
      *
-     * @param tree
+     * @param lambdaDeclCall
      * @return
      */
-    private LValue interpretLambdaDeclCall(MSSyntaxTree tree) {
-        MSLambdaDeclarationCallNode lambdaDeclCall = (MSLambdaDeclarationCallNode) tree;
+    private LValue interpretLambdaDeclCall(MSLambdaDeclarationCallNode lambdaDeclCall) {
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         for (int i = 0; i < lambdaDeclCall.getLambdaArguments().size(); i++) {
             // If it's a lambda declaration, we can't evaluate it - we pass it forward.
@@ -432,7 +540,7 @@ public class MiniSchemeInterpreter {
             }
         }
 
-        MSSyntaxTree body = lambdaDeclCall.getLambdaBody().copy();
+        MSSyntaxTree body = lambdaDeclCall.getBody().copy();
         replaceParams(lambdaDeclCall, body, args);
         return this.interpretTree(body);
     }
@@ -538,19 +646,23 @@ public class MiniSchemeInterpreter {
 
     /**
      *
+     * @param setNode
+     * @return
      */
-    private LValue interpretSetOp(MSSyntaxTree tree) {
-        MSSetNode setNode = (MSSetNode) tree;
+    private LValue interpretSetOp(MSSetNode setNode) {
         switch (setNode.getOpType()) {
             case MiniSchemeParser.SETCAR_FN:
-                this.interpretSetCarFn(setNode); break;
+                this.interpretSetCarFn(setNode);
+                break;
             case MiniSchemeParser.SETCDR_FN:
-                this.interpretSetCdrFn(setNode); break;
+                this.interpretSetCdrFn(setNode);
+                break;
             case MiniSchemeParser.SETVAR_FN:
-                this.interpretSetVariableFn(setNode); break;
+                this.interpretSetVariableFn(setNode);
+                break;
             default:
                 throw new IllegalArgumentException("Internal interpreter error "
-                        + "- cannot set with operator of type " + tree.getNodeType()
+                        + "- cannot set with operator of type " + setNode.getNodeType()
                         + ". This should never happen...");
         }
 
@@ -563,9 +675,9 @@ public class MiniSchemeInterpreter {
      */
     private void interpretSetCarFn(MSSetNode setNode) {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
-        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id).getExpression();
+        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
         pair.setCar(setNode.getExpression());
-        this.symbolTable.setVariable(id, pair);
+        this.symbolTable.setSymbol(id, pair);
     }
 
     /**
@@ -574,9 +686,9 @@ public class MiniSchemeInterpreter {
      */
     private void interpretSetCdrFn(MSSetNode setNode) {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
-        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id).getExpression();
+        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
         pair.setCdr(setNode.getExpression());
-        this.symbolTable.setVariable(id, pair);
+        this.symbolTable.setSymbol(id, pair);
     }
 
     /**
@@ -586,7 +698,7 @@ public class MiniSchemeInterpreter {
     private void interpretSetVariableFn(MSSetNode setNode) {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
         MSSyntaxTree tree = setNode.getExpression();
-        this.symbolTable.setVariable(id, tree);
+        this.symbolTable.setSymbol(id, tree);
     }
 
     /**

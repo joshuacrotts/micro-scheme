@@ -22,27 +22,39 @@ public class MSLetDeclarationNode extends MSDeclaration {
     private int letType;
 
     public MSLetDeclarationNode(int letType,
-                                ArrayList<MSSyntaxTree> variableDeclarations,
+                                ArrayList<MSSyntaxTree> declarations,
                                 MSSyntaxTree letBody) {
         super(MSNodeType.LET_DECL);
         this.letType = letType;
-        this.numDeclarations = variableDeclarations.size();
-        variableDeclarations.forEach(this::addChild);
+        this.numDeclarations = declarations.size();
+        declarations.forEach(this::addChild);
         this.addChild(letBody);
     }
 
     @Override
     public MSSyntaxTree copy() {
-        ArrayList<MSSyntaxTree> variableDeclarations = new ArrayList<>();
+        ArrayList<MSSyntaxTree> declarationsCopy = new ArrayList<>();
         for (int i = 0; i < this.numDeclarations; i++) {
-            variableDeclarations.add(this.getChild(i).copy());
+            declarationsCopy.add(this.getChild(i).copy());
         }
         MSSyntaxTree letBodyCopy = this.getChild(this.getChildrenSize() - 1).copy();
-        return new MSLetDeclarationNode(this.letType, variableDeclarations, letBodyCopy);
+        return new MSLetDeclarationNode(this.letType, declarationsCopy, letBodyCopy);
     }
 
     public int getLetType() {
         return this.letType;
+    }
+
+    public ArrayList<MSSyntaxTree> getDeclarations() {
+        ArrayList<MSSyntaxTree> declarations = new ArrayList<>();
+        for (int i = 0; i < this.numDeclarations; i++) {
+            declarations.add(this.getChild(i));
+        }
+        return declarations;
+    }
+
+    public MSSyntaxTree getBody() {
+        return this.getChild(this.getChildrenSize() - 1);
     }
 
     @Override

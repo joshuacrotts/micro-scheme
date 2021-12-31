@@ -16,7 +16,7 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
     private int numParams;
 
     /**
-     *
+     * If this lambda is bound to an identifier, it is not anonymous.
      */
     private final boolean isAnonymous;
 
@@ -31,8 +31,7 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
         this.addChild(lambdaBody);
     }
 
-    public MSLambdaDeclarationNode(MSSyntaxTree id,
-                                   ArrayList<MSSyntaxTree> lambdaParams,
+    public MSLambdaDeclarationNode(MSSyntaxTree id, ArrayList<MSSyntaxTree> lambdaParams,
                                    MSSyntaxTree lambdaBody) {
         super(MSNodeType.LAMBDA_DECL);
         this.isAnonymous = false;

@@ -1,12 +1,17 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
+ * Represents a read from stdin. The type of data depends on what the user enters.
  *
+ * CHILD 0: identifier of declaration to store result.
+ *
+ * @author Joshua Crotts
+ * @version 12/31/2021
  */
 public class MSDeclarationReadNode extends MSDeclaration {
 
     /**
-     *
+     * Keeps track of what type of operator we're reading in from the user.
      */
     private int opType;
 

@@ -40,7 +40,7 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
     public MSSyntaxTree copy() {
         ArrayList<MSSyntaxTree> paramsCopy = new ArrayList<>();
         ArrayList<MSSyntaxTree> argsCopy = new ArrayList<>();
-        MSSyntaxTree bodyCopy = this.getLambdaBody().copy();
+        MSSyntaxTree bodyCopy = this.getBody().copy();
 
         for (int i = 0; i < this.numLambdaParams; i++) { paramsCopy.add(this.getChild(i).copy()); }
         for (int i = 0; i < this.numLambdaArgs; i++) { argsCopy.add(this.getChild(i + 1 + this.numLambdaParams).copy()); }
@@ -62,7 +62,7 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
      *
      * @return
      */
-    public MSSyntaxTree getLambdaBody() {
+    public MSSyntaxTree getBody() {
         return this.getChild(this.numLambdaParams);
     }
 

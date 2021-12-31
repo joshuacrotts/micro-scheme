@@ -6,7 +6,7 @@ package com.joshuacrotts.minischeme.ast;
 public class MSSetReadNode extends MSSyntaxTree {
 
     /**
-     *
+     * Set/read operation type.
      */
     private int opType;
 

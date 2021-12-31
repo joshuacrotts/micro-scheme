@@ -15,7 +15,7 @@ public class Variable extends Symbol {
     private MSSyntaxTree varDecl;
 
     public Variable(MSSyntaxTree varDecl) {
-        super(SymbolType.SYMBOL_VAR);
+        super(SymbolType.VARIABLE);
         this.varDecl = varDecl;
     }
 

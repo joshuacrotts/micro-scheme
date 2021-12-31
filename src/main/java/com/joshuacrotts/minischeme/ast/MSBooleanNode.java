@@ -1,7 +1,11 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
+ * Represents a boolean literal. Booleans in MiniScheme are #t for
+ * true, and #f for false.
  *
+ * @author Joshua Crotts
+ * @version 12/31/2021
  */
 public class MSBooleanNode extends MSSyntaxTree {
 

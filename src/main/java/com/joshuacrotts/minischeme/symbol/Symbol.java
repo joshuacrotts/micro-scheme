@@ -1,5 +1,8 @@
 package com.joshuacrotts.minischeme.symbol;
 
+/**
+ *
+ */
 public abstract class Symbol {
 
     /**
