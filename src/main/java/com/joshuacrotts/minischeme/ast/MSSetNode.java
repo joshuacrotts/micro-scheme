@@ -3,15 +3,17 @@ package com.joshuacrotts.minischeme.ast;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 
 /**
- *
+ * A "set" operation refers to the act of changing a variable that is already
+ * defined in the environment. We can change variables e.g., x, y, z, and the
+ * car/cdr of pairs.
  *
  * @author Joshua Crotts
- * @version 12/23/2021
+ * @version 12/31/2021
  */
 public class MSSetNode extends MSSyntaxTree {
 
     /**
-     *
+     * Set type operation.
      */
     private int opType;
 

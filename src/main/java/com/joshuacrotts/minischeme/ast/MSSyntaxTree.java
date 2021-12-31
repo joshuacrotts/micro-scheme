@@ -92,6 +92,8 @@ public class MSSyntaxTree implements Copyable {
     }
 
     /**
+     * Recursive copy helper function.
+     *
      * @param root
      * @param newTree
      */

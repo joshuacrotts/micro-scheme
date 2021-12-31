@@ -1,10 +1,13 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
- *
+ * Constructs a "pair". A MiniScheme "pair" consists of a head and a tail,
+ * or historically the "car" and the "cdr". There are two representations
+ * of pairs: improper (in which the last element of the pair is the empty
+ * list '()), and proper (which is not improper).
  *
  * @author Joshua Crotts
- * @version 12/23/2021
+ * @version 12/31/2021
  */
 public class MSPairNode extends MSSyntaxTree {
 

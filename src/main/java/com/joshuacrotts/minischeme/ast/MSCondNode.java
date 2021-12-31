@@ -3,7 +3,18 @@ package com.joshuacrotts.minischeme.ast;
 import java.util.ArrayList;
 
 /**
+ * Represents a COND call. COND is equivalent to an if/else if/else chain
+ * in other imperative languages. Each cond statement consists of a predicate
+ * and an expression if its corresponding predicate returns true.
  *
+ * Example: (cond ([< x 0] (- x))
+ *                (else (x)))
+ *
+ * COND statements don't require else expressions.
+ *
+ * Child 0...2...4...: COND predicate.
+ * Child 1...3...5...: COND expression if predicate is true.
+ * Optional Child n-1: ELSE expression.
  *
  * @author Joshua Crotts
  * @version 12/23/2021

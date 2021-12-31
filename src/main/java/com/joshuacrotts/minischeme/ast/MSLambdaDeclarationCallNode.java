@@ -26,16 +26,9 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
         super(MSNodeType.EXPR_LAMBDA_DECL_CALL);
         this.numLambdaParams = lambdaParams.size();
         this.numLambdaArgs = lambdaArgs.size();
-
-        for (int i = 0; i < this.numLambdaParams; i++) {
-            this.addChild(lambdaParams.get(i));
-        }
-
+        lambdaParams.forEach(this::addChild);
         this.addChild(lambdaBody);
-
-        for (int i = 0; i < this.numLambdaArgs; i++) {
-            this.addChild(lambdaArgs.get(i));
-        }
+        lambdaArgs.forEach(this::addChild);
     }
 
     public MSLambdaDeclarationCallNode(MSLambdaDeclarationNode declNode,
@@ -47,34 +40,29 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
     public MSSyntaxTree copy() {
         ArrayList<MSSyntaxTree> paramsCopy = new ArrayList<>();
         ArrayList<MSSyntaxTree> argsCopy = new ArrayList<>();
-        MSSyntaxTree bodyCopy = this.getLambdaBody().copy();
+        MSSyntaxTree bodyCopy = this.getBody().copy();
 
-        for (int i = 0; i < this.numLambdaParams; i++) {
-            paramsCopy.add(this.getChild(i).copy());
-        }
-
-        for (int i = 0; i < this.numLambdaArgs; i++) {
-            argsCopy.add(this.getChild(i + 1 + this.numLambdaParams).copy());
-        }
+        for (int i = 0; i < this.numLambdaParams; i++) { paramsCopy.add(this.getChild(i).copy()); }
+        for (int i = 0; i < this.numLambdaArgs; i++) { argsCopy.add(this.getChild(i + 1 + this.numLambdaParams).copy()); }
 
         return new MSLambdaDeclarationCallNode(paramsCopy, bodyCopy, argsCopy);
     }
 
     @Override
     public String getStringRep() {
-        return "";
+        return this.getNodeType().toString();
     }
 
     @Override
     public String toString() {
-        return "LAMBDA_DECL_CALL";
+        return this.getNodeType().toString();
     }
 
     /**
      *
      * @return
      */
-    public MSSyntaxTree getLambdaBody() {
+    public MSSyntaxTree getBody() {
         return this.getChild(this.numLambdaParams);
     }
 
@@ -107,7 +95,6 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
      * @return
      */
     public int getArgumentIndex(String idStr) {
-        // Offset to account for the identifier and body being children.
         for (int i = 0; i < this.numLambdaParams; i++) {
             MSIdentifierNode id = (MSIdentifierNode) this.getChild(i);
             if (id.getIdentifier().equals(idStr)) {

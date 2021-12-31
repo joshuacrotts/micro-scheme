@@ -2,6 +2,14 @@ package com.joshuacrotts.minischeme.ast;
 
 import java.util.ArrayList;
 
+/**
+ * Represents the calling of a procedure-based lambda. A procedure-based
+ * lambda is a procedure that has a lambda as its body.
+ *
+ * CHILD 0: procedure identifier.
+ * CHILD 1...m: procedure arguments.
+ * CHILD m + 1...n: lambda arguments.
+ */
 public class MSCallNode extends MSSyntaxTree {
 
     /**

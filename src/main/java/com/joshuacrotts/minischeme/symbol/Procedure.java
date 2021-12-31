@@ -13,7 +13,7 @@ public class Procedure extends Symbol {
     private final MSSyntaxTree procDef;
 
     public Procedure(MSSyntaxTree procDef) {
-        super(SymbolType.SYMBOL_PROC);
+        super(SymbolType.PROCEDURE);
         this.procDef = procDef;
     }
 

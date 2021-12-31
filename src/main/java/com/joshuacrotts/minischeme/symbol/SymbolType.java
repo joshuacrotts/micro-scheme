@@ -1,5 +1,37 @@
 package com.joshuacrotts.minischeme.symbol;
 
+import com.joshuacrotts.minischeme.ast.MSNodeType;
+
+/**
+ *
+ */
 public enum SymbolType {
-    SYMBOL_PROC, SYMBOL_VAR, SYMBOL_LAMBDA
+
+    PROCEDURE, VARIABLE, LAMBDA;
+
+    /**
+     *
+     * @param nodeType
+     * @return
+     */
+    public static SymbolType getSymbolTypeFromNodeType(MSNodeType nodeType) {
+        switch (nodeType) {
+            case PROC_DECL:
+                return PROCEDURE;
+            case VAR_DECL:
+            case NUM:
+            case BOOL:
+            case STR:
+            case PAIR:
+            case LIST:
+            case OP:
+                return VARIABLE;
+            case LAMBDA_DECL:
+            case EXPR_LAMBDA_DECL:
+                return LAMBDA;
+            default:
+                throw new IllegalArgumentException("Error - cannot convert MSNodeType "
+                + nodeType + " to SymbolType.");
+        }
+    }
 }

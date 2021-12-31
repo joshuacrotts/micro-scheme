@@ -6,7 +6,7 @@ import com.joshuacrotts.minischeme.MiniSchemeParser;
  * Defines an operation expression. An operation expression can be either unary or n-ary, where unary
  * takes one argument and n-ary takes n.
  *
- * CHILD 0...n: expressions to evaluate with the operator.
+ * CHILD 0...n-1: expressions to evaluate with the operator.
  *
  * @author Joshua Crotts
  * @version 12/20/2021

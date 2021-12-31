@@ -1,7 +1,14 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
+ * Represents a variable declaration. Variable declarations occur in two
+ * places: in (define ...) expressions, and (let ...) expressions.
  *
+ * CHILD 0: identifier of variable.
+ * CHILD 1: expression of variable.
+ *
+ * @author Joshua Crotts
+ * @version 12/31/2021
  */
 public class MSVariableDeclarationNode extends MSDeclaration {
 

@@ -1,85 +1,195 @@
 package com.joshuacrotts.minischeme.symbol;
 
+import java.util.List;
+import java.util.Stack;
+import java.util.TreeMap;
+
 import com.joshuacrotts.minischeme.ast.MSNodeType;
+import com.joshuacrotts.minischeme.ast.MSProcedureDeclarationNode;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.ast.MSVariableDeclarationNode;
 
-import java.util.HashMap;
-
 /**
- *
+ * @author Joshua Crotts
  */
 public class SymbolTable {
 
     /**
-     *
+     * Stack of environment objects to represent the call-stack/scope for variables,
+     * procedures, and lambdas. Each time a variable or function is referenced, it is
+     * checked against this table. Variables are checked in the top-most stack for existence
+     * and it traverses to the bottom until they are either found or not. Functions
+     * are simply checked for existence but if they are declared twice, then we
+     * throw an error (this does not happen yet).
      */
-    private final HashMap<String, Symbol> table;
+    private final Stack<Environment> environmentTable;
 
     public SymbolTable() {
-        this.table = new HashMap<>();
+        this.environmentTable = new Stack<>();
     }
 
-    public void addVariable(String identifier, MSSyntaxTree varExpr) {
-        if (varExpr.getNodeType() != MSNodeType.VAR_DECL) {
-            throw new IllegalArgumentException("Internal interpreter error "
-                    + "- symbol table expects variable declaration node"
-                    + " but got " + varExpr.getNodeType());
+    /**
+     * Given an identifier, SymbolType, and MSSyntaxTree data object, we push it to the top-most
+     * environment in the stack.
+     *
+     * @param id   - identification of the symbol.
+     * @param type
+     * @param data
+     */
+    public void addSymbol(String id, SymbolType type, MSSyntaxTree data) {
+        this.environmentTable.peek().addSymbol(id, type, data);
+    }
+
+    /**
+     *
+     * @param id
+     * @param data
+     */
+    public void setSymbol(String id, MSSyntaxTree data) {
+        SymbolEntry entry = this.getSymbolEntry(id);
+        if (entry == null) {
+            throw new IllegalArgumentException("Error, identifier " + id + " unknown");
         }
-        this.table.put(identifier, new Variable(varExpr));
+        entry.setSymbolData(data);
     }
 
-    public void addProcedure(String identifier, MSSyntaxTree procDef) {
-        if (procDef.getNodeType() != MSNodeType.PROC_DECL) {
-            throw new IllegalArgumentException("Internal interpreter error "
-                    + "- symbol table expects body/proc. declaration node"
-                    + " but got " + procDef.getNodeType());
+    /**
+     * Given an identifier, we return if the symbol is declared anywhere in the
+     * symbol table.
+     *
+     * @param id - identifier of symbol.
+     *
+     * @return true if the symbol is in any environment stack, false otherwise.
+     */
+    public boolean hasSymbol(String id) {
+        boolean found = false;
+
+        // We have to use a for loop to traverse backwards since iterators are broken
+        // with stacks...
+        for (int i = this.environmentTable.size() - 1; i >= 0; i--) {
+            Environment curr = this.environmentTable.get(i);
+            found = hasSymbolInEnvironment(id, curr);
+
+            if (found) {
+                return true;
+            }
         }
-        this.table.put(identifier, new Procedure(procDef));
+
+        return false;
     }
 
-    public void addLambda(String identifier, MSSyntaxTree lambdaDef) {
-        if (lambdaDef.getNodeType() != MSNodeType.LAMBDA_DECL) {
-            throw new IllegalArgumentException("Internal interpreter error "
-                    + "- symbol table expects body/lambda declaration node"
-                    + " but got " + lambdaDef.getNodeType());
+    /**
+     * Given an identifier, we return if the symbol is declared inside the current
+     * environment. This is useful for determining if we have a variable previously
+     * declared in the same scope.
+     *
+     * @param id - identifier of symbol.
+     * @return true if the identifier was found in the current environment (defined
+     *         as the top-most environment on the stack), false otherwise.
+     */
+    public boolean hasSymbolInCurrentEnvironment(String id) {
+        return this.environmentTable.peek().hasSymbol(id);
+    }
+
+    /**
+     * Given a symbol ID, returns the SymbolEntry object. This is useful for
+     * comparing datatypes of a variable, procedure, etc.
+     *
+     * @param id - identifier of symbol.
+     *
+     * @return SymbolEntry value for identifier key.
+     */
+    public SymbolEntry getSymbolEntry(String id) {
+        for (int i = this.environmentTable.size() - 1; i >= 0; i--) {
+            Environment curr = this.environmentTable.get(i);
+
+            for (String key : curr.getTreeMap().keySet()) {
+                if (id.equals(key)) {
+                    return curr.getTreeMap().get(key);
+                }
+            }
         }
-        this.table.put(identifier, new Lambda(lambdaDef));
+
+        return null;
     }
 
-    public Variable getVariable(String sym) {
-        return this.isVariable(sym) ? (Variable) this.table.get(sym) : null;
+    /**
+     * Adds a new environment to the stack.
+     */
+    public void addEnvironment() {
+        this.environmentTable.push(new Environment());
     }
 
-    public Procedure getProcedure(String sym) {
-        return this.isProcedure(sym) ? (Procedure) this.table.get(sym) : null;
+    /**
+     * Removes the top-most environment from the stack. This is useful for going out
+     * of scope of a function, for instance (really, this is the ONLY place it is
+     * used).
+     */
+    public void popEnvironment() {
+        this.environmentTable.pop();
     }
 
-    public Lambda getLambda(String sym) { return this.isLambda(sym) ? (Lambda) this.table.get(sym) : null; }
+    /**
+     * This method should print out all of the global variables. It can be called
+     * after parsing in order to see what global variables were seen. Names should
+     * be output in alphabetical order.
+     */
+    public void printGlobalVars() {
+        int stackSize = this.environmentTable.size();
+        // Retrieve the bottom of the stack (which is the global block).
+        Environment globalEnvironment = this.environmentTable.get(stackSize - 1);
 
-    public void setVariable(String identifier, MSSyntaxTree varExpr) {
-        if (!this.table.containsKey(identifier)) {
-            throw new IllegalArgumentException("ERR variable " + identifier + " undefined");
+        // Return the set of keys.
+        TreeMap<String, SymbolEntry> map = globalEnvironment.getTreeMap();
+
+        // Now iterate through the map and find all vars.
+        for (String key : map.keySet()) {
+            if (map.get(key).getSymbolType() == SymbolType.VARIABLE) {
+                System.out.println(key);
+            }
         }
-        this.table.put(identifier, new Variable(varExpr));
     }
 
-    public boolean hasSymbol(String identifier) {
-        return this.table.containsKey(identifier);
+    public boolean isVariable(String id) {
+        if (this.hasSymbol(id)) { return this.getSymbolEntry(id).getSymbolType() == SymbolType.VARIABLE; }
+        throw new IllegalArgumentException("Error, identifier " + id + " unknown");
     }
 
-    public boolean isVariable(String identifier) {
-        return this.hasSymbol(identifier)
-            && this.table.get(identifier).getType() == SymbolType.SYMBOL_VAR;
+    public MSSyntaxTree getVariable(String id) {
+        if (isVariable(id)) {
+            MSSyntaxTree varData = this.getSymbolEntry(id).getSymbolData();
+            if (varData.getNodeType() == MSNodeType.VAR_DECL) {
+                return ((MSVariableDeclarationNode) varData).getExpression();
+            }
+            return varData;
+        }
+        throw new IllegalArgumentException("Error, identifier " + id + " unknown");
     }
 
-    public boolean isProcedure(String identifier) {
-        return this.hasSymbol(identifier)
-            && this.table.get(identifier).getType() == SymbolType.SYMBOL_PROC;
+    public boolean isProcedure(String id) {
+        if (this.hasSymbol(id)) { return this.getSymbolEntry(id).getSymbolType() == SymbolType.PROCEDURE; }
+        throw new IllegalArgumentException("Error, identifier " + id + " unknown");
     }
 
-    public boolean isLambda(String identifier) {
-        return this.hasSymbol(identifier)
-            && this.table.get(identifier).getType() == SymbolType.SYMBOL_LAMBDA;
+    public boolean isLambda(String id) {
+        if (this.hasSymbol(id)) { return this.getSymbolEntry(id).getSymbolType() == SymbolType.LAMBDA; }
+        throw new IllegalArgumentException("Error, identifier " + id + " unknown");
+    }
+
+    /**
+     * Given an identifier, we return if the symbol is declared inside an arbitrary
+     * environment.
+     *
+     * @param id
+     * @param environment
+     * @return
+     */
+    private boolean hasSymbolInEnvironment(String id, Environment environment) {
+        int idx = this.environmentTable.indexOf(environment);
+        if (idx < 0 || idx >= this.environmentTable.size()) {
+            throw new IndexOutOfBoundsException("idx " + idx + " is out of bounds.");
+        }
+
+        return this.environmentTable.get(idx).hasSymbol(id);
     }
 }

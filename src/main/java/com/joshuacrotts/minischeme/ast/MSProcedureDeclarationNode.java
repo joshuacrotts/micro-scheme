@@ -44,9 +44,6 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
         return new MSProcedureDeclarationNode(idCopy, newParams, body);
     }
 
-    /**
-     * @return
-     */
     @Override
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
@@ -62,9 +59,6 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
         return sb.toString();
     }
 
-    /**
-     * @return
-     */
     @Override
     public String toString() {
         return this.getNodeType().toString();
@@ -74,10 +68,6 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
         return (MSIdentifierNode) this.getChild(0);
     }
 
-    /**
-     * @param idStr
-     * @return
-     */
     public int getArgumentIndex(String idStr) {
         // Offset to account for the identifier and body being children.
         for (int i = 0; i < this.numParams; i++) {

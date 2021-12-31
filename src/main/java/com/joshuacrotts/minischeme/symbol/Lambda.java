@@ -10,7 +10,7 @@ public class Lambda extends Symbol {
     private final MSSyntaxTree lambdaDef;
 
     public Lambda(MSSyntaxTree lambdaDef) {
-        super(SymbolType.SYMBOL_LAMBDA);
+        super(SymbolType.LAMBDA);
         this.lambdaDef = lambdaDef;
     }
 
