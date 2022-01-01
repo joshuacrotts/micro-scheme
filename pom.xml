@@ -36,7 +36,13 @@
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4-runtime</artifactId>
-			<version>4.9</version>
+			<version>4.9.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.1</version>
+			<type>maven-plugin</type>
 		</dependency>
 	</dependencies>
 	<properties>
