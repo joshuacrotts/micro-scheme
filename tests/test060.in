@@ -1,0 +1,11 @@
+(define pi 3.14159265358979)                ; define pi constant
+(define foo (λ (x) (+ x pi)))               ; random lambda proc
+(define (bar) (+ 5 6 7 8 9 (foo 10)))       ; random zero-arg proc
+(define (baz) (- 5 6 (foo 7) 8 9 10))       ; another random zero-arg proc
+(define quux (λ (x y) (* x y (- y x))))     ; another two-arg lambda proc
+
+(let ([x 5] [y 20])
+   (let ([a (bar)] [b (baz)])
+      (quux (foo (/ (bar) (baz))) (quux (/ x a) (+ y b)))
+   )
+)
