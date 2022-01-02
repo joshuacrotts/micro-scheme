@@ -21,16 +21,21 @@ public class MiniSchemeInterpreter {
     /**
      *
      */
-    private final MSSyntaxTree interpreterTree;
+    private SymbolTable symbolTable;
 
     /**
      *
      */
-    private final SymbolTable symbolTable;
+    private MSSyntaxTree interpreterTree;
 
     public MiniSchemeInterpreter(MSSyntaxTree tree) {
         this.interpreterTree = tree;
         this.symbolTable = new SymbolTable();
+        this.symbolTable.addEnvironment();
+    }
+
+    public MiniSchemeInterpreter() {
+        this(null);
     }
 
     /**
@@ -75,8 +80,6 @@ public class MiniSchemeInterpreter {
      * @param
      */
     public void execute() {
-        // First, push the global environment.
-        this.symbolTable.addEnvironment();
         for (MSSyntaxTree ch : this.interpreterTree.getChildren()) {
             LValue lhs = this.interpretTree(ch);
             switch (lhs.getType()) {
@@ -84,13 +87,17 @@ public class MiniSchemeInterpreter {
                 case BOOL:
                 case PAIR:
                 case STR:
+                case PROCCALL:
+                case LAMBDACALL:
                     System.out.println(lhs);
                     break;
                 default: // Do nothing for now...
             }
         }
-        // Remove the global environment. Not really necessary.
-        this.symbolTable.popEnvironment();
+    }
+
+    public void setInterpreterTree(MSSyntaxTree tree) {
+        this.interpreterTree = tree;
     }
 
     /**

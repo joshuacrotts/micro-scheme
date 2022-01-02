@@ -13,12 +13,12 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class MSListener extends MiniSchemeBaseListener {
 
     /**
-     *
+     * ParseTreeProperty map of parser rules being constructed overtime.
      */
     private final ParseTreeProperty<MSSyntaxTree> map;
 
     /**
-     *
+     * Root of the AST being constructed.
      */
     private final MSSyntaxTree root;
 
@@ -276,6 +276,9 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     /**
+     * Returns the corresponding ANTLR int token from an operator symbol
+     * in the ExprOpContext parser rule.
+     *
      * @param ctx
      * @return
      */
