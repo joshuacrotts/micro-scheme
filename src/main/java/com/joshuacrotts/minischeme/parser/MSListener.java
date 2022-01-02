@@ -38,6 +38,12 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitDecl(MiniSchemeParser.DeclContext ctx) {
+        super.exitDecl(ctx);
+        this.map.put(ctx, this.map.get(ctx.getChild(0)));
+    }
+
+    @Override
     public void exitVarDecl(MiniSchemeParser.VarDeclContext ctx) {
         super.exitVarDecl(ctx);
         MSSyntaxTree identifier = this.map.get(ctx.term());
@@ -81,6 +87,12 @@ public class MSListener extends MiniSchemeBaseListener {
         }
         MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
         this.map.put(ctx, new MSLambdaDeclarationNode(id, lambdaParams, lambdaBody));
+    }
+
+    @Override
+    public void exitExpr(MiniSchemeParser.ExprContext ctx) {
+        super.exitExpr(ctx);
+        this.map.put(ctx, this.map.get(ctx.children.get(0)));
     }
 
     @Override
@@ -178,7 +190,6 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprLambdaDeclCall(MiniSchemeParser.ExprLambdaDeclCallContext ctx) {
         super.exitExprLambdaDeclCall(ctx);
-        // TODO check to make sure that the params and args are the same size.
         MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
 
         // Now retrieve the params.
