@@ -1,6 +1,6 @@
 (define (filter function lst)
     (cond   [(null? lst) '()]
-	        [(equal? ((function) (car lst)) #t) (cons (car lst) (filter function (cdr lst)))]
+	        [(equal? (function (car lst)) #t) (cons (car lst) (filter function (cdr lst)))]
 	        [else (filter function (cdr lst))]
     )
 )

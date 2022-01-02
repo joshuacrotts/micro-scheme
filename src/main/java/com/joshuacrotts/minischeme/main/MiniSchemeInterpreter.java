@@ -384,7 +384,7 @@ public class MiniSchemeInterpreter {
      * @param opNode
      * @return
      */
-    private LValue interpretOperator(MSOpNode opNode) {
+    private LValue interpretOperator(MSOpNode opNode) throws MSSemanticError {
         int opType = opNode.getOpType();
         LValue res = null;
         // Determine if it's a unary operator or nary.
@@ -424,17 +424,22 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * @param ifNode
-     * @return
+     * Interprets an if statement.
+     *
+     * @param ifNode - MSIfNode ast.
+     *
+     * @return LValue of if statement body evaluated.
      */
-    private LValue interpretIf(MSIfNode ifNode) {
+    private LValue interpretIf(MSIfNode ifNode) throws MSSemanticError {
         LValue ifCond = this.interpretTree(ifNode.getChild(0));
         if (ifCond.getType() == LValue.LValueType.BOOL) {
             return ifCond.getBoolValue()
                     ? this.interpretTree(ifNode.getChild(1))
                     : this.interpretTree(ifNode.getChild(2));
+        } else {
+            throw new MSSemanticError("cannot evaluate if statement condition;"
+                                    + " expected predicate or procedure");
         }
-        return null;
     }
 
     /**
@@ -446,20 +451,26 @@ public class MiniSchemeInterpreter {
      *
      * @return LValue of cond body expression.
      */
-    private LValue interpretCond(MSCondNode condNode) {
+    private LValue interpretCond(MSCondNode condNode) throws MSSemanticError {
         int condIdx = 0;
         int bodyIdx = 1;
         boolean execLastBlock = true;
 
         while (condIdx < condNode.getChildrenSize() && bodyIdx < condNode.getChildrenSize()) {
             LValue condCond = this.interpretTree(condNode.getChild(condIdx));
-            // If the condition is true, evaluate that expression.
-            if (condCond.getBoolValue()) {
-                execLastBlock = false;
-                break;
+            if (condCond.getType() != LValueType.BOOL) {
+                throw new MSSemanticError("cannot evaluate cond statement condition;"
+                                        + " expected predicate or procedure");
             } else {
-                condIdx += 2;
-                bodyIdx += 2;
+                if (condCond.getBoolValue()) {
+                    // If the condition is true, evaluate that expression.
+                    execLastBlock = false;
+                    break;
+                } else {
+                    // Otherwise, iterate to the next condition and expr.
+                    condIdx += 2;
+                    bodyIdx += 2;
+                }
             }
         }
 
@@ -475,8 +486,9 @@ public class MiniSchemeInterpreter {
     private LValue interpretCall(MSCallNode callNode) throws MSSemanticError {
         // First, check to see if child 0 is an expr lambda decl. If so, do a lambda decl call.
         if (callNode.getChild(0).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
-            return this.interpretTree(new MSLambdaDeclarationCallNode(
-                    (MSLambdaDeclarationNode) callNode.getChild(0), callNode));
+            MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) callNode.getChild(0);
+            return this.interpretTree(new MSLambdaDeclarationCallNode(lambdaDecl.getLambdaParameters(),
+                    lambdaDecl.getBody(), callNode.getProcedureArguments()));
         } else {
             // Otherwise, determine if it's a stored procedure or lambda.
             String id = callNode.getIdentifier().getIdentifier();
@@ -485,7 +497,7 @@ public class MiniSchemeInterpreter {
             } else if (this.symbolTable.isLambda(id)) {
                 return this.interpretLambdaCall(callNode);
             } else {
-                throw new IllegalArgumentException("ERR cannot identify " + id + " as procedure or named lambda.");
+                throw new MSSemanticError("undefined identifier '" + id + "'");
             }
         }
     }
@@ -620,50 +632,30 @@ public class MiniSchemeInterpreter {
      * @param rhs
      * @return
      */
-    private LValue interpretPrimitiveBinaryOp(LValue lhs, int opType, LValue rhs) {
+    private LValue interpretPrimitiveBinaryOp(LValue lhs, int opType, LValue rhs) throws MSSemanticError {
         switch (opType) {
-            case MiniSchemeParser.PLUS:
-                return new LValue(lhs.getDoubleValue() + rhs.getDoubleValue());
-            case MiniSchemeParser.MINUS:
-                return new LValue(lhs.getDoubleValue() - rhs.getDoubleValue());
-            case MiniSchemeParser.STAR:
-                return new LValue(lhs.getDoubleValue() * rhs.getDoubleValue());
-            case MiniSchemeParser.SLASH:
-                return new LValue(lhs.getDoubleValue() / rhs.getDoubleValue());
-            case MiniSchemeParser.MODULO:
-                return new LValue(lhs.getDoubleValue() % rhs.getDoubleValue());
-            case MiniSchemeParser.EXPONENTIATION:
-                return new LValue(Math.pow(lhs.getDoubleValue(), rhs.getDoubleValue()));
-            case MiniSchemeParser.LOGICAL_AND:
-                return new LValue(lhs.getBoolValue() && rhs.getBoolValue());
-            case MiniSchemeParser.LOGICAL_OR:
-                return new LValue(lhs.getBoolValue() || rhs.getBoolValue());
-            case MiniSchemeParser.LOGICAL_EQ:
-                return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
-            case MiniSchemeParser.LOGICAL_NE:
-                return new LValue(lhs.getDoubleValue() != rhs.getDoubleValue());
-            case MiniSchemeParser.LOGICAL_LT:
-                return new LValue(lhs.getDoubleValue() < rhs.getDoubleValue());
-            case MiniSchemeParser.LOGICAL_LE:
-                return new LValue(lhs.getDoubleValue() <= rhs.getDoubleValue());
-            case MiniSchemeParser.LOGICAL_GT:
-                return new LValue(lhs.getDoubleValue() > rhs.getDoubleValue());
-            case MiniSchemeParser.LOGICAL_GE:
-                return new LValue(lhs.getDoubleValue() >= rhs.getDoubleValue());
-            case MiniSchemeParser.STRING_APPEND:
-                return new LValue(lhs.getStringValue() + rhs.getStringValue());
-            case MiniSchemeParser.RAND_FN:
-                return new LValue(Math.random());
-            case MiniSchemeParser.RANDINT_FN:
-                return new LValue(MSUtils.randomInt((int) lhs.getDoubleValue(), (int) rhs.getDoubleValue()));
-            case MiniSchemeParser.RANDDOUBLE_FN:
-                return new LValue(MSUtils.randomDouble(lhs.getDoubleValue(), rhs.getDoubleValue()));
-            case MiniSchemeParser.EQ_FN:
-                return this.interpretEqFn(lhs, rhs);
-            case MiniSchemeParser.EQUAL_FN:
-                return this.interpretEqualFn(lhs, rhs);
+            case MiniSchemeParser.PLUS: return new LValue(lhs.getDoubleValue() + rhs.getDoubleValue());
+            case MiniSchemeParser.MINUS: return new LValue(lhs.getDoubleValue() - rhs.getDoubleValue());
+            case MiniSchemeParser.STAR: return new LValue(lhs.getDoubleValue() * rhs.getDoubleValue());
+            case MiniSchemeParser.SLASH: return new LValue(lhs.getDoubleValue() / rhs.getDoubleValue());
+            case MiniSchemeParser.MODULO: return new LValue(lhs.getDoubleValue() % rhs.getDoubleValue());
+            case MiniSchemeParser.EXPONENTIATION: return new LValue(Math.pow(lhs.getDoubleValue(), rhs.getDoubleValue()));
+            case MiniSchemeParser.LOGICAL_AND: return new LValue(lhs.getBoolValue() && rhs.getBoolValue());
+            case MiniSchemeParser.LOGICAL_OR: return new LValue(lhs.getBoolValue() || rhs.getBoolValue());
+            case MiniSchemeParser.LOGICAL_EQ: return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
+            case MiniSchemeParser.LOGICAL_NE: return new LValue(lhs.getDoubleValue() != rhs.getDoubleValue());
+            case MiniSchemeParser.LOGICAL_LT: return new LValue(lhs.getDoubleValue() < rhs.getDoubleValue());
+            case MiniSchemeParser.LOGICAL_LE: return new LValue(lhs.getDoubleValue() <= rhs.getDoubleValue());
+            case MiniSchemeParser.LOGICAL_GT: return new LValue(lhs.getDoubleValue() > rhs.getDoubleValue());
+            case MiniSchemeParser.LOGICAL_GE: return new LValue(lhs.getDoubleValue() >= rhs.getDoubleValue());
+            case MiniSchemeParser.STRING_APPEND: return new LValue(lhs.getStringValue() + rhs.getStringValue());
+            case MiniSchemeParser.RAND_FN: return new LValue(Math.random());
+            case MiniSchemeParser.RANDINT_FN: return new LValue(MSUtils.randomInt((int) lhs.getDoubleValue(), (int) rhs.getDoubleValue()));
+            case MiniSchemeParser.RANDDOUBLE_FN: return new LValue(MSUtils.randomDouble(lhs.getDoubleValue(), rhs.getDoubleValue()));
+            case MiniSchemeParser.EQ_FN: return this.interpretEqFn(lhs, rhs);
+            case MiniSchemeParser.EQUAL_FN: return this.interpretEqualFn(lhs, rhs);
             default:
-                throw new IllegalArgumentException("ERR invalid binop type " + opType);
+                throw new MSSemanticError("invalid binary operator type " + opType);
         }
     }
 
@@ -672,7 +664,7 @@ public class MiniSchemeInterpreter {
      * @param opType
      * @return
      */
-    private LValue interpretPrimitiveUnaryOp(LValue lhs, int opType) {
+    private LValue interpretPrimitiveUnaryOp(LValue lhs, int opType) throws MSSemanticError {
         switch (opType) {
             case MiniSchemeParser.DISPLAY:
                 System.out.println(lhs.toDisplayString());
@@ -709,7 +701,7 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.TODEG_FN: return new LValue(new MSNumberNode(Math.toDegrees(lhs.getDoubleValue())));
             case MiniSchemeParser.TORAD_FN: return new LValue(new MSNumberNode(Math.toRadians(lhs.getDoubleValue())));
             default:
-                throw new IllegalArgumentException("ERR invalid unary type " + opType);
+                throw new MSSemanticError("invalid unary operator type " + opType);
         }
     }
 
