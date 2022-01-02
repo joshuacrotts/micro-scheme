@@ -82,4 +82,8 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
     public MSSyntaxTree getBody() {
         return this.getChild(this.getChildrenSize() - 1);
     }
+
+    public int getParameterCount() {
+        return this.numParams;
+    }
 }

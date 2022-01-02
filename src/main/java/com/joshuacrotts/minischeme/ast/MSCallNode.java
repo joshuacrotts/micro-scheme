@@ -84,4 +84,12 @@ public class MSCallNode extends MSSyntaxTree {
         }
         return lambdaArgs;
     }
+
+    public int getProcedureArgumentCount() {
+        return this.numProcArgs;
+    }
+
+    public int getLambdaArgumentCount() {
+        return this.numLambdaArgs;
+    }
 }

@@ -2,6 +2,9 @@ package com.joshuacrotts.minischeme.symbol;
 
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 
+/**
+ *
+ */
 public class Lambda extends Symbol {
 
     /**

@@ -59,6 +59,20 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
     }
 
     /**
+     * @param idStr
+     * @return
+     */
+    public int getArgumentIndex(String idStr) {
+        for (int i = 0; i < this.numLambdaParams; i++) {
+            MSIdentifierNode id = (MSIdentifierNode) this.getChild(i);
+            if (id.getIdentifier().equals(idStr)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      *
      * @return
      */
@@ -90,17 +104,11 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
         return lambdaArgs;
     }
 
-    /**
-     * @param idStr
-     * @return
-     */
-    public int getArgumentIndex(String idStr) {
-        for (int i = 0; i < this.numLambdaParams; i++) {
-            MSIdentifierNode id = (MSIdentifierNode) this.getChild(i);
-            if (id.getIdentifier().equals(idStr)) {
-                return i;
-            }
-        }
-        return -1;
+    public int getLambdaParameterCount() {
+        return this.numLambdaParams;
+    }
+
+    public int getLambdaArgumentCount() {
+        return this.numLambdaArgs;
     }
 }
