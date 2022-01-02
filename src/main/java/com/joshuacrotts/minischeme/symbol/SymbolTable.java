@@ -47,9 +47,6 @@ public class SymbolTable {
      */
     public void setSymbol(String id, MSSyntaxTree data) {
         SymbolEntry entry = this.getSymbolEntry(id);
-        if (entry == null) {
-            throw new IllegalArgumentException("Error, identifier " + id + " unknown");
-        }
         entry.setSymbolData(data);
     }
 
@@ -152,7 +149,7 @@ public class SymbolTable {
 
     public boolean isVariable(String id) {
         if (this.hasSymbol(id)) { return this.getSymbolEntry(id).getSymbolType() == SymbolType.VARIABLE; }
-        throw new IllegalArgumentException("Error, identifier " + id + " unknown");
+        return false;
     }
 
     public MSSyntaxTree getVariable(String id) {
@@ -163,17 +160,17 @@ public class SymbolTable {
             }
             return varData;
         }
-        throw new IllegalArgumentException("Error, identifier " + id + " unknown");
+        return null;
     }
 
     public boolean isProcedure(String id) {
         if (this.hasSymbol(id)) { return this.getSymbolEntry(id).getSymbolType() == SymbolType.PROCEDURE; }
-        throw new IllegalArgumentException("Error, identifier " + id + " unknown");
+        return false;
     }
 
     public boolean isLambda(String id) {
         if (this.hasSymbol(id)) { return this.getSymbolEntry(id).getSymbolType() == SymbolType.LAMBDA; }
-        throw new IllegalArgumentException("Error, identifier " + id + " unknown");
+        return false;
     }
 
     /**

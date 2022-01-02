@@ -1,6 +1,6 @@
 (define (map proc l)
     (cond  [(null? l) '()]
-           [else (cons ((proc) (car l)) (map proc (cdr l)))]
+           [else (cons (proc (car l)) (map proc (cdr l)))]
     )
 )
 

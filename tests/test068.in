@@ -1,0 +1,2 @@
+(define (proc x func) (func x 1 2 3 4))
+(proc 10 (lambda (y z w v u) (+ y z w v u)))

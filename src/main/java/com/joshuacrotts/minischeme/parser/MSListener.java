@@ -13,12 +13,12 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class MSListener extends MiniSchemeBaseListener {
 
     /**
-     *
+     * ParseTreeProperty map of parser rules being constructed overtime.
      */
     private final ParseTreeProperty<MSSyntaxTree> map;
 
     /**
-     *
+     * Root of the AST being constructed.
      */
     private final MSSyntaxTree root;
 
@@ -35,6 +35,12 @@ public class MSListener extends MiniSchemeBaseListener {
                 this.root.addChild(this.map.get(ctx.getChild(i)));
             }
         }
+    }
+
+    @Override
+    public void exitDecl(MiniSchemeParser.DeclContext ctx) {
+        super.exitDecl(ctx);
+        this.map.put(ctx, this.map.get(ctx.getChild(0)));
     }
 
     @Override
@@ -81,6 +87,12 @@ public class MSListener extends MiniSchemeBaseListener {
         }
         MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
         this.map.put(ctx, new MSLambdaDeclarationNode(id, lambdaParams, lambdaBody));
+    }
+
+    @Override
+    public void exitExpr(MiniSchemeParser.ExprContext ctx) {
+        super.exitExpr(ctx);
+        this.map.put(ctx, this.map.get(ctx.children.get(0)));
     }
 
     @Override
@@ -178,7 +190,6 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprLambdaDeclCall(MiniSchemeParser.ExprLambdaDeclCallContext ctx) {
         super.exitExprLambdaDeclCall(ctx);
-        // TODO check to make sure that the params and args are the same size.
         MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
 
         // Now retrieve the params.
@@ -265,6 +276,9 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     /**
+     * Returns the corresponding ANTLR int token from an operator symbol
+     * in the ExprOpContext parser rule.
+     *
      * @param ctx
      * @return
      */

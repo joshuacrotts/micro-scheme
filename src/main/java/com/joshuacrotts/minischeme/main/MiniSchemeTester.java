@@ -4,8 +4,13 @@ import com.joshuacrotts.minischeme.MiniSchemeLexer;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.parser.MSListener;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.NoSuchFileException;
+import java.util.Scanner;
+
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -25,20 +30,18 @@ public class MiniSchemeTester {
         if (argv.length > 1) {
             System.err.println("Can provide at most one command line argument (an input filename)");
             return;
-        } else if (argv.length == 1) {
-            parser = parseFromFile(argv[0]);
-        } else {
-            parser = parseFromStdin();
-        }
-        assert parser != null;
-        MSSyntaxTree tree = parser.getSyntaxTree();
-        if (tree == null) {
-            System.exit(1);
         }
 
-        tree.printSyntaxTree();
-        MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter(tree);
-        interpreter.execute();
+        MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter();
+        if (argv.length == 1) {
+            interpretParser(interpreter, parseFromFile(argv[0]));
+        } else {
+            System.out.println("MiniScheme 0.0.1");
+            System.out.println("Type \"help\" for more information on commands.");
+            while (true) {
+                interpretParser(interpreter, parseFromStdin());
+            }
+        }
     }
 
     /**
@@ -63,12 +66,26 @@ public class MiniSchemeTester {
      * Public static method to run the parser on the standard input stream.
      */
     public static MSListener parseFromStdin() {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String line = null;
+        StringBuilder out = new StringBuilder();
+        System.out.print("> ");
         try {
-            return parseStream(CharStreams.fromStream(System.in));
-        } catch (IOException e) {
-            e.printStackTrace();
+            // Read input until we encounter either a newline or backslash then \n
+            while ((line = reader.readLine()) != null) {
+                if (line.endsWith("\\")) {
+                    out.append(line, 0, line.length() - 1);
+                    System.out.print("... ");
+                } else {
+                    out.append(line);
+                    break;
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-        return null;
+
+        return out.length() != 0 ? parseStream(CharStreams.fromString(out.toString())) : null;
     }
 
     private static MSListener parseStream(CharStream input) {
@@ -88,5 +105,17 @@ public class MiniSchemeTester {
         walker.walk(compiler, tree);
 
         return compiler;
+    }
+
+    /**
+     *
+     * @param parser
+     */
+    private static void interpretParser(MiniSchemeInterpreter interpreter, MSListener parser) {
+        if (parser == null) { return; }
+        MSSyntaxTree tree = parser.getSyntaxTree();
+        if (tree == null) { System.exit(1); }
+        interpreter.setInterpreterTree(tree);
+        interpreter.execute();
     }
 }

@@ -85,4 +85,8 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
         }
         throw new IllegalStateException("ERR lambda not bound to identifier");
     }
+
+    public int getLambdaParameterCount() {
+        return this.numParams;
+    }
 }

@@ -1,9 +1,6 @@
 package com.joshuacrotts.minischeme.main;
 
-import com.joshuacrotts.minischeme.ast.MSBooleanNode;
-import com.joshuacrotts.minischeme.ast.MSNumberNode;
-import com.joshuacrotts.minischeme.ast.MSStringNode;
-import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+import com.joshuacrotts.minischeme.ast.*;
 
 /**
  *
@@ -121,9 +118,11 @@ public class LValue {
             case STR:
                 return this.sval.getValue();
             case PAIR:
-                return this.tval == null
-                       ? "()"
-                       : this.tval.getStringRep();
+                return this.tval == null ? "()" : this.tval.getStringRep();
+            case PROCCALL:
+                return "#<procedure-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case LAMBDACALL:
+                return "#<lambda-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
         }
         return "";
     }

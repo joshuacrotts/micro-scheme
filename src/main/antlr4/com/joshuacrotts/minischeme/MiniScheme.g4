@@ -136,40 +136,65 @@ ID: [a-zA-Z_-][<>a-zA-Z0-9_-]*('?')?;
 // ================= Parser rules. ==================== //
 
 // This is the root rule applied.
-miniScheme: (decl | expr)* EOF;
+miniScheme: (decl | expr)*;
 
-// Declaration of an identifier. Takes the form (define var <expr>)
-decl: (OPEN_PAREN DEFINE term (OPEN_PAREN LAMBDA
-        (OPEN_PAREN lambdaParams? CLOSE_PAREN) lambdaBody CLOSE_PAREN) CLOSE_PAREN)         #lambdaDecl
-    | (OPEN_PAREN DEFINE term expr CLOSE_PAREN)                                             #varDecl
-    | (OPEN_PAREN DEFINE term OPEN_PAREN readop CLOSE_PAREN CLOSE_PAREN)                    #varDeclRead
-    | (OPEN_PAREN DEFINE (OPEN_PAREN term procParams? CLOSE_PAREN) procBody CLOSE_PAREN)    #procDecl
+
+// Declarations of lambdas, variables, and procedures.
+decl: lambdaDecl
+    | varDecl
+    | varDeclRead
+    | procDecl;
+
+
+// Different definitions.
+varDecl: (OPEN_PAREN DEFINE term expr CLOSE_PAREN);
+varDeclRead: (OPEN_PAREN DEFINE term OPEN_PAREN readop CLOSE_PAREN CLOSE_PAREN);
+procDecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procParams? CLOSE_PAREN) procBody CLOSE_PAREN);
+lambdaDecl: (OPEN_PAREN DEFINE term (OPEN_PAREN LAMBDA
+                (OPEN_PAREN lambdaParams? CLOSE_PAREN) lambdaBody CLOSE_PAREN)
+                CLOSE_PAREN);
+
+
+// Defines an expression.
+expr: exprCons
+    | exprSet
+    | exprSetRead
+    | exprOp
+    | exprList
+    | exprCall
+    | exprLambdaDecl
+    | exprLambdaDeclCall
+    | exprIf
+    | exprCond
+    | exprLetDecl
+    | exprTerm
     ;
 
-// Defines an expression. An expression is either a term, "cons", an operator, a list construction,
-// a procedure call, an if expression, or a cond expression.
-expr: (OPEN_PAREN CONS expr expr CLOSE_PAREN)                                       #exprCons
-    | (OPEN_PAREN setop term expr CLOSE_PAREN)                                      #exprSet
-    | (OPEN_PAREN setop term OPEN_PAREN readop CLOSE_PAREN CLOSE_PAREN)             #exprSetRead
-    | (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)                             #exprOp
-    | ((unaryop | naryop) expr*)                                                    #exprOp
-    | (QUOTE OPEN_PAREN expr* CLOSE_PAREN)                                          #exprList
-    | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN)                                 #exprList
-    | (OPEN_PAREN term args? CLOSE_PAREN)                                           #exprCall
-    | (OPEN_PAREN (OPEN_PAREN term args? CLOSE_PAREN) lambdaArgs? CLOSE_PAREN)      #exprCall
-    | (OPEN_PAREN (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
-        lambdaBody CLOSE_PAREN) lambdaArgs? CLOSE_PAREN)                            #exprLambdaDeclCall
-    | (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
-        lambdaBody CLOSE_PAREN)                                                     #exprLambdaDecl
-    | (OPEN_PAREN IF OPEN_PAREN ifCond CLOSE_PAREN ifBody ifElse CLOSE_PAREN)       #exprIf
-    | (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
-        condCond CLOSE_PAREN condBody CLOSE_BRACKET)*
-        (OPEN_BRACKET (ELSE)? condBody CLOSE_BRACKET) CLOSE_PAREN)                  #exprCond
-    | (OPEN_PAREN (LET | LETSTAR | LETREC)
-        (OPEN_PAREN letDecl? CLOSE_PAREN) expr CLOSE_PAREN)                         #exprLetDecl
-    | term                                                                          #exprTerm
-    ;
 
+// Different types of expressions.
+exprCons: OPEN_PAREN CONS expr expr CLOSE_PAREN;
+exprSet: OPEN_PAREN setop term expr CLOSE_PAREN;
+exprSetRead: OPEN_PAREN setop term (OPEN_PAREN readop CLOSE_PAREN) CLOSE_PAREN;
+exprOp: (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)
+      | ((unaryop | naryop) expr*);
+exprList: (QUOTE OPEN_PAREN expr* CLOSE_PAREN)
+        | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN);
+exprCall: (OPEN_PAREN term args? CLOSE_PAREN)
+        | (OPEN_PAREN (OPEN_PAREN term args? CLOSE_PAREN) lambdaArgs? CLOSE_PAREN);
+exprLambdaDecl: (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
+                    lambdaBody CLOSE_PAREN);
+exprLambdaDeclCall: (OPEN_PAREN (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
+                        lambdaBody CLOSE_PAREN) lambdaArgs? CLOSE_PAREN);
+exprIf: (OPEN_PAREN IF ifCond ifBody ifElse? CLOSE_PAREN);
+exprCond: (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
+            condCond CLOSE_PAREN condBody CLOSE_BRACKET)*
+            (OPEN_BRACKET (ELSE)? condBody CLOSE_BRACKET) CLOSE_PAREN);
+exprLetDecl: (OPEN_PAREN (LET | LETSTAR | LETREC)
+                 (OPEN_PAREN letDecl? CLOSE_PAREN) expr CLOSE_PAREN);
+exprTerm: term;
+
+
+// Components of expressons.
 procParams: expr+;
 procBody: expr;
 args: expr+;
@@ -178,6 +203,7 @@ lambdaBody: expr;
 lambdaArgs: expr+;
 letDecl: (OPEN_BRACKET term expr CLOSE_BRACKET)*;
 
+
 // Separates the "expressions" for a cond or if expression to make it clearer in the parser.
 condCond: expr;
 condBody: expr;
@@ -185,30 +211,33 @@ ifCond: expr;
 ifBody: expr;
 ifElse: expr;
 
+
 // All unary operators.
 unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
         | FLOOR | CEILING | TRUNCATE | LOGICAL_NOT | LOGICAL_AND
         | LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN | LIST_FN
         | EQ_FN | EQUAL_FN | NULL_FN | ATOM_FN | CAR | CDR
         | STRLEN_FN | PAIR_FN | TRUE_FN | FALSE_FN | STRTONUM_FN
-        | NUMTOSTR_FN | TODEG_FN | TORAD_FN
-        ;
+        | NUMTOSTR_FN | TODEG_FN | TORAD_FN;
+
 
 // All n-ary operators. An n-ary operator is an operator that takes at least two parameters. The
 // semantic analyzer should check to make sure the argument count is correct for binary operators.
 naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
       | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
       | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
-      | RANDINT_FN | RANDDOUBLE_FN | RAND_FN
-      ;
+      | RANDINT_FN | RANDDOUBLE_FN | RAND_FN;
+
 
 // "Set" operations - allows redefining of variables.
-setop: SETCAR_FN | SETCDR_FN | SETVAR_FN
-     ;
+setop: SETCAR_FN | SETCDR_FN | SETVAR_FN;
 
-readop: READLINE_FN | READNUMBER_FN
-      ;
 
+// "Read" operations.
+readop: READLINE_FN | READNUMBER_FN;
+
+
+// Terms/literals.
 term: NUMBERLIT
     | CHARLIT
     | STRINGLIT
