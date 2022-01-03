@@ -96,8 +96,13 @@ CONS: 'cons';
 DISPLAY: 'display';
 
 // String procedures.
-STRING_APPEND: 'string-append';
+STRAPPEND_FN: 'string-append';
 STRLEN_FN: 'string-length';
+STRLE_FN: 'string<=?';
+STRGE_FN: 'string>=?';
+STRLT_FN: 'string<?';
+STRGT_FN: 'string>?';
+STRSUBSTR: 'substring';
 
 // T/F predicate procedures.
 NUMBER_FN: 'number?';
@@ -131,6 +136,7 @@ SETCAR_FN: 'set-car!';
 SETCDR_FN: 'set-cdr!';
 SETVAR_FN: 'set!';
 
+// Identifier.
 ID: [a-zA-Z_-][<>a-zA-Z0-9_-]*('?')?;
 
 // ================= Parser rules. ==================== //
@@ -170,27 +176,64 @@ expr: exprCons
     | exprTerm
     ;
 
+// Cons expressions and errors.
+exprCons: OPEN_PAREN CONS expr expr CLOSE_PAREN
+        | OPEN_PAREN CONS expr expr         { notifyErrorListeners("cons expression missing closing parenthesis"); }
+        | OPEN_PAREN CONS expr CLOSE_PAREN  { notifyErrorListeners("cons expression expects 2 arguments but got 1"); }
+        | CONS expr expr CLOSE_PAREN        { notifyErrorListeners("cons expression missing opening parenthesis"); }
+        | CONS expr                         { notifyErrorListeners("cons expression expects 2 arguments but got 1"); };
 
-// Different types of expressions.
-exprCons: OPEN_PAREN CONS expr expr CLOSE_PAREN;
-exprSet: OPEN_PAREN setop term expr CLOSE_PAREN;
+// Set expressions.
+exprSet: OPEN_PAREN setop term expr CLOSE_PAREN
+       | OPEN_PAREN setop term expr         { notifyErrorListeners("setop expression missing closing parenthesis"); }
+       | OPEN_PAREN setop term CLOSE_PAREN  { notifyErrorListeners("setop missing expression to set"); }
+       | setop term expr CLOSE_PAREN        { notifyErrorListeners("setop expression missing opening parenthesis"); }
+       | setop term CLOSE_PAREN             { notifyErrorListeners("setop expression missing openinig parenthesis and expression to set"); };
+
+// Set read expression.
 exprSetRead: OPEN_PAREN setop term (OPEN_PAREN readop CLOSE_PAREN) CLOSE_PAREN;
+
+// Operator to use.
 exprOp: (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)
-      | ((unaryop | naryop) expr*);
+      | ((unaryop | naryop) expr*)
+      | (OPEN_PAREN (unaryop | naryop) expr*)   { notifyErrorListeners("operator missing closing parenthesis"); }
+      | (unaryop | naryop) expr* CLOSE_PAREN    { notifyErrorListeners("operator missing opening parenthesis"); };
+
+// Lists.
 exprList: (QUOTE OPEN_PAREN expr* CLOSE_PAREN)
-        | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN);
+        | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN)
+        | (OPEN_PAREN QUOTE expr*)      { notifyErrorListeners("quoted list missing opening parenthesis"); }
+        | (QUOTE expr* CLOSE_PAREN)     { notifyErrorListeners("quoted list missing opening parenthesis"); };
+
+// Procedure/lambda calls.
 exprCall: (OPEN_PAREN term args? CLOSE_PAREN)
-        | (OPEN_PAREN (OPEN_PAREN term args? CLOSE_PAREN) lambdaArgs? CLOSE_PAREN);
+        | (OPEN_PAREN (OPEN_PAREN term args? CLOSE_PAREN) lambdaArgs? CLOSE_PAREN)
+        | (OPEN_PAREN term args?)                                       { notifyErrorListeners("expression call missing closing parenthesis"); };
+
+// Lambda declaration inside an expression.
 exprLambdaDecl: (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
                     lambdaBody CLOSE_PAREN);
+
+// Lambda declaration calls inside an expression.
 exprLambdaDeclCall: (OPEN_PAREN (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
                         lambdaBody CLOSE_PAREN) lambdaArgs? CLOSE_PAREN);
-exprIf: (OPEN_PAREN IF ifCond ifBody ifElse? CLOSE_PAREN);
+
+// If expressions.
+exprIf: (OPEN_PAREN IF ifCond ifBody ifElse CLOSE_PAREN)
+      | (OPEN_PAREN IF ifCond ifBody ifElse)        { notifyErrorListeners("if expression missing closing parenthesis"); }
+      | (IF ifCond ifBody ifElse CLOSE_PAREN)       { notifyErrorListeners("if expression missing opening parenthesis"); }
+      | (OPEN_PAREN IF ifCond ifBody CLOSE_PAREN)   { notifyErrorListeners("if expression missing alternate expression"); }
+      | (OPEN_PAREN IF ifCond ifBody CLOSE_PAREN)   { notifyErrorListeners("if expression missing else expression alternative"); };
+
+// Cond expressions.
 exprCond: (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
             condCond CLOSE_PAREN condBody CLOSE_BRACKET)*
             (OPEN_BRACKET (ELSE)? condBody CLOSE_BRACKET) CLOSE_PAREN);
+
+// Let declaration.
 exprLetDecl: (OPEN_PAREN (LET | LETSTAR | LETREC)
                  (OPEN_PAREN letDecl? CLOSE_PAREN) expr CLOSE_PAREN);
+
 exprTerm: term;
 
 
@@ -225,8 +268,9 @@ unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
 // semantic analyzer should check to make sure the argument count is correct for binary operators.
 naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
       | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
-      | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
-      | RANDINT_FN | RANDDOUBLE_FN | RAND_FN;
+      | LOGICAL_EQ | LOGICAL_NE | STRAPPEND_FN | MEMBER_FN
+      | RANDINT_FN | RANDDOUBLE_FN | RAND_FN | STRLE_FN
+      | STRGE_FN | STRLT_FN | STRGT_FN;
 
 
 // "Set" operations - allows redefining of variables.

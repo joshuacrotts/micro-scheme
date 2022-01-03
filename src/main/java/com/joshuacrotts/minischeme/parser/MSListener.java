@@ -30,9 +30,11 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitMiniScheme(MiniSchemeParser.MiniSchemeContext ctx) {
         super.exitMiniScheme(ctx);
-        for (int i = 0; i < ctx.children.size(); i++) {
-            if (ctx.getChild(i) != null) {
-                this.root.addChild(this.map.get(ctx.getChild(i)));
+        if (ctx.children != null) {
+            for (int i = 0; i < ctx.children.size(); i++) {
+                if (ctx.getChild(i) != null) {
+                    this.root.addChild(this.map.get(ctx.getChild(i)));
+                }
             }
         }
     }

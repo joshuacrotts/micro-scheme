@@ -57,6 +57,10 @@ public class MSOpNode extends MSSyntaxTree {
         return this.opType;
     }
 
+    public String getOpTypeString() {
+        return this.getOpTypeString(this.opType);
+    }
+
     /**
      * Returns the literal string representation of an operation. In the lexer, the operation
      * has a string representation and this is used to determine which operation is used.

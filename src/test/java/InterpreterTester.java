@@ -4,6 +4,7 @@ import com.joshuacrotts.minischeme.main.MiniSchemeTester;
 import com.joshuacrotts.minischeme.parser.MSListener;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.opentest4j.AssertionFailedError;
 
 import java.io.ByteArrayInputStream;
@@ -15,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
@@ -25,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * produce null for the syntax tree, indicating an error) are tested by method
  * badFileInput(). See those methods for more information.
  */
+@Timeout(value = 5, unit = SECONDS)
 public class InterpreterTester {
 
     /**

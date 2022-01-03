@@ -388,7 +388,9 @@ public class MiniSchemeInterpreter {
         int opType = opNode.getOpType();
         LValue res = null;
         // Determine if it's a unary operator or nary.
-        if (opNode.getChildrenSize() == 1) {
+        if (opNode.getChildrenSize() == 0) {
+            throw new MSSemanticError("operator " + opNode.getOpTypeString() + " expected operand(s) but received 0");
+        } else if (opNode.getChildrenSize() == 1) {
             res = this.interpretPrimitiveUnaryOp(this.interpretTree(opNode.getChild(0)), opType);
         } else {
             res = this.interpretTree(opNode.getChild(0));
@@ -648,7 +650,11 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.LOGICAL_LE: return new LValue(lhs.getDoubleValue() <= rhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_GT: return new LValue(lhs.getDoubleValue() > rhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_GE: return new LValue(lhs.getDoubleValue() >= rhs.getDoubleValue());
-            case MiniSchemeParser.STRING_APPEND: return new LValue(lhs.getStringValue() + rhs.getStringValue());
+            case MiniSchemeParser.STRAPPEND_FN: return new LValue(lhs.getStringValue() + rhs.getStringValue());
+            case MiniSchemeParser.STRLT_FN: return new LValue(lhs.getStringValue().compareTo(rhs.getStringValue()) <= 0);
+            case MiniSchemeParser.STRLE_FN: return new LValue(lhs.getStringValue().compareTo(rhs.getStringValue()) < 0);
+            case MiniSchemeParser.STRGT_FN: return new LValue(lhs.getStringValue().compareTo(rhs.getStringValue()) >= 0);
+            case MiniSchemeParser.STRGE_FN: return new LValue(lhs.getStringValue().compareTo(rhs.getStringValue()) > 0);
             case MiniSchemeParser.RAND_FN: return new LValue(Math.random());
             case MiniSchemeParser.RANDINT_FN: return new LValue(MSUtils.randomInt((int) lhs.getDoubleValue(), (int) rhs.getDoubleValue()));
             case MiniSchemeParser.RANDDOUBLE_FN: return new LValue(MSUtils.randomDouble(lhs.getDoubleValue(), rhs.getDoubleValue()));

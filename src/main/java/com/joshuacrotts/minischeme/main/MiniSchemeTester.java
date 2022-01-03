@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.nio.file.NoSuchFileException;
 import java.util.Scanner;
 
+import com.joshuacrotts.minischeme.parser.MSSyntaxErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -97,6 +98,8 @@ public class MiniSchemeTester {
 
         // Connect parser to token stream
         MiniSchemeParser parser = new MiniSchemeParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(new MSSyntaxErrorListener());
         ParseTree tree = parser.miniScheme();
 
         // Now do the parsing, and walk the parse tree with our listeners
