@@ -1,6 +1,8 @@
 package com.joshuacrotts.minischeme.symbol;
 
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+import com.joshuacrotts.minischeme.ast.MSTypeDeclarationNode;
+
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -38,7 +40,7 @@ public class Environment {
         return this.symbolTable.containsKey(identifier);
     }
 
-    public TreeMap<String, SymbolEntry> getTreeMap() {
+    public TreeMap<String, SymbolEntry> getSymbolTable() {
         return this.symbolTable;
     }
 }

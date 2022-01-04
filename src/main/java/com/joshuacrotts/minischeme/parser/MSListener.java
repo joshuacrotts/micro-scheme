@@ -90,6 +90,35 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitTypeDecl(MiniSchemeParser.TypeDeclContext ctx) {
+        super.exitTypeDecl(ctx);
+        MSIdentifierNode typeId = new MSIdentifierNode(ctx.ID().getText());
+        ArrayList<MSSyntaxTree> typeParams = new ArrayList<>();
+        if (ctx.expr() != null) {
+            for (ParseTree pt : ctx.expr()) {
+                typeParams.add(this.map.get(pt));
+            }
+        }
+
+        this.map.put(ctx, new MSTypeDeclarationNode(typeId, typeParams));
+    }
+
+    @Override
+    public void exitMakeDecl(MiniSchemeParser.MakeDeclContext ctx) {
+        super.exitMakeDecl(ctx);
+        MSIdentifierNode typeId = new MSIdentifierNode(ctx.ID(0).getText());
+        MSIdentifierNode makeId = new MSIdentifierNode(ctx.ID(1).getText());
+        ArrayList<MSSyntaxTree> makeArgs = new ArrayList<>();
+        if (ctx.expr() != null) {
+            for (ParseTree pt : ctx.expr()) {
+                makeArgs.add(this.map.get(pt));
+            }
+        }
+
+        this.map.put(ctx, new MSMakeTypeDeclarationNode(typeId, makeId, makeArgs));
+    }
+
+    @Override
     public void exitExpr(MiniSchemeParser.ExprContext ctx) {
         super.exitExpr(ctx);
         this.map.put(ctx, this.map.get(ctx.children.get(0)));

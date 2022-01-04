@@ -63,6 +63,7 @@ BOOLLIT: '#'[tf];
 
 // Special keywords.
 DEFINE: 'define';
+DEFINETYPE: 'define-type';
 MAKE: 'make';
 IF:  'if';
 COND: 'cond';
@@ -97,8 +98,14 @@ CONS: 'cons';
 DISPLAY: 'display';
 
 // String procedures.
-STRING_APPEND: 'string-append';
+STRAPPEND_FN: 'string-append';
 STRLEN_FN: 'string-length';
+STREQ_FN: 'string=?';
+STRLE_FN: 'string<=?';
+STRGE_FN: 'string>=?';
+STRLT_FN: 'string<?';
+STRGT_FN: 'string>?';
+STRSUBSTR: 'substring';
 
 // T/F predicate procedures.
 NUMBER_FN: 'number?';
@@ -141,12 +148,12 @@ miniScheme: (decl | expr)*;
 
 
 // Declarations of lambdas, variables, procedures, and types.
-decl: lambdaDecl
+decl: typeDecl
+    | makeDecl
+    | lambdaDecl
     | varDecl
     | varDeclRead
-    | procDecl
-    | typeDecl
-    | makeDecl;
+    | procDecl;
 
 
 // Different definitions.
@@ -156,7 +163,7 @@ procDecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procParams? CLOSE_PAREN) procBody 
 lambdaDecl: (OPEN_PAREN DEFINE term (OPEN_PAREN LAMBDA
                 (OPEN_PAREN lambdaParams? CLOSE_PAREN) lambdaBody CLOSE_PAREN)
                 CLOSE_PAREN);
-typeDecl: (OPEN_PAREN DEFINE'-'ID (OPEN_PAREN expr+ CLOSE_PAREN) CLOSE_PAREN);
+typeDecl: (OPEN_PAREN DEFINETYPE ID (OPEN_PAREN expr+ CLOSE_PAREN) CLOSE_PAREN);
 makeDecl: (OPEN_PAREN MAKE'-'ID ID expr+ CLOSE_PAREN);
 
 // Defines an expression.
@@ -229,8 +236,9 @@ unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
 // semantic analyzer should check to make sure the argument count is correct for binary operators.
 naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
       | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
-      | LOGICAL_EQ | LOGICAL_NE | STRING_APPEND | MEMBER_FN
-      | RANDINT_FN | RANDDOUBLE_FN | RAND_FN;
+      | LOGICAL_EQ | LOGICAL_NE | STRAPPEND_FN | STREQ_FN
+      | STRLT_FN | STRLE_FN | STRGT_FN | STRGE_FN | MEMBER_FN
+      | STRSUBSTR | RANDINT_FN | RANDDOUBLE_FN | RAND_FN;
 
 
 // "Set" operations - allows redefining of variables.

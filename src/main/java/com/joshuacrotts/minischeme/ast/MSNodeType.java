@@ -21,15 +21,15 @@ public enum MSNodeType {
     EXPR_LAMBDA_DECL,
     VAR_DECL,
     LET_DECL,
+    TYPE_DECL,
+    MAKETYPE_DECL,
 
     // Expression calls.
-    EXPR_LAMBDA_CALL,
     EXPR_LAMBDA_DECL_CALL,
-    PROC_CALL,
     CALL,
 
-    // I/O or set.
+    // I/O or set.,
     SET,
     SET_READ,
-    DECL_READ,
+    DECL_READ
 }

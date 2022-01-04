@@ -7,6 +7,7 @@ import com.joshuacrotts.minischeme.parser.MSSemanticError;
 import com.joshuacrotts.minischeme.symbol.Symbol;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import com.joshuacrotts.minischeme.symbol.SymbolType;
+import com.joshuacrotts.minischeme.symbol.TypeTable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,12 @@ public class MiniSchemeInterpreter {
     /**
      *
      */
-    private SymbolTable symbolTable;
+    private final SymbolTable symbolTable;
+
+    /**
+     *
+     */
+    private final TypeTable typeTable;
 
     /**
      *
@@ -31,6 +37,7 @@ public class MiniSchemeInterpreter {
     public MiniSchemeInterpreter(MSSyntaxTree tree) {
         this.interpreterTree = tree;
         this.symbolTable = new SymbolTable();
+        this.typeTable = new TypeTable();
         this.symbolTable.addEnvironment();
     }
 
@@ -74,8 +81,7 @@ public class MiniSchemeInterpreter {
                 if (body.getChild(i).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
                     this.replaceParams(definition, body.getChild(i), args);
                 }
-            }
-            else {
+            } else {
                 this.replaceParamsHelper(definition, child, arg, replaceIdx, args);
             }
         }
@@ -125,6 +131,8 @@ public class MiniSchemeInterpreter {
                 case VAR_DECL: return this.interpretVariableDeclaration((MSVariableDeclarationNode) tree);
                 case PROC_DECL: return this.interpretProcedureDeclaration((MSProcedureDeclarationNode) tree);
                 case LAMBDA_DECL: return this.interpretLambdaDeclaration((MSLambdaDeclarationNode) tree);
+                case TYPE_DECL: return this.interpretTypeDecl((MSTypeDeclarationNode) tree);
+                case MAKETYPE_DECL: return this.interpretMakeTypeDecl((MSMakeTypeDeclarationNode) tree);
                 case DECL_READ: return this.interpretDeclarationRead((MSDeclarationReadNode) tree);
                 case SET_READ: return this.interpretSetRead((MSSetReadNode) tree);
                 case ID: return this.interpretIdentifier((MSIdentifierNode) tree);
@@ -179,6 +187,24 @@ public class MiniSchemeInterpreter {
         String identifier = lambdaDecl.getIdentifier().getIdentifier();
         this.symbolTable.addSymbol(identifier, SymbolType.LAMBDA, lambdaDecl);
         return new LValue();
+    }
+
+    /**
+     *
+     * @param typeDecl
+     * @return
+     */
+    private LValue interpretTypeDecl(MSTypeDeclarationNode typeDecl) {
+        throw new UnsupportedOperationException("ERR cannot support define-types yet");
+    }
+
+    /**
+     *
+     * @param makeTypeDecl
+     * @return
+     */
+    private LValue interpretMakeTypeDecl(MSMakeTypeDeclarationNode makeTypeDecl) {
+        throw new UnsupportedOperationException("ERR cannot support make-types yet");
     }
 
     /**
@@ -622,7 +648,7 @@ public class MiniSchemeInterpreter {
         }
 
         MSSyntaxTree body = lambdaDeclCall.getBody().copy();
-        replaceParams(lambdaDeclCall, body, args);
+        this.replaceParams(lambdaDeclCall, body, args);
         return this.interpretTree(body);
     }
 
@@ -648,7 +674,13 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.LOGICAL_LE: return new LValue(lhs.getDoubleValue() <= rhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_GT: return new LValue(lhs.getDoubleValue() > rhs.getDoubleValue());
             case MiniSchemeParser.LOGICAL_GE: return new LValue(lhs.getDoubleValue() >= rhs.getDoubleValue());
-            case MiniSchemeParser.STRING_APPEND: return new LValue(lhs.getStringValue() + rhs.getStringValue());
+            case MiniSchemeParser.STRAPPEND_FN: return new LValue(lhs.getStringValue() + rhs.getStringValue());
+            case MiniSchemeParser.STREQ_FN: return new LValue(lhs.getStringValue().equals(rhs.getStringValue()));
+            case MiniSchemeParser.STRLT_FN: return new LValue(lhs.getStringValue().compareTo(rhs.getStringValue()) < 0);
+            case MiniSchemeParser.STRLE_FN: return new LValue(lhs.getStringValue().compareTo(rhs.getStringValue()) <= 0);
+            case MiniSchemeParser.STRGT_FN: return new LValue(lhs.getStringValue().compareTo(rhs.getStringValue()) > 0);
+            case MiniSchemeParser.STRGE_FN: return new LValue(lhs.getStringValue().compareTo(rhs.getStringValue()) >= 0);
+            case MiniSchemeParser.STRSUBSTR: throw new UnsupportedOperationException("ERR cannot support substring yet");
             case MiniSchemeParser.RAND_FN: return new LValue(Math.random());
             case MiniSchemeParser.RANDINT_FN: return new LValue(MSUtils.randomInt((int) lhs.getDoubleValue(), (int) rhs.getDoubleValue()));
             case MiniSchemeParser.RANDDOUBLE_FN: return new LValue(MSUtils.randomDouble(lhs.getDoubleValue(), rhs.getDoubleValue()));

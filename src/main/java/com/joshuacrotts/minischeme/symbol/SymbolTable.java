@@ -1,11 +1,9 @@
 package com.joshuacrotts.minischeme.symbol;
 
-import java.util.List;
 import java.util.Stack;
 import java.util.TreeMap;
 
 import com.joshuacrotts.minischeme.ast.MSNodeType;
-import com.joshuacrotts.minischeme.ast.MSProcedureDeclarationNode;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.ast.MSVariableDeclarationNode;
 
@@ -100,9 +98,9 @@ public class SymbolTable {
         for (int i = this.environmentTable.size() - 1; i >= 0; i--) {
             Environment curr = this.environmentTable.get(i);
 
-            for (String key : curr.getTreeMap().keySet()) {
+            for (String key : curr.getSymbolTable().keySet()) {
                 if (id.equals(key)) {
-                    return curr.getTreeMap().get(key);
+                    return curr.getSymbolTable().get(key);
                 }
             }
         }
@@ -137,7 +135,7 @@ public class SymbolTable {
         Environment globalEnvironment = this.environmentTable.get(stackSize - 1);
 
         // Return the set of keys.
-        TreeMap<String, SymbolEntry> map = globalEnvironment.getTreeMap();
+        TreeMap<String, SymbolEntry> map = globalEnvironment.getSymbolTable();
 
         // Now iterate through the map and find all vars.
         for (String key : map.keySet()) {
