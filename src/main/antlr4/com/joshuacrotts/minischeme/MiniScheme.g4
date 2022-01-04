@@ -63,6 +63,7 @@ BOOLLIT: '#'[tf];
 
 // Special keywords.
 DEFINE: 'define';
+MAKE: 'make';
 IF:  'if';
 COND: 'cond';
 ELSE: 'else';
@@ -139,11 +140,13 @@ ID: [a-zA-Z_-][<>a-zA-Z0-9_-]*('?')?;
 miniScheme: (decl | expr)*;
 
 
-// Declarations of lambdas, variables, and procedures.
+// Declarations of lambdas, variables, procedures, and types.
 decl: lambdaDecl
     | varDecl
     | varDeclRead
-    | procDecl;
+    | procDecl
+    | typeDecl
+    | makeDecl;
 
 
 // Different definitions.
@@ -153,7 +156,8 @@ procDecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procParams? CLOSE_PAREN) procBody 
 lambdaDecl: (OPEN_PAREN DEFINE term (OPEN_PAREN LAMBDA
                 (OPEN_PAREN lambdaParams? CLOSE_PAREN) lambdaBody CLOSE_PAREN)
                 CLOSE_PAREN);
-
+typeDecl: (OPEN_PAREN DEFINE'-'ID (OPEN_PAREN expr+ CLOSE_PAREN) CLOSE_PAREN);
+makeDecl: (OPEN_PAREN MAKE'-'ID ID expr+ CLOSE_PAREN);
 
 // Defines an expression.
 expr: exprCons
