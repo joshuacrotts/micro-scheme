@@ -4,10 +4,8 @@ import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.main.LValue.LValueType;
 import com.joshuacrotts.minischeme.parser.MSSemanticError;
-import com.joshuacrotts.minischeme.symbol.Symbol;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import com.joshuacrotts.minischeme.symbol.SymbolType;
-import com.joshuacrotts.minischeme.symbol.TypeTable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,17 +25,11 @@ public class MiniSchemeInterpreter {
     /**
      *
      */
-    private final TypeTable typeTable;
-
-    /**
-     *
-     */
     private MSSyntaxTree interpreterTree;
 
     public MiniSchemeInterpreter(MSSyntaxTree tree) {
         this.interpreterTree = tree;
         this.symbolTable = new SymbolTable();
-        this.typeTable = new TypeTable();
         this.symbolTable.addEnvironment();
     }
 
@@ -99,6 +91,8 @@ public class MiniSchemeInterpreter {
                     case BOOL:
                     case PAIR:
                     case STR:
+                    case VECTOR:
+                    case SYM:
                     case PROCCALL:
                     case LAMBDACALL:
                         System.out.println(lhs);
@@ -131,18 +125,18 @@ public class MiniSchemeInterpreter {
                 case VAR_DECL: return this.interpretVariableDeclaration((MSVariableDeclarationNode) tree);
                 case PROC_DECL: return this.interpretProcedureDeclaration((MSProcedureDeclarationNode) tree);
                 case LAMBDA_DECL: return this.interpretLambdaDeclaration((MSLambdaDeclarationNode) tree);
-                case TYPE_DECL: return this.interpretTypeDecl((MSTypeDeclarationNode) tree);
-                case MAKETYPE_DECL: return this.interpretMakeTypeDecl((MSMakeTypeDeclarationNode) tree);
                 case DECL_READ: return this.interpretDeclarationRead((MSDeclarationReadNode) tree);
                 case SET_READ: return this.interpretSetRead((MSSetReadNode) tree);
                 case ID: return this.interpretIdentifier((MSIdentifierNode) tree);
                 case OP: return this.interpretOperator((MSOpNode) tree);
+                case SYMBOL: return this.interpretSymbol((MSSymbolNode) tree);
                 case SET: return this.interpretSetOp((MSSetNode) tree);
                 case NUM: return this.interpretNumber((MSNumberNode) tree);
                 case BOOL: return this.interpretBoolean((MSBooleanNode) tree);
                 case STR: return this.interpretString((MSStringNode) tree);
                 case PAIR: return this.interpretPair((MSPairNode) tree);
                 case LIST: return this.interpretList((MSPairNode) tree);
+                case VECTOR: return this.interpretVector((MSVectorNode) tree);
                 case IF: return this.interpretIf((MSIfNode) tree);
                 case COND: return this.interpretCond((MSCondNode) tree);
                 case CALL: return this.interpretCall((MSCallNode) tree);
@@ -187,24 +181,6 @@ public class MiniSchemeInterpreter {
         String identifier = lambdaDecl.getIdentifier().getIdentifier();
         this.symbolTable.addSymbol(identifier, SymbolType.LAMBDA, lambdaDecl);
         return new LValue();
-    }
-
-    /**
-     *
-     * @param typeDecl
-     * @return
-     */
-    private LValue interpretTypeDecl(MSTypeDeclarationNode typeDecl) {
-        throw new UnsupportedOperationException("ERR cannot support define-types yet");
-    }
-
-    /**
-     *
-     * @param makeTypeDecl
-     * @return
-     */
-    private LValue interpretMakeTypeDecl(MSMakeTypeDeclarationNode makeTypeDecl) {
-        throw new UnsupportedOperationException("ERR cannot support make-types yet");
     }
 
     /**
@@ -376,6 +352,21 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     *
+     * @param symbolNode
+     * @return
+     */
+    private LValue interpretSymbol(MSSymbolNode symbolNode) {
+        // Evaluate the expression of the symbol if it's not an ID.
+        if (symbolNode.getExpression().getNodeType() != MSNodeType.ID) {
+            MSSyntaxTree symExpr = LValue
+                .getAstFromLValue(this.interpretTree(symbolNode.getExpression()));
+            return new LValue(new MSSymbolNode(symExpr));
+        }
+        return new LValue(symbolNode);
+    }
+
+    /**
      * Interprets a cons pair. The car and cdr are evaluated before
      * constructing the pair.
      *
@@ -404,6 +395,10 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(rootPair.getCar()));
         MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(rootPair.getCdr()));
         return new LValue(new MSPairNode(MSNodeType.LIST, carNode, cdrNode));
+    }
+
+    private LValue interpretVector(MSVectorNode vectorNode) {
+        return new LValue(vectorNode);
     }
 
     /**
@@ -560,9 +555,9 @@ public class MiniSchemeInterpreter {
                     args.add(new MSBooleanNode(lhs.getBoolValue()));
                 } else if (lhs.getType() == LValueType.STR) {
                     args.add(new MSStringNode(lhs.getStringValue()));
-                } else if (lhs.getType() == LValueType.PROCCALL) {
+                } else if (lhs.getType() == LValueType.PROCCALL || lhs.getType() == LValueType.SYM) {
                     args.add(lhs.getTreeValue());
-                } else if (lhs.getType() == LValueType.PAIR) {
+                } else if (lhs.getType() == LValueType.PAIR || lhs.getType() == LValueType.VECTOR) {
                     // If it is null, then evaluate the null list.
                     if (lhs.getTreeValue() == null) {
                         args.add(new MSPairNode());
@@ -631,9 +626,9 @@ public class MiniSchemeInterpreter {
                     args.add(new MSBooleanNode(lhs.getBoolValue()));
                 } else if (lhs.getType() == LValueType.STR) {
                     args.add(new MSStringNode(lhs.getStringValue()));
-                } else if (lhs.getType() == LValueType.PROCCALL) {
+                } else if (lhs.getType() == LValueType.PROCCALL || lhs.getType() == LValueType.SYM) {
                     args.add(lhs.getTreeValue());
-                } else if (lhs.getType() == LValueType.PAIR) {
+                } else if (lhs.getType() == LValueType.PAIR || lhs.getType() == LValueType.VECTOR) {
                     // If it is null, then evaluate the null list.
                     if (lhs.getTreeValue() == null) {
                         args.add(new MSPairNode());
@@ -722,6 +717,8 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.NUMBER_FN: return new LValue(lhs.getType() == LValueType.NUM);
             case MiniSchemeParser.BOOL_FN: return new LValue(lhs.getType() == LValueType.BOOL);
             case MiniSchemeParser.STRING_FN: return new LValue(lhs.getType() == LValueType.STR);
+            case MiniSchemeParser.SYMBOL_FN: return new LValue(lhs.getType() == LValueType.SYM);
+            case MiniSchemeParser.VECTOR_FN: return new LValue(lhs.getType() == LValueType.VECTOR);
             case MiniSchemeParser.PAIR_FN:
                 // A "pair" cannot be the empty list.
                 return new LValue(lhs.getTreeValue() != null

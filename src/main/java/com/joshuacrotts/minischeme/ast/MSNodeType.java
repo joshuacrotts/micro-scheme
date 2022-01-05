@@ -10,6 +10,8 @@ public enum MSNodeType {
     PAIR,
     LIST,
     BOOL,
+    SYMBOL,
+    VECTOR,
 
     // Conditionals.
     IF,
@@ -21,8 +23,6 @@ public enum MSNodeType {
     EXPR_LAMBDA_DECL,
     VAR_DECL,
     LET_DECL,
-    TYPE_DECL,
-    MAKETYPE_DECL,
 
     // Expression calls.
     EXPR_LAMBDA_DECL_CALL,
@@ -31,5 +31,5 @@ public enum MSNodeType {
     // I/O or set.,
     SET,
     SET_READ,
-    DECL_READ
+    DECL_READ;
 }

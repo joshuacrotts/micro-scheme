@@ -25,7 +25,7 @@ public class LValue {
     /**
      *
      */
-    private MSStringNode sval;
+    private MSStringNode strval;
 
     /**
      *
@@ -46,9 +46,14 @@ public class LValue {
         this.bval = bval;
     }
 
-    protected LValue(MSStringNode sval) {
+    protected LValue(MSStringNode strval) {
         this(LValueType.STR);
-        this.sval = sval;
+        this.strval = strval;
+    }
+
+    protected LValue(MSSymbolNode symVal) {
+        this(LValueType.SYM);
+        this.tval = symVal;
     }
 
     protected LValue(double dval) {
@@ -72,7 +77,10 @@ public class LValue {
             this.bval = ((MSBooleanNode) tval);
         } else if (tval instanceof MSStringNode) {
             this.type = LValueType.STR;
-            this.sval = ((MSStringNode) tval);
+            this.strval = ((MSStringNode) tval);
+        } else if (tval instanceof MSSymbolNode) {
+            this.type = LValueType.SYM;
+            this.tval = tval;
         } else {
             this.type = LValueType.PAIR;
             this.tval = tval;
@@ -98,6 +106,8 @@ public class LValue {
             case NUM: return new MSNumberNode(lval.getDoubleValue());
             case BOOL: return new MSBooleanNode(lval.getBoolValue());
             case STR: return new MSStringNode(lval.getStringValue());
+            case SYM:
+            case VECTOR:
             case PAIR: return lval.getTreeValue();
             case NULL:
                 return null;
@@ -116,7 +126,9 @@ public class LValue {
             case BOOL:
                 return this.bval.getValue() ? "#t" : "#f";
             case STR:
-                return this.sval.getValue();
+                return this.strval.getValue();
+            case SYM:
+            case VECTOR:
             case PAIR:
                 return this.tval == null ? "()" : this.tval.getStringRep();
             case PROCCALL:
@@ -132,7 +144,7 @@ public class LValue {
      */
     protected String toDisplayString() {
         return this.type == LValueType.STR
-                ? this.sval.getStringRep()
+                ? this.strval.getStringRep()
                 : this.toString();
     }
 
@@ -145,7 +157,7 @@ public class LValue {
     }
 
     protected String getStringValue() {
-        return this.sval.getStringRep();
+        return this.strval.getStringRep();
     }
 
     protected LValueType getType() {
@@ -160,6 +172,6 @@ public class LValue {
      *
      */
     protected enum LValueType {
-        NUM, BOOL, PAIR, STR, DISP, PROCCALL, LAMBDACALL, DEF, NULL
+        NUM, BOOL, PAIR, STR, SYM, VECTOR, DISP, PROCCALL, LAMBDACALL, NULL
     }
 }

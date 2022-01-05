@@ -38,6 +38,7 @@ CARAT: '^';
 MODULO: '%';
 EXPONENTIATION: '**';
 QUOTE: '\'';
+HASH: '#';
 
 // Logical operators.
 LOGICAL_NOT: 'not';
@@ -57,14 +58,11 @@ BITWISE_NEG: '~' ;
 
 // Literals.
 NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
-CHARLIT: '\'' .? '\'' ;
 STRINGLIT: '"' ( QUOTCHAR | ~ ["\\] )* '"';
-BOOLLIT: '#'[tf];
+BOOLLIT: HASH [tf];
 
 // Special keywords.
 DEFINE: 'define';
-DEFINETYPE: 'define-type';
-MAKE: 'make';
 IF:  'if';
 COND: 'cond';
 ELSE: 'else';
@@ -112,8 +110,9 @@ NUMBER_FN: 'number?';
 BOOL_FN: 'bool?';
 STRING_FN: 'string?';
 LIST_FN: 'list?';
+VECTOR_FN: 'vector?';
 NULL_FN: 'null?';
-ATOM_FN: 'atom?';
+SYMBOL_FN: 'symbol?';
 PAIR_FN: 'pair?';
 EQ_FN: 'eq?';
 EQUAL_FN: 'equal?';
@@ -139,7 +138,7 @@ SETCAR_FN: 'set-car!';
 SETCDR_FN: 'set-cdr!';
 SETVAR_FN: 'set!';
 
-ID: [a-zA-Z_-][<>a-zA-Z0-9_-]*('?')?;
+ID: [a-zA-Z_-][<>a-zA-Z0-9_-]*[?!]?;
 
 // ================= Parser rules. ==================== //
 
@@ -147,10 +146,8 @@ ID: [a-zA-Z_-][<>a-zA-Z0-9_-]*('?')?;
 miniScheme: (decl | expr)*;
 
 
-// Declarations of lambdas, variables, procedures, and types.
-decl: typeDecl
-    | makeDecl
-    | lambdaDecl
+// Declarations of lambdas, variables, procedures.
+decl: lambdaDecl
     | varDecl
     | varDeclRead
     | procDecl;
@@ -163,14 +160,13 @@ procDecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procParams? CLOSE_PAREN) procBody 
 lambdaDecl: (OPEN_PAREN DEFINE term (OPEN_PAREN LAMBDA
                 (OPEN_PAREN lambdaParams? CLOSE_PAREN) lambdaBody CLOSE_PAREN)
                 CLOSE_PAREN);
-typeDecl: (OPEN_PAREN DEFINETYPE ID (OPEN_PAREN expr+ CLOSE_PAREN) CLOSE_PAREN);
-makeDecl: (OPEN_PAREN MAKE'-'ID ID expr+ CLOSE_PAREN);
 
 // Defines an expression.
 expr: exprCons
     | exprSet
     | exprSetRead
     | exprOp
+    | exprVector
     | exprList
     | exprCall
     | exprLambdaDecl
@@ -179,29 +175,59 @@ expr: exprCons
     | exprCond
     | exprLetDecl
     | exprTerm
+    | exprSymbol
     ;
 
 
 // Different types of expressions.
+// Cons pair creation.
 exprCons: OPEN_PAREN CONS expr expr CLOSE_PAREN;
+
+// Set! a variable to an expr.
 exprSet: OPEN_PAREN setop term expr CLOSE_PAREN;
+
+// Set! a variable to some value read in from the user.
 exprSetRead: OPEN_PAREN setop term (OPEN_PAREN readop CLOSE_PAREN) CLOSE_PAREN;
+
+// Operator expression.
 exprOp: (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)
       | ((unaryop | naryop) expr*);
+
+// Creation of a vector.
+exprVector: (HASH OPEN_PAREN expr* CLOSE_PAREN);
+
+// Creation of a list.
 exprList: (QUOTE OPEN_PAREN expr* CLOSE_PAREN)
         | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN);
+
+// Calling a procedure or procedure with lambda args.
 exprCall: (OPEN_PAREN term args? CLOSE_PAREN)
         | (OPEN_PAREN (OPEN_PAREN term args? CLOSE_PAREN) lambdaArgs? CLOSE_PAREN);
+
+// Declaration of a lambda inside an expression.
 exprLambdaDecl: (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
                     lambdaBody CLOSE_PAREN);
+
+// Declaration of a lambda followed by immediately calling it.
 exprLambdaDeclCall: (OPEN_PAREN (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
                         lambdaBody CLOSE_PAREN) lambdaArgs? CLOSE_PAREN);
-exprIf: (OPEN_PAREN IF ifCond ifBody ifElse? CLOSE_PAREN);
+
+// If expression.
+exprIf: (OPEN_PAREN IF ifCond ifBody ifElse CLOSE_PAREN);
+
+// Cond expression.
 exprCond: (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
             condCond CLOSE_PAREN condBody CLOSE_BRACKET)*
             (OPEN_BRACKET (ELSE)? condBody CLOSE_BRACKET) CLOSE_PAREN);
+
+// Let declaration.
 exprLetDecl: (OPEN_PAREN (LET | LETSTAR | LETREC)
                  (OPEN_PAREN letDecl? CLOSE_PAREN) expr CLOSE_PAREN);
+
+// Symbol declaration.
+exprSymbol: QUOTE expr;
+
+// Term expression.
 exprTerm: term;
 
 
@@ -227,8 +253,8 @@ ifElse: expr;
 unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
         | FLOOR | CEILING | TRUNCATE | LOGICAL_NOT | LOGICAL_AND
         | LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN | LIST_FN
-        | EQ_FN | EQUAL_FN | NULL_FN | ATOM_FN | CAR | CDR
-        | STRLEN_FN | PAIR_FN | TRUE_FN | FALSE_FN | STRTONUM_FN
+        | EQ_FN | EQUAL_FN | NULL_FN | SYMBOL_FN | VECTOR_FN | CAR
+        | CDR | STRLEN_FN | PAIR_FN | TRUE_FN | FALSE_FN | STRTONUM_FN
         | NUMTOSTR_FN | TODEG_FN | TORAD_FN;
 
 

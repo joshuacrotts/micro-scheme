@@ -26,7 +26,6 @@ public class MiniSchemeTester {
      * @param argv command line arguments
      */
     public static void main(String[] argv) {
-        MSListener parser;
         if (argv.length > 1) {
             System.err.println("Can provide at most one command line argument (an input filename)");
             return;
