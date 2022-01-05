@@ -25,15 +25,18 @@ public class MiniSchemeTester {
      *
      * @param argv command line arguments
      */
-    public static void main(String[] argv) {
-        if (argv.length > 1) {
-            System.err.println("Can provide at most one command line argument (an input filename)");
+    public static void main(String[] argv) throws IOException {
+        if (argv.length > 2) {
+            System.err.println("Can provide at most two command line arguments (an input filename and mode)");
             return;
         }
 
         MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter();
-        if (argv.length == 1) {
+        if (argv.length == 1 && !argv[0].equals("-i")) {
             interpretParser(interpreter, parseFromFile(argv[0]));
+        } else if (argv.length == 1) {
+            MSListener parser = parseStream(CharStreams.fromStream(System.in));
+            interpretParser(interpreter, parser);
         } else {
             System.out.println("MiniScheme 0.0.1");
             System.out.println("Type \"help\" for more information on commands.");

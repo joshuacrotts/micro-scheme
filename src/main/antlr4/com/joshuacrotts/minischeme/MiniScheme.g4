@@ -142,7 +142,7 @@ SETCAR_FN: 'set-car!';
 SETCDR_FN: 'set-cdr!';
 SETVAR_FN: 'set!';
 
-ID: [a-zA-Z_][<>a-zA-Z0-9_-]*[?!]?;
+ID: [a-zA-Z_=][<>a-zA-Z0-9_=-]*[=?!]?;
 
 // ================= Parser rules. ==================== //
 
@@ -255,7 +255,7 @@ ifElse: expr;
 
 // All unary operators.
 unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
-        | FLOOR | CEILING | TRUNCATE | DISPLAY | NUMBER_FN
+        | FLOOR | CEILING | TRUNCATE | DISPLAY | NUMBER_FN | STRING_FN
         | BOOL_FN | LIST_FN | NULL_FN | SYMBOL_FN | VECTOR_FN
         | CAR | CDR | STRLEN_FN | PAIR_FN | STRTONUM_FN | NUMTOSTR_FN
         | TODEG_FN | TORAD_FN | LOGICAL_NOT | TRUE_FN | FALSE_FN;

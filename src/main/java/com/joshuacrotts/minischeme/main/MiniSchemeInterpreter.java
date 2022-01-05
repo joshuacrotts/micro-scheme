@@ -525,6 +525,7 @@ public class MiniSchemeInterpreter {
         } else {
             // Otherwise, determine if it's a stored procedure or lambda.
             String id = callNode.getIdentifier().getIdentifier();
+
             if (this.symbolTable.isProcedure(id)) {
                 return this.interpretProcedureCall(callNode);
             } else if (this.symbolTable.isLambda(id)) {
@@ -871,6 +872,8 @@ public class MiniSchemeInterpreter {
                 return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
             } else if (lhs.getType() == LValueType.SYM) {
                 return new LValue(lhs.toString().equals(rhs.toString()));
+            } else if (lhs.getType() == LValueType.STR) {
+                return new LValue(lhs.getStringValue().equals(rhs.getStringValue()));
             }
         }
 
