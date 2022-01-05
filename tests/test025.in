@@ -1,4 +1,4 @@
-(define name "Joshua");
+(define name "Joshua")
 (define l1 (string-length name))
 (define l2 (string-length "Viola"))
 l1

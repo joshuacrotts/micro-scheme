@@ -18,19 +18,26 @@ public class MSOpNode extends MSSyntaxTree {
      */
     private final int opType;
 
-    public MSOpNode(int opType, MSSyntaxTree... children) {
+    /**
+     *
+     */
+    private final int opGroup;
+
+    public MSOpNode(int opType, int opGroup, MSSyntaxTree... children) {
         super(MSNodeType.OP, children);
         this.opType = opType;
+        this.opGroup = opGroup;
     }
 
-    private MSOpNode(int opType) {
+    private MSOpNode(int opType, int opGroup) {
         super(MSNodeType.OP);
         this.opType = opType;
+        this.opGroup = opGroup;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        MSOpNode exp = new MSOpNode(this.opType);
+        MSOpNode exp = new MSOpNode(this.opType, this.opGroup);
         for (MSSyntaxTree ch : this.getChildren()) {
             exp.addChild(ch.copy());
         }
@@ -44,7 +51,10 @@ public class MSOpNode extends MSSyntaxTree {
         for (int i = 0; i < this.getChildrenSize() - 1; i++) {
             stringBuilder.append(this.getChild(i).getStringRep()).append(" ");
         }
-        stringBuilder.append(this.getChild(this.getChildrenSize() - 1).getStringRep()).append(")");
+        if (this.getChildrenSize() > 0) {
+            stringBuilder.append(this.getChild(this.getChildrenSize() - 1).getStringRep());
+        }
+        stringBuilder.append(")");
         return stringBuilder.toString();
     }
 
@@ -56,6 +66,12 @@ public class MSOpNode extends MSSyntaxTree {
     public int getOpType() {
         return this.opType;
     }
+
+    public boolean isUnary() { return this.opGroup == MiniSchemeParser.RULE_unaryop; }
+
+    public boolean isBinary() { return this.opGroup == MiniSchemeParser.RULE_binaryop; }
+
+    public boolean isTernary() { return this.opGroup == MiniSchemeParser.RULE_ternaryop; }
 
     /**
      * Returns the literal string representation of an operation. In the lexer, the operation

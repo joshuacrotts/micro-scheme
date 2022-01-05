@@ -1,0 +1,35 @@
+(define (constant? x) (number? x))
+(define (variable? x) (symbol? x))
+(define (same-variable? v1 v2) (and (variable? v1)
+                                    (variable? v2)
+                                    (eq? v1 v2)))
+(define (make-constant x) x)
+(define (make-sum a1 a2) (list '+ a1 a2))                                    
+(define (make-product m1 m2) (list 'times m1 m2))
+(define (sum? x) 
+    (if (not (symbol? x))
+        (eq? (car x) '+)
+        '()
+    )
+)
+(define (addend s) (car (cdr s)))
+(define (augend s) (car (cdr (cdr s))))
+(define (product? x)
+    (if (not (symbol? x))
+        (eq? (car x) 'times)
+        '()
+    )
+)
+(define (m1 p) (car (cdr p)))
+(define (m2 p) (car (cdr (cdr p))))
+
+
+(define (deriv exp var)
+    (cond [(constant? exp) 0]
+          [(same-variable? exp var) 1]
+          [(product? exp) (make-product (m1 exp) (m2 exp))]
+    )
+)
+
+(define foo '('times 2 'x))
+(deriv foo 'x)

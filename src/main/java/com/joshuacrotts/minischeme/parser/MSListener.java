@@ -3,15 +3,19 @@ package com.joshuacrotts.minischeme.parser;
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
-import com.joshuacrotts.minischeme.symbol.SymbolTable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class MSListener extends MiniSchemeBaseListener {
+
+    /**
+     *
+     */
+    private final MiniSchemeParser parser;
 
     /**
      * ParseTreeProperty map of parser rules being constructed overtime.
@@ -23,7 +27,8 @@ public class MSListener extends MiniSchemeBaseListener {
      */
     private final MSSyntaxTree root;
 
-    public MSListener() {
+    public MSListener(MiniSchemeParser parser) {
+        this.parser = parser;
         this.root = new MSSyntaxTree();
         this.map = new ParseTreeProperty<>();
     }
@@ -256,8 +261,8 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprOp(MiniSchemeParser.ExprOpContext ctx) {
         super.exitExprOp(ctx);
-        int symbol = getTokenFromSymbol(ctx);
-        MSSyntaxTree expr = new MSOpNode(symbol);
+        int[] opType = getTokenFromSymbol(ctx);
+        MSSyntaxTree expr = new MSOpNode(opType[0], opType[1]);
         for (int i = 0; i < ctx.expr().size(); i++) {
             expr.addChild(this.map.get(ctx.expr(i)));
         }
@@ -302,15 +307,12 @@ public class MSListener extends MiniSchemeBaseListener {
      * @param ctx
      * @return
      */
-    private static int getTokenFromSymbol(MiniSchemeParser.ExprOpContext ctx) {
-        if (ctx.unaryop() != null) {
-            return ((TerminalNode) ctx.unaryop().getChild(0)).getSymbol().getType();
-        } else if (ctx.naryop() != null) {
-            return ((TerminalNode) ctx.naryop().getChild(0)).getSymbol().getType();
-        }
-
-        throw new IllegalArgumentException("Internal interpreter error: could not find a unary or "
-                                               + "nary op from ExprOpContext. This should never happen...");
+    private int[] getTokenFromSymbol(MiniSchemeParser.ExprOpContext ctx) {
+        int[] opTypePair = new int[2];
+        int offset = ctx.OPEN_PAREN() != null ? 1 : 0;
+        opTypePair[0] = ((TerminalNode) (ctx.getChild(offset).getChild(0))).getSymbol().getType();
+        opTypePair[1] = ((RuleContext) ctx.getChild(offset)).getRuleIndex();
+        return opTypePair;
     }
 
     public MSSyntaxTree getSyntaxTree() {

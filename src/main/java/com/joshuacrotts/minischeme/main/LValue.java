@@ -56,6 +56,11 @@ public class LValue {
         this.tval = symVal;
     }
 
+    protected LValue(MSVectorNode vecVal) {
+        this(LValueType.VECTOR);
+        this.tval = vecVal;
+    }
+
     protected LValue(double dval) {
         this(new MSNumberNode(dval));
     }

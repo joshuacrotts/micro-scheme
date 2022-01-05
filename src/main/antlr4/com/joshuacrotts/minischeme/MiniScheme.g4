@@ -92,6 +92,10 @@ CAR: 'car';
 CDR: 'cdr';
 CONS: 'cons';
 
+// Vector procedures.
+CREATE_VECTOR_FN: 'vector';
+VECTOR_REF_FN: 'vector-ref';
+
 // Miscellaneous procedures.
 DISPLAY: 'display';
 
@@ -138,7 +142,7 @@ SETCAR_FN: 'set-car!';
 SETCDR_FN: 'set-cdr!';
 SETVAR_FN: 'set!';
 
-ID: [a-zA-Z_-][<>a-zA-Z0-9_-]*[?!]?;
+ID: [a-zA-Z_][<>a-zA-Z0-9_-]*[?!]?;
 
 // ================= Parser rules. ==================== //
 
@@ -174,8 +178,8 @@ expr: exprCons
     | exprIf
     | exprCond
     | exprLetDecl
-    | exprTerm
     | exprSymbol
+    | exprTerm
     ;
 
 
@@ -190,11 +194,11 @@ exprSet: OPEN_PAREN setop term expr CLOSE_PAREN;
 exprSetRead: OPEN_PAREN setop term (OPEN_PAREN readop CLOSE_PAREN) CLOSE_PAREN;
 
 // Operator expression.
-exprOp: (OPEN_PAREN (unaryop | naryop) expr* CLOSE_PAREN)
-      | ((unaryop | naryop) expr*);
+exprOp: (OPEN_PAREN (unaryop | binaryop | ternaryop | naryop) expr* CLOSE_PAREN)
+      | ((unaryop | binaryop | ternaryop | naryop) expr*);
 
 // Creation of a vector.
-exprVector: (HASH OPEN_PAREN expr* CLOSE_PAREN);
+exprVector: ((HASH | CREATE_VECTOR_FN) OPEN_PAREN expr* CLOSE_PAREN);
 
 // Creation of a list.
 exprList: (QUOTE OPEN_PAREN expr* CLOSE_PAREN)
@@ -216,9 +220,9 @@ exprLambdaDeclCall: (OPEN_PAREN (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLO
 exprIf: (OPEN_PAREN IF ifCond ifBody ifElse CLOSE_PAREN);
 
 // Cond expression.
-exprCond: (OPEN_PAREN COND (OPEN_BRACKET OPEN_PAREN
-            condCond CLOSE_PAREN condBody CLOSE_BRACKET)*
-            (OPEN_BRACKET (ELSE)? condBody CLOSE_BRACKET) CLOSE_PAREN);
+exprCond: (OPEN_PAREN COND (OPEN_BRACKET
+            condCond condBody CLOSE_BRACKET)*
+            (OPEN_BRACKET ELSE condBody CLOSE_BRACKET)? CLOSE_PAREN);
 
 // Let declaration.
 exprLetDecl: (OPEN_PAREN (LET | LETSTAR | LETREC)
@@ -251,20 +255,28 @@ ifElse: expr;
 
 // All unary operators.
 unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
-        | FLOOR | CEILING | TRUNCATE | LOGICAL_NOT | LOGICAL_AND
-        | LOGICAL_OR | DISPLAY | NUMBER_FN | BOOL_FN | LIST_FN
-        | EQ_FN | EQUAL_FN | NULL_FN | SYMBOL_FN | VECTOR_FN | CAR
-        | CDR | STRLEN_FN | PAIR_FN | TRUE_FN | FALSE_FN | STRTONUM_FN
-        | NUMTOSTR_FN | TODEG_FN | TORAD_FN;
+        | FLOOR | CEILING | TRUNCATE | DISPLAY | NUMBER_FN
+        | BOOL_FN | LIST_FN | NULL_FN | SYMBOL_FN | VECTOR_FN
+        | CAR | CDR | STRLEN_FN | PAIR_FN | STRTONUM_FN | NUMTOSTR_FN
+        | TODEG_FN | TORAD_FN | LOGICAL_NOT | TRUE_FN | FALSE_FN;
+
+
+// All binary operators.
+binaryop: LOGICAL_GT | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
+        | LOGICAL_EQ | LOGICAL_NE | STREQ_FN | STRLT_FN
+        | STRLE_FN | STRGT_FN | STRGE_FN | MEMBER_FN
+        | RANDINT_FN | RANDDOUBLE_FN | VECTOR_REF_FN;
+
+
+// All ternary operators.
+ternaryop: STRSUBSTR;
 
 
 // All n-ary operators. An n-ary operator is an operator that takes at least two parameters. The
 // semantic analyzer should check to make sure the argument count is correct for binary operators.
 naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
-      | LOGICAL_GT  | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
-      | LOGICAL_EQ | LOGICAL_NE | STRAPPEND_FN | STREQ_FN
-      | STRLT_FN | STRLE_FN | STRGT_FN | STRGE_FN | MEMBER_FN
-      | STRSUBSTR | RANDINT_FN | RANDDOUBLE_FN | RAND_FN;
+      | STRAPPEND_FN | RAND_FN | EQ_FN | EQUAL_FN | LOGICAL_AND
+      | LOGICAL_OR;
 
 
 // "Set" operations - allows redefining of variables.
@@ -277,7 +289,6 @@ readop: READLINE_FN | READNUMBER_FN;
 
 // Terms/literals.
 term: NUMBERLIT
-    | CHARLIT
     | STRINGLIT
     | BOOLLIT
     | ID;
