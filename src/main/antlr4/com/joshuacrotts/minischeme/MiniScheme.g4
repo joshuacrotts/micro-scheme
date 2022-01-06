@@ -163,6 +163,7 @@ varDeclRead: '(' DEFINE term '(' readop ')' ')';
 procDecl:    '(' DEFINE '(' term procParams? ')' procBody ')';
 lambdaDecl:  '(' DEFINE term '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')' ')';
 
+
 // Defines an expression.
 expr: exprCons
     | exprSet
@@ -177,51 +178,65 @@ expr: exprCons
     | exprCond
     | exprLetDecl
     | exprSymbol
-    | exprTerm
-    ;
+    | exprTerm;
 
 
 // Different types of expressions.
 // Cons pair creation.
 exprCons: '(' CONS expr expr ')';
 
+
 // Set! a variable to an expr.
 exprSet: '(' setop term expr ')';
 
+
 // Set! a variable to some value read in from the user.
 exprSetRead: '(' setop term '(' readop ')' ')';
+
 
 // Operator expression.
 exprOp: ('(' (unaryop | binaryop | ternaryop | naryop) expr* ')')
       | ((unaryop | binaryop | ternaryop | naryop) expr*);
 
+
 // Creation of a vector.
 exprVector: ((HASH | CREATE_VECTOR_FN) '(' expr* ')');
 
+
 // Creation of a list.
 exprList: ('(' CREATE_LIST_FN expr* ')');
+
 
 // Calling a procedure or procedure with lambda args.
 exprCall: ('(' term args? ')')
         | ('(' '(' term args? ')' lambdaArgs? ')');
 
+
 // Declaration of a lambda inside an expression.
 exprLambdaDecl: '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')';
+
 
 // Declaration of a lambda followed by immediately calling it.
 exprLambdaDeclCall: '(' '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')' lambdaArgs? ')';
 
+
 // If expression.
 exprIf: '(' IF ifCond ifBody ifElse ')';
+
 
 // Cond expression.
 exprCond: '(' COND ('[' condCond condBody ']')+ ('[' ELSE condBody ']')? ')';
 
+
 // Let declaration.
 exprLetDecl: '(' (LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
 
+
 // Symbol declaration.
-exprSymbol: QUOTE (term | '(' expr* ')');
+exprSymbol: (QUOTE term)
+          | (QUOTE exprSymbolComponent) ;
+
+exprSymbolComponent: '(' exprSymbolComponent* ')' | term | exprOp | exprCall;
 
 // Term expression.
 exprTerm: term;

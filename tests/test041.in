@@ -19,7 +19,7 @@
     )
 )
 
-
+;;
 ;; insert : number sorted-number-list -> number-list
 ;; to create a list of numbers from n and alon that is
 ;; sorted in descending order; alon is sorted
@@ -47,8 +47,8 @@
 
 (define num (** 2 8))
 (display (sort '(2 3 10 9 12 43 1 9 34)))
-(display (sort '(3.14 6.28 (+ 3 4 5) 1 1.01 4)))
-(display (sort '(3.14 6.28 (+ 9.999 (* 9.999 3.141527 num)) 1 1.01 4)))
+(display (sort '(3.14 6.28 12 1 1.01 4)))
+(display (sort '(3.14 6.28 8051.5038890880005 1 1.01 4)))
 (display (sort '( 30    3    2    6   32   31   65   56  100   52
                   11   95   49   82   80   22   24   14    7   71
                   16   67   23   15   83   88   96   64   48   44

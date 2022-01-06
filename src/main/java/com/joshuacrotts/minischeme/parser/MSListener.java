@@ -103,18 +103,28 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprSymbol(MiniSchemeParser.ExprSymbolContext ctx) {
         super.exitExprSymbol(ctx);
+        this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.getChild(1))));
+    }
+
+    @Override
+    public void exitExprSymbolComponent(MiniSchemeParser.ExprSymbolComponentContext ctx) {
+        super.exitExprSymbolComponent(ctx);
         if (ctx.term() != null) {
-            this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.term())));
+            this.map.put(ctx, this.map.get(ctx.term()));
+        } else if (ctx.exprCall() != null) {
+            this.map.put(ctx, this.map.get(ctx.exprCall()));
+        } else if (ctx.exprOp() != null) {
+            this.map.put(ctx, this.map.get(ctx.exprOp()));
         } else {
             MSPairNode parentPair = null;
             MSPairNode prevPair = null;
-            for (int i = ctx.expr().size() - 1; i >= 0; i--) {
-                MSSyntaxTree rexpr = this.map.get(ctx.expr(i));
+            for (int i = ctx.exprSymbolComponent().size() - 1; i >= 0; i--) {
+                MSSyntaxTree rexpr = this.map.get(ctx.exprSymbolComponent(i));
                 prevPair = new MSPairNode(MSNodeType.LIST, rexpr, prevPair);
             }
             // If they enter the empty list, then we need to add a "blank" pair node.
             parentPair = prevPair != null ? prevPair : new MSPairNode();
-            this.map.put(ctx, new MSSymbolNode(parentPair));
+            this.map.put(ctx, parentPair);
         }
     }
 
