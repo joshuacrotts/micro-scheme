@@ -236,7 +236,8 @@ exprLetDecl: '(' (LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
 exprSymbol: (QUOTE term)
           | (QUOTE exprSymbolComponent) ;
 
-exprSymbolComponent: '(' exprSymbolComponent* ')' | term | exprOp | exprCall;
+exprSymbolComponent: ('(' exprSymbolComponent* ')') | term | exprOp | exprCall;
+
 
 // Term expression.
 exprTerm: term;

@@ -46,16 +46,7 @@ public class MSOpNode extends MSSyntaxTree {
 
     @Override
     public String getStringRep() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("(").append(getOpTypeString(this.opType)).append(" ");
-        for (int i = 0; i < this.getChildrenSize() - 1; i++) {
-            stringBuilder.append(this.getChild(i).getStringRep()).append(" ");
-        }
-        if (this.getChildrenSize() > 0) {
-            stringBuilder.append(this.getChild(this.getChildrenSize() - 1).getStringRep());
-        }
-        stringBuilder.append(")");
-        return stringBuilder.toString();
+        return this.getOpTypeString(this.opType);
     }
 
     @Override
