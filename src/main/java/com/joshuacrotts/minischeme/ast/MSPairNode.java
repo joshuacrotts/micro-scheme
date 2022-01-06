@@ -30,7 +30,7 @@ public class MSPairNode extends MSSyntaxTree {
 
     @Override
     public String getStringRep() {
-        return this.getNodeType() == MSNodeType.PAIR
+        return this.isPair()
                 ? this.getPairStringRep()
                 : this.getListStringRep();
     }
@@ -71,22 +71,13 @@ public class MSPairNode extends MSSyntaxTree {
      */
     public boolean isProper() {
         // We're on the empty list.
-        if (this.getCar() == null && this.getCdr() == null) {
-            return true;
-        }
+        if (this.getCar() == null && this.getCdr() == null) { return true; }
         // We're on the last element of a list and the head is a node but the tail is ().
-        else if (this.getCar() != null && this.getCdr() == null && this.getNodeType() == MSNodeType.LIST) {
-            return true;
-        }
-        // Check to make sure the tail is either a pair or a list.
-        else if (this.getCdr().getNodeType() != MSNodeType.PAIR &&
-                   this.getCdr().getNodeType() != MSNodeType.LIST) {
-            return false;
-        }
+        else if (this.getCar() != null && this.getCdr() == null && this.getNodeType() == MSNodeType.LIST) { return true; }
+        // Check to make sure the tail is not either a pair or a list.
+        else if (!this.getCdr().isPair() && !this.getCdr().isList()) { return false; }
         // Recurse.
-        else {
-            return ((MSPairNode) this.getCdr()).isProper();
-        }
+        else { return ((MSPairNode) this.getCdr()).isProper(); }
     }
 
     /**

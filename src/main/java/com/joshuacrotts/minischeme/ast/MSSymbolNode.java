@@ -19,7 +19,18 @@ public class MSSymbolNode extends MSSyntaxTree {
 
     @Override
     public String getStringRep() {
-        return this.getExpression().getStringRep();
+        MSNodeType exprType = this.getExpression().getNodeType();
+        // If it's a list/pair we don't need the quote. Otherwise,
+        // if it's there, we do.
+        switch (exprType) {
+            case LIST:
+            case PAIR:
+                return this.getExpression().getStringRep();
+        }
+
+        // The quote in this case is PURELY decorative, so to speak.
+        // If it were evaluated we could simply evaluate the SymbolNode.
+        return "'" + this.getExpression().getStringRep();
     }
 
     @Override

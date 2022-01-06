@@ -158,12 +158,10 @@ decl: lambdaDecl
 
 
 // Different definitions.
-varDecl: (OPEN_PAREN DEFINE term expr CLOSE_PAREN);
-varDeclRead: (OPEN_PAREN DEFINE term OPEN_PAREN readop CLOSE_PAREN CLOSE_PAREN);
-procDecl: (OPEN_PAREN DEFINE (OPEN_PAREN term procParams? CLOSE_PAREN) procBody CLOSE_PAREN);
-lambdaDecl: (OPEN_PAREN DEFINE term (OPEN_PAREN LAMBDA
-                (OPEN_PAREN lambdaParams? CLOSE_PAREN) lambdaBody CLOSE_PAREN)
-                CLOSE_PAREN);
+varDecl:     '(' DEFINE term expr ')';
+varDeclRead: '(' DEFINE term '(' readop ')' ')';
+procDecl:    '(' DEFINE '(' term procParams? ')' procBody ')';
+lambdaDecl:  '(' DEFINE term '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')' ')';
 
 // Defines an expression.
 expr: exprCons
@@ -185,51 +183,45 @@ expr: exprCons
 
 // Different types of expressions.
 // Cons pair creation.
-exprCons: OPEN_PAREN CONS expr expr CLOSE_PAREN;
+exprCons: '(' CONS expr expr ')';
 
 // Set! a variable to an expr.
-exprSet: OPEN_PAREN setop term expr CLOSE_PAREN;
+exprSet: '(' setop term expr ')';
 
 // Set! a variable to some value read in from the user.
-exprSetRead: OPEN_PAREN setop term (OPEN_PAREN readop CLOSE_PAREN) CLOSE_PAREN;
+exprSetRead: '(' setop term '(' readop ')' ')';
 
 // Operator expression.
-exprOp: (OPEN_PAREN (unaryop | binaryop | ternaryop | naryop) expr* CLOSE_PAREN)
+exprOp: ('(' (unaryop | binaryop | ternaryop | naryop) expr* ')')
       | ((unaryop | binaryop | ternaryop | naryop) expr*);
 
 // Creation of a vector.
-exprVector: ((HASH | CREATE_VECTOR_FN) OPEN_PAREN expr* CLOSE_PAREN);
+exprVector: ((HASH | CREATE_VECTOR_FN) '(' expr* ')');
 
 // Creation of a list.
-exprList: (QUOTE OPEN_PAREN expr* CLOSE_PAREN)
-        | (OPEN_PAREN CREATE_LIST_FN expr* CLOSE_PAREN);
+exprList: ('(' CREATE_LIST_FN expr* ')');
 
 // Calling a procedure or procedure with lambda args.
-exprCall: (OPEN_PAREN term args? CLOSE_PAREN)
-        | (OPEN_PAREN (OPEN_PAREN term args? CLOSE_PAREN) lambdaArgs? CLOSE_PAREN);
+exprCall: ('(' term args? ')')
+        | ('(' '(' term args? ')' lambdaArgs? ')');
 
 // Declaration of a lambda inside an expression.
-exprLambdaDecl: (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
-                    lambdaBody CLOSE_PAREN);
+exprLambdaDecl: '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')';
 
 // Declaration of a lambda followed by immediately calling it.
-exprLambdaDeclCall: (OPEN_PAREN (OPEN_PAREN LAMBDA (OPEN_PAREN lambdaParams? CLOSE_PAREN)
-                        lambdaBody CLOSE_PAREN) lambdaArgs? CLOSE_PAREN);
+exprLambdaDeclCall: '(' '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')' lambdaArgs? ')';
 
 // If expression.
-exprIf: (OPEN_PAREN IF ifCond ifBody ifElse CLOSE_PAREN);
+exprIf: '(' IF ifCond ifBody ifElse ')';
 
 // Cond expression.
-exprCond: (OPEN_PAREN COND (OPEN_BRACKET
-            condCond condBody CLOSE_BRACKET)*
-            (OPEN_BRACKET ELSE condBody CLOSE_BRACKET)? CLOSE_PAREN);
+exprCond: '(' COND ('[' condCond condBody ']')+ ('[' ELSE condBody ']')? ')';
 
 // Let declaration.
-exprLetDecl: (OPEN_PAREN (LET | LETSTAR | LETREC)
-                 (OPEN_PAREN letDecl? CLOSE_PAREN) expr CLOSE_PAREN);
+exprLetDecl: '(' (LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
 
 // Symbol declaration.
-exprSymbol: QUOTE expr;
+exprSymbol: QUOTE (term | '(' expr* ')');
 
 // Term expression.
 exprTerm: term;
@@ -242,7 +234,7 @@ args: expr+;
 lambdaParams: expr+;
 lambdaBody: expr;
 lambdaArgs: expr+;
-letDecl: (OPEN_BRACKET term expr CLOSE_BRACKET)*;
+letDecl: ('[' term expr ']')*;
 
 
 // Separates the "expressions" for a cond or if expression to make it clearer in the parser.

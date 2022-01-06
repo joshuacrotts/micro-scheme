@@ -81,6 +81,54 @@ public class MSSyntaxTree implements Copyable {
         return this.nodeType;
     }
 
+    public boolean isExprLambdaDecl() {
+        return this.nodeType == MSNodeType.EXPR_LAMBDA_DECL;
+    }
+
+    public boolean isOp() {
+        return this.nodeType == MSNodeType.OP;
+    }
+
+    public boolean isId() {
+        return this.nodeType == MSNodeType.ID;
+    }
+
+    public boolean isVector() {
+        return this.nodeType == MSNodeType.LIST;
+    }
+
+    public boolean isVarDecl() {
+        return this.nodeType == MSNodeType.VAR_DECL;
+    }
+
+    public boolean isNumber() {
+        return this.nodeType == MSNodeType.NUM;
+    }
+
+    public boolean isPair() {
+        return this.nodeType == MSNodeType.PAIR;
+    }
+
+    public boolean isList() {
+        return this.nodeType == MSNodeType.LIST;
+    }
+
+    public boolean isBool() {
+        return this.nodeType == MSNodeType.BOOL;
+    }
+
+    public boolean isString() {
+        return this.nodeType == MSNodeType.STR;
+    }
+
+    public boolean isSymbol() {
+        return this.nodeType == MSNodeType.SYMBOL;
+    }
+
+    public boolean isLetDecl() {
+        return this.nodeType == MSNodeType.PROC_DECL;
+    }
+
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
         for (MSSyntaxTree child : this.getChildren()) {

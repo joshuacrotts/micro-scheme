@@ -77,7 +77,6 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
         MSSyntaxTree body = this.map.get(ctx.procBody().expr());
-        //symbolTable.addProcedure(ctx.term().getText(), proc);
         this.map.put(ctx, new MSProcedureDeclarationNode(id, params, body));
     }
 
@@ -104,7 +103,19 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprSymbol(MiniSchemeParser.ExprSymbolContext ctx) {
         super.exitExprSymbol(ctx);
-        this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.expr())));
+        if (ctx.term() != null) {
+            this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.term())));
+        } else {
+            MSPairNode parentPair = null;
+            MSPairNode prevPair = null;
+            for (int i = ctx.expr().size() - 1; i >= 0; i--) {
+                MSSyntaxTree rexpr = this.map.get(ctx.expr(i));
+                prevPair = new MSPairNode(MSNodeType.LIST, rexpr, prevPair);
+            }
+            // If they enter the empty list, then we need to add a "blank" pair node.
+            parentPair = prevPair != null ? prevPair : new MSPairNode();
+            this.map.put(ctx, new MSSymbolNode(parentPair));
+        }
     }
 
     @Override

@@ -63,14 +63,14 @@ public class MiniSchemeInterpreter {
             MSSyntaxTree child = body.getChild(i);
             if (child == null) { return; }
             // If it's an ID then we want to replace it.
-            if (child.getNodeType() == MSNodeType.ID) {
+            if (child.isId()) {
                 MSIdentifierNode id = (MSIdentifierNode) child;
                 if (definition.getArgumentIndex(id.getIdentifier()) == replaceIdx) {
                     body.setChild(i, arg);
                 }
 
                 // If we have a lambda we need to find the correct arg.
-                if (body.getChild(i).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+                if (body.getChild(i).isExprLambdaDecl()) {
                     this.replaceParams(definition, body.getChild(i), args);
                 }
             } else {
@@ -357,14 +357,7 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretSymbol(MSSymbolNode symbolNode) {
-        // Evaluate the expression of the symbol if it's not an ID.
-        if (symbolNode.getExpression().getNodeType() != MSNodeType.ID
-        && symbolNode.getExpression().getNodeType() != MSNodeType.OP) {
-            MSSyntaxTree symExpr = LValue
-                .getAstFromLValue(this.interpretTree(symbolNode.getExpression()));
-            return new LValue(LValueType.SYM, new MSSymbolNode(symExpr));
-        }
-        return new LValue(symbolNode);
+        return new LValue(symbolNode.getExpression());
     }
 
     /**
@@ -518,7 +511,7 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretCall(MSCallNode callNode) throws MSSemanticError {
         // First, check to see if child 0 is an expr lambda decl. If so, do a lambda decl call.
-        if (callNode.getChild(0).getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+        if (callNode.getChild(0).isExprLambdaDecl()) {
             MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) callNode.getChild(0);
             return this.interpretTree(new MSLambdaDeclarationCallNode(lambdaDecl.getLambdaParameters(),
                     lambdaDecl.getBody(), callNode.getProcedureArguments()));
@@ -557,7 +550,7 @@ public class MiniSchemeInterpreter {
         for (int i = 0; i < procCall.getProcedureArguments().size(); i++) {
             // If it's a lambda declaration, we can't evaluate it - we pass it forward.
             MSSyntaxTree procCallArg = procCall.getProcedureArguments().get(i);
-            if (procCallArg.getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+            if (procCallArg.isExprLambdaDecl()) {
                 args.add(procCallArg);
             } else {
                 // Otherwise, evaluate the arg.
@@ -589,7 +582,7 @@ public class MiniSchemeInterpreter {
         replaceParams(procDef, body, args);
 
         // If the body is a lambda declaration, we need to call it with arguments.
-        if (body.getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+        if (body.isExprLambdaDecl()) {
             body = new MSLambdaDeclarationCallNode((MSLambdaDeclarationNode) body, procCall);
         }
 
@@ -628,7 +621,7 @@ public class MiniSchemeInterpreter {
         for (int i = 0; i < lambdaDeclCall.getLambdaArguments().size(); i++) {
             // If it's a lambda declaration, we can't evaluate it - we pass it forward.
             MSSyntaxTree lambdaDeclCallArg = lambdaDeclCall.getLambdaArguments().get(i);
-            if (lambdaDeclCallArg.getNodeType() == MSNodeType.EXPR_LAMBDA_DECL) {
+            if (lambdaDeclCallArg.isExprLambdaDecl()) {
                 args.add(lambdaDeclCallArg);
             } else {
                 // Otherwise, evaluate the arg.

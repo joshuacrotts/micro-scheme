@@ -4,6 +4,7 @@ import java.util.Stack;
 import java.util.TreeMap;
 
 import com.joshuacrotts.minischeme.ast.MSNodeType;
+import com.joshuacrotts.minischeme.ast.MSSymbolNode;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.ast.MSVariableDeclarationNode;
 
@@ -153,8 +154,14 @@ public class SymbolTable {
     public MSSyntaxTree getVariable(String id) {
         if (isVariable(id)) {
             MSSyntaxTree varData = this.getSymbolEntry(id).getSymbolData();
-            if (varData.getNodeType() == MSNodeType.VAR_DECL) {
-                return ((MSVariableDeclarationNode) varData).getExpression();
+            if (varData.isVarDecl()) {
+                // If it's a symbol, then return the expression for that symbol.
+                if (varData.getChild(1).isSymbol()) {
+                    return ((MSSymbolNode) varData.getChild(1)).getExpression();
+                } else {
+                    // Otherwise, get the data associated with the variable.
+                    return ((MSVariableDeclarationNode) varData).getExpression();
+                }
             }
             return varData;
         }
