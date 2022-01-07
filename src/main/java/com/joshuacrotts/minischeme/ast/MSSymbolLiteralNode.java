@@ -1,10 +1,9 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
- * Represents a String literal. Fairly straightforward.
  *
  * @author Joshua Crotts
- * @version 12/23/2021
+ * @version ?
  */
 public class MSSymbolLiteralNode extends MSSyntaxTree {
 
@@ -30,10 +29,6 @@ public class MSSymbolLiteralNode extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        return "(STR " + this.value + ")";
-    }
-
-    public String getValue() {
-        return this.value;
+        return this.getNodeType().toString();
     }
 }

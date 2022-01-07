@@ -94,7 +94,7 @@ public class MSSyntaxTree implements Copyable {
     }
 
     public boolean isVector() {
-        return this.nodeType == MSNodeType.LIST;
+        return this.nodeType == MSNodeType.VECTOR;
     }
 
     public boolean isVarDecl() {
@@ -125,8 +125,10 @@ public class MSSyntaxTree implements Copyable {
         return this.nodeType == MSNodeType.SYMBOL;
     }
 
+    public boolean isSymbolLit() { return this.nodeType == MSNodeType.SYMBOL_LIT; }
+
     public boolean isLetDecl() {
-        return this.nodeType == MSNodeType.PROC_DECL;
+        return this.nodeType == MSNodeType.LET_DECL;
     }
 
     public String getStringRep() {

@@ -30,8 +30,8 @@ public enum SymbolType {
             case EXPR_LAMBDA_DECL:
                 return LAMBDA;
             default:
-                throw new IllegalArgumentException("Error - cannot convert MSNodeType "
-                + nodeType + " to SymbolType.");
+                throw new IllegalArgumentException("Internal interpreter error -" +
+                        " cannot convert MSNodeType " + nodeType + " to SymbolType.");
         }
     }
 }

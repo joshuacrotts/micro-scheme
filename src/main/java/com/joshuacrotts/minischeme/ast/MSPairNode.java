@@ -73,7 +73,7 @@ public class MSPairNode extends MSSyntaxTree {
         // We're on the empty list.
         if (this.getCar() == null && this.getCdr() == null) { return true; }
         // We're on the last element of a list and the head is a node but the tail is ().
-        else if (this.getCar() != null && this.getCdr() == null && this.getNodeType() == MSNodeType.LIST) { return true; }
+        else if (this.getCar() != null && this.getCdr() == null && this.isList()) { return true; }
         // Check to make sure the tail is not either a pair or a list.
         else if (!this.getCdr().isPair() && !this.getCdr().isList()) { return false; }
         // Recurse.

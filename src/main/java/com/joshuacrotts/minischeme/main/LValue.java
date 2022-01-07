@@ -148,9 +148,7 @@ public class LValue {
      * @return
      */
     protected String toDisplayString() {
-        return this.type == LValueType.STR
-                ? this.strval.getStringRep()
-                : this.toString();
+        return this.isLString() ? this.strval.getStringRep() : this.toString();
     }
 
     protected double getDoubleValue() {
@@ -172,6 +170,20 @@ public class LValue {
     protected MSSyntaxTree getTreeValue() {
         return this.tval;
     }
+
+    protected boolean isLNumber() { return this.type == LValueType.NUM; }
+
+    protected boolean isLBool() { return this.type == LValueType.BOOL; }
+
+    protected boolean isLString() { return this.type == LValueType.STR; }
+
+    protected boolean isLSymbol() { return this.type == LValueType.SYM; }
+
+    protected boolean isLVector() { return this.type == LValueType.VECTOR; }
+
+    protected boolean isLPair() { return this.type == LValueType.PAIR; }
+
+    protected boolean isLProcCall() { return this.type == LValueType.PROCCALL; }
 
     /**
      *

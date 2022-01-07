@@ -22,17 +22,29 @@ public class MSIfNode extends MSSyntaxTree {
 
     @Override
     public MSSyntaxTree copy() {
-        MSSyntaxTree ifCondCopy = this.getChild(0).copy();
-        MSSyntaxTree ifBodyCopy = this.getChild(1).copy();
-        MSSyntaxTree ifElseCopy = this.getChild(2).copy();
+        MSSyntaxTree ifCondCopy = this.getCondition().copy();
+        MSSyntaxTree ifBodyCopy = this.getConsequent().copy();
+        MSSyntaxTree ifElseCopy = this.getAlternative().copy();
         return new MSIfNode(ifCondCopy, ifBodyCopy, ifElseCopy);
     }
 
     @Override
     public String getStringRep() {
-        return "(IF " + this.getChild(0).getStringRep()
-            + " ? " + this.getChild(1).getStringRep()
-            + " : " + this.getChild(2).getStringRep() + ")";
+        return "(IF " + this.getCondition().getStringRep()
+            + " ? " + this.getConsequent().getStringRep()
+            + " : " + this.getAlternative().getStringRep() + ")";
+    }
+
+    public MSSyntaxTree getCondition() {
+        return this.getChild(0);
+    }
+
+    public MSSyntaxTree getConsequent() {
+        return this.getChild(1);
+    }
+
+    public MSSyntaxTree getAlternative() {
+        return this.getChild(2);
     }
 
     @Override
