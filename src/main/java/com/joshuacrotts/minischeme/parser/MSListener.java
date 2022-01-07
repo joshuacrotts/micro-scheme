@@ -109,41 +109,25 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprSymbolComponent(MiniSchemeParser.ExprSymbolComponentContext ctx) {
         super.exitExprSymbolComponent(ctx);
-        if (ctx.term() != null) {
+        if (ctx.term() != null && ctx.term().ID() != null) {
+            this.map.put(ctx, new MSSymbolLiteralNode(ctx.getChild(0).getChild(0).getText()));
+        } else if (ctx.term() != null) {
             this.map.put(ctx, this.map.get(ctx.term()));
         } else if (ctx.exprCall() != null) {
             this.map.put(ctx, this.map.get(ctx.exprCall()));
-        } else if (ctx.exprOp() != null) {
-            // If they enter an operator we need to create a list and append the
-            // operator symbol to the front of said list.
-            MSSyntaxTree op = this.map.get(ctx.exprOp());
-            MSSyntaxTree parentPair = null;
-            MSSyntaxTree prevPair = null;
-            for (int i = op.getChildrenSize() - 1; i >= 0; i--) {
-                MSSyntaxTree rexpr = op.getChild(i);
+        } else if (ctx.op() != null) {
+            this.map.put(ctx, new MSSymbolLiteralNode(ctx.getChild(0).getChild(0).getText()));
+        } else if (ctx.exprSymbol() != null) {
+            this.map.put(ctx, this.map.get(ctx.exprSymbol()));
+        } else {
+            MSPairNode parentPair = null;
+            MSPairNode prevPair = null;
+            for (int i = ctx.exprSymbolComponent().size() - 1; i >= 0; i--) {
+                MSSyntaxTree rexpr = this.map.get(ctx.exprSymbolComponent(i));
                 prevPair = new MSPairNode(MSNodeType.LIST, rexpr, prevPair);
             }
             // If they enter the empty list, then we need to add a "blank" pair node.
             parentPair = prevPair != null ? prevPair : new MSPairNode();
-            parentPair = new MSPairNode(MSNodeType.LIST, op, parentPair);
-            this.map.put(ctx, parentPair);
-        } else {
-            MSSyntaxTree parentPair = null;
-            MSSyntaxTree prevPair = null;
-            // If they enter more than one element then we need to create a list.
-            if (ctx.exprSymbolComponent().size() > 1) {
-                for (int i = ctx.exprSymbolComponent().size() - 1; i >= 0; i--) {
-                    MSSyntaxTree rexpr = this.map.get(ctx.exprSymbolComponent(i));
-                    prevPair = new MSPairNode(MSNodeType.LIST, rexpr, prevPair);
-                }
-                // Fix the list to make sure it's proper.
-                parentPair = prevPair != null ? prevPair : new MSPairNode();
-            } else {
-                // If they enter one element then the last of the pair is the null list.
-                prevPair = this.map.get(ctx.exprSymbolComponent(0));
-                parentPair = new MSPairNode(MSNodeType.LIST, prevPair, null);
-            }
-            // If they enter the empty list, then we need to add a "blank" pair node.
             this.map.put(ctx, parentPair);
         }
     }

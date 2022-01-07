@@ -83,7 +83,7 @@ public class LValue {
         } else if (tval instanceof MSStringNode) {
             this.type = LValueType.STR;
             this.strval = ((MSStringNode) tval);
-        } else if (tval instanceof MSSymbolNode) {
+        } else if (tval instanceof MSSymbolNode || tval instanceof MSSymbolLiteralNode) {
             this.type = LValueType.SYM;
             this.tval = tval;
         } else {
@@ -126,8 +126,8 @@ public class LValue {
         switch (this.type) {
             case NUM:
                 return ((int) this.dval.getValue() == this.dval.getValue())
-                       ? Integer.toString((int) this.dval.getValue())
-                       : Double.toString(this.dval.getValue());
+                        ? Integer.toString((int) this.dval.getValue())
+                        : Double.toString(this.dval.getValue());
             case BOOL:
                 return this.bval.getValue() ? "#t" : "#f";
             case STR:

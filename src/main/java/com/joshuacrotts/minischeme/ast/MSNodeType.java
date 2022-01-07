@@ -12,6 +12,7 @@ public enum MSNodeType {
     BOOL,
     SYMBOL,
     VECTOR,
+    SYMBOL_LIT,
 
     // Conditionals.
     IF,

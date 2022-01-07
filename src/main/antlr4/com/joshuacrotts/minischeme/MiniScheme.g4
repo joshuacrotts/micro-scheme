@@ -236,7 +236,7 @@ exprLetDecl: '(' (LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
 exprSymbol: (QUOTE term)
           | (QUOTE exprSymbolComponent) ;
 
-exprSymbolComponent: ('(' exprSymbolComponent* ')') | term | exprOp | exprCall;
+exprSymbolComponent: ('(' exprSymbolComponent* ')') | term | op | exprCall | exprSymbol;
 
 
 // Term expression.
@@ -260,6 +260,8 @@ ifCond: expr;
 ifBody: expr;
 ifElse: expr;
 
+// All operators.
+op: unaryop | binaryop | ternaryop | naryop;
 
 // All unary operators.
 unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND

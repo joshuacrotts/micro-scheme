@@ -43,7 +43,7 @@ public class MiniSchemeInterpreter {
      * @param args
      */
     private void replaceParams(Callable procDef, MSSyntaxTree body,
-                                      ArrayList<MSSyntaxTree> args) {
+                               ArrayList<MSSyntaxTree> args) {
         for (int i = 0; i < args.size(); i++) {
             this.replaceParamsHelper(procDef, body, args.get(i), i, args);
         }
@@ -56,7 +56,7 @@ public class MiniSchemeInterpreter {
      * @param replaceIdx
      */
     private void replaceParamsHelper(Callable definition, MSSyntaxTree body,
-                                            MSSyntaxTree arg, int replaceIdx, ArrayList<MSSyntaxTree> args) {
+                                     MSSyntaxTree arg, int replaceIdx, ArrayList<MSSyntaxTree> args) {
         // If the body is null then there's nothing to replace.
         if (body == null) { return; }
         for (int i = 0; i < body.getChildrenSize(); i++) {
@@ -130,6 +130,7 @@ public class MiniSchemeInterpreter {
                 case ID: return this.interpretIdentifier((MSIdentifierNode) tree);
                 case OP: return this.interpretOperator((MSOpNode) tree);
                 case SYMBOL: return this.interpretSymbol((MSSymbolNode) tree);
+                case SYMBOL_LIT: return this.interpretSymbolLiteral((MSSymbolLiteralNode) tree);
                 case SET: return this.interpretSetOp((MSSetNode) tree);
                 case NUM: return this.interpretNumber((MSNumberNode) tree);
                 case BOOL: return this.interpretBoolean((MSBooleanNode) tree);
@@ -360,6 +361,10 @@ public class MiniSchemeInterpreter {
         return new LValue(symbolNode.getExpression());
     }
 
+    private LValue interpretSymbolLiteral(MSSymbolLiteralNode symbolLiteralNode) {
+        return new LValue(symbolLiteralNode);
+    }
+
     /**
      * Interprets a cons pair. The car and cdr are evaluated before
      * constructing the pair.
@@ -411,11 +416,11 @@ public class MiniSchemeInterpreter {
             res = this.interpretPrimitiveUnaryOp(opType, this.interpretTree(opNode.getChild(0)));
         } else if (opNode.isBinary()) {
             res = this.interpretPrimitiveBinaryOp(opType, this.interpretTree(opNode.getChild(0)),
-                                                          this.interpretTree(opNode.getChild(1)));
+                    this.interpretTree(opNode.getChild(1)));
         } else if (opNode.isTernary()) {
             res = this.interpretPrimitiveTernaryOp(opType, this.interpretTree(opNode.getChild(0)),
-                                                           this.interpretTree(opNode.getChild(1)),
-                                                           this.interpretTree(opNode.getChild(2)));
+                    this.interpretTree(opNode.getChild(1)),
+                    this.interpretTree(opNode.getChild(2)));
         } else {
             res = this.interpretTree(opNode.getChild(0));
             for (int i = 1; i < opNode.getChildrenSize(); i++) {
@@ -464,7 +469,7 @@ public class MiniSchemeInterpreter {
                     : this.interpretTree(ifNode.getChild(2));
         } else {
             throw new MSSemanticError("cannot evaluate if statement condition;"
-                                    + " expected predicate or procedure");
+                    + " expected predicate or procedure");
         }
     }
 
@@ -486,7 +491,7 @@ public class MiniSchemeInterpreter {
             LValue condCond = this.interpretTree(condNode.getChild(condIdx));
             if (condCond.getType() != LValueType.BOOL) {
                 throw new MSSemanticError("cannot evaluate cond statement condition;"
-                                        + " expected predicate or procedure");
+                        + " expected predicate or procedure");
             } else {
                 if (condCond.getBoolValue()) {
                     // If the condition is true, evaluate that expression.
@@ -541,8 +546,8 @@ public class MiniSchemeInterpreter {
         // Before anything, check to make sure the procedure parameters and argument sizes match.
         if (procCall.getProcedureArgumentCount() != procDef.getParameterCount()) {
             throw new MSSemanticError(id + ": procedure arity mismatch; expected "
-                                    + procDef.getParameterCount() + " arguments but got "
-                                    + procCall.getProcedureArgumentCount());
+                    + procDef.getParameterCount() + " arguments but got "
+                    + procCall.getProcedureArgumentCount());
         }
 
         // Now, bind the arguments to parameters.
@@ -683,7 +688,7 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.NUMBER_FN: return new LValue(lhs.getType() == LValueType.NUM);
             case MiniSchemeParser.BOOL_FN: return new LValue(lhs.getType() == LValueType.BOOL);
             case MiniSchemeParser.STRING_FN: return new LValue(lhs.getType() == LValueType.STR);
-            case MiniSchemeParser.SYMBOL_FN: return new LValue(lhs.getType() == LValueType.SYM);
+            case MiniSchemeParser.SYMBOL_FN: return new LValue(lhs.getType() != LValueType.PAIR && lhs.getType() != LValueType.STR && lhs.getType() != LValueType.BOOL && lhs.getType() != LValueType.NUM);
             case MiniSchemeParser.VECTOR_FN: return new LValue(lhs.getType() == LValueType.VECTOR);
             case MiniSchemeParser.PAIR_FN:
                 // A "pair" cannot be the empty list.
@@ -740,7 +745,7 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.RAND_FN: return new LValue(Math.random());
             case MiniSchemeParser.STRSUBSTR:
                 return new LValue(op1.getStringValue().substring((int) op2.getDoubleValue(),
-                                                                 (int) op3.getDoubleValue()));
+                        (int) op3.getDoubleValue()));
             default:
                 throw new IllegalArgumentException("Internal interpreter error - invalid primitive ternary operator.");
         }

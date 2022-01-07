@@ -504,4 +504,54 @@ public class InterpreterTester {
         goodFileTest("test072");
     }
 
+    @Test
+    public void doGoodTest073() {
+        goodFileTest("test073");
+    }
+
+    @Test
+    public void doGoodTest074() {
+        goodFileTest("test074");
+    }
+
+    @Test
+    public void doGoodTest075() {
+        goodFileTest("test075");
+    }
+
+    @Test
+    public void doGoodTest076() {
+        goodFileTest("test076");
+    }
+
+    @Test
+    public void doGoodTest077() {
+        goodFileTest("test077");
+    }
+
+    @Test
+    public void doGoodTest078() {
+        goodFileTest("test078");
+    }
+
+    @Test
+    public void doGoodTest079() {
+        goodFileTest("test079");
+    }
+
+    @Test
+    public void doGoodTest080() {
+        goodFileTest("test080");
+    }
+
+    @Test
+    public void doGoodTest081() {
+        goodFileTest("test081");
+    }
+
+    @Test
+    public void doGoodTest082() {
+        goodFileTest("test082");
+    }
+
 }

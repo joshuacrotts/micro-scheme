@@ -1,0 +1,6 @@
+(define zero? (λ (x) (= x 0)))
+(define one? (λ (x) (= x 1)))
+(define abs (λ (x) (if (<= x 0) (* -1 x) x)))
+(define cadr (λ (x) (car (cdr x))))
+(define caddr (λ (x) (car (cdr (cdr x)))))
+(number? (caddr '(3 3 1)))
