@@ -4,6 +4,8 @@ import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -52,23 +54,19 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitVarDecl(MiniSchemeParser.VarDeclContext ctx) {
         super.exitVarDecl(ctx);
-        MSSyntaxTree identifier = this.map.get(ctx.term());
-        MSSyntaxTree expr = this.map.get(ctx.expr());
-        this.map.put(ctx, new MSVariableDeclarationNode(identifier, expr));
+        this.map.put(ctx, new MSVariableDeclarationNode(this.map.get(ctx.term()), this.map.get(ctx.expr())));
     }
 
     @Override
     public void exitVarDeclRead(MiniSchemeParser.VarDeclReadContext ctx) {
         super.exitVarDeclRead(ctx);
-        MSSyntaxTree identifier = this.map.get(ctx.term());
         int readOpType = ((TerminalNode) ctx.readop().getChild(0)).getSymbol().getType();
-        this.map.put(ctx, new MSDeclarationReadNode(readOpType, identifier));
+        this.map.put(ctx, new MSDeclarationReadNode(readOpType, this.map.get(ctx.term())));
     }
 
     @Override
     public void exitProcDecl(MiniSchemeParser.ProcDeclContext ctx) {
         super.exitProcDecl(ctx);
-        MSSyntaxTree id = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> params = new ArrayList<>();
         // If we have parameters, get them now.
         if (ctx.procParams() != null) {
@@ -76,22 +74,21 @@ public class MSListener extends MiniSchemeBaseListener {
                 params.add(this.map.get(pt));
             }
         }
-        MSSyntaxTree body = this.map.get(ctx.procBody().expr());
-        this.map.put(ctx, new MSProcedureDeclarationNode(id, params, body));
+        this.map.put(ctx, new MSProcedureDeclarationNode(this.map.get(ctx.term()),
+                                    params, this.map.get(ctx.procBody().expr())));
     }
 
     @Override
     public void exitLambdaDecl(MiniSchemeParser.LambdaDeclContext ctx) {
         super.exitLambdaDecl(ctx);
-        MSSyntaxTree id = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
         if (ctx.lambdaParams() != null) {
             for (ParseTree pt : ctx.lambdaParams().expr()) {
                 lambdaParams.add(this.map.get(pt));
             }
         }
-        MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
-        this.map.put(ctx, new MSLambdaDeclarationNode(id, lambdaParams, lambdaBody));
+        this.map.put(ctx, new MSLambdaDeclarationNode(this.map.get(ctx.term()),
+                            lambdaParams, this.map.get(ctx.lambdaBody().expr())));
     }
 
     @Override
@@ -127,7 +124,7 @@ public class MSListener extends MiniSchemeBaseListener {
                 prevPair = new MSPairNode(MSNodeType.LIST, rexpr, prevPair);
             }
             // If they enter the empty list, then we need to add a "blank" pair node.
-            parentPair = prevPair != null ? prevPair : new MSPairNode();
+            parentPair = Optional.ofNullable(prevPair).orElse(new MSPairNode());
             this.map.put(ctx, parentPair);
         }
     }
@@ -150,7 +147,7 @@ public class MSListener extends MiniSchemeBaseListener {
             prevPair = new MSPairNode(MSNodeType.LIST, rexpr, prevPair);
         }
         // If they enter the empty list, then we need to add a "blank" pair node.
-        parentPair = prevPair != null ? prevPair : new MSPairNode();
+        parentPair = Optional.ofNullable(prevPair).orElse(new MSPairNode());
         this.map.put(ctx, parentPair);
     }
 
@@ -163,30 +160,25 @@ public class MSListener extends MiniSchemeBaseListener {
                 elements.add(this.map.get(pt));
             }
         }
-
         this.map.put(ctx, new MSVectorNode(elements));
     }
 
     @Override
     public void exitExprSet(MiniSchemeParser.ExprSetContext ctx) {
-        MSSyntaxTree identifierNode = this.map.get(ctx.term());
-        MSSyntaxTree exprNode = this.map.get(ctx.expr());
         int setOpType = ((TerminalNode) ctx.setop().getChild(0)).getSymbol().getType();
-        this.map.put(ctx, new MSSetNode(setOpType, identifierNode, exprNode));
+        this.map.put(ctx, new MSSetNode(setOpType, this.map.get(ctx.term()), this.map.get(ctx.expr())));
     }
 
     @Override
     public void exitExprSetRead(MiniSchemeParser.ExprSetReadContext ctx) {
         super.exitExprSetRead(ctx);
-        MSSyntaxTree identifier = this.map.get(ctx.term());
         int readOpType = ((TerminalNode) ctx.readop().getChild(0)).getSymbol().getType();
-        this.map.put(ctx, new MSSetReadNode(readOpType, identifier));
+        this.map.put(ctx, new MSSetReadNode(readOpType, this.map.get(ctx.term())));
     }
 
     @Override
     public void exitExprCall(MiniSchemeParser.ExprCallContext ctx) {
         super.exitExprCall(ctx);
-        MSSyntaxTree id = this.map.get(ctx.term());
         ArrayList<MSSyntaxTree> procArgs = new ArrayList<>();
         if (ctx.args() != null) {
             for (ParseTree pt : ctx.args().expr()) {
@@ -200,8 +192,7 @@ public class MSListener extends MiniSchemeBaseListener {
                 lambdaArgs.add(this.map.get(pt));
             }
         }
-
-        this.map.put(ctx, new MSCallNode(id, procArgs, lambdaArgs));
+        this.map.put(ctx, new MSCallNode(this.map.get(ctx.term()), procArgs, lambdaArgs));
     }
 
     @Override
@@ -218,9 +209,7 @@ public class MSListener extends MiniSchemeBaseListener {
                 declarations.add(new MSVariableDeclarationNode(term, expr));
             }
         }
-
-        MSSyntaxTree letBody = this.map.get(ctx.expr());
-        this.map.put(ctx, new MSLetDeclarationNode(letType, declarations, letBody));
+        this.map.put(ctx, new MSLetDeclarationNode(letType, declarations, this.map.get(ctx.expr())));
     }
 
     @Override
@@ -232,16 +221,12 @@ public class MSListener extends MiniSchemeBaseListener {
                 lambdaParams.add(this.map.get(pt));
             }
         }
-
-        MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
-        this.map.put(ctx, new MSLambdaDeclarationNode(lambdaParams, lambdaBody));
+        this.map.put(ctx, new MSLambdaDeclarationNode(lambdaParams, this.map.get(ctx.lambdaBody().expr())));
     }
 
     @Override
     public void exitExprLambdaDeclCall(MiniSchemeParser.ExprLambdaDeclCallContext ctx) {
         super.exitExprLambdaDeclCall(ctx);
-        MSSyntaxTree lambdaBody = this.map.get(ctx.lambdaBody().expr());
-
         // Now retrieve the params.
         ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
         if (ctx.lambdaParams() != null) {
@@ -258,7 +243,8 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
 
-        this.map.put(ctx, new MSLambdaDeclarationCallNode(lambdaParams, lambdaBody, lambdaArgs));
+        this.map.put(ctx, new MSLambdaDeclarationCallNode(lambdaParams,
+                this.map.get(ctx.lambdaBody().expr()), lambdaArgs));
     }
 
     @Override
