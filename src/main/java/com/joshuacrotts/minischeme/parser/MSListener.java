@@ -6,12 +6,16 @@ import com.joshuacrotts.minischeme.ast.*;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+/**
+ *
+ */
 public class MSListener extends MiniSchemeBaseListener {
 
     /**
@@ -106,14 +110,12 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprSymbolComponent(MiniSchemeParser.ExprSymbolComponentContext ctx) {
         super.exitExprSymbolComponent(ctx);
-        if (ctx.term() != null && ctx.term().ID() != null) {
+        if ((ctx.term() != null && ctx.term().ID() != null) || ctx.op() != null) {
             this.map.put(ctx, new MSSymbolLiteralNode(ctx.getChild(0).getChild(0).getText()));
         } else if (ctx.term() != null) {
             this.map.put(ctx, this.map.get(ctx.term()));
         } else if (ctx.exprCall() != null) {
             this.map.put(ctx, this.map.get(ctx.exprCall()));
-        } else if (ctx.op() != null) {
-            this.map.put(ctx, new MSSymbolLiteralNode(ctx.getChild(0).getChild(0).getText()));
         } else if (ctx.exprSymbol() != null) {
             this.map.put(ctx, this.map.get(ctx.exprSymbol()));
         } else {

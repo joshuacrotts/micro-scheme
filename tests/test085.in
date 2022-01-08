@@ -1,0 +1,6 @@
+(define (f l s) 
+    (if (eq? s '+) "Yes" "No")
+)
+
+(define l '(+ x 5))
+(f l (car l))

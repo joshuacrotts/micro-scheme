@@ -1,0 +1,17 @@
+(define (cadr l) (car (cdr l)))
+(define (caddr l) (car (cdr (cdr l))))
+
+(define ev 
+    (λ (y) (cond [(eq? (car y) '+) (+ (cadr y) (caddr y))]
+                 [(eq? (car y) '-) (- (cadr y) (caddr y))]
+                 [(eq? (car y) '*) (* (cadr y) (caddr y))]
+                 [(eq? (car y) '/) (/ (cadr y) (caddr y))]
+                 [else ("ERR invalid op")]
+            )
+    )
+)
+
+(ev '(+ 2 3))
+(ev '(- 2 3))
+(ev '(* 2 3))
+(ev '(/ 2 3))

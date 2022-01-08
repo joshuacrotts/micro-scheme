@@ -233,8 +233,7 @@ exprLetDecl: '(' (LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
 
 
 // Symbol declaration.
-exprSymbol: (QUOTE term)
-          | (QUOTE exprSymbolComponent) ;
+exprSymbol: (QUOTE exprSymbolComponent) ;
 
 exprSymbolComponent: ('(' exprSymbolComponent* ')') | term | op | exprCall | exprSymbol;
 

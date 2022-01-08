@@ -1,0 +1,11 @@
+(define (f l) 
+    (if (eq? (car (car (cdr (car (cdr l))))) '+) "Yes" "No") 
+)
+
+(define l '(+ (* (+ 2 x) (+ 6 x) (* x 23))))
+(cdr l)
+(car (cdr l))
+(cdr (car (cdr l)))
+(car (cdr (car (cdr l))))
+(car (car (cdr (car (cdr l)))))
+(f l)

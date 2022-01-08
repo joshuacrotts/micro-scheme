@@ -1,0 +1,4 @@
+(define l (list '+ (+ 2 3) (+ 4 5)))
+(define ll '(+ (+ 2 3) (+ 4 5)))
+(eq? '+ (car (car (cdr ll))))
+(eq? '+ (car l))

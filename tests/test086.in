@@ -1,0 +1,6 @@
+(define (f l s) 
+    (if (eq? s '+) "Yes" "No")
+)
+
+(define l '+)
+(f '(x x x x x x x x x x (* * * * * * * *)) l)

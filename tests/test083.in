@@ -1,0 +1,5 @@
+(define (f l s)
+    (if (eq? s 'x) "Yes" "No")
+)
+
+(f '(+ x 5) 'x)
