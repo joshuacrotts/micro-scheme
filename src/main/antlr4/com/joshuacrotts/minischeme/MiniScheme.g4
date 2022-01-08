@@ -59,7 +59,7 @@ BITWISE_NEG: '~' ;
 // Literals.
 NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
 STRINGLIT: '"' ( QUOTCHAR | ~ ["\\] )* '"';
-BOOLLIT: HASH [tf];
+BOOLLIT: HASH ([tf] | ([Tt]'rue') | ([Ff]'alse'));
 
 // Special keywords.
 DEFINE: 'define';
@@ -225,7 +225,8 @@ exprIf: '(' IF ifCond ifBody ifElse ')';
 
 
 // Cond expression.
-exprCond: '(' COND ('[' condCond condBody ']')+ ('[' ELSE condBody ']')? ')';
+exprCond: ('(' COND ('[' condCond condBody ']')+ ('[' ELSE condBody ']')? ')')
+        | ('(' COND ('(' condCond condBody ')')+ ('(' ELSE condBody ')')? ')');
 
 
 // Let declaration.
@@ -249,7 +250,8 @@ args: expr+;
 lambdaParams: expr+;
 lambdaBody: expr;
 lambdaArgs: expr+;
-letDecl: ('[' term expr ']')*;
+letDecl: ('[' term expr ']')*
+       | ('(' term expr ')')* ;
 
 
 // Separates the "expressions" for a cond or if expression to make it clearer in the parser.
@@ -296,7 +298,7 @@ setop: SETCAR_FN | SETCDR_FN | SETVAR_FN;
 readop: READLINE_FN | READNUMBER_FN;
 
 
-// Terms/literals.
+// Identifier and literals.
 term: NUMBERLIT
     | STRINGLIT
     | BOOLLIT

@@ -158,7 +158,14 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretVariableDeclaration(MSVariableDeclarationNode varDecl) {
         String identifier = varDecl.getIdentifier().getIdentifier();
-        this.symbolTable.addSymbol(identifier, SymbolType.VARIABLE, varDecl);
+        // If we run into an identifier, we can just copy that identifier's expression over
+        // in the symbol table.
+        if (varDecl.getExpression().isId()) {
+            this.symbolTable.addSymbol(identifier, (MSIdentifierNode) varDecl.getExpression());
+        } else {
+            this.symbolTable.addSymbol(identifier, SymbolType.VARIABLE, varDecl);
+        }
+
         return new LValue();
     }
 
@@ -239,9 +246,12 @@ public class MiniSchemeInterpreter {
         for (Map.Entry<MSIdentifierNode, MSSyntaxTree> entry : results.entrySet()) {
             MSIdentifierNode idNode = entry.getKey();
             MSSyntaxTree exprNode = entry.getValue();
-            this.symbolTable.addSymbol(idNode.getIdentifier(),
-                    SymbolType.getSymbolTypeFromNodeType(exprNode.getNodeType()),
-                    exprNode);
+            // If we encounter a lambda declaration, we need to make it non-anonymous.
+            if (exprNode.isExprLambdaDecl()) {
+                exprNode = MSLambdaDeclarationNode.createNonAnonymous(idNode, (MSLambdaDeclarationNode) exprNode);
+            }
+
+            this.symbolTable.addSymbol(idNode.getIdentifier(), SymbolType.getSymbolTypeFromNodeType(exprNode.getNodeType()), exprNode);
         }
 
         LValue letVal = this.interpretTree(letDecl.getBody());
@@ -277,6 +287,11 @@ public class MiniSchemeInterpreter {
                     break;
                 default:
                     resultExpr = LValue.getAstFromLValue(this.interpretTree(vd.getExpression()));
+            }
+
+            assert resultExpr != null;
+            if (resultExpr.isExprLambdaDecl()) {
+                resultExpr = MSLambdaDeclarationNode.createNonAnonymous(vd.getIdentifier(), (MSLambdaDeclarationNode) resultExpr);
             }
 
             this.symbolTable.addSymbol(vd.getIdentifier().getIdentifier(),
@@ -532,11 +547,14 @@ public class MiniSchemeInterpreter {
             // Otherwise, determine if it's a stored procedure or lambda.
             String id = callNode.getIdentifier().getIdentifier();
 
-            if (this.symbolTable.isProcedure(id)) {
+            if (this.symbolTable.isVariable(id)) {
+                return this.interpretProcedureCall(callNode);
+            } else if (this.symbolTable.isProcedure(id)) {
                 return this.interpretProcedureCall(callNode);
             } else if (this.symbolTable.isLambda(id)) {
                 return this.interpretLambdaCall(callNode);
             } else {
+                System.out.println("?");
                 throw new MSSemanticError("undefined identifier '" + id + "'");
             }
         }
@@ -571,7 +589,7 @@ public class MiniSchemeInterpreter {
                 if (lhs.isLNumber()) { args.add(new MSNumberNode(lhs.getDoubleValue())); }
                 else if (lhs.isLBool()) { args.add(new MSBooleanNode(lhs.getBoolValue())); }
                 else if (lhs.isLString()) { args.add(new MSStringNode(lhs.getStringValue())); }
-                else if (lhs.isLProcCall() || lhs.isLSymbol()) { args.add(lhs.getTreeValue()); }
+                else if (lhs.isLProcCall() || lhs.isLSymbol() || lhs.isLLambdaCall()) { args.add(lhs.getTreeValue()); }
                 else if (lhs.isLPair() || lhs.isLVector()) {
                     // If it is null, then evaluate the null list.
                     if (lhs.getTreeValue() == null) {
@@ -638,7 +656,7 @@ public class MiniSchemeInterpreter {
                 if (lhs.isLNumber()) { args.add(new MSNumberNode(lhs.getDoubleValue())); }
                 else if (lhs.isLBool()) { args.add(new MSBooleanNode(lhs.getBoolValue())); }
                 else if (lhs.isLString()) { args.add(new MSStringNode(lhs.getStringValue())); }
-                else if (lhs.isLProcCall() || lhs.isLSymbol()) { args.add(lhs.getTreeValue()); }
+                else if (lhs.isLProcCall() || lhs.isLSymbol() || lhs.isLLambdaCall()) { args.add(lhs.getTreeValue()); }
                 else if (lhs.isLPair() || lhs.isLVector()) {
                     // If it is null, then evaluate the null list.
                     if (lhs.getTreeValue() == null) {
@@ -648,7 +666,7 @@ public class MiniSchemeInterpreter {
                     }
                 } else {
                     throw new IllegalStateException("Interpreter error - lambda decl call " +
-                            "found an incorrect lvalue. This should never happen...");
+                            "found an incorrect lvalue: " + lhs.getType() + ". This should never happen...");
                 }
             }
         }
@@ -726,8 +744,7 @@ public class MiniSchemeInterpreter {
             case MiniSchemeParser.READNUMBER_FN: return new MSNumberNode(in.nextDouble());
             case MiniSchemeParser.READLINE_FN: return new MSStringNode(in.nextLine());
             default:
-                throw new IllegalArgumentException("Internal interpreter error with reading input " +
-                        "- this should never happen...");
+                throw new IllegalArgumentException("Internal interpreter error - could not read stdin");
         }
     }
 }

@@ -3,10 +3,7 @@ package com.joshuacrotts.minischeme.symbol;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import com.joshuacrotts.minischeme.ast.MSNodeType;
-import com.joshuacrotts.minischeme.ast.MSSymbolNode;
-import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
-import com.joshuacrotts.minischeme.ast.MSVariableDeclarationNode;
+import com.joshuacrotts.minischeme.ast.*;
 
 /**
  * @author Joshua Crotts
@@ -40,12 +37,30 @@ public class SymbolTable {
     }
 
     /**
+     * Given an identifier and another identifier, we can "copy" one identifier to another.
+     *
+     * @param id
+     * @param parentId
+     */
+    public void addSymbol(String id, MSIdentifierNode parentId) {
+        SymbolEntry se = this.getSymbolEntry(parentId.getIdentifier());
+        if (se == null) {
+            throw new IllegalArgumentException("Internal interpreter error - cannot copy assignment from "
+                    + parentId.getIdentifier() + " to " + id);
+        }
+        this.environmentTable.peek().addSymbol(id, se.getSymbolType(), se.getSymbolData());
+    }
+
+    /**
      *
      * @param id
      * @param data
      */
     public void setSymbol(String id, MSSyntaxTree data) {
         SymbolEntry entry = this.getSymbolEntry(id);
+        if (entry == null) {
+            throw new IllegalArgumentException("Internal interpreter error - cannot set " + id);
+        }
         entry.setSymbolData(data);
     }
 
@@ -60,31 +75,14 @@ public class SymbolTable {
     public boolean hasSymbol(String id) {
         boolean found = false;
 
-        // We have to use a for loop to traverse backwards since iterators are broken
-        // with stacks...
+        // We have to use a for loop to traverse backwards since iterators are broken with stacks.
         for (int i = this.environmentTable.size() - 1; i >= 0; i--) {
             Environment curr = this.environmentTable.get(i);
             found = hasSymbolInEnvironment(id, curr);
-
-            if (found) {
-                return true;
-            }
+            if (found) { return true; }
         }
 
         return false;
-    }
-
-    /**
-     * Given an identifier, we return if the symbol is declared inside the current
-     * environment. This is useful for determining if we have a variable previously
-     * declared in the same scope.
-     *
-     * @param id - identifier of symbol.
-     * @return true if the identifier was found in the current environment (defined
-     *         as the top-most environment on the stack), false otherwise.
-     */
-    public boolean hasSymbolInCurrentEnvironment(String id) {
-        return this.environmentTable.peek().hasSymbol(id);
     }
 
     /**
@@ -189,7 +187,7 @@ public class SymbolTable {
     private boolean hasSymbolInEnvironment(String id, Environment environment) {
         int idx = this.environmentTable.indexOf(environment);
         if (idx < 0 || idx >= this.environmentTable.size()) {
-            throw new IndexOutOfBoundsException("idx " + idx + " is out of bounds.");
+            throw new IndexOutOfBoundsException("idx " + idx + " is out of bounds: " + this.environmentTable.size());
         }
 
         return this.environmentTable.get(idx).hasSymbol(id);

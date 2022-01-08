@@ -43,6 +43,23 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
         this.addChild(lambdaBody);
     }
 
+    /**
+     * Creates a non-anonymous lambda from an anonymous lambda expression.
+     * This is useful for binding a lambda to an identifier in a let declaration.
+     *
+     * @param id - identifier to bind lambda to.
+     * @param expr - anonymous MSLambdaDeclarationNode ast.
+     *
+     * @return new MSLambdaDeclarationNode with bound identifier.
+     */
+    public static MSLambdaDeclarationNode createNonAnonymous(MSSyntaxTree id, MSLambdaDeclarationNode expr) {
+        if (!expr.isAnonymous()) {
+            throw new IllegalArgumentException("Internal interpreter error - this lambda is already anonymous!");
+        }
+
+        return new MSLambdaDeclarationNode(id, expr.getLambdaParameters(), expr.getBody());
+    }
+
     @Override
     public MSSyntaxTree copy() {
         ArrayList<MSSyntaxTree> lambdaParamsCopy = new ArrayList<>();
@@ -88,5 +105,9 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
 
     public int getLambdaParameterCount() {
         return this.numParams;
+    }
+
+    public boolean isAnonymous() {
+        return this.isAnonymous;
     }
 }

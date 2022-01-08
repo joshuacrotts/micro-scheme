@@ -1,0 +1,7 @@
+;
+; Defining variables in terms of themselves.
+;
+
+(define x 5)
+(define y x)
+(eq? x y)

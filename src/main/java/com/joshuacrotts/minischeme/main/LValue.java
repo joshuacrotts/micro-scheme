@@ -113,6 +113,8 @@ public class LValue {
             case STR: return new MSStringNode(lval.getStringValue());
             case SYM:
             case VECTOR:
+            case PROCCALL:
+            case LAMBDACALL:
             case PAIR: return lval.getTreeValue();
             case NULL:
                 return null;
@@ -184,6 +186,8 @@ public class LValue {
     protected boolean isLPair() { return this.type == LValueType.PAIR; }
 
     protected boolean isLProcCall() { return this.type == LValueType.PROCCALL; }
+
+    protected boolean isLLambdaCall() { return this.type == LValueType.LAMBDACALL; }
 
     /**
      *

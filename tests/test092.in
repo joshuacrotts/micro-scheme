@@ -1,0 +1,9 @@
+(define F (λ (self n)
+            (if (= n 0)
+                1
+                (* n (self self (- n 1)))
+            )
+        )
+)
+
+(F F 5)
