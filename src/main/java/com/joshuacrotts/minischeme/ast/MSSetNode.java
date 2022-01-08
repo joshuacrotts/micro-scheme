@@ -15,9 +15,9 @@ public class MSSetNode extends MSSyntaxTree {
     /**
      * Set type operation.
      */
-    private int opType;
+    private final int opType;
 
-    public MSSetNode(int opType, MSSyntaxTree identifierNode, MSSyntaxTree exprNode) {
+    public MSSetNode(final int opType, final MSSyntaxTree identifierNode, final MSSyntaxTree exprNode) {
         super(MSNodeType.SET, identifierNode, exprNode);
         this.opType = opType;
     }
@@ -37,7 +37,7 @@ public class MSSetNode extends MSSyntaxTree {
         return this.getNodeType().toString();
     }
 
-    private String getSetOpTypeString(int opType) {
+    private String getSetOpTypeString(final int opType) {
         String literalName = MiniSchemeParser.VOCABULARY.getLiteralName(opType);
         return literalName.substring(1, literalName.length() - 1);
     }

@@ -1,3 +1,7 @@
+;
+; null? wrapper. Not very exciting.
+;
+
 (define (my-is-null l)
   (if (null? l)
     #t

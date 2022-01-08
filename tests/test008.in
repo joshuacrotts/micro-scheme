@@ -1,3 +1,7 @@
+;
+; Non-tail-recursive factorial with cond. Passes variable as argument.
+;
+
 (define (fac n)
     (cond   [(= n 0) 1]
             [else (* n (fac (- n 1)))]

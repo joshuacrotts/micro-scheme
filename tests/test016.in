@@ -1,3 +1,7 @@
+;
+; Tests calling a procedure inside a recursive procedure.
+;
+
 (define (map-add l)
 	(cond [(null? l) '()]
 		  [else (cons (add1 (car l)) (map-add (cdr l)))]

@@ -9,7 +9,7 @@ package com.joshuacrotts.minischeme.ast;
  */
 public abstract class MSDeclaration extends MSSyntaxTree {
 
-    public MSDeclaration(MSNodeType declType) {
+    public MSDeclaration(final MSNodeType declType) {
         super(declType);
         if (!isValidDeclarationType(declType)) {
             throw new IllegalArgumentException("Internal interpreter error " +
@@ -26,7 +26,7 @@ public abstract class MSDeclaration extends MSSyntaxTree {
      * @param declType - node type of declaration.
      * @return true if valid, false otherwise.
      */
-    private static boolean isValidDeclarationType(MSNodeType declType) {
+    private static boolean isValidDeclarationType(final MSNodeType declType) {
         return declType == MSNodeType.DECL_READ
                 || declType == MSNodeType.PROC_DECL
                 || declType == MSNodeType.LAMBDA_DECL

@@ -1,2 +1,6 @@
+;
+; Definition and addition test.
+;
+
 (define x 5)
 (+ x 10)

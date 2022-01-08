@@ -1,3 +1,7 @@
+;
+; Passing lambda to procedure.
+;
+
 (define (add1 l)
 	(cond   [(null? l) '()]
     	    [else (cons (+ 1 (car l)) (add1 (cdr l)))]

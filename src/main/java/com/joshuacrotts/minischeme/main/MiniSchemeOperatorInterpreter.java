@@ -13,7 +13,7 @@ public class MiniSchemeOperatorInterpreter {
      * @param opType
      * @return
      */
-    protected static LValue interpretPrimitiveUnaryOperator(int opType, LValue lhs) throws MSSemanticError {
+    protected static LValue interpretPrimitiveUnaryOperator(final int opType, final LValue lhs) throws MSSemanticError {
         switch (opType) {
             case MiniSchemeParser.DISPLAY:
                 System.out.println(lhs.toDisplayString());
@@ -90,12 +90,12 @@ public class MiniSchemeOperatorInterpreter {
      * @return
      * @throws MSSemanticError
      */
-    protected static LValue interpretPrimitiveTernaryOperator(int opType, LValue op1, LValue op2, LValue op3) throws MSSemanticError {
+    protected static LValue interpretPrimitiveTernaryOperator(final int opType, final LValue op1,
+                                                              final LValue op2, final LValue op3) throws MSSemanticError {
         switch (opType) {
             case MiniSchemeParser.RAND_FN: return new LValue(Math.random());
             case MiniSchemeParser.STRSUBSTR:
-                return new LValue(op1.getStringValue().substring((int) op2.getDoubleValue(),
-                        (int) op3.getDoubleValue()));
+                return new LValue(op1.getStringValue().substring((int) op2.getDoubleValue(), (int) op3.getDoubleValue()));
             default:
                 throw new IllegalArgumentException("Internal interpreter error - invalid primitive ternary operator.");
         }
@@ -108,7 +108,7 @@ public class MiniSchemeOperatorInterpreter {
      * @param rhs
      * @return
      */
-    protected static LValue interpretPrimitiveNaryOperator(int opType, LValue lhs, LValue rhs) {
+    protected static LValue interpretPrimitiveNaryOperator(final int opType, final LValue lhs, final LValue rhs) {
         switch (opType) {
             case MiniSchemeParser.PLUS: return new LValue(lhs.getDoubleValue() + rhs.getDoubleValue());
             case MiniSchemeParser.MINUS: return new LValue(lhs.getDoubleValue() - rhs.getDoubleValue());
@@ -132,7 +132,7 @@ public class MiniSchemeOperatorInterpreter {
      * @param rhs
      * @return
      */
-    private static LValue interpretEqualFn(LValue lhs, LValue rhs) {
+    private static LValue interpretEqualFn(final LValue lhs, final LValue rhs) {
         if (lhs.getType() == rhs.getType()) {
             switch (lhs.getType()) {
                 case NUM: return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
@@ -141,7 +141,7 @@ public class MiniSchemeOperatorInterpreter {
                 case PAIR: return new LValue(lhs.toString().equals(rhs.toString()));
                 case NULL: return new LValue(true);
                 default:
-                    throw new UnsupportedOperationException("Internal interpreter error " +
+                    throw new IllegalArgumentException("Internal interpreter error " +
                             "- cannot use equal? procedure on operands of type " + lhs.getType());
             }
         }
@@ -153,7 +153,7 @@ public class MiniSchemeOperatorInterpreter {
      * @param rhs
      * @return
      */
-    private static LValue interpretEqFn(LValue lhs, LValue rhs) {
+    private static LValue interpretEqFn(final LValue lhs, final LValue rhs) {
         // If they're the same reference then return true.
         if (lhs == rhs) {
             return new LValue(true);

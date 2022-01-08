@@ -2,5 +2,5 @@ package com.joshuacrotts.minischeme.ast;
 
 public interface Callable {
 
-    int getArgumentIndex(String idx);
+    int getArgumentIndex(final String idx);
 }

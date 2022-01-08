@@ -1,3 +1,7 @@
+;
+; Append and length function tests. car, cdr, and equal? tests with lists.
+;
+
 (define (append list1 list2)
     (if (null? list1)
         list2

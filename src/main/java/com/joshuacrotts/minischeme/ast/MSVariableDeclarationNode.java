@@ -12,7 +12,7 @@ package com.joshuacrotts.minischeme.ast;
  */
 public class MSVariableDeclarationNode extends MSDeclaration {
 
-    public MSVariableDeclarationNode(MSSyntaxTree identifier, MSSyntaxTree expr) {
+    public MSVariableDeclarationNode(final MSSyntaxTree identifier, final MSSyntaxTree expr) {
         super(MSNodeType.VAR_DECL);
         this.addChild(identifier);
         this.addChild(expr);

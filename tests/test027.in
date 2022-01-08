@@ -1,3 +1,7 @@
+;
+; Simple procedure.
+;
+
 (define (reverse-subtract x y)
     (- y x)
 )

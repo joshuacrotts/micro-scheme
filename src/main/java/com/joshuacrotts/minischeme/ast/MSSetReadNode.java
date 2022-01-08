@@ -8,9 +8,9 @@ public class MSSetReadNode extends MSSyntaxTree {
     /**
      * Set/read operation type.
      */
-    private int opType;
+    private final int opType;
 
-    public MSSetReadNode(int opType, MSSyntaxTree identifier) {
+    public MSSetReadNode(final int opType, final MSSyntaxTree identifier) {
         super(MSNodeType.SET_READ, identifier);
         this.opType = opType;
     }

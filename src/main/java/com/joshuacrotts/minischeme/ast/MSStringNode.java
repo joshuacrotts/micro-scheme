@@ -13,7 +13,7 @@ public class MSStringNode extends MSSyntaxTree {
      */
     private final String value;
 
-    public MSStringNode(String value) {
+    public MSStringNode(final String value) {
         super(MSNodeType.STR);
         this.value = value;
     }

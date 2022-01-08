@@ -15,7 +15,7 @@ public class MSDeclarationReadNode extends MSDeclaration {
      */
     private int opType;
 
-    public MSDeclarationReadNode(int opType, MSSyntaxTree identifier) {
+    public MSDeclarationReadNode(final int opType, final MSSyntaxTree identifier) {
         super(MSNodeType.DECL_READ);
         this.addChild(identifier);
         this.opType = opType;

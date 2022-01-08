@@ -1,4 +1,6 @@
-(define (add1) (lambda (x) (+ x 1)))
+;
+; Defining a procedure as zero arguments and calling lambda inside recursive proc.
+;
 
 (define (map-lambda-add l)
     (cond  [(null? l) '()]

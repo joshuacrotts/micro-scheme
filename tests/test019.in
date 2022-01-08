@@ -1,2 +1,6 @@
+;
+; Strings.
+;
+
 (define msg "Joshua Loves Vyley <3")
 (display msg)

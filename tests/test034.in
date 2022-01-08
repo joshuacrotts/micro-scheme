@@ -1,3 +1,7 @@
+;
+; Defining procedure with double lambda body.
+;
+
 (define (proc x y)
     ((lambda (z)
         (+ ((lambda (w) (* w x)) x) z y x)

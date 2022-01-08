@@ -14,12 +14,12 @@ public class MSBooleanNode extends MSSyntaxTree {
      */
     private final boolean value;
 
-    public MSBooleanNode(String value) {
+    public MSBooleanNode(final String value) {
         super(MSNodeType.BOOL);
         this.value = value.equals("#t");
     }
 
-    public MSBooleanNode(boolean value) {
+    public MSBooleanNode(final boolean value) {
         super(MSNodeType.BOOL);
         this.value = value;
     }

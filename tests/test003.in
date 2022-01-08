@@ -1,3 +1,7 @@
+;
+; Definitions in terms of expressions.
+;
+
 (define x 3)
 (define y (* x 3))
 (* y (+ x 7))

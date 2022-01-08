@@ -24,7 +24,8 @@ public class Environment {
      * @param symbolType
      * @param symbolExpr
      */
-    public void addSymbol(String identifier, SymbolType symbolType, MSSyntaxTree symbolExpr) {
+    public void addSymbol(final String identifier, final SymbolType symbolType,
+                          final MSSyntaxTree symbolExpr) {
         this.symbolTable.put(identifier, new SymbolEntry(symbolType, symbolExpr));
     }
 
@@ -33,7 +34,7 @@ public class Environment {
      * @param identifier
      * @return
      */
-    public boolean hasSymbol(String identifier) {
+    public boolean hasSymbol(final String identifier) {
         return this.symbolTable.containsKey(identifier);
     }
 

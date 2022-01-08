@@ -1,0 +1,13 @@
+;
+; Setting a variable of a different type than it previously was.
+;
+
+(define square (lambda (x) (* x x)))
+(define y square)
+(y 20)
+(square 20)
+(set! y 50)
+y
+(square 20)
+(set! square "square")
+square

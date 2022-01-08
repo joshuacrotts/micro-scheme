@@ -18,7 +18,7 @@ public class MSUtils {
      * @param max
      * @return random integer
      */
-    public static int randomInt(int min, int max) {
+    public static int randomInt(final int min, final int max) {
         if (min >= max) {
             throw new IllegalArgumentException("Max must be smaller than min.");
         }
@@ -32,7 +32,7 @@ public class MSUtils {
      * @param max
      * @return random integer
      */
-    public static int randomInt(int max) {
+    public static int randomInt(final int max) {
         return randomInt(0, max);
     }
 
@@ -42,7 +42,7 @@ public class MSUtils {
      * @param max
      * @return
      */
-    public static double randomDouble(double min, double max) {
+    public static double randomDouble(final double min, final double max) {
         if (min >= max) {
             throw new IllegalArgumentException("Max must be smaller than min.");
         }
@@ -76,7 +76,7 @@ public class MSUtils {
      * @param _str
      * @return
      */
-    public static String repeatString(int _n, String _str) {
+    public static String repeatString(final int _n, final String _str) {
         StringBuilder b = new StringBuilder(_n * _str.length());
         for (int i = 0; i < _n; ++i) {
             b.append(_str);
@@ -90,7 +90,7 @@ public class MSUtils {
      * @return
      */
     @SafeVarargs
-    public static <T> Set<T> union(Collection<T>... sets) {
+    public static <T> Set<T> union(final Collection<T>... sets) {
         Set<T> distinct = new HashSet<T>();
         for (Collection<T> list : sets) {
             distinct.addAll(list);
@@ -103,7 +103,7 @@ public class MSUtils {
      * @param _s2
      * @return
      */
-    public static int sbCompareTo(StringBuilder _s1, StringBuilder _s2) {
+    public static int sbCompareTo(final StringBuilder _s1, final StringBuilder _s2) {
         return _s1.toString().compareTo(_s2.toString());
     }
 }

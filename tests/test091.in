@@ -1,1 +1,5 @@
+;
+; Simple assignment and call of lambda to id in let.
+;
+
 (let ([foo (lambda (x) (+ x x))]) (foo 5))

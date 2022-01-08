@@ -1,0 +1,7 @@
+;
+; Setting a variable to another variable that is a lambda.
+;
+
+(define foo (lambda (x) (+ x x)))
+(let ([bar (lambda (x) (+ x x))]) (bar 10))
+(let ([bar foo]) (bar 10))

@@ -61,6 +61,7 @@ public class SymbolTable {
         if (entry == null) {
             throw new IllegalArgumentException("Internal interpreter error - cannot set " + id);
         }
+        entry.setSymbolType(SymbolType.getSymbolTypeFromNodeType(data.getNodeType()));
         entry.setSymbolData(data);
     }
 

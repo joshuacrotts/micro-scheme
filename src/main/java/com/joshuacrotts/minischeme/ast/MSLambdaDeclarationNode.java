@@ -20,8 +20,8 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
      */
     private final boolean isAnonymous;
 
-    public MSLambdaDeclarationNode(ArrayList<MSSyntaxTree> lambdaParams,
-                                   MSSyntaxTree lambdaBody) {
+    public MSLambdaDeclarationNode(final ArrayList<MSSyntaxTree> lambdaParams,
+                                   final MSSyntaxTree lambdaBody) {
         super(MSNodeType.EXPR_LAMBDA_DECL);
         this.isAnonymous = true;
         this.numParams = lambdaParams.size();

@@ -12,7 +12,7 @@ public class MSSymbolLiteralNode extends MSSyntaxTree {
      */
     private final String value;
 
-    public MSSymbolLiteralNode(String value) {
+    public MSSymbolLiteralNode(final String value) {
         super(MSNodeType.SYMBOL_LIT);
         this.value = value;
     }

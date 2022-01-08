@@ -22,9 +22,8 @@ public class MSCallNode extends MSSyntaxTree {
      */
     private int numLambdaArgs;
 
-    public MSCallNode(MSSyntaxTree procIdentifier,
-                        ArrayList<MSSyntaxTree> procArgs,
-                        ArrayList<MSSyntaxTree> lambdaArgs) {
+    public MSCallNode(final MSSyntaxTree procIdentifier, final ArrayList<MSSyntaxTree> procArgs,
+                      final ArrayList<MSSyntaxTree> lambdaArgs) {
         super(MSNodeType.CALL);
         this.addChild(procIdentifier);
         this.numProcArgs = procArgs.size();

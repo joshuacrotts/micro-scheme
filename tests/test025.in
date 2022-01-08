@@ -1,3 +1,7 @@
+;
+; String-length procedures, and other math procedures.
+;
+
 (define name "Joshua")
 (define l1 (string-length name))
 (define l2 (string-length "Viola"))

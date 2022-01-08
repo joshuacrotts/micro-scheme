@@ -1,3 +1,7 @@
+;
+; Assigning recursive lambda to variable in let declaration.
+;
+
 (let ([F
         (lambda (self n)
             (if (= n 0)

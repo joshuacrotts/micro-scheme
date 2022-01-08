@@ -1,0 +1,7 @@
+;
+; Assigning a lambda to another variable. Requires defining y as a lambda decl.
+;
+
+(define square (lambda (x) (* x x)))
+(define y square)
+(y 10)

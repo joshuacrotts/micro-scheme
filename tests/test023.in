@@ -1,3 +1,7 @@
+;
+; Recursive function definition and null list.
+;
+
 (define x '())
 (define (proc l)
     (cond [(null? l) '()]

@@ -23,13 +23,13 @@ public class MSOpNode extends MSSyntaxTree {
      */
     private final int opGroup;
 
-    public MSOpNode(int opType, int opGroup, MSSyntaxTree... children) {
+    public MSOpNode(final int opType, final int opGroup, final MSSyntaxTree... children) {
         super(MSNodeType.OP, children);
         this.opType = opType;
         this.opGroup = opGroup;
     }
 
-    private MSOpNode(int opType, int opGroup) {
+    private MSOpNode(final int opType, final int opGroup) {
         super(MSNodeType.OP);
         this.opType = opType;
         this.opGroup = opGroup;

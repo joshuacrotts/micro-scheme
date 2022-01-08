@@ -1,3 +1,7 @@
+;
+; String-append test.
+;
+
 (define str1 "Hello")
 (define str2 "World")
 (string-append str1 " " str2)

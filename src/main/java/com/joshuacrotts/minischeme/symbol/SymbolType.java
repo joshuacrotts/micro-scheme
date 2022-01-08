@@ -14,7 +14,7 @@ public enum SymbolType {
      * @param nodeType
      * @return
      */
-    public static SymbolType getSymbolTypeFromNodeType(MSNodeType nodeType) {
+    public static SymbolType getSymbolTypeFromNodeType(final MSNodeType nodeType) {
         switch (nodeType) {
             case PROC_DECL:
                 return PROCEDURE;

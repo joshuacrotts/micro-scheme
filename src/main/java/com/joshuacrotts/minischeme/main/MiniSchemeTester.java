@@ -25,7 +25,7 @@ public class MiniSchemeTester {
      *
      * @param argv command line arguments
      */
-    public static void main(String[] argv) throws IOException {
+    public static void main(final String[] argv) throws IOException {
         if (argv.length > 2) {
             System.err.println("Can provide at most two command line arguments (an input filename and mode)");
             return;
@@ -35,8 +35,7 @@ public class MiniSchemeTester {
         if (argv.length == 1 && !argv[0].equals("-i")) {
             interpretParser(interpreter, parseFromFile(argv[0]));
         } else if (argv.length == 1) {
-            MSListener parser = parseStream(CharStreams.fromStream(System.in));
-            interpretParser(interpreter, parser);
+            interpretParser(interpreter, parseStream(CharStreams.fromStream(System.in)));
         } else {
             System.out.println("MiniScheme 0.0.1");
             System.out.println("Type \"help\" for more information on commands.");
@@ -90,7 +89,7 @@ public class MiniSchemeTester {
         return out.length() != 0 ? parseStream(CharStreams.fromString(out.toString())) : null;
     }
 
-    private static MSListener parseStream(CharStream input) {
+    private static MSListener parseStream(final CharStream input) {
         // "input" is the character-by-character input - connect to lexer
         MiniSchemeLexer lexer = new MiniSchemeLexer(input);
 
@@ -103,7 +102,7 @@ public class MiniSchemeTester {
 
         // Now do the parsing, and walk the parse tree with our listeners
         ParseTreeWalker walker = new ParseTreeWalker();
-        MSListener compiler = new MSListener(parser);
+        MSListener compiler = new MSListener();
         walker.walk(compiler, tree);
 
         return compiler;
@@ -113,7 +112,7 @@ public class MiniSchemeTester {
      *
      * @param parser
      */
-    private static void interpretParser(MiniSchemeInterpreter interpreter, MSListener parser) {
+    private static void interpretParser(final MiniSchemeInterpreter interpreter, final MSListener parser) {
         if (parser == null) { return; }
         MSSyntaxTree tree = parser.getSyntaxTree();
         if (tree == null) { System.exit(1); }

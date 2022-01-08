@@ -22,8 +22,8 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
      */
     private int numParams;
 
-    public MSProcedureDeclarationNode(MSSyntaxTree identifier, ArrayList<MSSyntaxTree> params,
-                                      MSSyntaxTree body) {
+    public MSProcedureDeclarationNode(final MSSyntaxTree identifier, final ArrayList<MSSyntaxTree> params,
+                                      final MSSyntaxTree body) {
         super(MSNodeType.PROC_DECL);
         this.numParams = params.size();
         this.addChild(identifier);

@@ -1,3 +1,7 @@
+;
+; Simple procedure and var definitions.
+;
+
 (define (proc x y) ((lambda (z) (* x (+ y z))) y))
 (define val (proc 5 10))
 val

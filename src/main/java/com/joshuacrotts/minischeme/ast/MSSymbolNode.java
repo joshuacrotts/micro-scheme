@@ -8,7 +8,7 @@ package com.joshuacrotts.minischeme.ast;
  */
 public class MSSymbolNode extends MSSyntaxTree {
 
-    public MSSymbolNode(MSSyntaxTree expr) {
+    public MSSymbolNode(final MSSyntaxTree expr) {
         super(MSNodeType.SYMBOL, expr);
     }
 

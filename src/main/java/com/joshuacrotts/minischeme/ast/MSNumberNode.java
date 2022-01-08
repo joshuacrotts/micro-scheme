@@ -18,11 +18,11 @@ public class MSNumberNode extends MSSyntaxTree {
      */
     private final double value;
 
-    public MSNumberNode(String value) {
+    public MSNumberNode(final String value) {
         this(Double.parseDouble(value));
     }
 
-    public MSNumberNode(double value) {
+    public MSNumberNode(final double value) {
         super(MSNodeType.NUM);
         this.value = value;
     }

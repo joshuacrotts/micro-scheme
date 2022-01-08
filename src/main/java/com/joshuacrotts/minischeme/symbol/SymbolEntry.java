@@ -10,7 +10,7 @@ public class SymbolEntry {
     /**
      *
      */
-    private final SymbolType symbolType;
+    private SymbolType symbolType;
 
     /**
      *
@@ -32,5 +32,9 @@ public class SymbolEntry {
 
     public void setSymbolData(MSSyntaxTree symbolData) {
         this.symbolData = symbolData;
+    }
+
+    public void setSymbolType(SymbolType symbolType) {
+        this.symbolType = symbolType;
     }
 }

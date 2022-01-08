@@ -3,77 +3,84 @@ package com.joshuacrotts.minischeme.main;
 import com.joshuacrotts.minischeme.ast.*;
 
 /**
+ * LValues are "return values" from a section of the interpreter. Each
+ * interpreter step returns an LValue object to designate what to do with
+ * some intermediate step. For example, interpreting an ID resolves it to
+ * some value in the symbol table which may be a string, bool, number, etc.
+ * This gets passed up the chain to other interpreter steps to be used as such.
  *
+ * @author Joshua Crotts
+ * @version 01/07/2021
  */
 public class LValue {
 
     /**
-     *
+     * Type associated with this LValue.
      */
     private final LValueType type;
 
     /**
-     *
+     * Number associated with this LValue if type == NUM.
      */
     private MSNumberNode dval;
 
     /**
-     *
+     * Boolean associated with this LValue if type == BOOL.
      */
     private MSBooleanNode bval;
 
     /**
-     *
+     * String associated with this LValue if type == STR.
      */
     private MSStringNode strval;
 
     /**
-     *
+     * AST node associated with this LValue for any other LValueType.
      */
     private MSSyntaxTree tval;
 
-    protected LValue(LValueType type) {
+    protected LValue(final LValueType type) {
         this.type = type;
     }
 
-    protected LValue(MSNumberNode dval) {
+    protected LValue(final MSNumberNode dval) {
         this(LValueType.NUM);
         this.dval = dval;
     }
 
-    protected LValue(MSBooleanNode bval) {
+    protected LValue(final MSBooleanNode bval) {
         this(LValueType.BOOL);
         this.bval = bval;
     }
 
-    protected LValue(MSStringNode strval) {
+    protected LValue(final MSStringNode strval) {
         this(LValueType.STR);
         this.strval = strval;
     }
 
-    protected LValue(MSSymbolNode symVal) {
+    protected LValue(final MSSymbolNode symVal) {
         this(LValueType.SYM);
         this.tval = symVal;
     }
 
-    protected LValue(MSVectorNode vecVal) {
+    protected LValue(final MSVectorNode vecVal) {
         this(LValueType.VECTOR);
         this.tval = vecVal;
     }
 
-    protected LValue(double dval) {
+    protected LValue(final double dval) {
         this(new MSNumberNode(dval));
     }
 
-    protected LValue(boolean bval) {
+    protected LValue(final boolean bval) {
         this(new MSBooleanNode(bval));
     }
 
-    protected LValue(String sval) {
+    protected LValue(final String sval) {
         this(new MSStringNode(sval));
     }
 
-    protected LValue(MSSyntaxTree tval) {
+    protected LValue(final MSSyntaxTree tval) {
         if (tval instanceof MSNumberNode) {
             this.type = LValueType.NUM;
             this.dval = ((MSNumberNode) tval);
@@ -106,7 +113,7 @@ public class LValue {
      * @param lval
      * @return
      */
-    protected static MSSyntaxTree getAstFromLValue(LValue lval) {
+    protected static MSSyntaxTree getAstFromLValue(final LValue lval) {
         switch (lval.getType()) {
             case NUM: return new MSNumberNode(lval.getDoubleValue());
             case BOOL: return new MSBooleanNode(lval.getBoolValue());
@@ -116,11 +123,9 @@ public class LValue {
             case PROCCALL:
             case LAMBDACALL:
             case PAIR: return lval.getTreeValue();
-            case NULL:
+            default:
                 return null;
         }
-        throw new IllegalArgumentException("Internal interpreter error " +
-                "- cannot get AST from LValue of type " + lval.getType());
     }
 
     @Override
@@ -130,18 +135,14 @@ public class LValue {
                 return ((int) this.dval.getValue() == this.dval.getValue())
                         ? Integer.toString((int) this.dval.getValue())
                         : Double.toString(this.dval.getValue());
-            case BOOL:
-                return this.bval.getValue() ? "#t" : "#f";
-            case STR:
-                return this.strval.getValue();
+            case BOOL: return this.bval.getValue() ? "#t" : "#f";
+            case STR: return this.strval.getValue();
             case SYM:
             case VECTOR:
             case PAIR:
                 return this.tval == null ? "()" : this.tval.getStringRep();
-            case PROCCALL:
-                return "#<procedure-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
-            case LAMBDACALL:
-                return "#<lambda-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case PROCCALL: return "#<procedure-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case LAMBDACALL: return "#<lambda-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
         }
         return "";
     }

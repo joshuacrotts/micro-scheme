@@ -1,3 +1,7 @@
+;
+; Map procedure test. Shows how to pass procedures as arguments.
+;
+
 (define (map proc l)
 	(cond [(null? l) '()]
 		  [else (cons (proc (car l)) (map proc (cdr l)))]

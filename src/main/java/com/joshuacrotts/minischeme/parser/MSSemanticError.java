@@ -2,7 +2,7 @@ package com.joshuacrotts.minischeme.parser;
 
 public class MSSemanticError extends Exception {
 
-    public MSSemanticError(String msg) {
+    public MSSemanticError(final String msg) {
         super(msg);
     }
 }

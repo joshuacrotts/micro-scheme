@@ -1,3 +1,7 @@
+;
+; Lambda definition.
+;
+
 (define reverse-subtract (lambda (x y)(- y x)))
 
 (reverse-subtract 7 10)

@@ -1,6 +1,11 @@
+;
+; Non-tail-recursive factorial with cond. Larger number.
+;
+
 (define (fac n)
     (cond   [(= n 0) 1]
             [else (* n (fac (- n 1)))]
     )
 )
-(fac 6)
+
+(fac 80)

@@ -19,11 +19,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class MSListener extends MiniSchemeBaseListener {
 
     /**
-     *
-     */
-    private final MiniSchemeParser parser;
-
-    /**
      * ParseTreeProperty map of parser rules being constructed overtime.
      */
     private final ParseTreeProperty<MSSyntaxTree> map;
@@ -33,8 +28,7 @@ public class MSListener extends MiniSchemeBaseListener {
      */
     private final MSSyntaxTree root;
 
-    public MSListener(MiniSchemeParser parser) {
-        this.parser = parser;
+    public MSListener() {
         this.root = new MSSyntaxTree();
         this.map = new ParseTreeProperty<>();
     }

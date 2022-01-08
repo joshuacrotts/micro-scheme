@@ -1,3 +1,7 @@
+;
+; Simple expressions being called in terms of each other.
+;
+
 (define (sq x) (* x x))
 (sq 5)                          ; 25
 (* (sq 9) 3)                    ; 243

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class MSVectorNode extends MSSyntaxTree {
 
-    public MSVectorNode(ArrayList<MSSyntaxTree> elements) {
+    public MSVectorNode(final ArrayList<MSSyntaxTree> elements) {
         super(MSNodeType.VECTOR);
         elements.forEach(this::addChild);
     }

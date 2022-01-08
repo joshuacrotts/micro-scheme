@@ -1,3 +1,7 @@
+;
+; Non-tail-recursive fibonacci procedure
+;
+
 (define (fib n)
     (cond [(or (= n 0) (= n 1) (= n 2)) 1]
           [else (+ (fib (- n 1)) (fib (- n 2)))]

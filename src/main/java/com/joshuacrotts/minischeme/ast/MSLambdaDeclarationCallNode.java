@@ -20,9 +20,9 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
      */
     private int numLambdaArgs;
 
-    public MSLambdaDeclarationCallNode(ArrayList<MSSyntaxTree> lambdaParams,
-                                       MSSyntaxTree lambdaBody,
-                                       ArrayList<MSSyntaxTree> lambdaArgs) {
+    public MSLambdaDeclarationCallNode(final ArrayList<MSSyntaxTree> lambdaParams,
+                                       final MSSyntaxTree lambdaBody,
+                                       final ArrayList<MSSyntaxTree> lambdaArgs) {
         super(MSNodeType.EXPR_LAMBDA_DECL_CALL);
         this.numLambdaParams = lambdaParams.size();
         this.numLambdaArgs = lambdaArgs.size();
@@ -31,8 +31,8 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
         lambdaArgs.forEach(this::addChild);
     }
 
-    public MSLambdaDeclarationCallNode(MSLambdaDeclarationNode declNode,
-                                       MSCallNode callNode) {
+    public MSLambdaDeclarationCallNode(final MSLambdaDeclarationNode declNode,
+                                       final MSCallNode callNode) {
         this(declNode.getLambdaParameters(), declNode.getBody(), callNode.getLambdaArguments());
     }
 

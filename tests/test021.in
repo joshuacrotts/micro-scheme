@@ -1,3 +1,7 @@
+;
+; equal? function test with strings and integers.
+;
+
 (define x 5)
 (define str1 "Hello")
 (equal? x 5)

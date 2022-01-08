@@ -1,3 +1,7 @@
+;
+; Simple variable definition tests.
+;
+
 (define pi 3.141592685)
 (define r 5)
 (define circumference (* 2 pi r))

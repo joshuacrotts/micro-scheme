@@ -27,7 +27,7 @@ public class MiniSchemeInterpreter {
      */
     private MSSyntaxTree interpreterTree;
 
-    public MiniSchemeInterpreter(MSSyntaxTree tree) {
+    public MiniSchemeInterpreter(final MSSyntaxTree tree) {
         this.interpreterTree = tree;
         this.symbolTable = new SymbolTable();
         this.symbolTable.addEnvironment();
@@ -42,8 +42,8 @@ public class MiniSchemeInterpreter {
      * @param body
      * @param args
      */
-    private void replaceParams(Callable procDef, MSSyntaxTree body,
-                               ArrayList<MSSyntaxTree> args) {
+    private void replaceParams(final Callable procDef, final MSSyntaxTree body,
+                               final ArrayList<MSSyntaxTree> args) {
         for (int i = 0; i < args.size(); i++) {
             this.replaceParamsHelper(procDef, body, args.get(i), i, args);
         }
@@ -55,8 +55,9 @@ public class MiniSchemeInterpreter {
      * @param arg
      * @param replaceIdx
      */
-    private void replaceParamsHelper(Callable definition, MSSyntaxTree body,
-                                     MSSyntaxTree arg, int replaceIdx, ArrayList<MSSyntaxTree> args) {
+    private void replaceParamsHelper(final Callable definition, final MSSyntaxTree body,
+                                     final MSSyntaxTree arg, final int replaceIdx,
+                                     final ArrayList<MSSyntaxTree> args) {
         // If the body is null then there's nothing to replace.
         if (body == null) { return; }
         for (int i = 0; i < body.getChildrenSize(); i++) {
@@ -103,20 +104,20 @@ public class MiniSchemeInterpreter {
         }
     }
 
-    public void setInterpreterTree(MSSyntaxTree tree) {
+    public void setInterpreterTree(final MSSyntaxTree tree) {
         this.interpreterTree = tree;
     }
 
     /**
      * Interprets a single tree node. This should be recursively defined.
      *
-     * @param tree - tree of some node type.
+     * @param tree of some node type.
      *
      * @return LValue dependent on the MSNodeType. If tree is null, the LValue
      *         returned is null. If there is no case for the tree MSNodeType,
      *         the returned LValue is a "blank" LValue.
      */
-    private LValue interpretTree(MSSyntaxTree tree) {
+    private LValue interpretTree(final MSSyntaxTree tree) {
         if (tree == null) { return new LValue(LValue.LValueType.NULL); }
         try {
             switch (tree.getNodeType()) {
@@ -152,11 +153,22 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * Interprets a variable declaration. A variable declaration is stored as a k/v pair
+     * in the symbol table, with the key being the string literal identifier, and the value
+     * being a VariableDeclaration. The exception to this rule is when we want to assign a
+     * variable to another term. For example,
      *
-     * @param varDecl
-     * @return
+     * (define x 5)
+     * (define y x)
+     *
+     * With this code, x is assigned 5, and we copy that assignment into y. So, there is a MSNumberNode
+     * associated with y. This is *not* the same object as x in memory, though.
+     *
+     * @param varDecl variable declaration AST node.
+     *
+     * @return blank LValue object.
      */
-    private LValue interpretVariableDeclaration(MSVariableDeclarationNode varDecl) {
+    private LValue interpretVariableDeclaration(final MSVariableDeclarationNode varDecl) {
         String identifier = varDecl.getIdentifier().getIdentifier();
         // If we run into an identifier, we can just copy that identifier's expression over
         // in the symbol table.
@@ -171,21 +183,26 @@ public class MiniSchemeInterpreter {
 
     /**
      *
-     * @param procDecl
-     * @return
+     * @param procDecl procedure declaration AST node.
+     *
+     * @return blank LValue object.
      */
-    private LValue interpretProcedureDeclaration(MSProcedureDeclarationNode procDecl) {
+    private LValue interpretProcedureDeclaration(final MSProcedureDeclarationNode procDecl) {
         String identifier = procDecl.getIdentifier().getIdentifier();
         this.symbolTable.addSymbol(identifier, SymbolType.PROCEDURE, procDecl);
         return new LValue();
     }
 
     /**
+     * Interprets a lambda declaration. A lambda declaration, in this case,
+     * is preceded by an identifier in a (define ...) or (let... ) call. These
+     * specific lambda declarations cannot be anonymous.
      *
-     * @param lambdaDecl
-     * @return
+     * @param lambdaDecl lambda declaration AST node.
+     *
+     * @return blank LValue object.
      */
-    private LValue interpretLambdaDeclaration(MSLambdaDeclarationNode lambdaDecl) {
+    private LValue interpretLambdaDeclaration(final MSLambdaDeclarationNode lambdaDecl) {
         String identifier = lambdaDecl.getIdentifier().getIdentifier();
         this.symbolTable.addSymbol(identifier, SymbolType.LAMBDA, lambdaDecl);
         return new LValue();
@@ -195,11 +212,11 @@ public class MiniSchemeInterpreter {
      * Interprets a "let". Casts and sends the let node type forward
      * to other interpreter methods.
      *
-     * @param letDecl - MSLetDeclarationNode ast.
+     * @param letDecl let declaration AST node.
      *
      * @return LValue of let evaluated.
      */
-    private LValue interpretLet(MSLetDeclarationNode letDecl) {
+    private LValue interpretLet(final MSLetDeclarationNode letDecl) {
         switch (letDecl.getLetType()) {
             case MiniSchemeParser.LET: return this.interpretLetDeclaration(letDecl);
             case MiniSchemeParser.LETSTAR: return this.interpretLetStarDeclaration(letDecl);
@@ -216,11 +233,11 @@ public class MiniSchemeInterpreter {
      * This form of "let" does not store the variables into the environment
      * until all have been evaluated (this differs from let*).
      *
-     * @param letDecl - MSLetDeclaration node.
+     * @param letDecl let declaration AST node.
      *
      * @return LValue of body of let.
      */
-    private LValue interpretLetDeclaration(MSLetDeclarationNode letDecl) {
+    private LValue interpretLetDeclaration(final MSLetDeclarationNode letDecl) {
         ArrayList<MSSyntaxTree> decls = letDecl.getDeclarations();
         Map<MSIdentifierNode, MSSyntaxTree> results = new HashMap<>();
 
@@ -246,12 +263,16 @@ public class MiniSchemeInterpreter {
         for (Map.Entry<MSIdentifierNode, MSSyntaxTree> entry : results.entrySet()) {
             MSIdentifierNode idNode = entry.getKey();
             MSSyntaxTree exprNode = entry.getValue();
-            // If we encounter a lambda declaration, we need to make it non-anonymous.
-            if (exprNode.isExprLambdaDecl()) {
-                exprNode = MSLambdaDeclarationNode.createNonAnonymous(idNode, (MSLambdaDeclarationNode) exprNode);
+            // If the expr is an identifier, we need to copy its value over.
+            if (exprNode.isId()) {
+                this.symbolTable.addSymbol(idNode.getIdentifier(), (MSIdentifierNode) exprNode);
+            } else {
+                // If we encounter a lambda declaration, we need to make it non-anonymous.
+                if (exprNode.isExprLambdaDecl()) {
+                    exprNode = MSLambdaDeclarationNode.createNonAnonymous(idNode, (MSLambdaDeclarationNode) exprNode);
+                }
+                this.symbolTable.addSymbol(idNode.getIdentifier(), SymbolType.getSymbolTypeFromNodeType(exprNode.getNodeType()), exprNode);
             }
-
-            this.symbolTable.addSymbol(idNode.getIdentifier(), SymbolType.getSymbolTypeFromNodeType(exprNode.getNodeType()), exprNode);
         }
 
         LValue letVal = this.interpretTree(letDecl.getBody());
@@ -264,11 +285,11 @@ public class MiniSchemeInterpreter {
      * relevant environment immediately upon seeing them. This means that any variables
      * declared prior to another in the let declarations is visible in that environment.
      *
-     * @param letStarDecl - MSLetDeclarationNode.
+     * @param letStarDecl let star declaration AST node.
      *
      * @return LValue of let body evaluation.
      */
-    private LValue interpretLetStarDeclaration(MSLetDeclarationNode letStarDecl) {
+    private LValue interpretLetStarDeclaration(final MSLetDeclarationNode letStarDecl) {
         ArrayList<MSSyntaxTree> varDecls = letStarDecl.getDeclarations();
 
         // Add a new environment before anything else.
@@ -289,13 +310,20 @@ public class MiniSchemeInterpreter {
                     resultExpr = LValue.getAstFromLValue(this.interpretTree(vd.getExpression()));
             }
 
-            assert resultExpr != null;
-            if (resultExpr.isExprLambdaDecl()) {
-                resultExpr = MSLambdaDeclarationNode.createNonAnonymous(vd.getIdentifier(), (MSLambdaDeclarationNode) resultExpr);
+            // Only copy over values if the resultExpr is non-null.
+            if (resultExpr != null) {
+                // If the expr is an identifier, we need to copy its value over.
+                if (resultExpr.isId()) {
+                    this.symbolTable.addSymbol(vd.getIdentifier().getIdentifier(), (MSIdentifierNode) vd.getExpression());
+                } else {
+                    // If we encounter a lambda declaration, we need to make it non-anonymous.
+                    if (resultExpr.isExprLambdaDecl()) {
+                        resultExpr = MSLambdaDeclarationNode.createNonAnonymous(vd.getIdentifier(), (MSLambdaDeclarationNode) resultExpr);
+                    }
+                    this.symbolTable.addSymbol(vd.getIdentifier().getIdentifier(),
+                            SymbolType.getSymbolTypeFromNodeType(vd.getExpression().getNodeType()), resultExpr);
+                }
             }
-
-            this.symbolTable.addSymbol(vd.getIdentifier().getIdentifier(),
-                    SymbolType.getSymbolTypeFromNodeType(vd.getExpression().getNodeType()), resultExpr);
         }
 
         // Evaluate the body of the let then pop the environment.
@@ -309,7 +337,7 @@ public class MiniSchemeInterpreter {
      * @param letRecDecl
      * @return
      */
-    private LValue interpretLetRecDeclaration(MSLetDeclarationNode letRecDecl) {
+    private LValue interpretLetRecDeclaration(final MSLetDeclarationNode letRecDecl) {
         throw new UnsupportedOperationException("Cannot support letrec yet!");
     }
 
@@ -318,7 +346,7 @@ public class MiniSchemeInterpreter {
      * @param declRead
      * @return
      */
-    private LValue interpretDeclarationRead(MSDeclarationReadNode declRead) {
+    private LValue interpretDeclarationRead(final MSDeclarationReadNode declRead) {
         String id = ((MSIdentifierNode) declRead.getIdentifier()).getIdentifier();
         this.symbolTable.setSymbol(id, this.interpretReadFn(declRead.getOpType()));
         return new LValue();
@@ -328,7 +356,7 @@ public class MiniSchemeInterpreter {
      *
      * @param setRead
      */
-    private LValue interpretSetRead(MSSetReadNode setRead) {
+    private LValue interpretSetRead(final MSSetReadNode setRead) {
         String id = ((MSIdentifierNode) setRead.getIdentifier()).getIdentifier();
         this.symbolTable.setSymbol(id, this.interpretReadFn(setRead.getOpType()));
         return new LValue();
@@ -341,7 +369,7 @@ public class MiniSchemeInterpreter {
      *
      * @return LValue with number node.
      */
-    private LValue interpretNumber(MSNumberNode numberNode) {
+    private LValue interpretNumber(final MSNumberNode numberNode) {
         return new LValue(numberNode);
     }
 
@@ -352,7 +380,7 @@ public class MiniSchemeInterpreter {
      *
      * @return LValue with boolean node.
      */
-    private LValue interpretBoolean(MSBooleanNode booleanNode) {
+    private LValue interpretBoolean(final MSBooleanNode booleanNode) {
         return new LValue(booleanNode);
     }
 
@@ -363,16 +391,19 @@ public class MiniSchemeInterpreter {
      *
      * @return LValue with string node.
      */
-    private LValue interpretString(MSStringNode stringNode) {
+    private LValue interpretString(final MSStringNode stringNode) {
         return new LValue(stringNode);
     }
 
     /**
+     * Interprets a symbol. A symbol is really just an encapsulated
+     * expression that should not be evaluated.
      *
-     * @param symbolNode
-     * @return
+     * @param symbolNode AST symbol node.
+     *
+     * @return LValue with symbol's expression.
      */
-    private LValue interpretSymbol(MSSymbolNode symbolNode) {
+    private LValue interpretSymbol(final MSSymbolNode symbolNode) {
         return new LValue(symbolNode.getExpression());
     }
 

@@ -27,12 +27,12 @@ public class MSSyntaxTree implements Copyable {
         this(MSNodeType.ROOT);
     }
 
-    public MSSyntaxTree(MSNodeType nodeType) {
+    public MSSyntaxTree(final MSNodeType nodeType) {
         this.children = new ArrayList<>();
         this.nodeType = nodeType;
     }
 
-    public MSSyntaxTree(MSNodeType nodeType, MSSyntaxTree... children) {
+    public MSSyntaxTree(final MSNodeType nodeType, final MSSyntaxTree... children) {
         this.children = new ArrayList<>();
         this.nodeType = nodeType;
         this.children.addAll(Arrays.asList(children));
@@ -57,7 +57,7 @@ public class MSSyntaxTree implements Copyable {
         System.out.println(this.printSyntaxTreeHelper(0));
     }
 
-    public void addChild(MSSyntaxTree tree) {
+    public void addChild(final MSSyntaxTree tree) {
         this.children.add(tree);
     }
 
@@ -69,11 +69,11 @@ public class MSSyntaxTree implements Copyable {
         return this.children;
     }
 
-    public MSSyntaxTree getChild(int idx) {
+    public MSSyntaxTree getChild(final int idx) {
         return this.children.get(idx);
     }
 
-    public void setChild(int idx, MSSyntaxTree tree) {
+    public void setChild(final int idx, final MSSyntaxTree tree) {
         this.children.set(idx, tree);
     }
 
@@ -162,7 +162,7 @@ public class MSSyntaxTree implements Copyable {
      * @return a string representation of this syntax tree node (and its descendants)
      * @author Steve Tate
      */
-    private StringBuilder printSyntaxTreeHelper(int indent) {
+    private StringBuilder printSyntaxTreeHelper(final int indent) {
         StringBuilder sb = new StringBuilder();
         sb.append(MSUtils.repeatString(Math.max(0, indent), " "));
         sb.append(this);

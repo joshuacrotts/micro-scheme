@@ -1,3 +1,7 @@
+;
+; Recursive "countdown" procedure using lists.
+;
+
 (define (countdown n)
     (if (= n 0) '()
         (cons n (countdown (- n 1)))

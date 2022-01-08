@@ -37,8 +37,7 @@ public class MSCondNode extends MSSyntaxTree {
      */
     private boolean hasElse;
 
-    public MSCondNode(ArrayList<MSSyntaxTree> condCond,
-                      ArrayList<MSSyntaxTree> condBody) {
+    public MSCondNode(final ArrayList<MSSyntaxTree> condCond, final ArrayList<MSSyntaxTree> condBody) {
         super(MSNodeType.COND);
         for (int i = 0; i < condCond.size(); i++) {
             this.addChild(condCond.get(i));
@@ -53,9 +52,8 @@ public class MSCondNode extends MSSyntaxTree {
         }
     }
 
-    private MSCondNode(ArrayList<MSSyntaxTree> condCond,
-                       ArrayList<MSSyntaxTree> condBody,
-                       boolean hasElse) {
+    private MSCondNode(final ArrayList<MSSyntaxTree> condCond, final ArrayList<MSSyntaxTree> condBody,
+                       final boolean hasElse) {
         this(condCond, condBody);
         this.hasElse = hasElse;
     }

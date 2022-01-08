@@ -11,7 +11,7 @@ package com.joshuacrotts.minischeme.ast;
  */
 public class MSPairNode extends MSSyntaxTree {
 
-    public MSPairNode(MSNodeType type, MSSyntaxTree car, MSSyntaxTree cdr) {
+    public MSPairNode(final MSNodeType type, final MSSyntaxTree car, final MSSyntaxTree cdr) {
         super(type, car, cdr);
     }
 
@@ -44,7 +44,7 @@ public class MSPairNode extends MSSyntaxTree {
         return this.getChildrenSize() < 1 ? null : this.getChild(0);
     }
 
-    public void setCar(MSSyntaxTree newCar) {
+    public void setCar(final MSSyntaxTree newCar) {
         this.setChild(0, newCar);
     }
 
@@ -52,7 +52,7 @@ public class MSPairNode extends MSSyntaxTree {
         return this.getChildrenSize() < 2 ? null : this.getChild(1);
     }
 
-    public void setCdr(MSSyntaxTree newCdr) {
+    public void setCdr(final MSSyntaxTree newCdr) {
         this.setChild(1, newCdr);
     }
 
@@ -117,7 +117,7 @@ public class MSPairNode extends MSSyntaxTree {
      * @param curr
      * @param sb
      */
-    private void getProperStringRep(MSSyntaxTree curr, StringBuilder sb) {
+    private void getProperStringRep(final MSSyntaxTree curr, final StringBuilder sb) {
         MSPairNode currPair = (MSPairNode) curr;
         if (currPair.isNull()) {
             // Trim the last space.

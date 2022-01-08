@@ -16,7 +16,7 @@ public class MSIdentifierNode extends MSSyntaxTree {
      */
     private final String id;
 
-    public MSIdentifierNode(String id) {
+    public MSIdentifierNode(final String id) {
         super(MSNodeType.ID);
         this.id = id;
     }

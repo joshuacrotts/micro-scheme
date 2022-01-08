@@ -1,0 +1,6 @@
+;
+; Assigning a variable a lambda procedure in a let body.
+;
+
+(define square (lambda (x) (* x x)))
+(let ((y square)) (y 10))

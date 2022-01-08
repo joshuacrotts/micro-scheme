@@ -1,0 +1,7 @@
+;
+; Simple lambda assignment to an identifier in a let.
+;
+
+(let ((f (lambda (b) (+ (sqrt 5) (sqrt b)))))
+    (f 10)
+)

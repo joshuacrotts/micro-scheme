@@ -1,3 +1,7 @@
+;
+; Defining a procedure as a lambda.
+;
+
 (define (reverse-subtract z)
     (lambda (x y)
         (- z y x)

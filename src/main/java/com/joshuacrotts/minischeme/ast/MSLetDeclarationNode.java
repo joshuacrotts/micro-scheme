@@ -21,9 +21,8 @@ public class MSLetDeclarationNode extends MSDeclaration {
      */
     private int letType;
 
-    public MSLetDeclarationNode(int letType,
-                                ArrayList<MSSyntaxTree> declarations,
-                                MSSyntaxTree letBody) {
+    public MSLetDeclarationNode(final int letType, final ArrayList<MSSyntaxTree> declarations,
+                                final MSSyntaxTree letBody) {
         super(MSNodeType.LET_DECL);
         this.letType = letType;
         this.numDeclarations = declarations.size();

@@ -1,1 +1,5 @@
+;
+; 3-arity lambda.
+;
+
 ((lambda (x y z) (* x y z 20 30 40)) 5 10 15)
