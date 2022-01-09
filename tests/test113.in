@@ -3,7 +3,7 @@
 ;
 
 (define (length-helper l acc) 
-    (if (null? l '())
+    (if (null? l)
         acc
         (length-helper (cdr l) (+ 1 acc))
     )
