@@ -24,6 +24,7 @@ public enum MSNodeType {
     EXPR_LAMBDA_DECL,
     VAR_DECL,
     LET_DECL,
+    LET_NAMED_DECL,
 
     // Expression calls.
     EXPR_LAMBDA_DECL_CALL,

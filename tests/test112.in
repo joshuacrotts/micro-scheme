@@ -1,0 +1,15 @@
+(define (binary-search value vec low high)
+    (if (< high low)
+        #f
+        (let ((middle (truncate (/ (+ low (- high low)) 2))))
+          (cond ((> (vector-ref vec middle) value)
+                 (binary-search value vec low (- middle 1)))
+                ((< (vector-ref vec middle) value)
+                 (binary-search value vec (+ middle 1) high))
+                (else middle)))))
+
+(define v1 (vector (1 3 4 5 6 7 8 9 10)))
+(define v2 (vector (1 3 4 5 6 7 8 9 10)))
+
+(binary-search 6 v1 0 (vector-length v1))
+(binary-search 2 v1 0 (vector-length v1))

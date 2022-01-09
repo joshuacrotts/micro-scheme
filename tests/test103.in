@@ -1,0 +1,5 @@
+(let* ([x (list "Burroughs")]
+         [y (cons "Rice" x)]
+         [z (cons "Edgar" y)])
+    (list x y z))
+        

@@ -2,6 +2,8 @@ package com.joshuacrotts.minischeme.ast;
 
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 
+import java.util.ArrayList;
+
 /**
  * A "set" operation refers to the act of changing a variable that is already
  * defined in the environment. We can change variables e.g., x, y, z, and the
@@ -17,14 +19,21 @@ public class MSSetNode extends MSSyntaxTree {
      */
     private final int opType;
 
-    public MSSetNode(final int opType, final MSSyntaxTree identifierNode, final MSSyntaxTree exprNode) {
-        super(MSNodeType.SET, identifierNode, exprNode);
+    public MSSetNode(final int opType, final MSSyntaxTree identifierNode, final ArrayList<MSSyntaxTree> setData) {
+        super(MSNodeType.SET, identifierNode);
         this.opType = opType;
+        setData.forEach(this::addChild);
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return null;
+        MSSyntaxTree idCopy = this.getChild(0).copy();
+        ArrayList<MSSyntaxTree> setDataCopy = new ArrayList<>();
+        for (int i = 0; i < this.getChildrenSize(); i++) {
+            setDataCopy.add(this.getChild(i + 1).copy());
+        }
+
+        return new MSSetNode(this.opType, idCopy, setDataCopy);
     }
 
     @Override
@@ -37,11 +46,6 @@ public class MSSetNode extends MSSyntaxTree {
         return this.getNodeType().toString();
     }
 
-    private String getSetOpTypeString(final int opType) {
-        String literalName = MiniSchemeParser.VOCABULARY.getLiteralName(opType);
-        return literalName.substring(1, literalName.length() - 1);
-    }
-
     public int getOpType() {
         return this.opType;
     }
@@ -50,7 +54,16 @@ public class MSSetNode extends MSSyntaxTree {
         return this.getChild(0);
     }
 
-    public MSSyntaxTree getExpression() {
-        return this.getChild(1);
+    public ArrayList<MSSyntaxTree> getData() {
+        ArrayList<MSSyntaxTree> setData = new ArrayList<>();
+        for (int i = 1; i < this.getChildrenSize(); i++) {
+            setData.add(this.getChild(i));
+        }
+        return setData;
+    }
+
+    private String getSetOpTypeString(final int opType) {
+        String literalName = MiniSchemeParser.VOCABULARY.getLiteralName(opType);
+        return literalName.substring(1, literalName.length() - 1);
     }
 }

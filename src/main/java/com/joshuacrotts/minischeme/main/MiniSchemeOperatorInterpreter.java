@@ -4,6 +4,7 @@ import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.MSNumberNode;
 import com.joshuacrotts.minischeme.ast.MSPairNode;
 import com.joshuacrotts.minischeme.ast.MSStringNode;
+import com.joshuacrotts.minischeme.ast.MSVectorNode;
 import com.joshuacrotts.minischeme.parser.MSSemanticError;
 
 public class MiniSchemeOperatorInterpreter {
@@ -46,6 +47,7 @@ public class MiniSchemeOperatorInterpreter {
                         && !((MSPairNode) lhs.getTreeValue()).isNull()
                         && lhs.isLPair());
             case MiniSchemeParser.STRLEN_FN: return new LValue(lhs.getStringValue().length());
+            case MiniSchemeParser.VECTORLEN_FN: return new LValue(((MSVectorNode) lhs.getTreeValue()).size());
             case MiniSchemeParser.NUMTOSTR_FN: return new LValue(new MSStringNode(lhs.toString()));
             case MiniSchemeParser.STRTONUM_FN: return new LValue(new MSNumberNode(Double.parseDouble(lhs.getStringValue())));
             case MiniSchemeParser.TODEG_FN: return new LValue(new MSNumberNode(Math.toDegrees(lhs.getDoubleValue())));
@@ -76,6 +78,7 @@ public class MiniSchemeOperatorInterpreter {
             case MiniSchemeParser.STRGE_FN: return new LValue(lhs.getStringValue().compareTo(rhs.getStringValue()) >= 0);
             case MiniSchemeParser.RANDINT_FN: return new LValue(MSUtils.randomInt((int) lhs.getDoubleValue(), (int) rhs.getDoubleValue()));
             case MiniSchemeParser.RANDDOUBLE_FN: return new LValue(MSUtils.randomDouble(lhs.getDoubleValue(), rhs.getDoubleValue()));
+            case MiniSchemeParser.VECTOR_REF_FN: return new LValue(lhs.getTreeValue().getChild((int) rhs.getDoubleValue()));
             default:
                 throw new MSSemanticError("invalid binary operator type " + opType);
         }
@@ -138,6 +141,7 @@ public class MiniSchemeOperatorInterpreter {
                 case NUM: return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
                 case BOOL: return new LValue(lhs.getBoolValue() == rhs.getBoolValue());
                 case STR: return new LValue(lhs.getStringValue().equals(rhs.getStringValue()));
+                case VECTOR:
                 case PAIR: return new LValue(lhs.toString().equals(rhs.toString()));
                 case NULL: return new LValue(true);
                 default:

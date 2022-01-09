@@ -4,9 +4,7 @@ import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -162,7 +160,11 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprSet(MiniSchemeParser.ExprSetContext ctx) {
         int setOpType = ((TerminalNode) ctx.setop().getChild(0)).getSymbol().getType();
-        this.map.put(ctx, new MSSetNode(setOpType, this.map.get(ctx.term()), this.map.get(ctx.expr())));
+        ArrayList<MSSyntaxTree> setData = new ArrayList<>();
+        for (ParseTree pt : ctx.expr()) {
+            setData.add(this.map.get(pt));
+        }
+        this.map.put(ctx, new MSSetNode(setOpType, this.map.get(ctx.term()), setData));
     }
 
     @Override
@@ -195,7 +197,21 @@ public class MSListener extends MiniSchemeBaseListener {
     public void exitExprLetDecl(MiniSchemeParser.ExprLetDeclContext ctx) {
         super.exitExprLetDecl(ctx);
         // Child 1 is which type of let we're using.
-        int letType = ((TerminalNode) ctx.getChild(1)).getSymbol().getType();
+        MSLetDeclarationNode.LetType letType = null;
+
+        // Extrapolate the let type.
+        if (ctx.exprLetNamed() == null) {
+            int intLetType = ((TerminalNode) ctx.getChild(1)).getSymbol().getType();
+            switch (intLetType) {
+                case MiniSchemeParser.LET: letType = MSLetDeclarationNode.LetType.LET; break;
+                case MiniSchemeParser.LETSTAR: letType = MSLetDeclarationNode.LetType.LET_STAR; break;
+                case MiniSchemeParser.LETREC: letType = MSLetDeclarationNode.LetType.LET_REC; break;
+                default: throw new IllegalArgumentException("Parser error");
+            }
+        } else {
+            letType = MSLetDeclarationNode.LetType.LET_NAMED;
+        }
+
         ArrayList<MSSyntaxTree> declarations = new ArrayList<>();
         if (ctx.letDecl() != null) {
             // We can't use an enhanced for loop since we're traversing over two distinct rules.
@@ -205,7 +221,14 @@ public class MSListener extends MiniSchemeBaseListener {
                 declarations.add(new MSVariableDeclarationNode(term, expr));
             }
         }
-        this.map.put(ctx, new MSLetDeclarationNode(letType, declarations, this.map.get(ctx.expr())));
+
+        // If they have a name, extract it here and create the node.
+        if (ctx.exprLetNamed() != null) {
+            MSIdentifierNode idNode = new MSIdentifierNode(ctx.exprLetNamed().ID().getText());
+            this.map.put(ctx, new MSLetDeclarationNode(letType, idNode, declarations, this.map.get(ctx.expr())));
+        } else {
+            this.map.put(ctx, new MSLetDeclarationNode(letType, declarations, this.map.get(ctx.expr())));
+        }
     }
 
     @Override
@@ -268,7 +291,7 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprOp(MiniSchemeParser.ExprOpContext ctx) {
         super.exitExprOp(ctx);
-        int[] opType = getTokenFromSymbol(ctx);
+        int[] opType = this.getTokenFromSymbol(ctx);
         MSSyntaxTree expr = new MSOpNode(opType[0], opType[1]);
         for (int i = 0; i < ctx.expr().size(); i++) {
             expr.addChild(this.map.get(ctx.expr(i)));
@@ -288,20 +311,11 @@ public class MSListener extends MiniSchemeBaseListener {
         MSSyntaxTree term = null;
         int tokType = ((TerminalNode) ctx.getChild(0)).getSymbol().getType();
         switch (tokType) {
-            case MiniSchemeParser.NUMBERLIT:
-                term = new MSNumberNode(ctx.getText());
-                break;
-            case MiniSchemeParser.BOOLLIT:
-                term = new MSBooleanNode(ctx.getText());
-                break;
-            case MiniSchemeParser.STRINGLIT:
-                term = new MSStringNode(ctx.getText());
-                break;
-            case MiniSchemeParser.ID:
-                term = new MSIdentifierNode(ctx.getText());
-                break;
-            default:
-                throw new UnsupportedOperationException("Cannot support this token yet");
+            case MiniSchemeParser.NUMBERLIT: term = new MSNumberNode(ctx.getText()); break;
+            case MiniSchemeParser.BOOLLIT: term = new MSBooleanNode(ctx.getText()); break;
+            case MiniSchemeParser.STRINGLIT: term = new MSStringNode(ctx.getText()); break;
+            case MiniSchemeParser.ID: term = new MSIdentifierNode(ctx.getText()); break;
+            default: throw new UnsupportedOperationException("Cannot support this token yet");
         }
 
         this.map.put(ctx, term);
@@ -312,7 +326,8 @@ public class MSListener extends MiniSchemeBaseListener {
      * in the ExprOpContext parser rule.
      *
      * @param ctx
-     * @return
+     * @return int[] array. arr[0] represents token type from parser. arr[1]
+     *                      represents the rule index.
      */
     private int[] getTokenFromSymbol(MiniSchemeParser.ExprOpContext ctx) {
         int[] opTypePair = new int[2];

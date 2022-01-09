@@ -1,0 +1,8 @@
+;
+; Vector set element test.
+;
+
+(define v1 (vector (1 2 3 4 5 6 7 8 9 10)))
+v1
+(vector-set! v1 3 100)
+v1

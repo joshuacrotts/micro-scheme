@@ -95,6 +95,7 @@ CONS: 'cons';
 // Vector procedures.
 CREATE_VECTOR_FN: 'vector';
 VECTOR_REF_FN: 'vector-ref';
+VECTORLEN_FN: 'vector-length';
 
 // Miscellaneous procedures.
 DISPLAY: 'display';
@@ -141,6 +142,7 @@ NUMTOSTR_FN: 'number->string';
 SETCAR_FN: 'set-car!';
 SETCDR_FN: 'set-cdr!';
 SETVAR_FN: 'set!';
+SETVEC_FN: 'vector-set!';
 
 ID: [a-zA-Z_=][<>a-zA-Z0-9_=-]*[=?!]?;
 
@@ -187,7 +189,7 @@ exprCons: '(' CONS expr expr ')';
 
 
 // Set! a variable to an expr.
-exprSet: '(' setop term expr ')';
+exprSet: '(' setop term expr+ ')';
 
 
 // Set! a variable to some value read in from the user.
@@ -200,7 +202,7 @@ exprOp: ('(' (unaryop | binaryop | ternaryop | naryop) expr* ')')
 
 
 // Creation of a vector.
-exprVector: ((HASH | CREATE_VECTOR_FN) '(' expr* ')');
+exprVector: '(' CREATE_VECTOR_FN '(' expr* ')'')';
 
 
 // Creation of a list.
@@ -230,12 +232,11 @@ exprCond: ('(' COND ('[' condCond condBody ']')+ ('[' ELSE condBody ']')? ')')
 
 
 // Let declaration.
-exprLetDecl: '(' (LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
-
+exprLetDecl: '(' (exprLetNamed | LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
+exprLetNamed: LET ID;
 
 // Symbol declaration.
 exprSymbol: (QUOTE exprSymbolComponent) ;
-
 exprSymbolComponent: ('(' exprSymbolComponent* ')') | term | op | exprCall | exprSymbol;
 
 
@@ -269,7 +270,8 @@ unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
         | FLOOR | CEILING | TRUNCATE | DISPLAY | NUMBER_FN | STRING_FN
         | BOOL_FN | LIST_FN | NULL_FN | SYMBOL_FN | VECTOR_FN
         | CAR | CDR | STRLEN_FN | PAIR_FN | STRTONUM_FN | NUMTOSTR_FN
-        | TODEG_FN | TORAD_FN | LOGICAL_NOT | TRUE_FN | FALSE_FN;
+        | TODEG_FN | TORAD_FN | LOGICAL_NOT | TRUE_FN | FALSE_FN
+        | VECTORLEN_FN;
 
 
 // All binary operators.
@@ -283,7 +285,7 @@ binaryop: LOGICAL_GT | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
 ternaryop: STRSUBSTR;
 
 
-// All n-ary operators. An n-ary operator is an operator that takes at least two parameters. The
+// All n-ary operators. An n-ary operator is an operator that takes either 0 or >= 2 arguments. The
 // semantic analyzer should check to make sure the argument count is correct for binary operators.
 naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
       | STRAPPEND_FN | RAND_FN | EQ_FN | EQUAL_FN | LOGICAL_AND
@@ -291,7 +293,7 @@ naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
 
 
 // "Set" operations - allows redefining of variables.
-setop: SETCAR_FN | SETCDR_FN | SETVAR_FN;
+setop: SETCAR_FN | SETCDR_FN | SETVAR_FN | SETVEC_FN;
 
 
 // "Read" operations.

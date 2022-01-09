@@ -96,6 +96,8 @@ public class InterpreterTester {
         assertNull(result, result);
     }
 
+
+
     /**
      * The testing engine for a valid LittleC program (which should parse and
      * produce a LCSyntaxTree). Both the input LittleC program and the expected
@@ -647,6 +649,61 @@ public class InterpreterTester {
     @Test
     public void doGoodTest101() {
         goodFileTest("test101");
+    }
+
+    @Test
+    public void doGoodTest102() {
+        goodFileTest("test102");
+    }
+
+    @Test
+    public void doGoodTest103() {
+        goodFileTest("test103");
+    }
+
+    @Test
+    public void doGoodTest104() {
+        goodFileTest("test104");
+    }
+
+    @Test
+    public void doGoodTest105() {
+        goodFileTest("test105");
+    }
+
+    @Test
+    public void doGoodTest106() {
+        goodFileTest("test106");
+    }
+
+    @Test
+    public void doGoodTest107() {
+        goodFileTest("test107");
+    }
+
+    @Test
+    public void doGoodTest108() {
+        goodFileTest("test108");
+    }
+
+    @Test
+    public void doGoodTest109() {
+        goodFileTest("test109");
+    }
+
+    @Test
+    public void doGoodTest110() {
+        goodFileTest("test110");
+    }
+
+    @Test
+    public void doGoodTest111() {
+        goodFileTest("test111");
+    }
+
+    @Test
+    public void doGoodTest112() {
+        goodFileTest("test112");
     }
 
 }

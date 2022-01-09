@@ -47,4 +47,6 @@ public class MSNumberNode extends MSSyntaxTree {
     public double getValue() {
         return this.value;
     }
+
+    public boolean isInteger() { return this.value == (int) this.value; }
 }
