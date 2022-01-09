@@ -1,0 +1,42 @@
+;
+; Binary-to-decimal conversion. Uses tail recursion. 
+;
+
+(define (length-helper l acc) 
+    (if (null? l '())
+        acc
+        (length-helper (cdr l) (+ 1 acc))
+    )
+)
+
+(define (length l)
+    (length-helper l 0)
+)
+
+(define (convert-binary-helper l acc val)
+    (cond [(null? l) val]
+          [(equal? (car l) 1) (convert-binary-helper (cdr l) (- acc 1) (+ val (** 2 (- acc 1))))]
+          [else (convert-binary-helper (cdr l) (- acc 1) val)]
+    )
+)
+
+(define (convert-binary val)
+    (convert-binary-helper val (length val) 0)
+)
+
+(define four '(1 0 0))
+(define sixty-four '(1 0 0 0 0 0 0))
+(define thirty-seven '(1 0 0 1 0 1))
+(define sixty-three '(1 1 1 1 1 1))
+(define seventeen '(1 0 0 0 1))
+(define twenty-five '(1 1 0 0 1))
+(define large-number '(1 1 1 1 0 1 1 1 1 0 1 1 1 1 0 1 1 1 1 0 1 1 0 1 1 1 1 0 1 0 0 1 1))
+(define even-larger-number '(1 1 1 0 1 1 0 0 0 1 0 0 0 0 1 1 1 1 0 1 1 1 0 1 0 1 1 1 1 0 0 0 1 1 1 1 0 1 1 1 1 0 1 1 0 1 1 1 1 0 0 0 0 1 1 0 0 1 1 0 1 1 0 0 1 1 1 1 0 1 1))
+(convert-binary four)
+(convert-binary sixty-four)
+(convert-binary thirty-seven)
+(convert-binary sixty-three)
+(convert-binary seventeen)
+(convert-binary twenty-five)
+(convert-binary large-number)
+(convert-binary even-larger-number)

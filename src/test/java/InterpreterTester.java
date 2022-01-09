@@ -706,4 +706,9 @@ public class InterpreterTester {
         goodFileTest("test112");
     }
 
+    @Test
+    public void doGoodTest113() {
+        goodFileTest("test113");
+    }
+
 }
