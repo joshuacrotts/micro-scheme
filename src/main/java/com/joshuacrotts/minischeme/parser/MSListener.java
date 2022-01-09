@@ -289,6 +289,26 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitExprDo(MiniSchemeParser.ExprDoContext ctx) {
+        // Child 1 is which type of let we're using.
+        ArrayList<MSSyntaxTree> declarations = new ArrayList<>();
+        ArrayList<MSSyntaxTree> stepDeclarations = new ArrayList<>();
+        if (ctx.doDecl() != null) {
+            // We can't use an enhanced for loop since we're traversing over two distinct rules.
+            for (int i = 0; i < ctx.doDecl().term().size(); i++) {
+                MSSyntaxTree term = this.map.get(ctx.doDecl().term(i));
+                MSSyntaxTree exprVal = this.map.get(ctx.doDecl().expr(0));
+                MSSyntaxTree stepVal = this.map.get(ctx.doDecl().expr(1));
+                declarations.add(new MSVariableDeclarationNode(term, exprVal));
+                stepDeclarations.add(stepVal);
+            }
+        }
+
+        this.map.put(ctx, new MSDoNode(declarations, stepDeclarations,
+                this.map.get(ctx.doTest().expr()), this.map.get(ctx.expr())));
+    }
+
+    @Override
     public void exitExprOp(MiniSchemeParser.ExprOpContext ctx) {
         super.exitExprOp(ctx);
         int[] opType = this.getTokenFromSymbol(ctx);

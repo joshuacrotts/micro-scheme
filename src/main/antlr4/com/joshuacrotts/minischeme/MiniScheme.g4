@@ -66,6 +66,7 @@ DEFINE: 'define';
 IF:  'if';
 COND: 'cond';
 ELSE: 'else';
+DO: 'do';
 LET: 'let';
 LETSTAR: 'let*';
 LETREC: 'letrec';
@@ -139,9 +140,9 @@ STRTONUM_FN: 'string->number';
 NUMTOSTR_FN: 'number->string';
 
 // Set (setting variable) procedures.
+SETVAR_FN: 'set!';
 SETCAR_FN: 'set-car!';
 SETCDR_FN: 'set-cdr!';
-SETVAR_FN: 'set!';
 SETVEC_FN: 'vector-set!';
 
 ID: [a-zA-Z_=][<>a-zA-Z0-9_=-]*[=?!]?;
@@ -178,6 +179,7 @@ expr: exprCons
     | exprLambdaDeclCall
     | exprIf
     | exprCond
+    | exprDo
     | exprLetDecl
     | exprSymbol
     | exprTerm;
@@ -231,6 +233,10 @@ exprCond: ('(' COND ('[' condCond condBody ']')+ ('[' ELSE condBody ']')? ')')
         | ('(' COND ('(' condCond condBody ')')+ ('(' ELSE condBody ')')? ')');
 
 
+// Do expression.
+exprDo: '(' DO '(' doDecl? ')' '(' doTest ')' expr ')';
+
+
 // Let declaration.
 exprLetDecl: '(' (exprLetNamed | LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
 exprLetNamed: LET ID;
@@ -245,15 +251,18 @@ exprTerm: term;
 
 
 // Components of expressons.
-procParams: expr+;
-procBody: expr;
-args: expr+;
-lambdaParams: expr+;
-lambdaBody: expr;
-lambdaArgs: expr+;
-letDecl: ('[' term expr ']')*
-       | ('(' term expr ')')* ;
-
+procParams      : expr+;
+procBody        : expr;
+args            : expr+;
+lambdaParams    : expr+;
+lambdaBody      : expr;
+lambdaArgs      : expr+;
+letDecl         : ('[' term expr ']')*
+                | ('(' term expr ')')*;
+doDecl          : ( '[' term expr '[' expr ']' ']' )*
+                | ( '(' term expr '(' expr ')' ')' )*;
+doTest          : ('[' expr ']')
+                | ('(' expr ')');
 
 // Separates the "expressions" for a cond or if expression to make it clearer in the parser.
 condCond: expr;

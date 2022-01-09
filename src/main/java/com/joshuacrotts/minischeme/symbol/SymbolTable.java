@@ -58,7 +58,7 @@ public class SymbolTable {
      */
     public void setSymbol(String id, MSSyntaxTree data) {
         SymbolEntry entry = this.getSymbolEntry(id);
-        if (entry == null) {
+        if (entry == null || data == null) {
             throw new IllegalArgumentException("Internal interpreter error - cannot set " + id);
         }
         entry.setSymbolType(SymbolType.getSymbolTypeFromNodeType(data.getNodeType()));

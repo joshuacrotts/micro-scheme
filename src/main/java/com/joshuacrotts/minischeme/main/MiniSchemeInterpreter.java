@@ -141,6 +141,7 @@ public class MiniSchemeInterpreter {
                 case VECTOR: return this.interpretVector((MSVectorNode) tree);
                 case IF: return this.interpretIf((MSIfNode) tree);
                 case COND: return this.interpretCond((MSCondNode) tree);
+                case DO: return this.interpretDo((MSDoNode) tree);
                 case CALL: return this.interpretCall((MSCallNode) tree);
                 case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall((MSLambdaDeclarationCallNode) tree);
                 default: break;
@@ -626,6 +627,70 @@ public class MiniSchemeInterpreter {
 
         bodyIdx = execLastBlock ? bodyIdx - 1 : bodyIdx;
         return this.interpretTree(condNode.getChild(bodyIdx));
+    }
+
+    /**
+     *
+     * @param doNode
+     * @return
+     */
+    private LValue interpretDo(final MSDoNode doNode) throws MSSemanticError {
+        ArrayList<MSSyntaxTree> decls = doNode.getDeclarations();
+        Map<MSIdentifierNode, MSSyntaxTree> results = new HashMap<>();
+
+        // Iterate over the declarations and evaluate their expressions.
+        // If we find a variable in the let decl that's not global, it's an error.
+        for (MSSyntaxTree t : decls) {
+            MSVariableDeclarationNode vd = (MSVariableDeclarationNode) t;
+            switch (vd.getExpression().getNodeType()) {
+                case EXPR_LAMBDA_DECL:
+                case PROC_DECL:
+                case LET_DECL:
+                    results.put(vd.getIdentifier(), vd.getExpression());
+                    break;
+                default:
+                    results.put(vd.getIdentifier(), LValue.getAstFromLValue(this.interpretTree(vd.getExpression())));
+            }
+        }
+
+        // Now push a new environment.
+        this.symbolTable.addEnvironment();
+
+        // Add all K/V results to the current table/environment.
+        for (Map.Entry<MSIdentifierNode, MSSyntaxTree> entry : results.entrySet()) {
+            MSIdentifierNode idNode = entry.getKey();
+            MSSyntaxTree exprNode = entry.getValue();
+            // If the expr is an identifier, we need to copy its value over.
+           // if (exprNode.isId()) {
+               // this.symbolTable.addSymbol(idNode.getIdentifier(), (MSIdentifierNode) exprNode);
+            //}
+//            else {
+//                // If we encounter a lambda declaration, we need to make it non-anonymous.
+//                if (exprNode.isExprLambdaDecl()) {
+//                    exprNode = MSLambdaDeclarationNode.createNonAnonymous(idNode, (MSLambdaDeclarationNode) exprNode);
+//                }
+                this.symbolTable.addSymbol(idNode.getIdentifier(), SymbolType.getSymbolTypeFromNodeType(exprNode.getNodeType()), exprNode);
+//            }
+        }
+
+        LValue doBody = new LValue();
+        LValue doTestVal;
+        do {
+            doTestVal = this.interpretTree(doNode.getTest());
+            if (doTestVal.getBoolValue()) {
+                break;
+            }
+            doBody = this.interpretTree(doNode.getBody());
+            for (MSSyntaxTree stepNode : doNode.getStepDeclarations()) {
+                LValue lhs = this.interpretTree(stepNode);
+                ArrayList<MSSyntaxTree> stepData = new ArrayList<>();
+                stepData.add(LValue.getAstFromLValue(lhs));
+                this.interpretSetVariableFn(new MSSetNode(MiniSchemeParser.SETVAR_FN, stepNode.getChild(0), stepData));
+            }
+        } while (true);
+
+        this.symbolTable.popEnvironment();
+        return doBody;
     }
 
     /**
