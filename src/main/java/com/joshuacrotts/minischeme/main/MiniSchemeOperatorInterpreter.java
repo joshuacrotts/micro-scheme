@@ -35,7 +35,7 @@ public class MiniSchemeOperatorInterpreter {
             case MiniSchemeParser.LOGICAL_NOT: return new LValue(!lhs.getBoolValue());
             case MiniSchemeParser.CAR: return new LValue(((MSPairNode) lhs.getTreeValue()).getCar());
             case MiniSchemeParser.CDR: return new LValue(((MSPairNode) lhs.getTreeValue()).getCdr());
-            case MiniSchemeParser.NULL_FN: return new LValue(lhs.getTreeValue() == null || ((MSPairNode) lhs.getTreeValue()).isNull());
+            case MiniSchemeParser.NULL_FN: return new LValue(lhs.isLPair() && ((lhs.getTreeValue() == null) || ((MSPairNode) lhs.getTreeValue()).isNull()));
             case MiniSchemeParser.NUMBER_FN: return new LValue(lhs.getType() == LValue.LValueType.NUM);
             case MiniSchemeParser.BOOL_FN: return new LValue(lhs.getType() == LValue.LValueType.BOOL);
             case MiniSchemeParser.STRING_FN: return new LValue(lhs.getType() == LValue.LValueType.STR);

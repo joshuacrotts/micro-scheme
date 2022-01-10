@@ -1,0 +1,14 @@
+;
+; Tests with null?. This caused much strife with test 116...
+;
+
+(define foo '())
+(null? '())
+(null? 5)
+(null? #t)
+(null? #f)
+(null? '(()))
+(null? (+ 5 6))
+(null? '(x))
+(null? foo)
+(null? (cons foo foo))

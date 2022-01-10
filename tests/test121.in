@@ -1,0 +1,45 @@
+;
+; Merge sort example with small list.
+;
+
+; Split: input is a list of objects, output is a list of two lists of
+;   approximately equal size such that the set of all objects in both
+;   lists is the same as the set of objects in the input list.
+
+(define split
+  (lambda (l)
+    (if (null? l)
+        (list '() '())
+        (if (null? (cdr l))
+            (list l '())
+            (let ((rest (split (cdr (cdr l)))))
+              (list (cons (car l) (car rest))
+                    (cons (car (cdr l)) (car (cdr rest)))))))))
+
+; Merge: input is two lists of numbers in increasing order, output is
+;   a list of numbers in increasing order consisting of exactly those
+;   numbers in the input list.
+
+(define merge
+  (lambda (l1 l2)
+    (if (null? l1)
+        l2
+        (if (null? l2)
+            l1
+            (if (< (car l1) (car l2))
+                (cons (car l1) (merge (cdr l1) l2))
+                (cons (car l2) (merge (cdr l2) l1)))))))
+
+; Merge-sort: input is a list of numbers, output is that list sorted
+
+(define merge-sort
+  (lambda (l)
+    (if (null? l)
+        '()
+        (if (null? (cdr l))
+            l
+            (let ((s (split l)))
+              (let ((a (car s)) (b (car (cdr s))))
+                (merge (merge-sort a) (merge-sort b))))))))
+
+(merge-sort '(8 9 12 3 4 1 -1 34 123 88 35 45 34 0 11))

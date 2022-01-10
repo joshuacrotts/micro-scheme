@@ -1,0 +1,20 @@
+;
+; Simple "merge" procedure.
+;
+
+(define (merge l r)
+    (cond 
+        ((null? l) r)
+        ((null? r) l)
+        (else 
+            (let ((a (car l)) (b (car r)))
+                (if (< a b)
+                    (cons a (merge (cdr l) r))
+                    (cons b (merge (cdr r) l))
+                )
+            )
+        )
+    )
+)
+
+(merge '(1 7 11 24) '(3 4 5 12))
