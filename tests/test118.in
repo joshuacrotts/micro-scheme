@@ -8,11 +8,11 @@
 (define gcd (lambda (a b)
     (if (zero? b)
         a
-        (gcd b (% a b)))))
+        (gcd b (modulo a b)))))
 (define lcm (lambda (a b)
     (if (or (zero? a) (zero? b))
         0
-        (abs (* b (floor (/ a (gcd a b))))))))
+        (abs (* b (truncate (/ a (gcd a b))))))))
 
 (lcm 12 18)
 (lcm 330 75)

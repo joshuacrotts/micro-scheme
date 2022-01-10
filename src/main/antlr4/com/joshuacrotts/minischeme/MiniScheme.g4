@@ -35,7 +35,7 @@ SLASH: '/';
 AMPERSAND: '&';
 PIPE: '|';
 CARAT: '^';
-MODULO: '%';
+PERCENT: '%';
 EXPONENTIATION: '**';
 QUOTE: '\'';
 HASH: '#';
@@ -79,11 +79,16 @@ TAN: 'tan';
 ASIN: 'asin';
 ACOS: 'acos';
 ATAN: 'atan';
+SINH: 'sinh';
+COSH: 'cosh';
+TANH: 'tanh';
 SQRT: 'sqrt';
 ROUND: 'round';
 FLOOR: 'floor';
 CEILING: 'ceiling';
 TRUNCATE: 'truncate';
+REMAINDER: 'remainder';
+MODULO: 'modulo';
 TODEG_FN: 'radians->degrees';
 TORAD_FN: 'degrees->radians';
 
@@ -285,14 +290,15 @@ unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
         | BOOL_FN | LIST_FN | NULL_FN | SYMBOL_FN | VECTOR_FN
         | CAR | CDR | STRLEN_FN | PAIR_FN | STRTONUM_FN | NUMTOSTR_FN
         | TODEG_FN | TORAD_FN | LOGICAL_NOT | TRUE_FN | FALSE_FN
-        | VECTORLEN_FN;
+        | VECTORLEN_FN | SINH | COSH | TANH;
 
 
 // All binary operators.
 binaryop: LOGICAL_GT | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
         | LOGICAL_EQ | LOGICAL_NE | STREQ_FN | STRLT_FN
         | STRLE_FN | STRGT_FN | STRGE_FN | MEMBER_FN
-        | RANDINT_FN | RANDDOUBLE_FN | VECTOR_REF_FN;
+        | RANDINT_FN | RANDDOUBLE_FN | VECTOR_REF_FN
+        | MODULO | REMAINDER;
 
 
 // All ternary operators.
@@ -301,9 +307,8 @@ ternaryop: STRSUBSTR;
 
 // All n-ary operators. An n-ary operator is an operator that takes either 0 or >= 2 arguments. The
 // semantic analyzer should check to make sure the argument count is correct for binary operators.
-naryop: PLUS | MINUS | STAR | SLASH | MODULO | EXPONENTIATION
-      | STRAPPEND_FN | RAND_FN | EQ_FN | EQUAL_FN | LOGICAL_AND
-      | LOGICAL_OR;
+naryop: PLUS | MINUS | STAR | SLASH | EXPONENTIATION | STRAPPEND_FN
+      | RAND_FN | EQ_FN | EQUAL_FN | LOGICAL_AND | LOGICAL_OR;
 
 
 // "Set" operations - allows redefining of variables.
