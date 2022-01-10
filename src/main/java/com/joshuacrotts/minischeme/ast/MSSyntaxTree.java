@@ -131,6 +131,10 @@ public class MSSyntaxTree implements Copyable {
         return this.nodeType == MSNodeType.LET_DECL;
     }
 
+    public boolean isTerminalType() {
+        return this.isNumber() || this.isSymbol() || this.isString() || this.isSymbolLit() || this.isBool();
+    }
+
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
         for (MSSyntaxTree child : this.getChildren()) {

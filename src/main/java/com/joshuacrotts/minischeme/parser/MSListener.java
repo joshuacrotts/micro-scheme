@@ -289,6 +289,46 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitExprDo(MiniSchemeParser.ExprDoContext ctx) {
+        super.exitExprDo(ctx);
+        // First grab all variable declarations.
+        ArrayList<MSSyntaxTree> declarations = new ArrayList<>();
+        if (ctx.doDecl() != null) {
+            // We can't use an enhanced for loop since we're traversing over two distinct rules.
+            for (int i = 0; i < ctx.doDecl().expr().size(); i++) {
+                MSSyntaxTree term = this.map.get(ctx.doDecl().term(i));
+                MSSyntaxTree expr = this.map.get(ctx.doDecl().expr(i));
+                declarations.add(new MSVariableDeclarationNode(term, expr));
+            }
+        }
+
+        // Next grab all "step" expressions.
+        ArrayList<MSSyntaxTree> stepDeclarations = new ArrayList<>();
+        if (ctx.doStepDecl() != null) {
+            for (int i = 0; i < ctx.doStepDecl().expr().size(); i++) {
+                MSSyntaxTree term = this.map.get(ctx.doStepDecl().term(i));
+                MSSyntaxTree expr = this.map.get(ctx.doStepDecl().expr(i));
+                stepDeclarations.add(new MSSetNode(MiniSchemeParser.SETVAR_FN, term, expr));
+            }
+        }
+
+        // Next grab the test expression.
+        MSSyntaxTree testExpr = this.map.get(ctx.doTestDecl().expr());
+
+        // Next grab the "true" expressions.
+        ArrayList<MSSyntaxTree> trueExpressions = new ArrayList<>();
+        if (ctx.doTrueExpr() != null) {
+            for (ParseTree pt : ctx.doTrueExpr().expr()) {
+                trueExpressions.add(this.map.get(pt));
+            }
+        }
+
+        // Finally grab the body of the do.
+        MSSyntaxTree doBody = this.map.get(ctx.doBody().expr());
+        this.map.put(ctx, new MSDoNode(declarations, stepDeclarations, testExpr, trueExpressions, doBody));
+    }
+
+    @Override
     public void exitExprOp(MiniSchemeParser.ExprOpContext ctx) {
         super.exitExprOp(ctx);
         int[] opType = this.getTokenFromSymbol(ctx);
@@ -325,7 +365,7 @@ public class MSListener extends MiniSchemeBaseListener {
      * Returns the corresponding ANTLR int token from an operator symbol
      * in the ExprOpContext parser rule.
      *
-     * @param ctx
+     * @param ctx ExprOpContext object.
      * @return int[] array. arr[0] represents token type from parser. arr[1]
      *                      represents the rule index.
      */

@@ -1,0 +1,18 @@
+;
+; Flattens a multi-dimensional list into one list.
+;
+
+(define (append list1 list2)
+    (if (null? list1)
+        list2
+        (cons (car list1) (append (cdr list1) list2))
+    )
+)
+
+(define (flatten x)
+    (cond [(null? x) '()]
+          [(not (pair? x)) (list x)]
+          [else (append (flatten (car x))
+                        (flatten (cdr x)))]))
+
+(flatten '(1 2 3 (4 5) (6 (7 (8)))))

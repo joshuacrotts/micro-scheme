@@ -18,6 +18,9 @@ public enum MSNodeType {
     IF,
     COND,
 
+    // Misc. declarations.
+    DO,
+
     // Declarations.
     PROC_DECL,
     LAMBDA_DECL,

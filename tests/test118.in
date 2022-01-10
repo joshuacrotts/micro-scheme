@@ -1,0 +1,20 @@
+;
+; LCM calculation using GCD.
+;
+
+(define abs (lambda (x) (if (<= x 0) (* x -1) x)))
+(define zero? (lambda (x) (= x 0)))
+
+(define gcd (lambda (a b)
+    (if (zero? b)
+        a
+        (gcd b (% a b)))))
+(define lcm (lambda (a b)
+    (if (or (zero? a) (zero? b))
+        0
+        (abs (* b (floor (/ a (gcd a b))))))))
+
+(lcm 12 18)
+(lcm 330 75)
+(lcm 16850 221625)
+(lcm 24 41525)

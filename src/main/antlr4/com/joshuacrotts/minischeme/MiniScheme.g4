@@ -65,6 +65,7 @@ BOOLLIT: HASH ([tf] | ([Tt]'rue') | ([Ff]'alse'));
 DEFINE: 'define';
 IF:  'if';
 COND: 'cond';
+DO: 'do';
 ELSE: 'else';
 LET: 'let';
 LETSTAR: 'let*';
@@ -178,6 +179,7 @@ expr: exprCons
     | exprLambdaDeclCall
     | exprIf
     | exprCond
+    | exprDo
     | exprLetDecl
     | exprSymbol
     | exprTerm;
@@ -231,9 +233,14 @@ exprCond: ('(' COND ('[' condCond condBody ']')+ ('[' ELSE condBody ']')? ')')
         | ('(' COND ('(' condCond condBody ')')+ ('(' ELSE condBody ')')? ')');
 
 
+// Do loop expression.
+exprDo: '(' DO '(' doDecl? ')' '(' doStepDecl? ')' '(''(' doTestDecl ')' doTrueExpr ')' doBody ')';
+
+
 // Let declaration.
 exprLetDecl: '(' (exprLetNamed | LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
 exprLetNamed: LET ID;
+
 
 // Symbol declaration.
 exprSymbol: (QUOTE exprSymbolComponent) ;
@@ -252,7 +259,14 @@ lambdaParams: expr+;
 lambdaBody: expr;
 lambdaArgs: expr+;
 letDecl: ('[' term expr ']')*
-       | ('(' term expr ')')* ;
+       | ('(' term expr ')')*;
+doDecl: ('[' term expr ']')*
+      | ('(' term expr ')')*;
+doStepDecl: ('[' term expr ']')*
+          | ('(' term expr ')')*;
+doTestDecl: expr;
+doTrueExpr: expr*;
+doBody: expr;
 
 
 // Separates the "expressions" for a cond or if expression to make it clearer in the parser.

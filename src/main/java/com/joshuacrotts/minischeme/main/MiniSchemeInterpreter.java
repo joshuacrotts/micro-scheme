@@ -141,6 +141,7 @@ public class MiniSchemeInterpreter {
                 case VECTOR: return this.interpretVector((MSVectorNode) tree);
                 case IF: return this.interpretIf((MSIfNode) tree);
                 case COND: return this.interpretCond((MSCondNode) tree);
+                case DO: return this.interpretDo((MSDoNode) tree);
                 case CALL: return this.interpretCall((MSCallNode) tree);
                 case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall((MSLambdaDeclarationCallNode) tree);
                 default: break;
@@ -630,6 +631,77 @@ public class MiniSchemeInterpreter {
 
     /**
      *
+     * @param doNode
+     * @return
+     * @throws MSSemanticError
+     */
+    private LValue interpretDo(final MSDoNode doNode) throws MSSemanticError {
+        // First set up the variable declarations.
+        ArrayList<MSSyntaxTree> decls = doNode.getVariableDeclarations();
+        Map<MSIdentifierNode, MSSyntaxTree> results = new HashMap<>();
+
+        // Iterate over the declarations and evaluate their expressions.
+        // If we find a variable in the let decl that's not global, it's an error.
+        for (MSSyntaxTree t : decls) {
+            MSVariableDeclarationNode vd = (MSVariableDeclarationNode) t;
+            switch (vd.getExpression().getNodeType()) {
+                case EXPR_LAMBDA_DECL:
+                case PROC_DECL:
+                case LET_DECL:
+                    results.put(vd.getIdentifier(), vd.getExpression());
+                    break;
+                default:
+                    results.put(vd.getIdentifier(), LValue.getAstFromLValue(this.interpretTree(vd.getExpression())));
+            }
+        }
+
+        this.symbolTable.addEnvironment();
+        // Add all K/V results to the current table/environment.
+        for (Map.Entry<MSIdentifierNode, MSSyntaxTree> entry : results.entrySet()) {
+            MSIdentifierNode idNode = entry.getKey();
+            MSSyntaxTree exprNode = entry.getValue();
+            // If the expr is an identifier, we need to copy its value over.
+            if (exprNode.isId()) {
+                this.symbolTable.addSymbol(idNode.getIdentifier(), (MSIdentifierNode) exprNode);
+            } else {
+                // If we encounter a lambda declaration, we need to make it non-anonymous.
+                if (exprNode.isExprLambdaDecl()) {
+                    exprNode = MSLambdaDeclarationNode.createNonAnonymous(idNode, (MSLambdaDeclarationNode) exprNode);
+                }
+                this.symbolTable.addSymbol(idNode.getIdentifier(), SymbolType.getSymbolTypeFromNodeType(exprNode.getNodeType()), exprNode);
+            }
+        }
+
+        // Now execute the test statement and body if the test is true.
+        while (true) {
+            LValue testLhs = this.interpretTree(doNode.getTestExpression());
+            if (!testLhs.isLBool()) {
+                throw new MSSemanticError("expected predicate or boolean for do test expression");
+            } else if (testLhs.getBoolValue()) {
+                break;
+            } else {
+                // Interpret body. The LValue returned is superfluous.
+                this.interpretTree(doNode.getBody());
+
+                // After the body run the step declarations.
+                for (MSSyntaxTree stepDecl : doNode.getStepDeclarations()) {
+                    this.interpretTree(stepDecl);
+                }
+            }
+        }
+
+        // Finally, interpret the "true" expressions and return the final.
+        LValue trueLhs = new LValue();
+        for (MSSyntaxTree trueExpr : doNode.getTrueExpressions()) {
+            trueLhs = this.interpretTree(trueExpr);
+        }
+
+        this.symbolTable.popEnvironment();
+        return trueLhs;
+    }
+
+    /**
+     *
      * @param callNode
      * @return
      */
@@ -760,8 +832,8 @@ public class MiniSchemeInterpreter {
                         args.add(lhs.getTreeValue());
                     }
                 } else {
-                    throw new IllegalStateException("Interpreter error - lambda decl call " +
-                            "found an incorrect lvalue: " + lhs.getType() + ". This should never happen...");
+                    throw new IllegalStateException("Internal interpreter error -" +
+                            " lambda decl call found an incorrect lvalue: " + lhs.getType() + "");
                 }
             }
         }
@@ -778,9 +850,9 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretSetOp(final MSSetNode setNode) throws MSSemanticError {
         switch (setNode.getOpType()) {
+            case MiniSchemeParser.SETVAR_FN: this.interpretSetVariableFn(setNode); break;
             case MiniSchemeParser.SETCAR_FN: this.interpretSetCarFn(setNode); break;
             case MiniSchemeParser.SETCDR_FN: this.interpretSetCdrFn(setNode); break;
-            case MiniSchemeParser.SETVAR_FN: this.interpretSetVariableFn(setNode); break;
             case MiniSchemeParser.SETVEC_FN: this.interpretSetVectorFn(setNode); break;
             default:
                 throw new IllegalArgumentException("Internal interpreter error "
@@ -830,7 +902,13 @@ public class MiniSchemeInterpreter {
         if (setData.size() > 1) {
             throw new MSSemanticError("set! expected 2 arguments but got " + setData.size() + 2);
         }
-        this.symbolTable.setSymbol(id, setData.get(0));
+
+        // First check to see if we need to evaluate the setData.
+        MSSyntaxTree setDataVal = setData.get(0);
+        if (!setDataVal.isTerminalType()) {
+            setDataVal = LValue.getAstFromLValue(this.interpretTree(setDataVal));
+        }
+        this.symbolTable.setSymbol(id, setDataVal);
     }
 
     /**
@@ -844,7 +922,7 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree idxNode = LValue.getAstFromLValue(this.interpretTree(setData.get(0)));
 
         // Check to make sure the node is a number.
-        if (!idxNode.isNumber()) {
+        if (idxNode == null || !idxNode.isNumber()) {
             throw new MSSemanticError("attempt to access vector with non-index " + setData.get(0).getStringRep());
         }
 

@@ -3,6 +3,7 @@ package com.joshuacrotts.minischeme.ast;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A "set" operation refers to the act of changing a variable that is already
@@ -23,6 +24,12 @@ public class MSSetNode extends MSSyntaxTree {
         super(MSNodeType.SET, identifierNode);
         this.opType = opType;
         setData.forEach(this::addChild);
+    }
+
+    public MSSetNode(final int opType, final MSSyntaxTree identifierNode, final MSSyntaxTree setData) {
+        super(MSNodeType.SET, identifierNode);
+        this.opType = opType;
+        this.addChild(setData);
     }
 
     @Override
