@@ -766,6 +766,7 @@ public class MiniSchemeInterpreter {
                 LValue lhs = this.interpretTree(procCallArg);
                 if (lhs.isLNumber()) { args.add(new MSNumberNode(lhs.getDoubleValue())); }
                 else if (lhs.isLBool()) { args.add(new MSBooleanNode(lhs.getBoolValue())); }
+                else if (lhs.isLChar()) { args.add(new MSCharacterNode(lhs.getCharValue())); }
                 else if (lhs.isLString()) { args.add(new MSStringNode(lhs.getStringValue())); }
                 else if (lhs.isLProcCall() || lhs.isLSymbol() || lhs.isLLambdaCall()) { args.add(lhs.getTreeValue()); }
                 else if (lhs.isLPair() || lhs.isLVector()) {
@@ -833,6 +834,7 @@ public class MiniSchemeInterpreter {
                 LValue lhs = this.interpretTree(lambdaDeclCall.getLambdaArguments().get(i));
                 if (lhs.isLNumber()) { args.add(new MSNumberNode(lhs.getDoubleValue())); }
                 else if (lhs.isLBool()) { args.add(new MSBooleanNode(lhs.getBoolValue())); }
+                else if (lhs.isLChar()) { args.add(new MSCharacterNode(lhs.getCharValue())); }
                 else if (lhs.isLString()) { args.add(new MSStringNode(lhs.getStringValue())); }
                 else if (lhs.isLProcCall() || lhs.isLSymbol() || lhs.isLLambdaCall()) { args.add(lhs.getTreeValue()); }
                 else if (lhs.isLPair() || lhs.isLVector()) {
@@ -861,10 +863,18 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretSetOp(final MSSetNode setNode) throws MSSemanticException {
         switch (setNode.getOpType()) {
-            case MiniSchemeParser.SETVAR_FN: this.interpretSetVariableFn(setNode); break;
-            case MiniSchemeParser.SETCAR_FN: this.interpretSetCarFn(setNode); break;
-            case MiniSchemeParser.SETCDR_FN: this.interpretSetCdrFn(setNode); break;
-            case MiniSchemeParser.SETVEC_FN: this.interpretSetVectorFn(setNode); break;
+            case MiniSchemeParser.SETVAR_FN:
+                this.interpretSetVariableFn(setNode);
+                break;
+            case MiniSchemeParser.SETCAR_FN:
+                this.interpretSetCarFn(setNode);
+                break;
+            case MiniSchemeParser.SETCDR_FN:
+                this.interpretSetCdrFn(setNode);
+                break;
+            case MiniSchemeParser.SETVEC_FN:
+                this.interpretSetVectorFn(setNode);
+                break;
             default:
                 throw new IllegalArgumentException("Internal interpreter error "
                         + "- cannot set with operator of type " + setNode.getNodeType() + ".");

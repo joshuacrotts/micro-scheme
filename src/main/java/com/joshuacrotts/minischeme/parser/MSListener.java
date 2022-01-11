@@ -203,10 +203,17 @@ public class MSListener extends MiniSchemeBaseListener {
         if (ctx.exprLetNamed() == null) {
             int intLetType = ((TerminalNode) ctx.getChild(1)).getSymbol().getType();
             switch (intLetType) {
-                case MiniSchemeParser.LET: letType = MSLetDeclarationNode.LetType.LET; break;
-                case MiniSchemeParser.LETSTAR: letType = MSLetDeclarationNode.LetType.LET_STAR; break;
-                case MiniSchemeParser.LETREC: letType = MSLetDeclarationNode.LetType.LET_REC; break;
-                default: throw new IllegalArgumentException("Parser error");
+                case MiniSchemeParser.LET:
+                    letType = MSLetDeclarationNode.LetType.LET;
+                    break;
+                case MiniSchemeParser.LETSTAR:
+                    letType = MSLetDeclarationNode.LetType.LET_STAR;
+                    break;
+                case MiniSchemeParser.LETREC:
+                    letType = MSLetDeclarationNode.LetType.LET_REC;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Parser error");
             }
         } else {
             letType = MSLetDeclarationNode.LetType.LET_NAMED;
