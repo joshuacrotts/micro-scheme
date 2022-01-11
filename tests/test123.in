@@ -1,0 +1,8 @@
+;
+; Convert a list of characters to a string.
+;
+
+(define x '(#\A #\p #\p #\l #\e))
+x
+(define y (list->string x))
+(string-length y)

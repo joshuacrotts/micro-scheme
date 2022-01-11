@@ -6,6 +6,7 @@ public enum MSNodeType {
     ID,
     OP,
     NUM,
+    CHAR,
     STR,
     PAIR,
     LIST,

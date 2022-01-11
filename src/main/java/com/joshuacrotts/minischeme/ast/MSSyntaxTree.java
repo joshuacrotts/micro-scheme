@@ -117,6 +117,8 @@ public class MSSyntaxTree implements Copyable {
         return this.nodeType == MSNodeType.BOOL;
     }
 
+    public boolean isChar() { return this.nodeType == MSNodeType.CHAR; }
+
     public boolean isString() {
         return this.nodeType == MSNodeType.STR;
     }

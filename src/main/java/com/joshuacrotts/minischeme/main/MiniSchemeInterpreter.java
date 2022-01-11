@@ -90,6 +90,7 @@ public class MiniSchemeInterpreter {
                 switch (lhs.getType()) {
                     case NUM:
                     case BOOL:
+                    case CHAR:
                     case PAIR:
                     case STR:
                     case VECTOR:
@@ -135,6 +136,7 @@ public class MiniSchemeInterpreter {
                 case SET: return this.interpretSetOp((MSSetNode) tree);
                 case NUM: return this.interpretNumber((MSNumberNode) tree);
                 case BOOL: return this.interpretBoolean((MSBooleanNode) tree);
+                case CHAR: return this.interpretCharacter((MSCharacterNode) tree);
                 case STR: return this.interpretString((MSStringNode) tree);
                 case PAIR: return this.interpretPair((MSPairNode) tree);
                 case LIST: return this.interpretList((MSPairNode) tree);
@@ -448,6 +450,15 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretBoolean(final MSBooleanNode booleanNode) {
         return new LValue(booleanNode);
+    }
+
+    /**
+     *
+     * @param characterNode
+     * @return
+     */
+    private LValue interpretCharacter(final MSCharacterNode characterNode) {
+        return new LValue(characterNode);
     }
 
     /**

@@ -1,12 +1,11 @@
 package com.joshuacrotts.minischeme.main;
 
 import com.joshuacrotts.minischeme.MiniSchemeParser;
-import com.joshuacrotts.minischeme.ast.MSNumberNode;
-import com.joshuacrotts.minischeme.ast.MSPairNode;
-import com.joshuacrotts.minischeme.ast.MSStringNode;
-import com.joshuacrotts.minischeme.ast.MSVectorNode;
+import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.minischeme.parser.MSSemanticException;
+
+import java.util.Optional;
 
 public class MiniSchemeOperatorInterpreter {
 
@@ -34,14 +33,13 @@ public class MiniSchemeOperatorInterpreter {
             case MiniSchemeParser.FLOOR: return MiniSchemeOperatorInterpreter.interpretFloor(lhs);
             case MiniSchemeParser.CEILING: return MiniSchemeOperatorInterpreter.interpretCeiling(lhs);
             case MiniSchemeParser.TRUNCATE: return MiniSchemeOperatorInterpreter.interpretTruncate(lhs);
-            case MiniSchemeParser.TRUE_FN: return MiniSchemeOperatorInterpreter.interpretTrueFn(lhs);
-            case MiniSchemeParser.FALSE_FN: return MiniSchemeOperatorInterpreter.interpretFalseFn(lhs);
             case MiniSchemeParser.LOGICAL_NOT: return MiniSchemeOperatorInterpreter.interpretLogicalNot(lhs);
             case MiniSchemeParser.CAR: return MiniSchemeOperatorInterpreter.interpretCar(lhs);
             case MiniSchemeParser.CDR: return MiniSchemeOperatorInterpreter.interpretCdr(lhs);
             case MiniSchemeParser.NULL_FN: return MiniSchemeOperatorInterpreter.interpretNullFn(lhs);
             case MiniSchemeParser.NUMBER_FN: return MiniSchemeOperatorInterpreter.interpretNumberFn(lhs);
             case MiniSchemeParser.BOOL_FN: return MiniSchemeOperatorInterpreter.interpretBoolFn(lhs);
+            case MiniSchemeParser.CHAR_FN: return MiniSchemeOperatorInterpreter.interpretCharFn(lhs);
             case MiniSchemeParser.STRING_FN: return MiniSchemeOperatorInterpreter.interpretStringFn(lhs);
             case MiniSchemeParser.SYMBOL_FN: return MiniSchemeOperatorInterpreter.interpretSymbolFn(lhs);
             case MiniSchemeParser.VECTOR_FN: return MiniSchemeOperatorInterpreter.interpretVectorFn(lhs);
@@ -50,6 +48,8 @@ public class MiniSchemeOperatorInterpreter {
             case MiniSchemeParser.VECTORLEN_FN: return MiniSchemeOperatorInterpreter.interpretVectorLengthFn(lhs);
             case MiniSchemeParser.NUMTOSTR_FN: return MiniSchemeOperatorInterpreter.interpretNumberToStringFn(lhs);
             case MiniSchemeParser.STRTONUM_FN: return MiniSchemeOperatorInterpreter.interpretStringToNumberFn(lhs);
+            case MiniSchemeParser.LISTTOSTR_FN: return MiniSchemeOperatorInterpreter.interpretListToStringFn(lhs);
+            case MiniSchemeParser.STRTOLIST_FN: return MiniSchemeOperatorInterpreter.interpretStringToListFn(lhs);
             case MiniSchemeParser.TODEG_FN: return MiniSchemeOperatorInterpreter.interpretToDegrees(lhs);
             case MiniSchemeParser.TORAD_FN: return MiniSchemeOperatorInterpreter.interpretToRadians(lhs);
             default:
@@ -68,7 +68,6 @@ public class MiniSchemeOperatorInterpreter {
             case MiniSchemeParser.MODULO: return MiniSchemeOperatorInterpreter.interpretModulo(lhs, rhs);
             case MiniSchemeParser.REMAINDER: return MiniSchemeOperatorInterpreter.interpretRemainder(lhs, rhs);
             case MiniSchemeParser.LOGICAL_EQ: return MiniSchemeOperatorInterpreter.interpretLogicalEq(lhs, rhs);
-            case MiniSchemeParser.LOGICAL_NE: return MiniSchemeOperatorInterpreter.interpretLogicalNe(lhs, rhs);
             case MiniSchemeParser.LOGICAL_LT: return MiniSchemeOperatorInterpreter.interpretLogicalLt(lhs, rhs);
             case MiniSchemeParser.LOGICAL_LE: return MiniSchemeOperatorInterpreter.interpretLogicalLe(lhs, rhs);
             case MiniSchemeParser.LOGICAL_GT: return MiniSchemeOperatorInterpreter.interpretLogicalGt(lhs, rhs);
@@ -124,7 +123,6 @@ public class MiniSchemeOperatorInterpreter {
             case MiniSchemeParser.STRAPPEND_FN: return new LValue(lhs.getStringValue() + rhs.getStringValue());
             case MiniSchemeParser.LOGICAL_AND: return new LValue(lhs.getBoolValue() && rhs.getBoolValue());
             case MiniSchemeParser.LOGICAL_OR: return new LValue(lhs.getBoolValue() || rhs.getBoolValue());
-            case MiniSchemeParser.FALSE_FN: return new LValue(!lhs.getBoolValue() && !rhs.getBoolValue());
             case MiniSchemeParser.EQ_FN: return interpretEqFn(lhs, rhs);
             case MiniSchemeParser.EQUAL_FN: return interpretEqualFn(lhs, rhs);
             default:
@@ -322,32 +320,6 @@ public class MiniSchemeOperatorInterpreter {
      * @return
      * @throws MSArgumentMismatchException
      */
-    private static LValue interpretTrueFn(final LValue lhs) throws MSArgumentMismatchException {
-        if (!lhs.isLBool()) {
-            throw new MSArgumentMismatchException("true? predicate", "boolean", lhs.getType().toString());
-        }
-        return new LValue(lhs.getBoolValue());
-    }
-
-    /**
-     *
-     * @param lhs
-     * @return
-     * @throws MSSemanticException
-     */
-    private static LValue interpretFalseFn(final LValue lhs) throws MSArgumentMismatchException {
-        if (!lhs.isLBool()) {
-            throw new MSArgumentMismatchException("false? predicate", "boolean", lhs.getType().toString());
-        }
-        return new LValue(!lhs.getBoolValue());
-    }
-
-    /**
-     *
-     * @param lhs
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretLogicalNot(final LValue lhs) throws MSArgumentMismatchException {
         if (!lhs.isLBool()) {
             throw new MSArgumentMismatchException("logical not", "boolean", lhs.getType().toString());
@@ -406,6 +378,19 @@ public class MiniSchemeOperatorInterpreter {
      */
     private static LValue interpretBoolFn(final LValue lhs) {
         return new LValue(lhs.isLBool());
+    }
+
+    /**
+     * Determines if an expression is a character. A character is defined as
+     * a char literal in the form #\ch where 'ch' is an ascii character. A
+     * character is also defined as a symbol where its corresponding expression
+     * is a character e.g., '#\x. This is handled implicitly by the interpreter.
+     *
+     * @param lhs LValue object to compare.
+     * @return true if lvalue passed is a char, false otherwise.
+     */
+    private static LValue interpretCharFn(final LValue lhs) {
+        return new LValue(lhs.isLChar());
     }
 
     /**
@@ -507,6 +492,59 @@ public class MiniSchemeOperatorInterpreter {
      *
      * @param lhs
      * @return
+     */
+    private static LValue interpretListToStringFn(final LValue lhs) throws MSArgumentMismatchException {
+        // Compare each element of the list to make sure the head is a char.
+        StringBuilder sb = new StringBuilder();
+        MSSyntaxTree curr = lhs.getTreeValue();
+        int idx = 0;
+        while (true) {
+            // Once we hit the end of the list, just break.
+            if (curr == null || (curr.isPair() && ((MSPairNode) curr).isNull())) {
+                break;
+            } else if (!curr.isList() && !curr.isPair()) {
+                throw new MSArgumentMismatchException("list->string list", "char at index " + idx, curr.getNodeType().toString());
+            }
+
+            MSPairNode pair = (MSPairNode) curr;
+            if (!pair.getCar().isChar()) {
+                throw new MSArgumentMismatchException("list->string list", "char at index " + idx, curr.getNodeType().toString());
+            }
+            sb.append(pair.getCar().getStringRep());
+            curr = pair.getCdr();
+        }
+
+        return new LValue(new MSStringNode(sb.toString()));
+    }
+
+    /**
+     *
+     * @param lhs
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretStringToListFn(final LValue lhs) throws MSArgumentMismatchException {
+        if (!lhs.isLString()) {
+            throw new MSArgumentMismatchException("string->list", "string", lhs.getType().toString());
+        }
+
+        // Grab each character, convert it to a MSCharacterNode, then add it to the pair.
+        MSSyntaxTree parentPair = null;
+        MSPairNode prevPair = null;
+        String str = lhs.getStringValue();
+        for (int i = str.length() - 1; i >= 0; i--) {
+            MSSyntaxTree rchar = new MSCharacterNode(str.charAt(i));
+            prevPair = new MSPairNode(MSNodeType.LIST, rchar, prevPair);
+        }
+        // If they enter the empty list, then we need to add a "blank" pair node.
+        parentPair = Optional.ofNullable(prevPair).orElse(new MSPairNode());
+        return new LValue(parentPair);
+    }
+
+    /**
+     *
+     * @param lhs
+     * @return
      * @throws MSArgumentMismatchException
      */
     private static LValue interpretToDegrees(final LValue lhs) throws MSArgumentMismatchException {
@@ -600,23 +638,6 @@ public class MiniSchemeOperatorInterpreter {
         }
 
         return new LValue(lhs.getDoubleValue() == rhs.getDoubleValue());
-    }
-
-    /**
-     *
-     * @param lhs
-     * @param rhs
-     * @return
-     * @throws MSArgumentMismatchException
-     */
-    private static LValue interpretLogicalNe(final LValue lhs, final LValue rhs) throws MSArgumentMismatchException {
-        if (!lhs.isLNumber()) {
-            throw new MSArgumentMismatchException("!=", "number", lhs.getType().toString());
-        } else if (!lhs.isLNumber()) {
-            throw new MSArgumentMismatchException("!=", "number", rhs.getType().toString());
-        }
-
-        return new LValue(lhs.getDoubleValue() != rhs.getDoubleValue());
     }
 
     /**
@@ -806,7 +827,6 @@ public class MiniSchemeOperatorInterpreter {
         }
         return new LValue(lhs.getTreeValue().getChild((int) rhs.getDoubleValue()));
     }
-
 
     /**
      * @param lhs

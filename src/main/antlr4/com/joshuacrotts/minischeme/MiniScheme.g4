@@ -49,7 +49,6 @@ LOGICAL_LE: '<=';
 LOGICAL_GE: '>=';
 LOGICAL_LT: '<';
 LOGICAL_GT: '>';
-LOGICAL_NE: '!=';
 
 // Bitwise operations.
 BITWISE_SHL: '<<';
@@ -59,6 +58,7 @@ BITWISE_NEG: '~' ;
 // Literals.
 NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
 STRINGLIT: '"' ( QUOTCHAR | ~ ["\\] )* '"';
+CHARLIT: HASH '\\' ANYCHAR_MOD;
 BOOLLIT: HASH ([tf] | ([Tt]'rue') | ([Ff]'alse'));
 
 // Special keywords.
@@ -119,6 +119,7 @@ STRSUBSTR: 'substring';
 // T/F predicate procedures.
 NUMBER_FN: 'number?';
 BOOL_FN: 'bool?';
+CHAR_FN: 'char?';
 STRING_FN: 'string?';
 LIST_FN: 'list?';
 VECTOR_FN: 'vector?';
@@ -127,9 +128,6 @@ SYMBOL_FN: 'symbol?';
 PAIR_FN: 'pair?';
 EQ_FN: 'eq?';
 EQUAL_FN: 'equal?';
-MEMBER_FN: 'member?';
-TRUE_FN: 'true?';
-FALSE_FN: 'false?';
 
 // Random number procedures.
 RANDINT_FN: 'random-integer';
@@ -140,14 +138,16 @@ RAND_FN: 'random';
 READLINE_FN: 'read-line';
 READNUMBER_FN: 'read-number';
 
-// String cast procedures.
+// "Cast" procedures.
 STRTONUM_FN: 'string->number';
 NUMTOSTR_FN: 'number->string';
+STRTOLIST_FN: 'string->list';
+LISTTOSTR_FN: 'list->string';
 
 // Set (setting variable) procedures.
+SETVAR_FN: 'set!';
 SETCAR_FN: 'set-car!';
 SETCDR_FN: 'set-cdr!';
-SETVAR_FN: 'set!';
 SETVEC_FN: 'vector-set!';
 
 ID: [a-zA-Z_=][<>a-zA-Z0-9_=-]*[=?!]?;
@@ -281,24 +281,24 @@ ifCond: expr;
 ifBody: expr;
 ifElse: expr;
 
+
 // All operators.
 op: unaryop | binaryop | ternaryop | naryop;
 
 // All unary operators.
 unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
         | FLOOR | CEILING | TRUNCATE | DISPLAY | NUMBER_FN | STRING_FN
-        | BOOL_FN | LIST_FN | NULL_FN | SYMBOL_FN | VECTOR_FN
+        | CHAR_FN | BOOL_FN | LIST_FN | NULL_FN | SYMBOL_FN | VECTOR_FN
         | CAR | CDR | STRLEN_FN | PAIR_FN | STRTONUM_FN | NUMTOSTR_FN
-        | TODEG_FN | TORAD_FN | LOGICAL_NOT | TRUE_FN | FALSE_FN
+        | STRTOLIST_FN | LISTTOSTR_FN | TODEG_FN | TORAD_FN | LOGICAL_NOT
         | VECTORLEN_FN | SINH | COSH | TANH;
 
 
 // All binary operators.
 binaryop: LOGICAL_GT | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
-        | LOGICAL_EQ | LOGICAL_NE | STREQ_FN | STRLT_FN
-        | STRLE_FN | STRGT_FN | STRGE_FN | MEMBER_FN
-        | RANDINT_FN | RANDDOUBLE_FN | VECTOR_REF_FN
-        | MODULO | REMAINDER;
+        | LOGICAL_EQ | STREQ_FN | STRLT_FN | STRLE_FN
+        | STRGT_FN | STRGE_FN  | RANDINT_FN | RANDDOUBLE_FN
+        | VECTOR_REF_FN | MODULO | REMAINDER;
 
 
 // All ternary operators.
@@ -323,4 +323,5 @@ readop: READLINE_FN | READNUMBER_FN;
 term: NUMBERLIT
     | STRINGLIT
     | BOOLLIT
+    | CHARLIT
     | ID;
