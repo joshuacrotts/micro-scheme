@@ -215,6 +215,27 @@ public class LValue {
      *
      */
     protected enum LValueType {
-        NUM, BOOL, CHAR, PAIR, STR, SYM, VECTOR, DISP, PROCCALL, LAMBDACALL, NULL
+        NUM("number"),
+        BOOL("boolean"),
+        CHAR("character"),
+        PAIR("pair"),
+        STR("string"),
+        SYM("symbol"),
+        VECTOR("vector"),
+        DISP("display"),
+        PROCCALL("procedure call"),
+        LAMBDACALL("lambda call"),
+        NULL("null");
+
+        private final String value;
+
+        private LValueType(final String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
     }
 }
