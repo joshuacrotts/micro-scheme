@@ -1,0 +1,10 @@
+;
+; Iterative factorial using do loop.
+;
+
+(define (fact-iterative n)
+	(do ((idx 1) (product 1)) ((idx (+ 1 idx)))
+		((> idx n) product)
+		(set! product (* product idx))))
+
+(fact-iterative 170)

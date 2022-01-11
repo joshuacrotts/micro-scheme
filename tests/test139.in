@@ -1,0 +1,16 @@
+;
+; Simple iterative summation.
+;
+
+(define sum-from-iterative
+    (λ (a b) 
+        (do ((i a) (total 0)) ((i (+ i 1)))
+            ((> i b) total)
+            (set! total (+ total i))
+        )))
+
+(sum-from-iterative 1 10) ;55
+(sum-from-iterative 1 100) ;5050
+(sum-from-iterative 55 10000) ;50003515
+(sum-from-iterative 77 97231) ; 4.72697937E9
+
