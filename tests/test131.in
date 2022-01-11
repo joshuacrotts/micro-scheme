@@ -1,0 +1,23 @@
+;
+; Data structure k/v pair testing
+;
+
+(define (caar l)
+    (car (car l))
+)
+
+(define (assoc key data)
+    (cond ((null? data) #f)
+          ((equal? (caar data) key) (car data))
+          (else (assoc key (cdr data)))
+    )
+)
+
+(define L
+ '( (a 10) (b 20) (c 30) ) )
+(assoc 'a L) 
+; (a 10)
+(assoc 'b L)
+; (b 20)
+(assoc 'x L)
+; #f

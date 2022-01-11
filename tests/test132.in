@@ -1,0 +1,25 @@
+;
+; Data structure k/v pair testing 2
+;
+
+(define (caar l)
+    (car (car l))
+)
+
+(define (assoc key data)
+    (cond ((null? data) #f)
+          ((equal? (caar data) key) (car data))
+          (else (assoc key (cdr data)))
+    )
+)
+
+(define price-list
+ '( 
+    ((bmw m5) 71095)
+    ((bmw z4) 40495)
+    ((jag xj8) 56975)
+    ((mb sl500) 86655)
+  )
+)
+(assoc '(bmw z4) price-list)
+; ((bmw z4) 40495)

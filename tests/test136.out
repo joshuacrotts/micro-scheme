@@ -1,0 +1,10 @@
+(1 2)
+(a b)
+(a 2)
+a
+(b c)
+#f
+(apple pear)
+#t
+#f
+#f
