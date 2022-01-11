@@ -35,6 +35,11 @@ public class LValue {
     private MSStringNode strval;
 
     /**
+     * Character associated with this LValue if type == CHAR.
+     */
+    private MSCharacterNode cval;
+
+    /**
      * AST node associated with this LValue for any other LValueType.
      */
     private MSSyntaxTree tval;
@@ -51,6 +56,11 @@ public class LValue {
     protected LValue(final MSBooleanNode bval) {
         this(LValueType.BOOL);
         this.bval = bval;
+    }
+
+    protected LValue(final MSCharacterNode cval) {
+        this(LValueType.CHAR);
+        this.cval = cval;
     }
 
     protected LValue(final MSStringNode strval) {
@@ -87,6 +97,9 @@ public class LValue {
         } else if (tval instanceof MSBooleanNode) {
             this.type = LValueType.BOOL;
             this.bval = ((MSBooleanNode) tval);
+        } else if (tval instanceof MSCharacterNode) {
+            this.type = LValueType.CHAR;
+            this.cval = ((MSCharacterNode) tval);
         } else if (tval instanceof MSStringNode) {
             this.type = LValueType.STR;
             this.strval = ((MSStringNode) tval);
@@ -117,6 +130,7 @@ public class LValue {
         switch (lval.getType()) {
             case NUM: return new MSNumberNode(lval.getDoubleValue());
             case BOOL: return new MSBooleanNode(lval.getBoolValue());
+            case CHAR: return new MSCharacterNode(lval.getCharValue());
             case STR: return new MSStringNode(lval.getStringValue());
             case SYM:
             case VECTOR:
@@ -136,6 +150,7 @@ public class LValue {
                         ? Integer.toString((int) this.dval.getValue())
                         : Double.toString(this.dval.getValue());
             case BOOL: return this.bval.getValue() ? "#t" : "#f";
+            case CHAR: return this.cval.getStringRep();
             case STR: return this.strval.getValue();
             case SYM:
             case VECTOR:
@@ -158,6 +173,8 @@ public class LValue {
         return this.dval.getValue();
     }
 
+    protected char getCharValue() { return this.cval.getValue(); }
+
     protected boolean getBoolValue() {
         return this.bval.getValue();
     }
@@ -178,6 +195,10 @@ public class LValue {
 
     protected boolean isLBool() { return this.type == LValueType.BOOL; }
 
+    protected boolean isLChar() {
+        return this.type == LValueType.CHAR;
+    }
+
     protected boolean isLString() { return this.type == LValueType.STR; }
 
     protected boolean isLSymbol() { return this.type == LValueType.SYM; }
@@ -194,6 +215,6 @@ public class LValue {
      *
      */
     protected enum LValueType {
-        NUM, BOOL, PAIR, STR, SYM, VECTOR, DISP, PROCCALL, LAMBDACALL, NULL
+        NUM, BOOL, CHAR, PAIR, STR, SYM, VECTOR, DISP, PROCCALL, LAMBDACALL, NULL
     }
 }

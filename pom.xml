@@ -21,6 +21,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-Xss16M</argLine>
+				</configuration>
 				<version>2.22.2</version>
 			</plugin>
 		</plugins>

@@ -3,7 +3,7 @@ package com.joshuacrotts.minischeme.main;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.main.LValue.LValueType;
-import com.joshuacrotts.minischeme.parser.MSSemanticError;
+import com.joshuacrotts.minischeme.parser.MSSemanticException;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import com.joshuacrotts.minischeme.symbol.SymbolType;
 
@@ -90,6 +90,7 @@ public class MiniSchemeInterpreter {
                 switch (lhs.getType()) {
                     case NUM:
                     case BOOL:
+                    case CHAR:
                     case PAIR:
                     case STR:
                     case VECTOR:
@@ -135,6 +136,7 @@ public class MiniSchemeInterpreter {
                 case SET: return this.interpretSetOp((MSSetNode) tree);
                 case NUM: return this.interpretNumber((MSNumberNode) tree);
                 case BOOL: return this.interpretBoolean((MSBooleanNode) tree);
+                case CHAR: return this.interpretCharacter((MSCharacterNode) tree);
                 case STR: return this.interpretString((MSStringNode) tree);
                 case PAIR: return this.interpretPair((MSPairNode) tree);
                 case LIST: return this.interpretList((MSPairNode) tree);
@@ -146,7 +148,7 @@ public class MiniSchemeInterpreter {
                 case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall((MSLambdaDeclarationCallNode) tree);
                 default: break;
             }
-        } catch (MSSemanticError err) {
+        } catch (MSSemanticException err) {
             System.out.println(err.getMessage());
         }
 
@@ -451,6 +453,15 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     *
+     * @param characterNode
+     * @return
+     */
+    private LValue interpretCharacter(final MSCharacterNode characterNode) {
+        return new LValue(characterNode);
+    }
+
+    /**
      * Interprets a String literal.
      *
      * @param stringNode - MSStringNode ast.
@@ -526,7 +537,7 @@ public class MiniSchemeInterpreter {
      * @param opNode
      * @return
      */
-    private LValue interpretOperator(final MSOpNode opNode) throws MSSemanticError {
+    private LValue interpretOperator(final MSOpNode opNode) throws MSSemanticException {
         int opType = opNode.getOpType();
         if (opNode.isUnary()) {
             return MiniSchemeOperatorInterpreter.interpretPrimitiveUnaryOperator(
@@ -559,7 +570,7 @@ public class MiniSchemeInterpreter {
      *
      * @return LValue when interpreting identifier.
      */
-    private LValue interpretIdentifier(final MSIdentifierNode idNode) throws MSSemanticError {
+    private LValue interpretIdentifier(final MSIdentifierNode idNode) throws MSSemanticException {
         String id = idNode.getIdentifier();
         if (this.symbolTable.isVariable(id)) {
             return this.interpretTree(this.symbolTable.getVariable(id));
@@ -570,7 +581,7 @@ public class MiniSchemeInterpreter {
             MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
             return new LValue(LValueType.LAMBDACALL, lambdaDecl.getIdentifier());
         } else {
-            throw new MSSemanticError("undefined identifier '" + id + "'");
+            throw new MSSemanticException("undefined identifier '" + id + "'");
         }
     }
 
@@ -581,14 +592,14 @@ public class MiniSchemeInterpreter {
      *
      * @return LValue of if statement body evaluated.
      */
-    private LValue interpretIf(final MSIfNode ifNode) throws MSSemanticError {
+    private LValue interpretIf(final MSIfNode ifNode) throws MSSemanticException {
         LValue ifCond = this.interpretTree(ifNode.getCondition());
         if (ifCond.getType() == LValue.LValueType.BOOL) {
             return ifCond.getBoolValue()
                     ? this.interpretTree(ifNode.getConsequent())
                     : this.interpretTree(ifNode.getAlternative());
         } else {
-            throw new MSSemanticError("cannot evaluate if statement condition;"
+            throw new MSSemanticException("cannot evaluate if statement condition;"
                     + " expected predicate or procedure");
         }
     }
@@ -602,7 +613,7 @@ public class MiniSchemeInterpreter {
      *
      * @return LValue of cond body expression.
      */
-    private LValue interpretCond(final MSCondNode condNode) throws MSSemanticError {
+    private LValue interpretCond(final MSCondNode condNode) throws MSSemanticException {
         int condIdx = 0;
         int bodyIdx = 1;
         boolean execLastBlock = true;
@@ -610,7 +621,7 @@ public class MiniSchemeInterpreter {
         while (condIdx < condNode.getChildrenSize() && bodyIdx < condNode.getChildrenSize()) {
             LValue condCond = this.interpretTree(condNode.getChild(condIdx));
             if (condCond.getType() != LValueType.BOOL) {
-                throw new MSSemanticError("cannot evaluate cond statement condition;"
+                throw new MSSemanticException("cannot evaluate cond statement condition;"
                         + " expected predicate or true/false");
             } else {
                 if (condCond.getBoolValue()) {
@@ -633,9 +644,9 @@ public class MiniSchemeInterpreter {
      *
      * @param doNode
      * @return
-     * @throws MSSemanticError
+     * @throws MSSemanticException
      */
-    private LValue interpretDo(final MSDoNode doNode) throws MSSemanticError {
+    private LValue interpretDo(final MSDoNode doNode) throws MSSemanticException {
         // First set up the variable declarations.
         ArrayList<MSSyntaxTree> decls = doNode.getVariableDeclarations();
         Map<MSIdentifierNode, MSSyntaxTree> results = new HashMap<>();
@@ -676,7 +687,7 @@ public class MiniSchemeInterpreter {
         while (true) {
             LValue testLhs = this.interpretTree(doNode.getTestExpression());
             if (!testLhs.isLBool()) {
-                throw new MSSemanticError("expected predicate or boolean for do test expression");
+                throw new MSSemanticException("expected predicate or boolean for do test expression");
             } else if (testLhs.getBoolValue()) {
                 break;
             } else {
@@ -705,7 +716,7 @@ public class MiniSchemeInterpreter {
      * @param callNode
      * @return
      */
-    private LValue interpretCall(final MSCallNode callNode) throws MSSemanticError {
+    private LValue interpretCall(final MSCallNode callNode) throws MSSemanticException {
         // First, check to see if child 0 is an expr lambda decl. If so, do a lambda decl call.
         if (callNode.getChild(0).isExprLambdaDecl()) {
             MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) callNode.getChild(0);
@@ -722,7 +733,7 @@ public class MiniSchemeInterpreter {
             } else if (this.symbolTable.isLambda(id)) {
                 return this.interpretLambdaCall(callNode);
             } else {
-                throw new MSSemanticError("undefined identifier '" + id + "'");
+                throw new MSSemanticException("undefined identifier '" + id + "'");
             }
         }
     }
@@ -731,14 +742,14 @@ public class MiniSchemeInterpreter {
      * @param procCall
      * @return
      */
-    private LValue interpretProcedureCall(final MSCallNode procCall) throws MSSemanticError {
+    private LValue interpretProcedureCall(final MSCallNode procCall) throws MSSemanticException {
         // Poll the procedure from the symbol table.
         String id = procCall.getIdentifier().getIdentifier();
         MSProcedureDeclarationNode procDef = (MSProcedureDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
 
         // Before anything, check to make sure the procedure parameters and argument sizes match.
         if (procCall.getProcedureArgumentCount() != procDef.getParameterCount()) {
-            throw new MSSemanticError(id + ": procedure arity mismatch; expected "
+            throw new MSSemanticException(id + ": procedure arity mismatch; expected "
                     + procDef.getParameterCount() + " arguments but got "
                     + procCall.getProcedureArgumentCount());
         }
@@ -788,7 +799,7 @@ public class MiniSchemeInterpreter {
      * @param lambdaCall
      * @return
      */
-    private LValue interpretLambdaCall(final MSCallNode lambdaCall) throws MSSemanticError {
+    private LValue interpretLambdaCall(final MSCallNode lambdaCall) throws MSSemanticException {
         String id = lambdaCall.getIdentifier().getStringRep();
         MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
         MSLambdaDeclarationCallNode lambdaDeclCall = new MSLambdaDeclarationCallNode(
@@ -796,7 +807,7 @@ public class MiniSchemeInterpreter {
 
         // Check to see if we have enough arguments for the lambda.
         if (lambdaDecl.getLambdaParameterCount() != lambdaCall.getProcedureArgumentCount()) {
-            throw new MSSemanticError("lambda arity mismatch; expected "
+            throw new MSSemanticException("lambda arity mismatch; expected "
                     + lambdaDeclCall.getLambdaParameterCount()
                     + " arguments but got " +
                     + lambdaDeclCall.getLambdaArgumentCount());
@@ -809,7 +820,7 @@ public class MiniSchemeInterpreter {
      * @param lambdaDeclCall
      * @return
      */
-    private LValue interpretLambdaDeclCall(final MSLambdaDeclarationCallNode lambdaDeclCall) throws MSSemanticError {
+    private LValue interpretLambdaDeclCall(final MSLambdaDeclarationCallNode lambdaDeclCall) throws MSSemanticException {
         ArrayList<MSSyntaxTree> args = new ArrayList<>();
         // Now, bind the arguments for the lambda to its parameters.
         for (int i = 0; i < lambdaDeclCall.getLambdaArguments().size(); i++) {
@@ -848,7 +859,7 @@ public class MiniSchemeInterpreter {
      * @param setNode
      * @return
      */
-    private LValue interpretSetOp(final MSSetNode setNode) throws MSSemanticError {
+    private LValue interpretSetOp(final MSSetNode setNode) throws MSSemanticException {
         switch (setNode.getOpType()) {
             case MiniSchemeParser.SETVAR_FN: this.interpretSetVariableFn(setNode); break;
             case MiniSchemeParser.SETCAR_FN: this.interpretSetCarFn(setNode); break;
@@ -866,12 +877,12 @@ public class MiniSchemeInterpreter {
      *
      * @param setNode
      */
-    private void interpretSetCarFn(final MSSetNode setNode) throws MSSemanticError {
+    private void interpretSetCarFn(final MSSetNode setNode) throws MSSemanticException {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
         MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
         ArrayList<MSSyntaxTree> setData = setNode.getData();
         if (setData.size() > 1) {
-            throw new MSSemanticError("set! expected 2 arguments but got " + setData.size() + 2);
+            throw new MSSemanticException("set! expected 2 arguments but got " + setData.size() + 2);
         }
         pair.setCar(setData.get(0));
         this.symbolTable.setSymbol(id, pair);
@@ -881,12 +892,12 @@ public class MiniSchemeInterpreter {
      *
      * @param setNode
      */
-    private void interpretSetCdrFn(final MSSetNode setNode) throws MSSemanticError {
+    private void interpretSetCdrFn(final MSSetNode setNode) throws MSSemanticException {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
         MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
         ArrayList<MSSyntaxTree> setData = setNode.getData();
         if (setData.size() > 1) {
-            throw new MSSemanticError("set! expected 2 arguments but got " + setData.size() + 2);
+            throw new MSSemanticException("set! expected 2 arguments but got " + setData.size() + 2);
         }
         pair.setCdr(setData.get(0));
         this.symbolTable.setSymbol(id, pair);
@@ -896,11 +907,11 @@ public class MiniSchemeInterpreter {
      *
      * @param setNode
      */
-    private void interpretSetVariableFn(final MSSetNode setNode) throws MSSemanticError {
+    private void interpretSetVariableFn(final MSSetNode setNode) throws MSSemanticException {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
         ArrayList<MSSyntaxTree> setData = setNode.getData();
         if (setData.size() > 1) {
-            throw new MSSemanticError("set! expected 2 arguments but got " + setData.size() + 2);
+            throw new MSSemanticException("set! expected 2 arguments but got " + setData.size() + 2);
         }
 
         // First check to see if we need to evaluate the setData.
@@ -915,7 +926,7 @@ public class MiniSchemeInterpreter {
      *
      * @param setNode
      */
-    private void interpretSetVectorFn(final MSSetNode setNode) throws MSSemanticError {
+    private void interpretSetVectorFn(final MSSetNode setNode) throws MSSemanticException {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
         MSVectorNode vector = (MSVectorNode) this.symbolTable.getVariable(id);
         ArrayList<MSSyntaxTree> setData = setNode.getData();
@@ -923,18 +934,18 @@ public class MiniSchemeInterpreter {
 
         // Check to make sure the node is a number.
         if (idxNode == null || !idxNode.isNumber()) {
-            throw new MSSemanticError("attempt to access vector with non-index " + setData.get(0).getStringRep());
+            throw new MSSemanticException("attempt to access vector with non-index " + setData.get(0).getStringRep());
         }
 
         // Pull the index and element out. Check the idx for bounds.
         MSNumberNode numIdxNode = (MSNumberNode) setData.get(0);
         if (!numIdxNode.isInteger()) {
-            throw new MSSemanticError("index " + numIdxNode.getStringRep() + " is not an integer");
+            throw new MSSemanticException("index " + numIdxNode.getStringRep() + " is not an integer");
         }
 
         int idx = Integer.parseInt(numIdxNode.getStringRep());
         if (idx >= vector.size() || idx < 0) {
-            throw new MSSemanticError("index " + idx + " out of bounds of vector " + id);
+            throw new MSSemanticException("index " + idx + " out of bounds of vector " + id);
         }
 
         MSSyntaxTree expr = LValue.getAstFromLValue(this.interpretTree(setData.get(1)));

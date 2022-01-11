@@ -1,0 +1,10 @@
+;
+; Convert a string to a list.
+;
+
+(define length (λ (x) (if (null? x) 0 (+ 1 (length (cdr x))))))
+
+(define x "Hello")
+(define y (string->list x))
+(equal? y '(#\H #\e #\l #\l #\o))
+(length y)

@@ -1,3 +1,6 @@
+(define true? (λ (x) (equal? x #t)))
+(define false? (λ (x) (equal? x #f)))
+
 (define x (+ 2 3))
 (true? (< x 5))
 (false? (= x 5))

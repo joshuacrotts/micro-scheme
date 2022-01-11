@@ -1,0 +1,13 @@
+;
+; char? predicate.
+;
+
+(char? #\x)
+(char? '#\x)
+(char? 1)
+(char? '())
+(char? (cons '() '()))
+(char? #t)
+(char? (or #t #f))
+(char? '(#\y))
+(char? (car '(#\y)))

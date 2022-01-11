@@ -351,10 +351,21 @@ public class MSListener extends MiniSchemeBaseListener {
         MSSyntaxTree term = null;
         int tokType = ((TerminalNode) ctx.getChild(0)).getSymbol().getType();
         switch (tokType) {
-            case MiniSchemeParser.NUMBERLIT: term = new MSNumberNode(ctx.getText()); break;
-            case MiniSchemeParser.BOOLLIT: term = new MSBooleanNode(ctx.getText()); break;
-            case MiniSchemeParser.STRINGLIT: term = new MSStringNode(ctx.getText()); break;
-            case MiniSchemeParser.ID: term = new MSIdentifierNode(ctx.getText()); break;
+            case MiniSchemeParser.NUMBERLIT:
+                term = new MSNumberNode(ctx.getText());
+                break;
+            case MiniSchemeParser.BOOLLIT:
+                term = new MSBooleanNode(ctx.getText());
+                break;
+            case MiniSchemeParser.CHARLIT:
+                term = new MSCharacterNode(ctx.getText());
+                break;
+            case MiniSchemeParser.STRINGLIT:
+                term = new MSStringNode(ctx.getText());
+                break;
+            case MiniSchemeParser.ID:
+                term = new MSIdentifierNode(ctx.getText());
+                break;
             default: throw new UnsupportedOperationException("Cannot support this token yet");
         }
 
