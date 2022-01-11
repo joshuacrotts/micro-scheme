@@ -1,0 +1,39 @@
+;;; 2.3.1
+
+(define a 1)
+
+(define b 2)
+
+(list a b)
+; expect (1 2)
+
+(list 'a 'b)
+; expect (a b)
+
+(list 'a b)
+; expect (a 2)
+
+(car '(a b c))
+; expect a
+
+(cdr '(a b c))
+; expect (b c)
+
+(define (memq item x)
+  (cond ((null? x) #f)
+        ((eq? item (car x)) x)
+        (else (memq item (cdr x)))))
+(memq 'apple '(pear banana prune))
+; expect #f
+
+(memq 'apple '(x (apple sauce) y apple pear))
+; expect (apple pear)
+
+(equal? '(1 2 (three)) '(1 2 (three)))
+; expect #t
+
+(equal? '(1 2 (three)) '(1 2 three))
+; expect #f
+
+(equal? '(1 2 three) '(1 2 (three)))
+; expect #f

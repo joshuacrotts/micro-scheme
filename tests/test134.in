@@ -1,0 +1,115 @@
+;;; 2.1.1
+
+(define (add-rat x y)
+  (make-rat (+ (* (numer x) (denom y))
+               (* (numer y) (denom x)))
+            (* (denom x) (denom y))))
+(define (sub-rat x y)
+  (make-rat (- (* (numer x) (denom y))
+               (* (numer y) (denom x)))
+            (* (denom x) (denom y))))
+(define (mul-rat x y)
+  (make-rat (* (numer x) (numer y))
+            (* (denom x) (denom y))))
+(define (div-rat x y)
+  (make-rat (* (numer x) (denom y))
+            (* (denom x) (numer y))))
+(define (equal-rat? x y)
+  (= (* (numer x) (denom y))
+     (* (numer y) (denom x))))
+
+(define x (cons 1 2))
+(car x)
+; expect 1
+
+(cdr x)
+; expect 2
+
+(define x (cons 1 2))
+(define y (cons 3 4))
+(define z (cons x y))
+(car (car z))
+; expect 1
+
+(car (cdr z))
+; expect 3
+
+z
+; expect ((1 . 2) (3 . 4))
+
+(define (make-rat n d) (cons n d))
+(define (numer x) (car x))
+(define (denom x) (cdr x))
+(define (print-rat x) (display (string-append (number->string (truncate (numer x))) "/" (number->string (truncate (denom x))))))
+(define one-half (make-rat 1 2))
+(print-rat one-half)
+; expect 1/2
+
+(define one-third (make-rat 1 3))
+(print-rat (add-rat one-half one-third))
+; expect 5/6
+
+(print-rat (mul-rat one-half one-third))
+; expect 1/6
+
+(print-rat (add-rat one-third one-third))
+; expect 6/9
+
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+(define (make-rat n d)
+  (let ((g (gcd n d)))
+    (cons (/ n g) (/ d g))))
+(print-rat (add-rat one-third one-third))
+; expect 2/3
+
+(define one-through-four (list 1 2 3 4))
+one-through-four
+; expect (1 2 3 4)
+
+(car one-through-four)
+; expect 1
+
+(cdr one-through-four)
+; expect (2 3 4)
+
+(car (cdr one-through-four))
+; expect 2
+
+(cons 10 one-through-four)
+; expect (10 1 2 3 4)
+
+(cons 5 one-through-four)
+; expect (5 1 2 3 4)
+
+(define (map proc items)
+  (if (null? items)
+      '()
+      (cons (proc (car items))
+            (map proc (cdr items)))))
+(map (λ (x) (if (<= x 0) (* x -1) x)) (list -10 2.5 -11.6 17))
+; expect (10 2.5 11.6 17)
+
+(map (lambda (x) (* x x))
+     (list 1 2 3 4))
+; expect (1 4 9 16)
+
+(define (scale-list items factor)
+  (map (lambda (x) (* x factor))
+       items))
+(scale-list (list 1 2 3 4 5) 10)
+; expect (10 20 30 40 50)
+
+(define (count-leaves x)
+  (cond ((null? x) 0)
+        ((not (pair? x)) 1)
+        (else (+ (count-leaves (car x))
+                 (count-leaves (cdr x))))))
+(define x (cons (list 1 2) (list 3 4)))
+(count-leaves x)
+; expect 4
+
+(count-leaves (list x x))
+; expect 8

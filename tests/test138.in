@@ -1,0 +1,13 @@
+;
+; Jesus, we're going λ crazy here!
+;
+
+(define (baz x proc y) ((λ (r s) (- (proc r s))) x y))
+(define (bar x y) (λ (r s) (* (+ r (baz 150 (λ (z w) (* z (modulo w z) 300)) s) (+ x y)))))
+(define foo (λ (x proc y) ((bar 10 20) (proc x y) 30)))
+(foo 50 (λ (x y) (- x y)) (foo 60 (λ (x y) (+ (* 2 x) (/ y 2))) -800))
+
+(* (foo 50 (λ (x y) (- x y)) (foo 60 (λ (x y) (+ (* 2 x) (/ y 2))) -800)) (foo 50 (λ (x y) (- x y)) (foo 60 (λ (x y) (+ (* 2 x) (/ y 2))) -800)))
+(+ (foo 50 (λ (x y) (- x y)) (foo 60 (λ (x y) (+ (* 2 x) (/ y 2))) -800)) (foo 50 (λ (x y) (- x y)) (foo 60 (λ (x y) (+ (* 2 x) (/ y 2))) -800)))
+(- (foo 50 (λ (x y) (- x y)) (foo 60 (λ (x y) (+ (* 2 x) (/ y 2))) -800)) (foo 50 (λ (x y) (- x y)) (foo 60 (λ (x y) (+ (* 2 x) (/ y 2))) -800)))
+

@@ -467,7 +467,8 @@ public class MiniSchemeOperatorInterpreter {
         if (!lhs.isLNumber()) {
             throw new MSArgumentMismatchException("number->string", "number", lhs.getType().toString());
         }
-        return new LValue(String.valueOf(lhs.getDoubleValue()));
+        // If it's possible to show it as an integer then we should.
+        return new LValue(String.valueOf(lhs.toString()));
     }
 
     /**
@@ -579,6 +580,7 @@ public class MiniSchemeOperatorInterpreter {
                 case BOOL: return new LValue(lhs.getBoolValue() == rhs.getBoolValue());
                 case STR: return new LValue(lhs.getStringValue().equals(rhs.getStringValue()));
                 case VECTOR:
+                case SYM:
                 case PAIR: return new LValue(lhs.toString().equals(rhs.toString()));
                 case NULL: return new LValue(true);
                 default:
