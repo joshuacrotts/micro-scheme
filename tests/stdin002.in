@@ -1,20 +1,14 @@
-(define secret 67)
-(define (too-high? n) (> n secret))
-(define (too-low? n) (< n secret))
-(define n 0)
-(define (guess-number p)
-    (display "Give me an integer!")
-    (set! n (read-number))
-    (let ((g n))
-        (cond [(too-high? g) (display "Too high!")]
-              [(too-low? g) (display "Too low!")]
-              [else (display "Done!")]
-        )
-        (if (or((too-high? g) (too-low? g)))
-            (guess-number 10)
-            (display "Nice job!")
-        )
-    )
-)
+(define too-low? (lambda (guess secret) (< guess secret)))
+(define too-high? (lambda (guess secret) (> guess secret)))
 
-(guess-number 10)
+(define (guess)
+  (let ((number (random-integer 1 100)))
+    (display "Pick a number from 1 through 100.")
+    (do ((g 0)) ()
+        ((= number g) (display "Well guessed!"))
+        (set! g (read-number))
+        (cond [(too-low? g number) (display "Too low")]
+              [(too-high? g number) (display "Too high")]
+              [else (display "")]))))
+
+(guess)

@@ -272,7 +272,7 @@ doStepDecl: ('[' term expr ']')*
           | ('(' term expr ')')*;
 doTestDecl: expr;
 doTrueExpr: expr*;
-doBody: expr;
+doBody: seq;
 
 
 // A sequence is just a series of expressions.

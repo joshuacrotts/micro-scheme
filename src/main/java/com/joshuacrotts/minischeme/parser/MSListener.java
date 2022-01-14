@@ -343,7 +343,7 @@ public class MSListener extends MiniSchemeBaseListener {
         }
 
         // Finally grab the body of the do.
-        MSSyntaxTree doBody = this.map.get(ctx.doBody().expr());
+        MSSyntaxTree doBody = this.map.get(ctx.doBody().seq());
         this.map.put(ctx, new MSDoNode(declarations, stepDeclarations, testExpr, trueExpressions, doBody));
     }
 

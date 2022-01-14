@@ -32,7 +32,8 @@ public class MiniSchemeTester {
         }
 
         MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter();
-        // interpretParser(interpreter, parseFromFile("tests/stdin002.in"));
+        interpretParser(interpreter, parseFromFile("tests/stdin002.in"));
+        /*
         if (argv.length == 1 && !argv[0].equals("-i")) {
             interpretParser(interpreter, parseFromFile(argv[0]));
         } else if (argv.length == 1) {
@@ -44,6 +45,7 @@ public class MiniSchemeTester {
                 interpretParser(interpreter, parseFromStdin());
             }
         }
+         */
     }
 
     /**
