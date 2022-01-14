@@ -46,7 +46,9 @@ public class MiniSchemeInterpreter {
     private void replaceParams(final Callable procDef, final MSSyntaxTree body,
                                final ArrayList<MSSyntaxTree> args) {
         for (int i = 0; i < args.size(); i++) {
-            this.replaceParamsHelper(procDef, body, args.get(i), i, args);
+            for (int j = 0; j < body.getChildrenSize(); j++) {
+                this.replaceParamsHelper(procDef, body.getChild(j), args.get(i), i, args);
+            }
         }
     }
 
@@ -111,6 +113,7 @@ public class MiniSchemeInterpreter {
         try {
             switch (tree.getNodeType()) {
                 case ROOT: return this.interpretTree(tree.getChild(0));
+                case SEQ: return this.interpretSequence((MSSequenceNode) tree);
                 case LET_DECL: return this.interpretLet((MSLetDeclarationNode) tree);
                 case VAR_DECL: return this.interpretVariableDeclaration((MSVariableDeclarationNode) tree);
                 case PROC_DECL: return this.interpretProcedureDeclaration((MSProcedureDeclarationNode) tree);
@@ -202,6 +205,19 @@ public class MiniSchemeInterpreter {
         String identifier = lambdaDecl.getIdentifier().getIdentifier();
         this.symbolTable.addSymbol(identifier, SymbolType.LAMBDA, lambdaDecl);
         return new LValue();
+    }
+
+    /**
+     *
+     * @param sequenceNode
+     * @return
+     */
+    private LValue interpretSequence(final MSSequenceNode sequenceNode) {
+        LValue lhs = null;
+        for (MSSyntaxTree expr : sequenceNode.getChildren()) {
+            lhs = this.interpretTree(expr);
+        }
+        return lhs;
     }
 
     /**
@@ -810,11 +826,13 @@ public class MiniSchemeInterpreter {
 
         // Replace the parameters with the arguments.
         MSSyntaxTree body = procDef.getBody().copy();
-        replaceParams(procDef, body, args);
+        this.replaceParams(procDef, body, args);
 
-        // If the body is a lambda declaration, we need to call it with arguments.
-        if (body.isExprLambdaDecl()) {
-            body = new MSLambdaDeclarationCallNode((MSLambdaDeclarationNode) body, procCall);
+        // If the body has a lambda declaration, we need to call it with arguments.
+        for (int i = 0; i < body.getChildrenSize(); i++) {
+            if (body.getChild(i).isExprLambdaDecl()) {
+                body.setChild(i, new MSLambdaDeclarationCallNode((MSLambdaDeclarationNode) body.getChild(i), procCall));
+            }
         }
 
         return this.interpretTree(body);
@@ -839,8 +857,7 @@ public class MiniSchemeInterpreter {
         // Check to see if we have enough arguments for the lambda.
         if (lambdaDecl.getLambdaParameterCount() != lambdaCall.getProcedureArgumentCount()) {
             throw new MSSemanticException("lambda arity mismatch; expected "
-                    + lambdaDeclCall.getLambdaParameterCount()
-                    + " arguments but got " +
+                    + lambdaDeclCall.getLambdaParameterCount() + " arguments but got " +
                     + lambdaDeclCall.getLambdaArgumentCount());
         }
         return this.interpretTree(lambdaDeclCall);

@@ -3,6 +3,7 @@ package com.joshuacrotts.minischeme.ast;
 public enum MSNodeType {
     // Data types.
     ROOT,
+    SEQ,
     ID,
     OP,
     NUM,
@@ -37,5 +38,5 @@ public enum MSNodeType {
     // I/O or set.,
     SET,
     SET_READ,
-    DECL_READ;
+    DECL_READ
 }

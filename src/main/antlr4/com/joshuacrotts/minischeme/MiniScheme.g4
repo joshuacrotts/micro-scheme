@@ -243,7 +243,7 @@ exprDo: '(' DO '(' doDecl? ')' '(' doStepDecl? ')' '(''(' doTestDecl ')' doTrueE
 
 
 // Let declaration.
-exprLetDecl: '(' (exprLetNamed | LET | LETSTAR | LETREC) '(' letDecl? ')' expr ')';
+exprLetDecl: '(' (exprLetNamed | LET | LETSTAR | LETREC) '(' letDecl? ')' letBody ')';
 exprLetNamed: LET ID;
 
 
@@ -258,13 +258,14 @@ exprTerm: term;
 
 // Components of expressons.
 procParams: expr+;
-procBody: expr;
+procBody: seq;
 args: expr+;
 lambdaParams: expr+;
-lambdaBody: expr;
+lambdaBody: seq;
 lambdaArgs: expr+;
 letDecl: ('[' term expr ']')*
        | ('(' term expr ')')*;
+letBody: seq;
 doDecl: ('[' term expr ']')*
       | ('(' term expr ')')*;
 doStepDecl: ('[' term expr ']')*
@@ -272,6 +273,10 @@ doStepDecl: ('[' term expr ']')*
 doTestDecl: expr;
 doTrueExpr: expr*;
 doBody: expr;
+
+
+// A sequence is just a series of expressions.
+seq: expr+;
 
 
 // Separates the "expressions" for a cond or if expression to make it clearer in the parser.
