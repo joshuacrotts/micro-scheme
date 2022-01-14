@@ -7,7 +7,7 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/joshuacrotts/MiniScheme/badge)](https://www.codefactor.io/repository/github/joshuacrotts/MiniScheme) ![](https://github.com/JoshuaCrotts/MiniScheme/workflows/tests/badge.svg) ![GitHub contributors](https://img.shields.io/github/contributors/JoshuaCrotts/MiniScheme) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/JoshuaCrotts/MiniScheme) ![GitHub repo size](https://img.shields.io/github/repo-size/JoshuaCrotts/MiniScheme) [![GitHub issues open](https://img.shields.io/github/issues/JoshuaCrotts/MiniScheme)]() 
 [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/JoshuaCrotts/MiniScheme)]()
 
-This is a small Scheme interpreter written in Java with the ANTLR4 parsing library. Right now, it supports:
+This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsing library. Right now, it supports:
 
 - Primitive Operations 
 - Pairs
