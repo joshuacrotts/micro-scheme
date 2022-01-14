@@ -291,7 +291,7 @@ unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
         | CHAR_FN | BOOL_FN | LIST_FN | NULL_FN | SYMBOL_FN | VECTOR_FN
         | CAR | CDR | STRLEN_FN | PAIR_FN | STRTONUM_FN | NUMTOSTR_FN
         | STRTOLIST_FN | LISTTOSTR_FN | TODEG_FN | TORAD_FN | LOGICAL_NOT
-        | VECTORLEN_FN | SINH | COSH | TANH;
+        | VECTORLEN_FN | SINH | COSH | TANH | RAND_FN;
 
 
 // All binary operators.
@@ -308,7 +308,7 @@ ternaryop: STRSUBSTR;
 // All n-ary operators. An n-ary operator is an operator that takes either 0 or >= 2 arguments. The
 // semantic analyzer should check to make sure the argument count is correct for binary operators.
 naryop: PLUS | MINUS | STAR | SLASH | EXPONENTIATION | STRAPPEND_FN
-      | RAND_FN | EQ_FN | EQUAL_FN | LOGICAL_AND | LOGICAL_OR;
+      | EQ_FN | EQUAL_FN | LOGICAL_AND | LOGICAL_OR;
 
 
 // "Set" operations - allows redefining of variables.
