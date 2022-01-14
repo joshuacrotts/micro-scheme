@@ -52,6 +52,7 @@ public class MiniSchemeOperatorInterpreter {
             case MiniSchemeParser.STRTOLIST_FN: return MiniSchemeOperatorInterpreter.interpretStringToListFn(lhs);
             case MiniSchemeParser.TODEG_FN: return MiniSchemeOperatorInterpreter.interpretToDegrees(lhs);
             case MiniSchemeParser.TORAD_FN: return MiniSchemeOperatorInterpreter.interpretToRadians(lhs);
+            case MiniSchemeParser.RAND_FN: return MiniSchemeOperatorInterpreter.interpretRandomFn(lhs);
             default:
                 throw new MSSemanticException("invalid unary operator type " + opType);
         }
@@ -97,7 +98,6 @@ public class MiniSchemeOperatorInterpreter {
     protected static LValue interpretPrimitiveTernaryOperator(final int opType, final LValue op1,
                                                               final LValue op2, final LValue op3) throws MSSemanticException {
         switch (opType) {
-            case MiniSchemeParser.RAND_FN: return new LValue(Math.random());
             case MiniSchemeParser.STRSUBSTR:
                 return new LValue(op1.getStringValue().substring((int) op2.getDoubleValue(), (int) op3.getDoubleValue()));
             default:
@@ -566,6 +566,18 @@ public class MiniSchemeOperatorInterpreter {
             throw new MSArgumentMismatchException("to-radians", "number", lhs.getType().toString());
         }
         return new LValue(Math.toRadians(lhs.getDoubleValue()));
+    }
+
+    /**
+     *
+     * @param lhs
+     * @return
+     */
+    private static LValue interpretRandomFn(final LValue lhs) throws MSArgumentMismatchException {
+        if (!lhs.isLNumber()) {
+            throw new MSArgumentMismatchException("random", "number", lhs.getType().toString());
+        }
+        return new LValue(Math.random() * lhs.getDoubleValue());
     }
 
     /**
