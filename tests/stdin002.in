@@ -1,0 +1,14 @@
+(define too-low? (lambda (guess secret) (< guess secret)))
+(define too-high? (lambda (guess secret) (> guess secret)))
+
+(define (guess)
+  (let ((number (random-integer 1 100)))
+    (display "Pick a number from 1 through 100.")
+    (do ((g 0)) ()
+        ((= number g) (display "Well guessed!"))
+        (set! g (read-number))
+        (cond [(too-low? g number) (display "Too low")]
+              [(too-high? g number) (display "Too high")]
+              [else (display "")]))))
+
+(guess)

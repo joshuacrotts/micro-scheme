@@ -71,7 +71,7 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
         this.map.put(ctx, new MSProcedureDeclarationNode(this.map.get(ctx.term()),
-                                    params, this.map.get(ctx.procBody().expr())));
+                                    params, this.map.get(ctx.procBody().seq())));
     }
 
     @Override
@@ -84,7 +84,19 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
         this.map.put(ctx, new MSLambdaDeclarationNode(this.map.get(ctx.term()),
-                            lambdaParams, this.map.get(ctx.lambdaBody().expr())));
+                            lambdaParams, this.map.get(ctx.lambdaBody().seq())));
+    }
+
+    @Override
+    public void exitSeq(MiniSchemeParser.SeqContext ctx) {
+        super.exitSeq(ctx);
+        ArrayList<MSSyntaxTree> exprs = new ArrayList<>();
+        if (ctx.expr() != null) {
+            for (ParseTree pt : ctx.expr()) {
+                exprs.add(this.map.get(pt));
+            }
+        }
+        this.map.put(ctx, new MSSequenceNode(exprs));
     }
 
     @Override
@@ -232,9 +244,9 @@ public class MSListener extends MiniSchemeBaseListener {
         // If they have a name, extract it here and create the node.
         if (ctx.exprLetNamed() != null) {
             MSIdentifierNode idNode = new MSIdentifierNode(ctx.exprLetNamed().ID().getText());
-            this.map.put(ctx, new MSLetDeclarationNode(letType, idNode, declarations, this.map.get(ctx.expr())));
+            this.map.put(ctx, new MSLetDeclarationNode(letType, idNode, declarations, this.map.get(ctx.letBody().seq())));
         } else {
-            this.map.put(ctx, new MSLetDeclarationNode(letType, declarations, this.map.get(ctx.expr())));
+            this.map.put(ctx, new MSLetDeclarationNode(letType, declarations, this.map.get(ctx.letBody().seq())));
         }
     }
 
@@ -247,7 +259,7 @@ public class MSListener extends MiniSchemeBaseListener {
                 lambdaParams.add(this.map.get(pt));
             }
         }
-        this.map.put(ctx, new MSLambdaDeclarationNode(lambdaParams, this.map.get(ctx.lambdaBody().expr())));
+        this.map.put(ctx, new MSLambdaDeclarationNode(lambdaParams, this.map.get(ctx.lambdaBody().seq())));
     }
 
     @Override
@@ -270,7 +282,7 @@ public class MSListener extends MiniSchemeBaseListener {
         }
 
         this.map.put(ctx, new MSLambdaDeclarationCallNode(lambdaParams,
-                this.map.get(ctx.lambdaBody().expr()), lambdaArgs));
+                this.map.get(ctx.lambdaBody().seq()), lambdaArgs));
     }
 
     @Override
@@ -331,7 +343,7 @@ public class MSListener extends MiniSchemeBaseListener {
         }
 
         // Finally grab the body of the do.
-        MSSyntaxTree doBody = this.map.get(ctx.doBody().expr());
+        MSSyntaxTree doBody = this.map.get(ctx.doBody().seq());
         this.map.put(ctx, new MSDoNode(declarations, stepDeclarations, testExpr, trueExpressions, doBody));
     }
 
