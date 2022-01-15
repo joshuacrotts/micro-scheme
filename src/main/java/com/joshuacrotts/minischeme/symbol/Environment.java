@@ -12,10 +12,10 @@ public class Environment {
     /**
      *
      */
-    private final TreeMap<String, SymbolEntry> symbolTable;
+    private final TreeMap<String, SymbolEntry> SYMBOL_TABLE;
 
     public Environment() {
-        this.symbolTable = new TreeMap<>();
+        this.SYMBOL_TABLE = new TreeMap<>();
     }
 
     /**
@@ -26,7 +26,7 @@ public class Environment {
      */
     public void addSymbol(final String identifier, final SymbolType symbolType,
                           final MSSyntaxTree symbolExpr) {
-        this.symbolTable.put(identifier, new SymbolEntry(symbolType, symbolExpr));
+        this.SYMBOL_TABLE.put(identifier, new SymbolEntry(symbolType, symbolExpr));
     }
 
     /**
@@ -35,10 +35,10 @@ public class Environment {
      * @return
      */
     public boolean hasSymbol(final String identifier) {
-        return this.symbolTable.containsKey(identifier);
+        return this.SYMBOL_TABLE.containsKey(identifier);
     }
 
     public TreeMap<String, SymbolEntry> getSymbolTable() {
-        return this.symbolTable;
+        return this.SYMBOL_TABLE;
     }
 }

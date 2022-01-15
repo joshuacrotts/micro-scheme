@@ -16,28 +16,29 @@ public class MSOpNode extends MSSyntaxTree {
     /**
      * Operation type. This should be a token type from the parser.
      */
-    private final int opType;
+    private final int OP_TYPE;
 
     /**
-     *
+     * Group associated with the operator. The group refers to the parser
+     * rule denoting how many arguments the operator takes.
      */
-    private final int opGroup;
+    private final int OP_GROUP;
 
     public MSOpNode(final int opType, final int opGroup, final MSSyntaxTree... children) {
         super(MSNodeType.OP, children);
-        this.opType = opType;
-        this.opGroup = opGroup;
+        this.OP_TYPE = opType;
+        this.OP_GROUP = opGroup;
     }
 
     private MSOpNode(final int opType, final int opGroup) {
         super(MSNodeType.OP);
-        this.opType = opType;
-        this.opGroup = opGroup;
+        this.OP_TYPE = opType;
+        this.OP_GROUP = opGroup;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        MSOpNode exp = new MSOpNode(this.opType, this.opGroup);
+        MSOpNode exp = new MSOpNode(this.OP_TYPE, this.OP_GROUP);
         for (MSSyntaxTree ch : this.getChildren()) {
             exp.addChild(ch.copy());
         }
@@ -46,23 +47,23 @@ public class MSOpNode extends MSSyntaxTree {
 
     @Override
     public String getStringRep() {
-        return this.getOpTypeString(this.opType);
+        return this.getOpTypeString(this.OP_TYPE);
     }
 
     @Override
     public String toString() {
-        return "OP " + getOpTypeString(this.opType);
+        return "OP " + getOpTypeString(this.OP_TYPE);
     }
 
     public int getOpType() {
-        return this.opType;
+        return this.OP_TYPE;
     }
 
-    public boolean isUnary() { return this.opGroup == MiniSchemeParser.RULE_unaryop; }
+    public boolean isUnary() { return this.OP_GROUP == MiniSchemeParser.RULE_unaryop; }
 
-    public boolean isBinary() { return this.opGroup == MiniSchemeParser.RULE_binaryop; }
+    public boolean isBinary() { return this.OP_GROUP == MiniSchemeParser.RULE_binaryop; }
 
-    public boolean isTernary() { return this.opGroup == MiniSchemeParser.RULE_ternaryop; }
+    public boolean isTernary() { return this.OP_GROUP == MiniSchemeParser.RULE_ternaryop; }
 
     /**
      * Returns the literal string representation of an operation. In the lexer, the operation

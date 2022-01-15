@@ -14,29 +14,29 @@ public class MSIdentifierNode extends MSSyntaxTree {
     /**
      * Identifier to use.
      */
-    private final String id;
+    private final String IDENTIFIER;
 
     public MSIdentifierNode(final String id) {
         super(MSNodeType.ID);
-        this.id = id;
+        this.IDENTIFIER = id;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSIdentifierNode(this.id);
+        return new MSIdentifierNode(this.IDENTIFIER);
     }
 
     @Override
     public String getStringRep() {
-        return this.id;
+        return this.IDENTIFIER;
     }
 
     @Override
     public String toString() {
-        return "(ID " + this.id + ")";
+        return "(ID " + this.IDENTIFIER + ")";
     }
 
     public String getIdentifier() {
-        return this.id;
+        return this.IDENTIFIER;
     }
 }

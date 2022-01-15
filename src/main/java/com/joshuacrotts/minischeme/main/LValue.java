@@ -17,7 +17,7 @@ public class LValue {
     /**
      * Type associated with this LValue.
      */
-    private final LValueType type;
+    private final LValueType TYPE;
 
     /**
      * Number associated with this LValue if type == NUM.
@@ -45,7 +45,7 @@ public class LValue {
     private MSSyntaxTree tval;
 
     protected LValue(final LValueType type) {
-        this.type = type;
+        this.TYPE = type;
     }
 
     protected LValue(final MSNumberNode dval) {
@@ -92,28 +92,28 @@ public class LValue {
 
     protected LValue(final MSSyntaxTree tval) {
         if (tval instanceof MSNumberNode) {
-            this.type = LValueType.NUM;
+            this.TYPE = LValueType.NUM;
             this.dval = ((MSNumberNode) tval);
         } else if (tval instanceof MSBooleanNode) {
-            this.type = LValueType.BOOL;
+            this.TYPE = LValueType.BOOL;
             this.bval = ((MSBooleanNode) tval);
         } else if (tval instanceof MSCharacterNode) {
-            this.type = LValueType.CHAR;
+            this.TYPE = LValueType.CHAR;
             this.cval = ((MSCharacterNode) tval);
         } else if (tval instanceof MSStringNode) {
-            this.type = LValueType.STR;
+            this.TYPE = LValueType.STR;
             this.strval = ((MSStringNode) tval);
         } else if (tval instanceof MSSymbolNode || tval instanceof MSSymbolLiteralNode) {
-            this.type = LValueType.SYM;
+            this.TYPE = LValueType.SYM;
             this.tval = tval;
         } else {
-            this.type = LValueType.PAIR;
+            this.TYPE = LValueType.PAIR;
             this.tval = tval;
         }
     }
 
     protected LValue(LValueType type, MSSyntaxTree tval) {
-        this.type = type;
+        this.TYPE = type;
         this.tval = tval;
     }
 
@@ -144,7 +144,7 @@ public class LValue {
 
     @Override
     public String toString() {
-        switch (this.type) {
+        switch (this.TYPE) {
             case NUM:
                 return ((int) this.dval.getValue() == this.dval.getValue())
                         ? Integer.toString((int) this.dval.getValue())
@@ -184,32 +184,32 @@ public class LValue {
     }
 
     protected LValueType getType() {
-        return this.type;
+        return this.TYPE;
     }
 
     protected MSSyntaxTree getTreeValue() {
         return this.tval;
     }
 
-    protected boolean isLNumber() { return this.type == LValueType.NUM; }
+    protected boolean isLNumber() { return this.TYPE == LValueType.NUM; }
 
-    protected boolean isLBool() { return this.type == LValueType.BOOL; }
+    protected boolean isLBool() { return this.TYPE == LValueType.BOOL; }
 
     protected boolean isLChar() {
-        return this.type == LValueType.CHAR;
+        return this.TYPE == LValueType.CHAR;
     }
 
-    protected boolean isLString() { return this.type == LValueType.STR; }
+    protected boolean isLString() { return this.TYPE == LValueType.STR; }
 
-    protected boolean isLSymbol() { return this.type == LValueType.SYM; }
+    protected boolean isLSymbol() { return this.TYPE == LValueType.SYM; }
 
-    protected boolean isLVector() { return this.type == LValueType.VECTOR; }
+    protected boolean isLVector() { return this.TYPE == LValueType.VECTOR; }
 
-    protected boolean isLPair() { return this.type == LValueType.PAIR; }
+    protected boolean isLPair() { return this.TYPE == LValueType.PAIR; }
 
-    protected boolean isLProcCall() { return this.type == LValueType.PROCCALL; }
+    protected boolean isLProcCall() { return this.TYPE == LValueType.PROCCALL; }
 
-    protected boolean isLLambdaCall() { return this.type == LValueType.LAMBDACALL; }
+    protected boolean isLLambdaCall() { return this.TYPE == LValueType.LAMBDACALL; }
 
     /**
      *

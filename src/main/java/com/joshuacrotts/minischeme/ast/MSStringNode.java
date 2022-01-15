@@ -11,34 +11,34 @@ public class MSStringNode extends MSSyntaxTree {
     /**
      * String associated with this node.
      */
-    private final String value;
+    private final String VALUE;
 
     public MSStringNode(final String value) {
         super(MSNodeType.STR);
-        this.value = value;
+        this.VALUE = value;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSStringNode(this.value);
+        return new MSStringNode(this.VALUE);
     }
 
     @Override
     public String getStringRep() {
-        if (this.value.startsWith("\"")
-            && this.value.endsWith("\"")
-            && this.value.length() >= 2) {
-            return this.value.substring(1, this.value.length() - 1);
+        if (this.VALUE.startsWith("\"")
+            && this.VALUE.endsWith("\"")
+            && this.VALUE.length() >= 2) {
+            return this.VALUE.substring(1, this.VALUE.length() - 1);
         }
-        return this.value;
+        return this.VALUE;
     }
 
     @Override
     public String toString() {
-        return "(STR " + this.value + ")";
+        return "(STR " + this.VALUE + ")";
     }
 
     public String getValue() {
-        return this.value;
+        return this.VALUE;
     }
 }

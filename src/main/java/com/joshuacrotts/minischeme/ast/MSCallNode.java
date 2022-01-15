@@ -15,25 +15,25 @@ public class MSCallNode extends MSSyntaxTree {
     /**
      * Number of arguments passed to the procedure being called, if any.
      */
-    private int numProcArgs;
+    private final int NUM_PROC_ARGS;
 
     /**
      * Number of arguments passed to the lambda being called, if any.
      */
-    private int numLambdaArgs;
+    private final int NUM_LAMBDA_ARGS;
 
     public MSCallNode(final MSSyntaxTree procIdentifier, final ArrayList<MSSyntaxTree> procArgs,
                       final ArrayList<MSSyntaxTree> lambdaArgs) {
         super(MSNodeType.CALL);
         this.addChild(procIdentifier);
-        this.numProcArgs = procArgs.size();
-        this.numLambdaArgs = lambdaArgs.size();
+        this.NUM_PROC_ARGS = procArgs.size();
+        this.NUM_LAMBDA_ARGS = lambdaArgs.size();
 
-        for (int i = 0; i < this.numProcArgs; i++) {
+        for (int i = 0; i < this.NUM_PROC_ARGS; i++) {
             this.addChild(procArgs.get(i));
         }
 
-        for (int i = 0; i < this.numLambdaArgs; i++) {
+        for (int i = 0; i < this.NUM_LAMBDA_ARGS; i++) {
             this.addChild(lambdaArgs.get(i));
         }
     }
@@ -42,13 +42,13 @@ public class MSCallNode extends MSSyntaxTree {
     public MSSyntaxTree copy() {
         MSSyntaxTree idCopy = this.getChild(0).copy();
         ArrayList<MSSyntaxTree> procArgsCopy = new ArrayList<>();
-        for (int i = 0; i < this.numProcArgs; i++) {
+        for (int i = 0; i < this.NUM_PROC_ARGS; i++) {
             procArgsCopy.add(this.getChild(i + 1).copy());
         }
 
         ArrayList<MSSyntaxTree> lambdaArgsCopy = new ArrayList<>();
-        for (int i = 0; i < this.numLambdaArgs; i++) {
-            lambdaArgsCopy.add(this.getChild(i + 1 + this.numProcArgs).copy());
+        for (int i = 0; i < this.NUM_LAMBDA_ARGS; i++) {
+            lambdaArgsCopy.add(this.getChild(i + 1 + this.NUM_PROC_ARGS).copy());
         }
 
         return new MSCallNode(idCopy, procArgsCopy, lambdaArgsCopy);
@@ -70,7 +70,7 @@ public class MSCallNode extends MSSyntaxTree {
 
     public ArrayList<MSSyntaxTree> getProcedureArguments() {
         ArrayList<MSSyntaxTree> procArgs = new ArrayList<>();
-        for (int i = 0; i < this.numProcArgs; i++) {
+        for (int i = 0; i < this.NUM_PROC_ARGS; i++) {
             procArgs.add(this.getChild(i + 1));
         }
         return procArgs;
@@ -78,17 +78,17 @@ public class MSCallNode extends MSSyntaxTree {
 
     public ArrayList<MSSyntaxTree> getLambdaArguments() {
         ArrayList<MSSyntaxTree> lambdaArgs = new ArrayList<>();
-        for (int i = 0; i < this.numLambdaArgs; i++) {
-            lambdaArgs.add(this.getChild(i + 1 + this.numProcArgs));
+        for (int i = 0; i < this.NUM_LAMBDA_ARGS; i++) {
+            lambdaArgs.add(this.getChild(i + 1 + this.NUM_PROC_ARGS));
         }
         return lambdaArgs;
     }
 
     public int getProcedureArgumentCount() {
-        return this.numProcArgs;
+        return this.NUM_PROC_ARGS;
     }
 
     public int getLambdaArgumentCount() {
-        return this.numLambdaArgs;
+        return this.NUM_LAMBDA_ARGS;
     }
 }

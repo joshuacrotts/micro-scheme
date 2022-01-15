@@ -5,7 +5,7 @@ package com.joshuacrotts.minischeme.ast;
  * of declarations: READ, PROC[edure], LAMBDA, VAR[iable], and LET.
  *
  * @author Joshua Crotts
- * @version 12/31/2021
+ * @version 01/15/2021
  */
 public abstract class MSDeclaration extends MSSyntaxTree {
 
@@ -24,6 +24,7 @@ public abstract class MSDeclaration extends MSSyntaxTree {
      * either an I/O action, procedure, lambda, variable, or let env.
      *
      * @param declType - node type of declaration.
+     *
      * @return true if valid, false otherwise.
      */
     private static boolean isValidDeclarationType(final MSNodeType declType) {

@@ -13,19 +13,19 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
     /**
      * Number of parameters required to call this lambda.
      */
-    private int numParams;
+    private final int NUM_PARAMS;
 
     /**
      * If this lambda is bound to an identifier, it is not anonymous.
      */
-    private final boolean isAnonymous;
+    private final boolean IS_ANONYMOUS;
 
     public MSLambdaDeclarationNode(final ArrayList<MSSyntaxTree> lambdaParams,
                                    final MSSyntaxTree lambdaBody) {
         super(MSNodeType.EXPR_LAMBDA_DECL);
-        this.isAnonymous = true;
-        this.numParams = lambdaParams.size();
-        for (int i = 0; i < this.numParams; i++) {
+        this.IS_ANONYMOUS = true;
+        this.NUM_PARAMS = lambdaParams.size();
+        for (int i = 0; i < this.NUM_PARAMS; i++) {
             this.addChild(lambdaParams.get(i));
         }
         this.addChild(lambdaBody);
@@ -34,10 +34,10 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
     public MSLambdaDeclarationNode(MSSyntaxTree id, ArrayList<MSSyntaxTree> lambdaParams,
                                    MSSyntaxTree lambdaBody) {
         super(MSNodeType.LAMBDA_DECL);
-        this.isAnonymous = false;
+        this.IS_ANONYMOUS = false;
         this.addChild(id);
-        this.numParams = lambdaParams.size();
-        for (int i = 0; i < this.numParams; i++) {
+        this.NUM_PARAMS = lambdaParams.size();
+        for (int i = 0; i < this.NUM_PARAMS; i++) {
             this.addChild(lambdaParams.get(i));
         }
         this.addChild(lambdaBody);
@@ -63,8 +63,8 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
     @Override
     public MSSyntaxTree copy() {
         ArrayList<MSSyntaxTree> lambdaParamsCopy = new ArrayList<>();
-        int offset = this.isAnonymous ? 0 : 1;
-        for (int i = offset; i < this.numParams + offset; i++) {
+        int offset = this.IS_ANONYMOUS ? 0 : 1;
+        for (int i = offset; i < this.NUM_PARAMS + offset; i++) {
             lambdaParamsCopy.add(this.getChild(i).copy());
         }
 
@@ -85,8 +85,8 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
 
     public ArrayList<MSSyntaxTree> getLambdaParameters() {
         ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
-        int offset = this.isAnonymous ? 0 : 1;
-        for (int i = offset; i < this.numParams + offset; i++) {
+        int offset = this.IS_ANONYMOUS ? 0 : 1;
+        for (int i = offset; i < this.NUM_PARAMS + offset; i++) {
             lambdaParams.add(this.getChild(i));
         }
         return lambdaParams;
@@ -97,17 +97,17 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
     }
 
     public MSIdentifierNode getIdentifier() {
-        if (!this.isAnonymous) {
+        if (!this.IS_ANONYMOUS) {
             return (MSIdentifierNode) this.getChild(0);
         }
-        throw new IllegalStateException("ERR lambda not bound to identifier");
+        throw new IllegalStateException("Lambda not bound to identifier");
     }
 
     public int getLambdaParameterCount() {
-        return this.numParams;
+        return this.NUM_PARAMS;
     }
 
     public boolean isAnonymous() {
-        return this.isAnonymous;
+        return this.IS_ANONYMOUS;
     }
 }

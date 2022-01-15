@@ -12,34 +12,34 @@ public class MSBooleanNode extends MSSyntaxTree {
     /**
      * Boolean associated with this node.
      */
-    private final boolean value;
+    private final boolean VALUE;
 
     public MSBooleanNode(final String value) {
         super(MSNodeType.BOOL);
-        this.value = value.equals("#t");
+        this.VALUE = value.equals("#t");
     }
 
     public MSBooleanNode(final boolean value) {
         super(MSNodeType.BOOL);
-        this.value = value;
+        this.VALUE = value;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSBooleanNode(this.value);
+        return new MSBooleanNode(this.VALUE);
     }
 
     @Override
     public String getStringRep() {
-        return Boolean.toString(value);
+        return Boolean.toString(this.VALUE);
     }
 
     @Override
     public String toString() {
-        return "(BOOL " + this.value + ")";
+        return "(BOOL " + this.VALUE + ")";
     }
 
     public boolean getValue() {
-        return this.value;
+        return this.VALUE;
     }
 }

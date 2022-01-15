@@ -4,6 +4,7 @@ import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.main.LValue.LValueType;
 import com.joshuacrotts.minischeme.parser.MSArgumentMismatchException;
+import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 import com.joshuacrotts.minischeme.parser.MSSemanticException;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import com.joshuacrotts.minischeme.symbol.SymbolType;
@@ -139,7 +140,7 @@ public class MiniSchemeInterpreter {
                 case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall((MSLambdaDeclarationCallNode) tree);
                 default: break;
             }
-        } catch (MSSemanticException err) {
+        } catch (MSSemanticException | MSInterpreterException err) {
             System.out.println(err.getMessage());
         }
 
@@ -208,9 +209,12 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * Interprets a sequence. A sequence is just a collection of expressions to be
+     * evaluated. The sequence "returns" the LValue of the last expression evaluated.
      *
-     * @param sequenceNode
-     * @return
+     * @param sequenceNode MSSequenceNode AST.
+     *
+     * @return LValue of last expression evaluated in the sequence.
      */
     private LValue interpretSequence(final MSSequenceNode sequenceNode) {
         LValue lhs = null;
@@ -229,15 +233,14 @@ public class MiniSchemeInterpreter {
      *
      * @return LValue of let evaluated.
      */
-    private LValue interpretLet(final MSLetDeclarationNode letDecl) {
+    private LValue interpretLet(final MSLetDeclarationNode letDecl) throws MSInterpreterException {
         switch (letDecl.getLetType()) {
             case LET: return this.interpretLetDeclaration(letDecl);
             case LET_STAR: return this.interpretLetStarDeclaration(letDecl);
             case LET_REC: return this.interpretLetRecDeclaration(letDecl);
             case LET_NAMED: return this.interpretLetNamedDeclaration(letDecl);
             default:
-                throw new IllegalArgumentException("Internal interpreter error " +
-                        "- cannot interpret let of type " + letDecl.getLetType() + ".");
+                throw new MSInterpreterException("Cannot interpret let of type " + letDecl.getLetType());
         }
     }
 
@@ -942,8 +945,11 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * Interprets a set car function. This sets the head of a list to some value.
      *
-     * @param setNode
+     * @param setNode MSSetNode ast.
+     *
+     * @throws MSSemanticException if set! does not have two arguments.
      */
     private void interpretSetCarFn(final MSSetNode setNode) throws MSSemanticException {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
@@ -957,8 +963,13 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * Interprets a set cdr function. This sets the tail of a list to some value.
      *
-     * @param setNode
+     * @param setNode MSSetNode ast.
+     *
+     * @return void.
+     *
+     * @throws MSSemanticException if set! does not have two arguments.
      */
     private void interpretSetCdrFn(final MSSetNode setNode) throws MSSemanticException {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
@@ -972,12 +983,13 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * Interprets a set variable function. This, as the name implies, set a variable
+     * to some value. This variable must be previously declared or an error
+     * will be thrown.
      *
-     * @param setNode
+     * @param setNode  MSSetNode AST.
      *
-     * @return void.
-     *
-     * @throws MSSemanticException
+     * @throws MSSemanticException if set! does not have two arguments.
      */
     private void interpretSetVariableFn(final MSSetNode setNode) throws MSSemanticException {
         String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
@@ -997,8 +1009,6 @@ public class MiniSchemeInterpreter {
     /**
      *
      * @param setNode
-     *
-     * @return void.
      *
      * @throws MSSemanticException
      */

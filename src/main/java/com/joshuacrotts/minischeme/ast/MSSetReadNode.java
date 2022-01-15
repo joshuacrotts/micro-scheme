@@ -8,16 +8,16 @@ public class MSSetReadNode extends MSSyntaxTree {
     /**
      * Set/read operation type.
      */
-    private final int opType;
+    private final int OP_TYPE;
 
     public MSSetReadNode(final int opType, final MSSyntaxTree identifier) {
         super(MSNodeType.SET_READ, identifier);
-        this.opType = opType;
+        this.OP_TYPE = opType;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSSetReadNode(this.opType, this.getChild(0).copy());
+        return new MSSetReadNode(this.OP_TYPE, this.getChild(0).copy());
     }
 
     @Override
@@ -35,6 +35,6 @@ public class MSSetReadNode extends MSSyntaxTree {
     }
 
     public int getOpType() {
-        return this.opType;
+        return this.OP_TYPE;
     }
 }

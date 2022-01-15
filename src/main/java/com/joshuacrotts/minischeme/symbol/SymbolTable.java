@@ -18,10 +18,10 @@ public class SymbolTable {
      * are simply checked for existence but if they are declared twice, then we
      * throw an error (this does not happen yet).
      */
-    private final Stack<Environment> environmentTable;
+    private final Stack<Environment> ENV_TABLE;
 
     public SymbolTable() {
-        this.environmentTable = new Stack<>();
+        this.ENV_TABLE = new Stack<>();
     }
 
     /**
@@ -33,7 +33,7 @@ public class SymbolTable {
      * @param data
      */
     public void addSymbol(String id, SymbolType type, MSSyntaxTree data) {
-        this.environmentTable.peek().addSymbol(id, type, data);
+        this.ENV_TABLE.peek().addSymbol(id, type, data);
     }
 
     /**
@@ -48,7 +48,7 @@ public class SymbolTable {
             throw new IllegalArgumentException("Internal interpreter error - cannot copy assignment from "
                     + parentId.getIdentifier() + " to " + id);
         }
-        this.environmentTable.peek().addSymbol(id, se.getSymbolType(), se.getSymbolData());
+        this.ENV_TABLE.peek().addSymbol(id, se.getSymbolType(), se.getSymbolData());
     }
 
     /**
@@ -77,8 +77,8 @@ public class SymbolTable {
         boolean found = false;
 
         // We have to use a for loop to traverse backwards since iterators are broken with stacks.
-        for (int i = this.environmentTable.size() - 1; i >= 0; i--) {
-            Environment curr = this.environmentTable.get(i);
+        for (int i = this.ENV_TABLE.size() - 1; i >= 0; i--) {
+            Environment curr = this.ENV_TABLE.get(i);
             found = hasSymbolInEnvironment(id, curr);
             if (found) { return true; }
         }
@@ -95,8 +95,8 @@ public class SymbolTable {
      * @return SymbolEntry value for identifier key.
      */
     public SymbolEntry getSymbolEntry(String id) {
-        for (int i = this.environmentTable.size() - 1; i >= 0; i--) {
-            Environment curr = this.environmentTable.get(i);
+        for (int i = this.ENV_TABLE.size() - 1; i >= 0; i--) {
+            Environment curr = this.ENV_TABLE.get(i);
 
             for (String key : curr.getSymbolTable().keySet()) {
                 if (id.equals(key)) {
@@ -112,7 +112,7 @@ public class SymbolTable {
      * Adds a new environment to the stack.
      */
     public void addEnvironment() {
-        this.environmentTable.push(new Environment());
+        this.ENV_TABLE.push(new Environment());
     }
 
     /**
@@ -121,7 +121,7 @@ public class SymbolTable {
      * used).
      */
     public void popEnvironment() {
-        this.environmentTable.pop();
+        this.ENV_TABLE.pop();
     }
 
     /**
@@ -130,9 +130,9 @@ public class SymbolTable {
      * be output in alphabetical order.
      */
     public void printGlobalVars() {
-        int stackSize = this.environmentTable.size();
+        int stackSize = this.ENV_TABLE.size();
         // Retrieve the bottom of the stack (which is the global block).
-        Environment globalEnvironment = this.environmentTable.get(stackSize - 1);
+        Environment globalEnvironment = this.ENV_TABLE.get(stackSize - 1);
 
         // Return the set of keys.
         TreeMap<String, SymbolEntry> map = globalEnvironment.getSymbolTable();
@@ -186,11 +186,11 @@ public class SymbolTable {
      * @return
      */
     private boolean hasSymbolInEnvironment(String id, Environment environment) {
-        int idx = this.environmentTable.indexOf(environment);
-        if (idx < 0 || idx >= this.environmentTable.size()) {
-            throw new IndexOutOfBoundsException("idx " + idx + " is out of bounds: " + this.environmentTable.size());
+        int idx = this.ENV_TABLE.indexOf(environment);
+        if (idx < 0 || idx >= this.ENV_TABLE.size()) {
+            throw new IndexOutOfBoundsException("idx " + idx + " is out of bounds: " + this.ENV_TABLE.size());
         }
 
-        return this.environmentTable.get(idx).hasSymbol(id);
+        return this.ENV_TABLE.get(idx).hasSymbol(id);
     }
 }

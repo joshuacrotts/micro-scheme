@@ -13,17 +13,17 @@ public class MSDeclarationReadNode extends MSDeclaration {
     /**
      * Keeps track of what type of operator we're reading in from the user.
      */
-    private int opType;
+    private final int OP_TYPE;
 
     public MSDeclarationReadNode(final int opType, final MSSyntaxTree identifier) {
         super(MSNodeType.DECL_READ);
         this.addChild(identifier);
-        this.opType = opType;
+        this.OP_TYPE = opType;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSDeclarationReadNode(this.opType, this.getChild(0).copy());
+        return new MSDeclarationReadNode(this.OP_TYPE, this.getChild(0).copy());
     }
 
     @Override
@@ -41,6 +41,6 @@ public class MSDeclarationReadNode extends MSDeclaration {
     }
 
     public int getOpType() {
-        return this.opType;
+        return this.OP_TYPE;
     }
 }

@@ -18,17 +18,17 @@ public class MSSetNode extends MSSyntaxTree {
     /**
      * Set type operation.
      */
-    private final int opType;
+    private final int OP_TYPE;
 
     public MSSetNode(final int opType, final MSSyntaxTree identifierNode, final ArrayList<MSSyntaxTree> setData) {
         super(MSNodeType.SET, identifierNode);
-        this.opType = opType;
+        this.OP_TYPE = opType;
         setData.forEach(this::addChild);
     }
 
     public MSSetNode(final int opType, final MSSyntaxTree identifierNode, final MSSyntaxTree setData) {
         super(MSNodeType.SET, identifierNode);
-        this.opType = opType;
+        this.OP_TYPE = opType;
         this.addChild(setData);
     }
 
@@ -40,12 +40,12 @@ public class MSSetNode extends MSSyntaxTree {
             setDataCopy.add(this.getChild(i).copy());
         }
 
-        return new MSSetNode(this.opType, idCopy, setDataCopy);
+        return new MSSetNode(this.OP_TYPE, idCopy, setDataCopy);
     }
 
     @Override
     public String getStringRep() {
-        return this.getSetOpTypeString(this.opType);
+        return this.getSetOpTypeString(this.OP_TYPE);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class MSSetNode extends MSSyntaxTree {
     }
 
     public int getOpType() {
-        return this.opType;
+        return this.OP_TYPE;
     }
 
     public MSSyntaxTree getIdentifier() {

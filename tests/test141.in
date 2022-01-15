@@ -1,0 +1,7 @@
+;
+; Simple test with "begin".
+;
+
+(begin
+    (+ 2 3)
+)

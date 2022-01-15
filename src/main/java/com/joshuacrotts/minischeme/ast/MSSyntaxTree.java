@@ -16,31 +16,31 @@ public class MSSyntaxTree implements Copyable {
      * Each MSSyntaxTree has 0...n children associated with it. This
      * list keeps track of them.
      */
-    private final ArrayList<MSSyntaxTree> children;
+    private final ArrayList<MSSyntaxTree> CHILDREN;
 
     /**
      * Type of MSSyntaxTree this is. Controls how the tree is evaluated.
      */
-    private final MSNodeType nodeType;
+    private final MSNodeType NODE_TYPE;
 
     public MSSyntaxTree() {
         this(MSNodeType.ROOT);
     }
 
     public MSSyntaxTree(final MSNodeType nodeType) {
-        this.children = new ArrayList<>();
-        this.nodeType = nodeType;
+        this.CHILDREN = new ArrayList<>();
+        this.NODE_TYPE = nodeType;
     }
 
     public MSSyntaxTree(final MSNodeType nodeType, final MSSyntaxTree... children) {
-        this.children = new ArrayList<>();
-        this.nodeType = nodeType;
-        this.children.addAll(Arrays.asList(children));
+        this.CHILDREN = new ArrayList<>();
+        this.CHILDREN.addAll(Arrays.asList(children));
+        this.NODE_TYPE = nodeType;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        MSSyntaxTree t = new MSSyntaxTree(this.nodeType);
+        MSSyntaxTree t = new MSSyntaxTree(this.NODE_TYPE);
         t.copyHelper(this, t);
         return t;
     }
@@ -58,79 +58,79 @@ public class MSSyntaxTree implements Copyable {
     }
 
     public void addChild(final MSSyntaxTree tree) {
-        this.children.add(tree);
+        this.CHILDREN.add(tree);
     }
 
     public int getChildrenSize() {
-        return this.children.size();
+        return this.CHILDREN.size();
     }
 
     public ArrayList<MSSyntaxTree> getChildren() {
-        return this.children;
+        return this.CHILDREN;
     }
 
     public MSSyntaxTree getChild(final int idx) {
-        return this.children.get(idx);
+        return this.CHILDREN.get(idx);
     }
 
     public void setChild(final int idx, final MSSyntaxTree tree) {
-        this.children.set(idx, tree);
+        this.CHILDREN.set(idx, tree);
     }
 
     public MSNodeType getNodeType() {
-        return this.nodeType;
+        return this.NODE_TYPE;
     }
 
     public boolean isExprLambdaDecl() {
-        return this.nodeType == MSNodeType.EXPR_LAMBDA_DECL;
+        return this.NODE_TYPE == MSNodeType.EXPR_LAMBDA_DECL;
     }
 
     public boolean isOp() {
-        return this.nodeType == MSNodeType.OP;
+        return this.NODE_TYPE == MSNodeType.OP;
     }
 
     public boolean isId() {
-        return this.nodeType == MSNodeType.ID;
+        return this.NODE_TYPE == MSNodeType.ID;
     }
 
     public boolean isVector() {
-        return this.nodeType == MSNodeType.VECTOR;
+        return this.NODE_TYPE == MSNodeType.VECTOR;
     }
 
     public boolean isVarDecl() {
-        return this.nodeType == MSNodeType.VAR_DECL;
+        return this.NODE_TYPE == MSNodeType.VAR_DECL;
     }
 
     public boolean isNumber() {
-        return this.nodeType == MSNodeType.NUM;
+        return this.NODE_TYPE == MSNodeType.NUM;
     }
 
     public boolean isPair() {
-        return this.nodeType == MSNodeType.PAIR;
+        return this.NODE_TYPE == MSNodeType.PAIR;
     }
 
     public boolean isList() {
-        return this.nodeType == MSNodeType.LIST;
+        return this.NODE_TYPE == MSNodeType.LIST;
     }
 
     public boolean isBool() {
-        return this.nodeType == MSNodeType.BOOL;
+        return this.NODE_TYPE == MSNodeType.BOOL;
     }
 
-    public boolean isChar() { return this.nodeType == MSNodeType.CHAR; }
+    public boolean isChar() { return this.NODE_TYPE == MSNodeType.CHAR; }
 
     public boolean isString() {
-        return this.nodeType == MSNodeType.STR;
+        return this.NODE_TYPE == MSNodeType.STR;
     }
 
     public boolean isSymbol() {
-        return this.nodeType == MSNodeType.SYMBOL;
+        return this.NODE_TYPE == MSNodeType.SYMBOL;
     }
 
-    public boolean isSymbolLit() { return this.nodeType == MSNodeType.SYMBOL_LIT; }
+    public boolean isSymbolLit() { return this.NODE_TYPE == MSNodeType.SYMBOL_LIT; }
 
     public boolean isLetDecl() {
-        return this.nodeType == MSNodeType.LET_DECL;
+        return this.NODE_TYPE == MSNodeType.LET_DECL;
     }
 
     public boolean isTerminalType() {
@@ -173,10 +173,10 @@ public class MSSyntaxTree implements Copyable {
         sb.append(MSUtils.repeatString(Math.max(0, indent), " "));
         sb.append(this);
 
-        if (!this.children.isEmpty()) {
+        if (!this.CHILDREN.isEmpty()) {
             sb.append(" (\n");
             boolean isFirstChild = true;
-            for (MSSyntaxTree child : this.children) {
+            for (MSSyntaxTree child : this.CHILDREN) {
                 if (!isFirstChild) {
                     sb.append(",\n");
                 }

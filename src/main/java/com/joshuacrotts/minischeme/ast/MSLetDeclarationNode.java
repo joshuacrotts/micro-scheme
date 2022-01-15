@@ -1,7 +1,5 @@
 package com.joshuacrotts.minischeme.ast;
 
-import com.joshuacrotts.minischeme.MiniSchemeParser;
-
 import java.util.ArrayList;
 
 /**
@@ -15,19 +13,19 @@ public class MSLetDeclarationNode extends MSDeclaration {
     /**
      * Number of variables declared in this let block.
      */
-    private final int numDeclarations;
+    private final int NUM_DECLARATIONS;
 
     /**
      * Keeps track of what "type" of let declaration this is. For instance,
      * let vs let* vs letrec.
      */
-    private final LetType letType;
+    private final LetType LET_TYPE;
 
     public MSLetDeclarationNode(final LetType letType, final ArrayList<MSSyntaxTree> declarations,
                                 final MSSyntaxTree letBody) {
         super(MSNodeType.LET_DECL);
-        this.letType = letType;
-        this.numDeclarations = declarations.size();
+        this.LET_TYPE = letType;
+        this.NUM_DECLARATIONS = declarations.size();
         declarations.forEach(this::addChild);
         this.addChild(letBody);
     }
@@ -35,15 +33,15 @@ public class MSLetDeclarationNode extends MSDeclaration {
     public MSLetDeclarationNode(final LetType letType, final MSSyntaxTree identifier,
                                 ArrayList<MSSyntaxTree> declarations, final MSSyntaxTree letBody) {
         super(MSNodeType.LET_DECL);
-        this.letType = letType;
-        this.numDeclarations = declarations.size();
+        this.LET_TYPE = letType;
+        this.NUM_DECLARATIONS = declarations.size();
         this.addChild(identifier);
         declarations.forEach(this::addChild);
         this.addChild(letBody);
     }
 
     public MSProcedureDeclarationNode createProcedureDeclaration() {
-        if (this.letType == LetType.LET_NAMED) {
+        if (this.LET_TYPE == LetType.LET_NAMED) {
             ArrayList<MSSyntaxTree> parameters = new ArrayList<>();
             for (MSSyntaxTree decl : this.getDeclarations()) {
                 parameters.add(((MSVariableDeclarationNode) decl).getIdentifier());
@@ -58,28 +56,28 @@ public class MSLetDeclarationNode extends MSDeclaration {
     @Override
     public MSSyntaxTree copy() {
         ArrayList<MSSyntaxTree> declarationsCopy = new ArrayList<>();
-        for (int i = 0; i < this.numDeclarations; i++) {
+        for (int i = 0; i < this.NUM_DECLARATIONS; i++) {
             declarationsCopy.add(this.getChild(i).copy());
         }
         MSSyntaxTree letBodyCopy = this.getChild(this.getChildrenSize() - 1).copy();
-        return new MSLetDeclarationNode(this.letType, declarationsCopy, letBodyCopy);
+        return new MSLetDeclarationNode(this.LET_TYPE, declarationsCopy, letBodyCopy);
     }
 
     public LetType getLetType() {
-        return this.letType;
+        return this.LET_TYPE;
     }
 
     public MSIdentifierNode getIdentifier() {
-        if (this.letType == LetType.LET_NAMED) {
+        if (this.LET_TYPE == LetType.LET_NAMED) {
             return (MSIdentifierNode) this.getChild(0);
         }
         throw new IllegalArgumentException("unable to get identifier for non-named let");
     }
 
     public ArrayList<MSSyntaxTree> getDeclarations() {
-        int offset = this.letType == LetType.LET_NAMED ? 1 : 0;
+        int offset = this.LET_TYPE == LetType.LET_NAMED ? 1 : 0;
         ArrayList<MSSyntaxTree> declarations = new ArrayList<>();
-        for (int i = 0; i < this.numDeclarations; i++) {
+        for (int i = 0; i < this. NUM_DECLARATIONS; i++) {
             declarations.add(this.getChild(i + offset));
         }
         return declarations;

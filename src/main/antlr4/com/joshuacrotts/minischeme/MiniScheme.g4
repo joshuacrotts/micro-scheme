@@ -11,7 +11,6 @@ fragment UPPER_CASE_LTR: [a-z];
 fragment LOWER_CASE_LTR: [A-Z];
 fragment ANY_CASE_LTR: [a-zA-Z];
 fragment UNDERSCORE: '_';
-fragment SINGLE_QUOTE: '\'';
 fragment QUOTCHAR: '\\' .;
 fragment DOUBLE_QUOTE: '"';
 fragment ANYCHAR: .;
@@ -37,7 +36,7 @@ PIPE: '|';
 CARAT: '^';
 PERCENT: '%';
 EXPONENTIATION: '**';
-QUOTE: '\'';
+SINGLE_QUOTE: '\'';
 HASH: '#';
 
 // Logical operators.
@@ -71,6 +70,8 @@ LET: 'let';
 LETSTAR: 'let*';
 LETREC: 'letrec';
 LAMBDA: 'lambda' | 'λ';
+BEGIN: 'begin';
+QUOTE: 'quote';
 
 // Math procedures.
 SIN: 'sin';
@@ -173,7 +174,8 @@ lambdaDecl:  '(' DEFINE term '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')' ')'
 
 
 // Defines an expression.
-expr: exprCons
+expr: exprBegin
+    | exprCons
     | exprSet
     | exprSetRead
     | exprOp
@@ -248,12 +250,16 @@ exprLetNamed: LET ID;
 
 
 // Symbol declaration.
-exprSymbol: (QUOTE exprSymbolComponent) ;
+exprSymbol: ((QUOTE | SINGLE_QUOTE) exprSymbolComponent) ;
 exprSymbolComponent: ('(' exprSymbolComponent* ')') | term | op | exprCall | exprSymbol;
 
 
 // Term expression.
 exprTerm: term;
+
+
+// Begin expression.
+exprBegin: '(' BEGIN expr+ ')';
 
 
 // Components of expressons.

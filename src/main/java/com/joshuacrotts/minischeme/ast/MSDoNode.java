@@ -10,25 +10,25 @@ public class MSDoNode extends MSSyntaxTree {
     /**
      *
      */
-    private final int numVarDeclarations;
+    private final int NUM_VAR_DECLARATIONS;
 
     /**
      *
      */
-    private final int numStepDeclarations;
+    private final int NUM_STEP_DECLARATIONS;
 
     /**
      *
      */
-    private final int numTrueExprs;
+    private final int NUM_TRUE_EXPRESSIONS;
 
     public MSDoNode(final ArrayList<MSSyntaxTree> varDecls, final ArrayList<MSSyntaxTree> stepDecls,
                     final MSSyntaxTree testExpr, final ArrayList<MSSyntaxTree> trueExprs,
                     final MSSyntaxTree body) {
         super(MSNodeType.DO);
-        this.numVarDeclarations = varDecls.size();
-        this.numStepDeclarations = stepDecls.size();
-        this.numTrueExprs = trueExprs.size();
+        this.NUM_VAR_DECLARATIONS = varDecls.size();
+        this.NUM_STEP_DECLARATIONS = stepDecls.size();
+        this.NUM_TRUE_EXPRESSIONS = trueExprs.size();
 
         varDecls.forEach(this::addChild);
         stepDecls.forEach(this::addChild);
@@ -41,23 +41,23 @@ public class MSDoNode extends MSSyntaxTree {
     public MSSyntaxTree copy() {
         // Copy the variable declarations.
         ArrayList<MSSyntaxTree> varDeclsCopy = new ArrayList<>();
-        for (int i = 0; i < this.numVarDeclarations; i++) {
+        for (int i = 0; i < this.NUM_VAR_DECLARATIONS; i++) {
             varDeclsCopy.add(this.getChild(i).copy());
         }
 
         // Copy the step declarations.
         ArrayList<MSSyntaxTree> stepDeclsCopy = new ArrayList<>();
-        for (int i = 0; i < this.numStepDeclarations; i++) {
-            stepDeclsCopy.add(this.getChild(i + this.numVarDeclarations).copy());
+        for (int i = 0; i < this.NUM_STEP_DECLARATIONS; i++) {
+            stepDeclsCopy.add(this.getChild(i + this.NUM_VAR_DECLARATIONS).copy());
         }
 
         // Copy the test expression.
-        MSSyntaxTree testExprCopy = this.getChild(this.numVarDeclarations + this.numStepDeclarations).copy();
+        MSSyntaxTree testExprCopy = this.getChild(this.NUM_VAR_DECLARATIONS + this.NUM_STEP_DECLARATIONS).copy();
 
         // Copy the true expressions.
         ArrayList<MSSyntaxTree> trueExpressions = new ArrayList<>();
-        for (int i = 0; i < this.numTrueExprs; i++) {
-            trueExpressions.add(this.getChild(i + this.numVarDeclarations + this.numStepDeclarations + 1).copy());
+        for (int i = 0; i < this.NUM_TRUE_EXPRESSIONS; i++) {
+            trueExpressions.add(this.getChild(i + this.NUM_VAR_DECLARATIONS + this.NUM_STEP_DECLARATIONS + 1).copy());
         }
 
         // Finally, copy the body.
@@ -77,7 +77,7 @@ public class MSDoNode extends MSSyntaxTree {
 
     public ArrayList<MSSyntaxTree> getVariableDeclarations() {
         ArrayList<MSSyntaxTree> varDecls = new ArrayList<>();
-        for (int i = 0; i < this.numVarDeclarations; i++) {
+        for (int i = 0; i < this.NUM_VAR_DECLARATIONS; i++) {
             varDecls.add(this.getChild(i));
         }
         return varDecls;
@@ -85,20 +85,20 @@ public class MSDoNode extends MSSyntaxTree {
 
     public ArrayList<MSSyntaxTree> getStepDeclarations() {
         ArrayList<MSSyntaxTree> stepDecls = new ArrayList<>();
-        for (int i = 0; i < this.numStepDeclarations; i++) {
-            stepDecls.add(this.getChild(i + this.numVarDeclarations));
+        for (int i = 0; i < this.NUM_STEP_DECLARATIONS; i++) {
+            stepDecls.add(this.getChild(i + this.NUM_VAR_DECLARATIONS));
         }
         return stepDecls;
     }
 
     public MSSyntaxTree getTestExpression() {
-        return this.getChild(this.numVarDeclarations + this.numStepDeclarations);
+        return this.getChild(this.NUM_VAR_DECLARATIONS + this.NUM_STEP_DECLARATIONS);
     }
 
     public ArrayList<MSSyntaxTree> getTrueExpressions() {
         ArrayList<MSSyntaxTree> trueExpressions = new ArrayList<>();
-        for (int i = 0; i < this.numTrueExprs; i++) {
-            trueExpressions.add(this.getChild(this.numVarDeclarations + this.numStepDeclarations + 1));
+        for (int i = 0; i < this.NUM_TRUE_EXPRESSIONS; i++) {
+            trueExpressions.add(this.getChild(this.NUM_VAR_DECLARATIONS + this.NUM_STEP_DECLARATIONS + 1));
         }
         return trueExpressions;
     }

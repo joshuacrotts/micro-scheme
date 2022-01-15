@@ -20,12 +20,12 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
     /**
      * Number of parameters that this procedure requires.
      */
-    private int numParams;
+    private final int NUM_PARAMS;
 
     public MSProcedureDeclarationNode(final MSSyntaxTree identifier, final ArrayList<MSSyntaxTree> params,
                                       final MSSyntaxTree body) {
         super(MSNodeType.PROC_DECL);
-        this.numParams = params.size();
+        this.NUM_PARAMS = params.size();
         this.addChild(identifier);
         params.forEach(this::addChild);
         this.addChild(body);
@@ -36,7 +36,7 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
         MSSyntaxTree idCopy = this.getChild(0).copy();
 
         ArrayList<MSSyntaxTree> newParams = new ArrayList<>();
-        for (int i = 0; i < this.numParams; i++) {
+        for (int i = 0; i < this.NUM_PARAMS; i++) {
             newParams.add(this.getChild(i + 1).copy());
         }
 
@@ -48,7 +48,7 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getIdentifier()).append(": ");
-        for (int i = 0; i < this.numParams; i++) {
+        for (int i = 0; i < this.NUM_PARAMS; i++) {
             MSSyntaxTree param = this.getChild(i + 1);
             sb.append(param.getStringRep());
             sb.append(" ");
@@ -70,7 +70,7 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
 
     public int getArgumentIndex(String idStr) {
         // Offset to account for the identifier and body being children.
-        for (int i = 0; i < this.numParams; i++) {
+        for (int i = 0; i < this.NUM_PARAMS; i++) {
             MSIdentifierNode id = (MSIdentifierNode) this.getChild(i + 1);
             if (id.getIdentifier().equals(idStr)) {
                 return i;
@@ -84,6 +84,6 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
     }
 
     public int getParameterCount() {
-        return this.numParams;
+        return this.NUM_PARAMS;
     }
 }

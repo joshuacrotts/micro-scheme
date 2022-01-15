@@ -14,11 +14,11 @@ public class MSVectorNode extends MSSyntaxTree {
     /**
      * Number of elements allocated to this vector.
      */
-    private final int numElements;
+    private final int NUM_ELEMENTS;
 
     public MSVectorNode(final ArrayList<MSSyntaxTree> elements) {
         super(MSNodeType.VECTOR);
-        this.numElements = elements.size();
+        this.NUM_ELEMENTS = elements.size();
         elements.forEach(this::addChild);
     }
 
@@ -49,6 +49,6 @@ public class MSVectorNode extends MSSyntaxTree {
     }
 
     public int size() {
-        return this.numElements;
+        return this.NUM_ELEMENTS;
     }
 }

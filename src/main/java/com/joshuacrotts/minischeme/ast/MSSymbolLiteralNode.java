@@ -10,21 +10,21 @@ public class MSSymbolLiteralNode extends MSSyntaxTree {
     /**
      * String associated with this node.
      */
-    private final String value;
+    private final String VALUE;
 
     public MSSymbolLiteralNode(final String value) {
         super(MSNodeType.SYMBOL_LIT);
-        this.value = value;
+        this.VALUE = value;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSSymbolLiteralNode(this.value);
+        return new MSSymbolLiteralNode(this.VALUE);
     }
 
     @Override
     public String getStringRep() {
-        return this.value;
+        return this.VALUE;
     }
 
     @Override

@@ -16,7 +16,7 @@ public class MSNumberNode extends MSSyntaxTree {
     /**
      * Number associated with this node.
      */
-    private final double value;
+    private final double VALUE;
 
     public MSNumberNode(final String value) {
         this(Double.parseDouble(value));
@@ -24,19 +24,19 @@ public class MSNumberNode extends MSSyntaxTree {
 
     public MSNumberNode(final double value) {
         super(MSNodeType.NUM);
-        this.value = value;
+        this.VALUE = value;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSNumberNode(this.value);
+        return new MSNumberNode(this.VALUE);
     }
 
     @Override
     public String getStringRep() {
-        return ((int) this.value) == this.value
-               ? Integer.toString((int) this.value)
-               : Double.toString(this.value);
+        return ((int) this.VALUE) == this.VALUE
+               ? Integer.toString((int) this.VALUE)
+               : Double.toString(this.VALUE);
     }
 
     @Override
@@ -45,8 +45,8 @@ public class MSNumberNode extends MSSyntaxTree {
     }
 
     public double getValue() {
-        return this.value;
+        return this.VALUE;
     }
 
-    public boolean isInteger() { return this.value == (int) this.value; }
+    public boolean isInteger() { return this.VALUE == (int) this.VALUE; }
 }

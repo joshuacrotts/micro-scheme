@@ -100,6 +100,18 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitExprBegin(MiniSchemeParser.ExprBeginContext ctx) {
+        super.exitExprBegin(ctx);
+        ArrayList<MSSyntaxTree> exprs = new ArrayList<>();
+        if (ctx.expr() != null) {
+            for (ParseTree pt : ctx.expr()) {
+                exprs.add(this.map.get(pt));
+            }
+        }
+        this.map.put(ctx, new MSSequenceNode(exprs));
+    }
+
+    @Override
     public void exitExpr(MiniSchemeParser.ExprContext ctx) {
         super.exitExpr(ctx);
         this.map.put(ctx, this.map.get(ctx.children.get(0)));

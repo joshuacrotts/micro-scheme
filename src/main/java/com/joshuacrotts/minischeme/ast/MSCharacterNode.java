@@ -8,36 +8,36 @@ package com.joshuacrotts.minischeme.ast;
 public class MSCharacterNode extends MSSyntaxTree {
 
     /**
-     *
+     * Char value associated with this character node.
      */
-    private final char value;
+    private final char VALUE;
 
     public MSCharacterNode(String charInput) {
         super(MSNodeType.CHAR);
-        this.value = charInput.charAt(2);
+        this.VALUE = charInput.charAt(2);
     }
 
     public MSCharacterNode(char charInput) {
         super(MSNodeType.CHAR);
-        this.value = charInput;
+        this.VALUE = charInput;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSCharacterNode(this.value);
+        return new MSCharacterNode(this.VALUE);
     }
 
     @Override
     public String getStringRep() {
-        return String.valueOf(this.value);
+        return String.valueOf(this.VALUE);
     }
 
     @Override
     public String toString() {
-        return "(" + this.getNodeType().toString() + " " + this.value + ")";
+        return "(" + this.getNodeType().toString() + " " + this.VALUE + ")";
     }
 
     public char getValue() {
-        return this.value;
+        return this.VALUE;
     }
 }

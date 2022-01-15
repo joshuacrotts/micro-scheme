@@ -13,19 +13,19 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
     /**
      * Number of parameters required to call this lambda.
      */
-    private int numLambdaParams;
+    private final int NUM_LAMBDA_PARAMS;
 
     /**
      * Number of arguments passed to this lambda.
      */
-    private int numLambdaArgs;
+    private int NUM_LAMBDA_ARGS;
 
     public MSLambdaDeclarationCallNode(final ArrayList<MSSyntaxTree> lambdaParams,
                                        final MSSyntaxTree lambdaBody,
                                        final ArrayList<MSSyntaxTree> lambdaArgs) {
         super(MSNodeType.EXPR_LAMBDA_DECL_CALL);
-        this.numLambdaParams = lambdaParams.size();
-        this.numLambdaArgs = lambdaArgs.size();
+        this.NUM_LAMBDA_PARAMS = lambdaParams.size();
+        this.NUM_LAMBDA_ARGS = lambdaArgs.size();
         lambdaParams.forEach(this::addChild);
         this.addChild(lambdaBody);
         lambdaArgs.forEach(this::addChild);
@@ -42,8 +42,8 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
         ArrayList<MSSyntaxTree> argsCopy = new ArrayList<>();
         MSSyntaxTree bodyCopy = this.getBody().copy();
 
-        for (int i = 0; i < this.numLambdaParams; i++) { paramsCopy.add(this.getChild(i).copy()); }
-        for (int i = 0; i < this.numLambdaArgs; i++) { argsCopy.add(this.getChild(i + 1 + this.numLambdaParams).copy()); }
+        for (int i = 0; i < this.NUM_LAMBDA_PARAMS; i++) { paramsCopy.add(this.getChild(i).copy()); }
+        for (int i = 0; i < this.NUM_LAMBDA_ARGS; i++) { argsCopy.add(this.getChild(i + 1 + this.NUM_LAMBDA_PARAMS).copy()); }
 
         return new MSLambdaDeclarationCallNode(paramsCopy, bodyCopy, argsCopy);
     }
@@ -63,7 +63,7 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
      * @return
      */
     public int getArgumentIndex(String idStr) {
-        for (int i = 0; i < this.numLambdaParams; i++) {
+        for (int i = 0; i < this.NUM_LAMBDA_PARAMS; i++) {
             MSIdentifierNode id = (MSIdentifierNode) this.getChild(i);
             if (id.getIdentifier().equals(idStr)) {
                 return i;
@@ -72,21 +72,13 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
         return -1;
     }
 
-    /**
-     *
-     * @return
-     */
     public MSSyntaxTree getBody() {
-        return this.getChild(this.numLambdaParams);
+        return this.getChild(this.NUM_LAMBDA_PARAMS);
     }
 
-    /**
-     *
-     * @return
-     */
     public ArrayList<MSSyntaxTree> getLambdaParameters() {
         ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<MSSyntaxTree>();
-        for (int i = 0; i < this.numLambdaParams; i++) {
+        for (int i = 0; i < this.NUM_LAMBDA_PARAMS; i++) {
             lambdaParams.add(this.getChild(i));
         }
         return lambdaParams;
@@ -98,17 +90,17 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
      */
     public ArrayList<MSSyntaxTree> getLambdaArguments() {
         ArrayList<MSSyntaxTree> lambdaArgs = new ArrayList<MSSyntaxTree>();
-        for (int i = 0; i < this.numLambdaArgs; i++) {
-            lambdaArgs.add(this.getChild(i + 1 + this.numLambdaParams));
+        for (int i = 0; i < this.NUM_LAMBDA_ARGS; i++) {
+            lambdaArgs.add(this.getChild(i + 1 + this.NUM_LAMBDA_PARAMS));
         }
         return lambdaArgs;
     }
 
     public int getLambdaParameterCount() {
-        return this.numLambdaParams;
+        return this.NUM_LAMBDA_PARAMS;
     }
 
     public int getLambdaArgumentCount() {
-        return this.numLambdaArgs;
+        return this.NUM_LAMBDA_ARGS;
     }
 }

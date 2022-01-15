@@ -5,6 +5,10 @@ package com.joshuacrotts.minischeme.ast;
  * used without interpreting the child.
  *
  * @CHILD 0: expression that we want to say is a symbol.
+ *
+ * @author Joshua Crotts
+ *
+ * @version 01/15/2022
  */
 public class MSSymbolNode extends MSSyntaxTree {
 
@@ -20,8 +24,7 @@ public class MSSymbolNode extends MSSyntaxTree {
     @Override
     public String getStringRep() {
         MSNodeType exprType = this.getExpression().getNodeType();
-        // If it's a list/pair we don't need the quote. Otherwise,
-        // if it's there, we do.
+        // If it's a list/pair we don't need the quote. Otherwise, we do.
         switch (exprType) {
             case LIST:
             case PAIR:
@@ -29,7 +32,7 @@ public class MSSymbolNode extends MSSyntaxTree {
         }
 
         // The quote in this case is PURELY decorative, so to speak.
-        // If it were evaluated we could simply evaluate the SymbolNode.
+        // If it were evaluated, we could simply evaluate the SymbolNode.
         return "'" + this.getExpression().getStringRep();
     }
 
