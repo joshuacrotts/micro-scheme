@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 public class InterpreterTester {
 
-    private static final int NUM_TESTS = 140;
+    private static final int NUM_TESTS = 141;
 
     /**
      * Helper function to count number of newlines in a string
