@@ -1,0 +1,33 @@
+(define zero? (λ (x) (= 0 x)))
+(define positive? (λ (x) (> x 0)))
+(define negative? (λ (x) (< x 0)))
+(define abs (λ (x) (if (<= x 0) (* x -1) x)))
+(define true? (λ (x) (equal? x #t)))
+(define false? (λ (x) (equal? x #f)))
+(define odd? (λ (x) (= (modulo n 2) 1)))
+(define even? (λ (x) (= (modulo n 2) 0)))
+
+(define caar (λ (x) (car (car x))))
+(define cadr (λ (x) (car (cdr x))))
+(define caadr (λ (x) (car (car (cdr x)))))
+(define caddr (λ (x) (car (cdr (cdr x)))))
+(define caaddr (λ (x) (car (car (cdr (cdr x))))))
+(define caaar (λ (x) (car (car (car x)))))
+(define caaadr (λ (x) (car (car (car (cdr x))))))
+(define caaaddr (λ (x) (car (car (car (cdr (cdr x)))))))
+(define caaadddr (λ (x) (car (car (car (cdr (cdr (cdr x))))))))
+
+(define length (λ (x) (if (null? x) 0 (+ 1 (length (cdr x))))))
+(define append (λ (x y) (if (null? x) y (cons (car x) (append (cdr x) y)))))
+(define map (λ (f l) (if (null? x) '() (cons (f (car l)) (map (f (cdr l)))))))
+(define flatten
+	(λ (x)
+		(cond ((null? x) '())
+			  ((pair? x) (append (flatten (car x)) (flatten (cdr x))))
+			  (else (list x)))))
+
+(define assoc
+	(λ (x l)
+		(cond ((null? l) '())
+			  ((equal? x (caar l)) (car l))
+			  (else (assoc x (cdr l))))))

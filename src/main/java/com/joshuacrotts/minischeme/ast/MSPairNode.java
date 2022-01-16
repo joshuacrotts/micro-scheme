@@ -12,7 +12,9 @@ package com.joshuacrotts.minischeme.ast;
 public class MSPairNode extends MSSyntaxTree {
 
     public MSPairNode(final MSNodeType type, final MSSyntaxTree car, final MSSyntaxTree cdr) {
-        super(type, car, cdr);
+        super(type);
+        if (car != null) { this.addChild(car); }
+        if (cdr != null) { this.addChild(cdr); }
     }
 
     public MSPairNode() {
@@ -45,7 +47,11 @@ public class MSPairNode extends MSSyntaxTree {
     }
 
     public void setCar(final MSSyntaxTree newCar) {
-        this.setChild(0, newCar);
+        if (this.getCar() == null) {
+            this.addChild(newCar);
+        } else {
+            this.setChild(0, newCar);
+        }
     }
 
     public MSSyntaxTree getCdr() {
@@ -53,7 +59,11 @@ public class MSPairNode extends MSSyntaxTree {
     }
 
     public void setCdr(final MSSyntaxTree newCdr) {
-        this.setChild(1, newCdr);
+        if (this.getCdr() == null) {
+            this.addChild(newCdr);
+        } else {
+            this.setChild(1, newCdr);
+        }
     }
 
     public boolean isNull() {

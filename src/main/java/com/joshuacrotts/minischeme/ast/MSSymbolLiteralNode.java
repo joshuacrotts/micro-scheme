@@ -3,7 +3,7 @@ package com.joshuacrotts.minischeme.ast;
 /**
  *
  * @author Joshua Crotts
- * @version ?
+ * @version 01/15/2022
  */
 public class MSSymbolLiteralNode extends MSSyntaxTree {
 

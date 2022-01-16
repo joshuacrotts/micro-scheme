@@ -127,6 +127,8 @@ VECTOR_FN: 'vector?';
 NULL_FN: 'null?';
 SYMBOL_FN: 'symbol?';
 PAIR_FN: 'pair?';
+PROCEDURE_FN: 'procedure?';
+LAMBDA_FN: 'lambda?';
 EQ_FN: 'eq?';
 EQUAL_FN: 'equal?';
 
@@ -198,11 +200,11 @@ exprCons: '(' CONS expr expr ')';
 
 
 // Set! a variable to an expr.
-exprSet: '(' setop term expr+ ')';
+exprSet: '(' setop expr seq ')';
 
 
 // Set! a variable to some value read in from the user.
-exprSetRead: '(' setop term '(' readop ')' ')';
+exprSetRead: '(' setop expr '(' readop ')'')';
 
 
 // Operator expression.
@@ -302,8 +304,8 @@ unaryop: SIN | COS | TAN | ASIN | ACOS | ATAN | SQRT | ROUND
         | CHAR_FN | BOOL_FN | LIST_FN | NULL_FN | SYMBOL_FN | VECTOR_FN
         | CAR | CDR | STRLEN_FN | PAIR_FN | STRTONUM_FN | NUMTOSTR_FN
         | STRTOLIST_FN | LISTTOSTR_FN | TODEG_FN | TORAD_FN | LOGICAL_NOT
-        | VECTORLEN_FN | SINH | COSH | TANH | RAND_FN;
-
+        | VECTORLEN_FN | SINH | COSH | TANH | RAND_FN | PROCEDURE_FN
+        | LAMBDA_FN;
 
 // All binary operators.
 binaryop: LOGICAL_GT | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
@@ -311,10 +313,8 @@ binaryop: LOGICAL_GT | LOGICAL_GE | LOGICAL_LT | LOGICAL_LE
         | STRGT_FN | STRGE_FN  | RANDINT_FN | RANDDOUBLE_FN
         | VECTOR_REF_FN | MODULO | REMAINDER;
 
-
 // All ternary operators.
 ternaryop: STRSUBSTR;
-
 
 // All n-ary operators. An n-ary operator is an operator that takes either 0 or >= 2 arguments. The
 // semantic analyzer should check to make sure the argument count is correct for binary operators.

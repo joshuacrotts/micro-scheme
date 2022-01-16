@@ -44,6 +44,8 @@ public class MiniSchemeOperatorInterpreter {
             case MiniSchemeParser.SYMBOL_FN: return MiniSchemeOperatorInterpreter.interpretSymbolFn(lhs);
             case MiniSchemeParser.VECTOR_FN: return MiniSchemeOperatorInterpreter.interpretVectorFn(lhs);
             case MiniSchemeParser.PAIR_FN: return MiniSchemeOperatorInterpreter.interpretPairFn(lhs);
+            case MiniSchemeParser.PROCEDURE_FN: return MiniSchemeOperatorInterpreter.interpretProcedureFn(lhs);
+            case MiniSchemeParser.LAMBDA_FN: return MiniSchemeOperatorInterpreter.interpretLambdaFn(lhs);
             case MiniSchemeParser.STRLEN_FN: return MiniSchemeOperatorInterpreter.interpretStringLengthFn(lhs);
             case MiniSchemeParser.VECTORLEN_FN: return MiniSchemeOperatorInterpreter.interpretVectorLengthFn(lhs);
             case MiniSchemeParser.NUMTOSTR_FN: return MiniSchemeOperatorInterpreter.interpretNumberToStringFn(lhs);
@@ -257,7 +259,7 @@ public class MiniSchemeOperatorInterpreter {
         if (!lhs.isLNumber()) {
             throw new MSArgumentMismatchException("sqrt", "number", lhs.getType().toString());
         } else if (lhs.getDoubleValue() < 0) {
-            throw new MSSemanticException("cannot use sqrt on negative number " + lhs.getDoubleValue());
+            throw new MSSemanticException("cannot use sqrt on negative number " + lhs);
         }
         return new LValue(Math.sqrt(lhs.getDoubleValue()));
     }
@@ -359,7 +361,8 @@ public class MiniSchemeOperatorInterpreter {
      * @return
      */
     private static LValue interpretNullFn(final LValue lhs) {
-        return new LValue(lhs.isLPair() && ((lhs.getTreeValue() == null) || ((MSPairNode) lhs.getTreeValue()).isNull()));
+        return new LValue(lhs.isLPair() &&
+                ((lhs.getTreeValue() == null) || ((MSPairNode) lhs.getTreeValue()).isNull()));
     }
 
     /**
@@ -429,6 +432,24 @@ public class MiniSchemeOperatorInterpreter {
      */
     private static LValue interpretVectorFn(final LValue lhs) {
         return new LValue(lhs.isLVector());
+    }
+
+    /**
+     *
+     * @param lhs
+     * @return
+     */
+    private static LValue interpretProcedureFn(final LValue lhs) {
+        return new LValue(lhs.isLProcCall());
+    }
+
+    /**
+     *
+     * @param lhs
+     * @return
+     */
+    private static LValue interpretLambdaFn(final LValue lhs) {
+        return new LValue(lhs.isLLambdaCall());
     }
 
     /**
@@ -531,7 +552,7 @@ public class MiniSchemeOperatorInterpreter {
 
         // Grab each character, convert it to a MSCharacterNode, then add it to the pair.
         MSSyntaxTree parentPair = null;
-        MSPairNode prevPair = null;
+        MSPairNode prevPair = new MSPairNode();
         String str = lhs.getStringValue();
         for (int i = str.length() - 1; i >= 0; i--) {
             MSSyntaxTree rchar = new MSCharacterNode(str.charAt(i));

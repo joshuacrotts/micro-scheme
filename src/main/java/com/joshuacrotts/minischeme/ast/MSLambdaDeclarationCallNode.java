@@ -18,7 +18,7 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
     /**
      * Number of arguments passed to this lambda.
      */
-    private int NUM_LAMBDA_ARGS;
+    private final int NUM_LAMBDA_ARGS;
 
     public MSLambdaDeclarationCallNode(final ArrayList<MSSyntaxTree> lambdaParams,
                                        final MSSyntaxTree lambdaBody,

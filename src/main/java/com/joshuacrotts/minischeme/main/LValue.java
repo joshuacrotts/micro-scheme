@@ -223,8 +223,8 @@ public class LValue {
         SYM("symbol"),
         VECTOR("vector"),
         DISP("display"),
-        PROCCALL("procedure call"),
-        LAMBDACALL("lambda call"),
+        PROCCALL("procedure-call"),
+        LAMBDACALL("lambda-call"),
         NULL("null");
 
         private final String value;

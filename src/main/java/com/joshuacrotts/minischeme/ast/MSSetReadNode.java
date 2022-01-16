@@ -30,7 +30,7 @@ public class MSSetReadNode extends MSSyntaxTree {
         return this.getNodeType().toString();
     }
 
-    public MSSyntaxTree getIdentifier() {
+    public MSSyntaxTree getExpression() {
         return this.getChild(0);
     }
 

@@ -185,17 +185,17 @@ public class MSListener extends MiniSchemeBaseListener {
     public void exitExprSet(MiniSchemeParser.ExprSetContext ctx) {
         int setOpType = ((TerminalNode) ctx.setop().getChild(0)).getSymbol().getType();
         ArrayList<MSSyntaxTree> setData = new ArrayList<>();
-        for (ParseTree pt : ctx.expr()) {
+        for (ParseTree pt : ctx.seq().expr()) {
             setData.add(this.map.get(pt));
         }
-        this.map.put(ctx, new MSSetNode(setOpType, this.map.get(ctx.term()), setData));
+        this.map.put(ctx, new MSSetNode(setOpType, this.map.get(ctx.expr()), setData));
     }
 
     @Override
     public void exitExprSetRead(MiniSchemeParser.ExprSetReadContext ctx) {
         super.exitExprSetRead(ctx);
         int readOpType = ((TerminalNode) ctx.readop().getChild(0)).getSymbol().getType();
-        this.map.put(ctx, new MSSetReadNode(readOpType, this.map.get(ctx.term())));
+        this.map.put(ctx, new MSSetReadNode(readOpType, this.map.get(ctx.expr())));
     }
 
     @Override

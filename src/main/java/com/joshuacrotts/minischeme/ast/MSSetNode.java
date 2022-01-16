@@ -27,7 +27,7 @@ public class MSSetNode extends MSSyntaxTree {
     }
 
     public MSSetNode(final int opType, final MSSyntaxTree identifierNode, final MSSyntaxTree setData) {
-        super(MSNodeType.SET, identifierNode);
+        super(MSNodeType.SET, identifierNode, setData);
         this.OP_TYPE = opType;
         this.addChild(setData);
     }
@@ -57,7 +57,7 @@ public class MSSetNode extends MSSyntaxTree {
         return this.OP_TYPE;
     }
 
-    public MSSyntaxTree getIdentifier() {
+    public MSSyntaxTree getExpression() {
         return this.getChild(0);
     }
 

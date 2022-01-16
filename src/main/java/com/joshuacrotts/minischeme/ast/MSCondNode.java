@@ -77,7 +77,7 @@ public class MSCondNode extends MSSyntaxTree {
 
     @Override
     public String getStringRep() {
-        return "";
+        return this.getNodeType().toString();
     }
 
     @Override

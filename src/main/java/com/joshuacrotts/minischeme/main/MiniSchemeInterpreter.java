@@ -63,10 +63,9 @@ public class MiniSchemeInterpreter {
                                      final MSSyntaxTree arg, final int replaceIdx,
                                      final ArrayList<MSSyntaxTree> args) {
         // If the body is null then there's nothing to replace.
-        if (body == null) { return; }
         for (int i = 0; i < body.getChildrenSize(); i++) {
             MSSyntaxTree child = body.getChild(i);
-            if (child == null) { return; }
+            if (child == null) return;
             // If it's an ID then we want to replace it.
             if (child.isId()) {
                 MSIdentifierNode id = (MSIdentifierNode) child;
@@ -90,7 +89,7 @@ public class MiniSchemeInterpreter {
     public void execute() {
         for (MSSyntaxTree ch : this.interpreterTree.getChildren()) {
             LValue lhs;
-            if ((lhs = this.interpretTree(ch)) != null) {
+            if ((lhs = this.interpretTree(ch)) != null && !lhs.toString().isEmpty()) {
                 System.out.println(lhs);
             }
         }
@@ -438,7 +437,7 @@ public class MiniSchemeInterpreter {
      * @return Blank LValue (nothing to return).
      */
     private LValue interpretSetRead(final MSSetReadNode setRead) {
-        String id = ((MSIdentifierNode) setRead.getIdentifier()).getIdentifier();
+        String id = ((MSIdentifierNode) setRead.getExpression()).getIdentifier();
         this.symbolTable.setSymbol(id, this.interpretReadFn(setRead.getOpType()));
         return new LValue();
     }
@@ -525,7 +524,10 @@ public class MiniSchemeInterpreter {
         // Evaluate the CAR and CDR.
         MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCar()));
         MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCdr()));
-        return new LValue(new MSPairNode(MSNodeType.PAIR, carNode, cdrNode));
+        pairNode.setCar(carNode);
+        pairNode.setCdr(cdrNode);
+        return new LValue(pairNode);
+
     }
 
     /**
@@ -533,15 +535,17 @@ public class MiniSchemeInterpreter {
      * the empty list as the cdr. Just like pairs, we evaluate the car and cdr,
      * with the exception that this recursively evaluates each element in the cdr.
      *
-     * @param rootPair MSPairNode ast as a list.
+     * @param pairNode MSPairNode ast as a list.
      *
      * @return LValue with list node.
      */
-    private LValue interpretList(final MSPairNode rootPair) {
+    private LValue interpretList(final MSPairNode pairNode) {
         // We need to evaluate every element of the "list".
-        MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(rootPair.getCar()));
-        MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(rootPair.getCdr()));
-        return new LValue(new MSPairNode(MSNodeType.LIST, carNode, cdrNode));
+        MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCar()));
+        MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCdr()));
+        pairNode.setCar(carNode);
+        pairNode.setCdr(cdrNode);
+        return new LValue(pairNode);
     }
 
     /**
@@ -952,14 +956,26 @@ public class MiniSchemeInterpreter {
      * @throws MSSemanticException if set! does not have two arguments.
      */
     private void interpretSetCarFn(final MSSetNode setNode) throws MSSemanticException {
-        String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
-        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
         ArrayList<MSSyntaxTree> setData = setNode.getData();
-        if (setData.size() > 1) {
-            throw new MSSemanticException("set! expected 2 arguments but got " + setData.size() + 2);
+        // First check to make sure that we have the correct number of args.
+        if (setData.size() > 1) { throw new MSArgumentMismatchException("set-car!", 2, setData.size() + 2); };
+
+        // If the "term" is an identifier, we just grab it from the symbol table and reset it.
+        if (setNode.getExpression().isId()) {
+            String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
+            MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
+            pair.setCar(setData.get(0));
+            this.symbolTable.setSymbol(id, pair);
+        } else {
+            // Otherwise, we need to interpret the expression and then evaluate it.
+            LValue lhs = this.interpretTree(setNode.getExpression());
+            MSSyntaxTree pair = LValue.getAstFromLValue(lhs);
+            assert pair != null;
+            if (!pair.isList() && !pair.isPair()) {
+                throw new MSArgumentMismatchException("set-car!", "type pair for operand 1", pair.getNodeType().toString());
+            }
+            ((MSPairNode) pair).setCar(setNode.getData().get(0));
         }
-        pair.setCar(setData.get(0));
-        this.symbolTable.setSymbol(id, pair);
     }
 
     /**
@@ -972,14 +988,26 @@ public class MiniSchemeInterpreter {
      * @throws MSSemanticException if set! does not have two arguments.
      */
     private void interpretSetCdrFn(final MSSetNode setNode) throws MSSemanticException {
-        String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
-        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
         ArrayList<MSSyntaxTree> setData = setNode.getData();
-        if (setData.size() > 1) {
-            throw new MSSemanticException("set! expected 2 arguments but got " + setData.size() + 2);
+        // First check to make sure that we have the correct number of args.
+        if (setData.size() > 1) { throw new MSArgumentMismatchException("set-cdr!", 2, setData.size() + 2); };
+
+        // If the "term" is an identifier, we just grab it from the symbol table and reset it.
+        if (setNode.getExpression().isId()) {
+            String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
+            MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
+            pair.setCdr(setData.get(0));
+            this.symbolTable.setSymbol(id, pair);
+        } else {
+            // Otherwise, we need to interpret the expression and then evaluate it.
+            LValue lhs = this.interpretTree(setNode.getExpression());
+            MSSyntaxTree pair = LValue.getAstFromLValue(lhs);
+            assert pair != null;
+            if (!pair.isList() && !pair.isPair()) {
+                throw new MSArgumentMismatchException("set-cdr!", "type pair for operand 1", pair.getNodeType().toString());
+            }
+            ((MSPairNode) pair).setCdr(setNode.getData().get(0));
         }
-        pair.setCdr(setData.get(0));
-        this.symbolTable.setSymbol(id, pair);
     }
 
     /**
@@ -992,13 +1020,9 @@ public class MiniSchemeInterpreter {
      * @throws MSSemanticException if set! does not have two arguments.
      */
     private void interpretSetVariableFn(final MSSetNode setNode) throws MSSemanticException {
-        String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
+        String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
         ArrayList<MSSyntaxTree> setData = setNode.getData();
-        if (setData.size() > 1) {
-            throw new MSSemanticException("set! expected 2 arguments but got " + setData.size() + 2);
-        }
-
-        // First check to see if we need to evaluate the setData.
+        // First, check to see if we need to evaluate the setData.
         MSSyntaxTree setDataVal = setData.get(0);
         if (!setDataVal.isTerminalType()) {
             setDataVal = LValue.getAstFromLValue(this.interpretTree(setDataVal));
@@ -1013,7 +1037,7 @@ public class MiniSchemeInterpreter {
      * @throws MSSemanticException
      */
     private void interpretSetVectorFn(final MSSetNode setNode) throws MSSemanticException {
-        String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
+        String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
         MSVectorNode vector = (MSVectorNode) this.symbolTable.getVariable(id);
         ArrayList<MSSyntaxTree> setData = setNode.getData();
         MSSyntaxTree idxNode = LValue.getAstFromLValue(this.interpretTree(setData.get(0)));

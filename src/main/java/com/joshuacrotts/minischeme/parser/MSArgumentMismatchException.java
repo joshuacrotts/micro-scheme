@@ -10,6 +10,8 @@ public class MSArgumentMismatchException extends MSSemanticException {
     }
 
     public MSArgumentMismatchException(String preamble, int expectedArity, int receivedArity) {
-        super(preamble + " expected " + (expectedArity == 1 ? " argument " : "arguments") + " but got " + receivedArity);
+        super(preamble + " expected " + expectedArity + ""
+                + (expectedArity == 1 ? " argument " : " arguments")
+                + " but got " + receivedArity);
     }
 }
