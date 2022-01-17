@@ -57,7 +57,7 @@ public class MSSetNode extends MSSyntaxTree {
         return this.OP_TYPE;
     }
 
-    public MSSyntaxTree getIdentifier() {
+    public MSSyntaxTree getExpression() {
         return this.getChild(0);
     }
 

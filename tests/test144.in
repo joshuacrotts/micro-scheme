@@ -1,0 +1,3 @@
+(define t (list 50 '() '()))
+(set-car! (cdr t) (list 40))
+t

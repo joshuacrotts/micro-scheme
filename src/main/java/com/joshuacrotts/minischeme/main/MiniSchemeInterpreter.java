@@ -9,10 +9,7 @@ import com.joshuacrotts.minischeme.parser.MSSemanticException;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import com.joshuacrotts.minischeme.symbol.SymbolType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  *
@@ -90,7 +87,7 @@ public class MiniSchemeInterpreter {
     public void execute() {
         for (MSSyntaxTree ch : this.interpreterTree.getChildren()) {
             LValue lhs;
-            if ((lhs = this.interpretTree(ch)) != null) {
+            if ((lhs = this.interpretTree(ch)) != null && !lhs.toString().isEmpty()) {
                 System.out.println(lhs);
             }
         }
@@ -130,7 +127,7 @@ public class MiniSchemeInterpreter {
                 case BOOL: return this.interpretBoolean((MSBooleanNode) tree);
                 case CHAR: return this.interpretCharacter((MSCharacterNode) tree);
                 case STR: return this.interpretString((MSStringNode) tree);
-                case PAIR: return this.interpretPair((MSPairNode) tree);
+                case PAIR:
                 case LIST: return this.interpretList((MSPairNode) tree);
                 case VECTOR: return this.interpretVector((MSVectorNode) tree);
                 case IF: return this.interpretIf((MSIfNode) tree);
@@ -438,7 +435,7 @@ public class MiniSchemeInterpreter {
      * @return Blank LValue (nothing to return).
      */
     private LValue interpretSetRead(final MSSetReadNode setRead) {
-        String id = ((MSIdentifierNode) setRead.getIdentifier()).getIdentifier();
+        String id = ((MSIdentifierNode) setRead.getExpression()).getIdentifier();
         this.symbolTable.setSymbol(id, this.interpretReadFn(setRead.getOpType()));
         return new LValue();
     }
@@ -514,34 +511,22 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * Interprets a cons pair. The car and cdr are evaluated before
-     * constructing the pair.
-     *
-     * @param pairNode MSPairNode ast.
-     *
-     * @return LValue with pair node.
-     */
-    private LValue interpretPair(final MSPairNode pairNode) {
-        // Evaluate the CAR and CDR.
-        MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCar()));
-        MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCdr()));
-        return new LValue(new MSPairNode(MSNodeType.PAIR, carNode, cdrNode));
-    }
-
-    /**
      * Interprets a Scheme list. A list is just a collection of pairs with
      * the empty list as the cdr. Just like pairs, we evaluate the car and cdr,
      * with the exception that this recursively evaluates each element in the cdr.
+     * This also evaluates cons pairs.
      *
-     * @param rootPair MSPairNode ast as a list.
+     * @param pairNode MSPairNode ast as a list.
      *
      * @return LValue with list node.
      */
-    private LValue interpretList(final MSPairNode rootPair) {
+    private LValue interpretList(final MSPairNode pairNode) {
         // We need to evaluate every element of the "list".
-        MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(rootPair.getCar()));
-        MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(rootPair.getCdr()));
-        return new LValue(new MSPairNode(MSNodeType.LIST, carNode, cdrNode));
+        MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCar()));
+        MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCdr()));
+        pairNode.setCar(carNode);
+        pairNode.setCdr(cdrNode);
+        return new LValue(pairNode);
     }
 
     /**
@@ -723,8 +708,7 @@ public class MiniSchemeInterpreter {
                 break;
             } else {
                 // Interpret body. The LValue returned is superfluous.
-                this.interpretTree(doNode.getBody());
-
+                this.interpretTree(doNode.getBody().copy());
                 // After the body run the step declarations.
                 for (MSSyntaxTree stepDecl : doNode.getStepDeclarations()) {
                     this.interpretTree(stepDecl);
@@ -945,41 +929,75 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * Interprets a set car function. This sets the head of a list to some value.
+     * Interprets a set-car! procedure call. This sets the head of a list to some value.
      *
      * @param setNode MSSetNode ast.
      *
-     * @throws MSSemanticException if set! does not have two arguments.
+     * @throws MSArgumentMismatchException if the set expression is not an lvalue or does not
+     *                                     reduce to an lvalue. If we pass more than 2 arguments
+     *                                     to the function. If we pass a non pair/list as the lvalue.
      */
     private void interpretSetCarFn(final MSSetNode setNode) throws MSSemanticException {
-        String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
-        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
-        ArrayList<MSSyntaxTree> setData = setNode.getData();
-        if (setData.size() > 1) {
-            throw new MSSemanticException("set! expected 2 arguments but got " + setData.size() + 2);
+        // If the set expression is not an lvalue, that's an error.
+        if (setNode.getExpression().isTerminalType()) {
+            throw new MSArgumentMismatchException("set-car!", "lvalue", setNode.getExpression().getNodeType().toString());
         }
-        pair.setCar(setData.get(0));
-        this.symbolTable.setSymbol(id, pair);
+        // Check the number of arguments. There should be only one.
+        else if (setNode.getData().size() > 1) {
+            throw new MSArgumentMismatchException("set-car!", 2, setNode.getData().size() + 2);
+        }
+        // Now, if the lvalue is an expression, we evaluate it.
+        else if (!setNode.getExpression().isId()) {
+            MSSyntaxTree newPair = LValue.getAstFromLValue(this.interpretTree(setNode.getExpression()));
+            if ((newPair == null) || (newPair.isPair() && newPair.isList())) {
+                throw new MSArgumentMismatchException("set-car!", "pair/list", (newPair == null ? "null" : newPair.getNodeType().toString()));
+            }
+            ((MSPairNode) newPair).setCar(setNode.getData().get(0));
+        }
+        // Lastly, if it's an identifier, set it in the symbol table.
+        else {
+            String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
+            MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
+            ArrayList<MSSyntaxTree> setData = setNode.getData();
+            pair.setCar(setData.get(0));
+            this.symbolTable.setSymbol(id, pair);
+        }
     }
 
     /**
-     * Interprets a set cdr function. This sets the tail of a list to some value.
+     * Interprets a set-cdr! procedure call. This sets the tail of a list to some value.
      *
      * @param setNode MSSetNode ast.
      *
-     * @return void.
-     *
-     * @throws MSSemanticException if set! does not have two arguments.
+     * @throws MSArgumentMismatchException if the set expression is not an lvalue or does not
+     *                                     reduce to an lvalue. If we pass more than 2 arguments
+     *                                     to the function. If we pass a non pair/list as the lvalue.
      */
     private void interpretSetCdrFn(final MSSetNode setNode) throws MSSemanticException {
-        String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
-        MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
-        ArrayList<MSSyntaxTree> setData = setNode.getData();
-        if (setData.size() > 1) {
-            throw new MSSemanticException("set! expected 2 arguments but got " + setData.size() + 2);
+        // If the set expression is not an lvalue, that's an error.
+        if (setNode.getExpression().isTerminalType()) {
+            throw new MSArgumentMismatchException("set-cdr!", "lvalue", setNode.getExpression().getNodeType().toString());
         }
-        pair.setCdr(setData.get(0));
-        this.symbolTable.setSymbol(id, pair);
+        // Check the number of arguments. There should be only one.
+        else if (setNode.getData().size() > 1) {
+            throw new MSArgumentMismatchException("set-cdr!", 2, setNode.getData().size() + 2);
+        }
+        // Now, if the lvalue is an expression, we evaluate it.
+        else if (!setNode.getExpression().isId()) {
+            MSSyntaxTree newPair = LValue.getAstFromLValue(this.interpretTree(setNode.getExpression()));
+            if ((newPair == null) || (newPair.isPair() && newPair.isList())) {
+                throw new MSArgumentMismatchException("set-cdr!", "pair/list", (newPair == null ? "null" : newPair.getNodeType().toString()));
+            }
+            ((MSPairNode) newPair).setCdr(setNode.getData().get(0));
+        }
+        // Lastly, if it's an identifier, set it in the symbol table.
+        else {
+            String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
+            MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
+            ArrayList<MSSyntaxTree> setData = setNode.getData();
+            pair.setCdr(setData.get(0));
+            this.symbolTable.setSymbol(id, pair);
+        }
     }
 
     /**
@@ -992,7 +1010,7 @@ public class MiniSchemeInterpreter {
      * @throws MSSemanticException if set! does not have two arguments.
      */
     private void interpretSetVariableFn(final MSSetNode setNode) throws MSSemanticException {
-        String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
+        String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
         ArrayList<MSSyntaxTree> setData = setNode.getData();
         if (setData.size() > 1) {
             throw new MSSemanticException("set! expected 2 arguments but got " + setData.size() + 2);
@@ -1013,7 +1031,7 @@ public class MiniSchemeInterpreter {
      * @throws MSSemanticException
      */
     private void interpretSetVectorFn(final MSSetNode setNode) throws MSSemanticException {
-        String id = ((MSIdentifierNode) setNode.getIdentifier()).getIdentifier();
+        String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
         MSVectorNode vector = (MSVectorNode) this.symbolTable.getVariable(id);
         ArrayList<MSSyntaxTree> setData = setNode.getData();
         MSSyntaxTree idxNode = LValue.getAstFromLValue(this.interpretTree(setData.get(0)));
@@ -1023,17 +1041,19 @@ public class MiniSchemeInterpreter {
             throw new MSSemanticException("attempt to access vector with non-index " + setData.get(0).getStringRep());
         }
 
-        // Pull the index and element out. Check the idx for bounds.
+        // Pull the index and element out.
         MSNumberNode numIdxNode = (MSNumberNode) setData.get(0);
         if (!numIdxNode.isInteger()) {
             throw new MSSemanticException("index " + numIdxNode.getStringRep() + " is not an integer");
         }
 
+        // Check to make sure the index is in the bounds.
         int idx = Integer.parseInt(numIdxNode.getStringRep());
         if (idx >= vector.size() || idx < 0) {
             throw new MSSemanticException("index " + idx + " out of bounds of vector " + id);
         }
 
+        // Evaluate the expression if it's non-terminal and set in table.
         MSSyntaxTree expr = LValue.getAstFromLValue(this.interpretTree(setData.get(1)));
         vector.setChild(idx, expr);
         this.symbolTable.setSymbol(id, vector);

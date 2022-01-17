@@ -198,11 +198,11 @@ exprCons: '(' CONS expr expr ')';
 
 
 // Set! a variable to an expr.
-exprSet: '(' setop term expr+ ')';
+exprSet: '(' setop expr seq ')';
 
 
 // Set! a variable to some value read in from the user.
-exprSetRead: '(' setop term '(' readop ')' ')';
+exprSetRead: '(' setop expr '(' readop ')' ')';
 
 
 // Operator expression.
@@ -215,7 +215,7 @@ exprVector: '(' CREATE_VECTOR_FN '(' expr* ')'')';
 
 
 // Creation of a list.
-exprList: ('(' CREATE_LIST_FN expr* ')');
+exprList: '(' CREATE_LIST_FN expr* ')';
 
 
 // Calling a procedure or procedure with lambda args.

@@ -45,7 +45,11 @@ public class MSPairNode extends MSSyntaxTree {
     }
 
     public void setCar(final MSSyntaxTree newCar) {
-        this.setChild(0, newCar);
+        if (this.getCar() != null) {
+            this.setChild(0, newCar);
+        } else {
+            this.addChild(newCar);
+        }
     }
 
     public MSSyntaxTree getCdr() {
@@ -53,7 +57,11 @@ public class MSPairNode extends MSSyntaxTree {
     }
 
     public void setCdr(final MSSyntaxTree newCdr) {
-        this.setChild(1, newCdr);
+        if (this.getCdr() != null) {
+            this.setChild(1, newCdr);
+        } else {
+            this.addChild(newCdr);
+        }
     }
 
     public boolean isNull() {
@@ -73,7 +81,7 @@ public class MSPairNode extends MSSyntaxTree {
         // We're on the empty list.
         if (this.getCar() == null && this.getCdr() == null) { return true; }
         // We're on the last element of a list and the head is a node but the tail is ().
-        else if (this.getCar() != null && this.getCdr() == null && this.isList()) { return true; }
+        else if (this.getCar() != null && this.getCdr() == null) { return true; }
         // Check to make sure the tail is not either a pair or a list.
         else if (!this.getCdr().isPair() && !this.getCdr().isList()) { return false; }
         // Recurse.

@@ -1,0 +1,10 @@
+(define cddr (λ (l) (cdr (cdr l))))
+(define cdddr (λ (l) (cdr (cdr (cdr l)))))
+
+(define l '(1 2 3 4 5 6))
+(set-car! l (+ 50 60))
+l ; (110 2 3 4 5 6)
+(set-car! (cdr (cdr l)) (* 2 3 4))
+l ; (110 2 24 4 5 6)
+(set-cdr! (cdr (cdr (cdr l))) (list 'a 'b 'c))
+l ; (110 2 24 4 a b c)
