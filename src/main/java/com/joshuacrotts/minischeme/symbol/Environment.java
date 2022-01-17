@@ -19,7 +19,6 @@ public class Environment {
     }
 
     /**
-     *
      * @param identifier
      * @param symbolType
      * @param symbolExpr
@@ -30,7 +29,6 @@ public class Environment {
     }
 
     /**
-     *
      * @param identifier
      * @return
      */

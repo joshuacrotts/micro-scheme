@@ -4,14 +4,14 @@
   <img width="200" height="200" src="docs/lambda.png">
 </p>
 
-[![CodeFactor](https://www.codefactor.io/repository/github/joshuacrotts/MiniScheme/badge)](https://www.codefactor.io/repository/github/joshuacrotts/MiniScheme) ![](https://github.com/JoshuaCrotts/MiniScheme/workflows/tests/badge.svg) ![GitHub contributors](https://img.shields.io/github/contributors/JoshuaCrotts/MiniScheme) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/JoshuaCrotts/MiniScheme) ![GitHub repo size](https://img.shields.io/github/repo-size/JoshuaCrotts/MiniScheme) [![GitHub issues open](https://img.shields.io/github/issues/JoshuaCrotts/MiniScheme)]() 
+[![CodeFactor](https://www.codefactor.io/repository/github/joshuacrotts/MiniScheme/badge)](https://www.codefactor.io/repository/github/joshuacrotts/MiniScheme) ![](https://github.com/JoshuaCrotts/MiniScheme/workflows/tests/badge.svg) ![GitHub contributors](https://img.shields.io/github/contributors/JoshuaCrotts/MiniScheme) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/JoshuaCrotts/MiniScheme) ![GitHub repo size](https://img.shields.io/github/repo-size/JoshuaCrotts/MiniScheme) [![GitHub issues open](https://img.shields.io/github/issues/JoshuaCrotts/MiniScheme)]()
 [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/JoshuaCrotts/MiniScheme)]()
 
 This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsing library. Right now, it supports:
 
-- Primitive Operations 
+- Primitive Operations
 - Pairs
-- Lists 
+- Lists
 - Lambda Expressions (can be created with `lambda` or `λ`)
 - Procedures
 - Vectors
@@ -21,12 +21,15 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 - Random Number Generators
 
 ## Example MiniScheme Programs
+
 1. Defining a variable:
+
 ```
 (define var 5)
 ```
 
 2. Defining a procedure:
+
 ```
 (define (factorial n)
     (if (<= n 1)
@@ -38,6 +41,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 ```
 
 3. Defining a lambda:
+
 ```
 (define fib
     (λ (n)
@@ -50,6 +54,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 ```
 
 4. Length of a list with `cond`:
+
 ```
 (define length 
     (λ (l)
@@ -59,6 +64,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 ```
 
 5. Iteration with `do` loop:
+
 ```
 (define sum-from-iterative
     (λ (a b) 
@@ -78,6 +84,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 ```
 
 6. Filter procedure:
+
 ```
 (define (odd? x) (= 1 (remainder x 2)))
 (define (filter predicate sequence)
@@ -93,6 +100,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 ```
 
 7. Accumulate procedure (using passed lambda):
+
 ```
 (define (accumulate op initial sequence)
   (if (null? sequence)
@@ -118,11 +126,15 @@ The following is a list of features that I'd like to include in the interpreter,
 
 ## Dependencies
 
-This project uses Maven, and was developed using IntelliJ. Though, it works with any IDE, so long as the ANTLR plugin is available. 
+This project uses Maven, and was developed using IntelliJ. Though, it works with any IDE, so long as the ANTLR plugin is
+available.
 
 ## Reporting Bugs
 
 See the Issues Tab.
 
 ## Version History
-The **master** branch encompasses all changes. The **development** branches have in-progress additions and updates that are not yet ready for the master branch. There will most likely be other branches present in the future, each with the "development" prefix, and a suffix denoting its purpose with a hyphen (-).
+
+The **master** branch encompasses all changes. The **development** branches have in-progress additions and updates that
+are not yet ready for the master branch. There will most likely be other branches present in the future, each with the "
+development" prefix, and a suffix denoting its purpose with a hyphen (-).

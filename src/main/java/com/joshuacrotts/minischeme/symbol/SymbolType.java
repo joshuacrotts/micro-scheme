@@ -1,6 +1,7 @@
 package com.joshuacrotts.minischeme.symbol;
 
 import com.joshuacrotts.minischeme.ast.MSNodeType;
+import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 
 /**
  *
@@ -10,7 +11,6 @@ public enum SymbolType {
     PROCEDURE, VARIABLE, LAMBDA;
 
     /**
-     *
      * @param nodeType
      * @return
      */
@@ -30,8 +30,7 @@ public enum SymbolType {
             case EXPR_LAMBDA_DECL:
                 return LAMBDA;
             default:
-                throw new IllegalArgumentException("Internal interpreter error -" +
-                        " cannot convert MSNodeType " + nodeType + " to SymbolType.");
+                throw new MSInterpreterException("Cannot convert MSNodeType " + nodeType + " to SymbolType");
         }
     }
 }

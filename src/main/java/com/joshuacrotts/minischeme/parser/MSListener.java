@@ -3,13 +3,13 @@ package com.joshuacrotts.minischeme.parser;
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.ast.*;
-import java.util.ArrayList;
-import java.util.Optional;
-
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
+
+import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  *
@@ -71,7 +71,7 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
         this.map.put(ctx, new MSProcedureDeclarationNode(this.map.get(ctx.term()),
-                                    params, this.map.get(ctx.procBody().seq())));
+                params, this.map.get(ctx.procBody().seq())));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
         this.map.put(ctx, new MSLambdaDeclarationNode(this.map.get(ctx.term()),
-                            lambdaParams, this.map.get(ctx.lambdaBody().seq())));
+                lambdaParams, this.map.get(ctx.lambdaBody().seq())));
     }
 
     @Override
@@ -135,15 +135,15 @@ public class MSListener extends MiniSchemeBaseListener {
         } else if (ctx.exprSymbol() != null) {
             this.map.put(ctx, this.map.get(ctx.exprSymbol()));
         } else {
-            MSPairNode parentPair = null;
-            MSPairNode prevPair = null;
+            MSListNode parentList = null;
+            MSListNode prevList = null;
             for (int i = ctx.exprSymbolComponent().size() - 1; i >= 0; i--) {
                 MSSyntaxTree rexpr = this.map.get(ctx.exprSymbolComponent(i));
-                prevPair = new MSPairNode(rexpr, prevPair);
+                prevList = new MSListNode(rexpr, prevList);
             }
             // If they enter the empty list, then we need to add a "blank" pair node.
-            parentPair = Optional.ofNullable(prevPair).orElse(new MSPairNode());
-            this.map.put(ctx, parentPair);
+            parentList = Optional.ofNullable(prevList).orElse(new MSListNode());
+            this.map.put(ctx, parentList);
         }
     }
 
@@ -152,21 +152,21 @@ public class MSListener extends MiniSchemeBaseListener {
         super.exitExprCons(ctx);
         MSSyntaxTree lhsExpr = this.map.get(ctx.expr(0));
         MSSyntaxTree rhsExpr = this.map.get(ctx.expr(1));
-        this.map.put(ctx, new MSPairNode(lhsExpr, rhsExpr));
+        this.map.put(ctx, new MSListNode(lhsExpr, rhsExpr));
     }
 
     @Override
     public void exitExprList(MiniSchemeParser.ExprListContext ctx) {
         super.exitExprList(ctx);
-        MSPairNode parentPair = null;
-        MSPairNode prevPair = null;
+        MSListNode parentList = null;
+        MSListNode prevList = null;
         for (int i = ctx.expr().size() - 1; i >= 0; i--) {
             MSSyntaxTree rexpr = this.map.get(ctx.expr(i));
-            prevPair = new MSPairNode(rexpr, prevPair);
+            prevList = new MSListNode(rexpr, prevList);
         }
         // If they enter the empty list, then we need to add a "blank" pair node.
-        parentPair = Optional.ofNullable(prevPair).orElse(new MSPairNode());
-        this.map.put(ctx, parentPair);
+        parentList = Optional.ofNullable(prevList).orElse(new MSListNode());
+        this.map.put(ctx, parentList);
     }
 
     @Override
@@ -397,10 +397,15 @@ public class MSListener extends MiniSchemeBaseListener {
             case MiniSchemeParser.ID:
                 term = new MSIdentifierNode(ctx.getText());
                 break;
-            default: throw new UnsupportedOperationException("Cannot support this token yet");
+            default:
+                throw new UnsupportedOperationException("Cannot support this token yet");
         }
 
         this.map.put(ctx, term);
+    }
+
+    public MSSyntaxTree getSyntaxTree() {
+        return this.root;
     }
 
     /**
@@ -409,7 +414,7 @@ public class MSListener extends MiniSchemeBaseListener {
      *
      * @param ctx ExprOpContext object.
      * @return int[] array. arr[0] represents token type from parser. arr[1]
-     *                      represents the rule index.
+     * represents the rule index.
      */
     private int[] getTokenFromSymbol(MiniSchemeParser.ExprOpContext ctx) {
         int[] opTypePair = new int[2];
@@ -417,9 +422,5 @@ public class MSListener extends MiniSchemeBaseListener {
         opTypePair[0] = ((TerminalNode) (ctx.getChild(offset).getChild(0))).getSymbol().getType();
         opTypePair[1] = ((RuleContext) ctx.getChild(offset)).getRuleIndex();
         return opTypePair;
-    }
-
-    public MSSyntaxTree getSyntaxTree() {
-        return this.root;
     }
 }

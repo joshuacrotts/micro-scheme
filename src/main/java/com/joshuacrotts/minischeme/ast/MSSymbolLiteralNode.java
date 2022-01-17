@@ -1,7 +1,6 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
- *
  * @author Joshua Crotts
  * @version ?
  */

@@ -3,7 +3,7 @@ package com.joshuacrotts.minischeme.ast;
 /**
  * Represents a variable declaration. Variable declarations occur in two
  * places: in (define ...) expressions, and (let ...) expressions.
- *
+ * <p>
  * CHILD 0: identifier of variable.
  * CHILD 1: expression of variable.
  *

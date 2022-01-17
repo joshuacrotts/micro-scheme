@@ -6,7 +6,6 @@ package com.joshuacrotts.minischeme.ast;
  * separate respective classes.
  *
  * @author Joshua Crotts
- *
  * @version 12/23/2021
  */
 public class MSIdentifierNode extends MSSyntaxTree {

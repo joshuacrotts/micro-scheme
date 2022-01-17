@@ -1,12 +1,11 @@
 package com.joshuacrotts.minischeme.ast;
 
 import com.joshuacrotts.minischeme.main.MSUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- *
- *
  * @author Joshua Crotts
  * @version 12/23/2021
  */
@@ -113,7 +112,9 @@ public class MSSyntaxTree implements Copyable {
         return this.NODE_TYPE == MSNodeType.BOOL;
     }
 
-    public boolean isChar() { return this.NODE_TYPE == MSNodeType.CHAR; }
+    public boolean isChar() {
+        return this.NODE_TYPE == MSNodeType.CHAR;
+    }
 
     public boolean isString() {
         return this.NODE_TYPE == MSNodeType.STR;
@@ -123,7 +124,9 @@ public class MSSyntaxTree implements Copyable {
         return this.NODE_TYPE == MSNodeType.SYMBOL;
     }
 
-    public boolean isSymbolLit() { return this.NODE_TYPE == MSNodeType.SYMBOL_LIT; }
+    public boolean isSymbolLit() {
+        return this.NODE_TYPE == MSNodeType.SYMBOL_LIT;
+    }
 
     public boolean isLetDecl() {
         return this.NODE_TYPE == MSNodeType.LET_DECL;

@@ -1,0 +1,28 @@
+;
+; Searching through BST.
+;
+
+(define (cadr l) (car (cdr l)))
+(define (caddr l) (car (cdr (cdr l))))
+
+(define (bstsearch tree value)
+  (cond
+    ((null? tree) #f)
+      ((< value (car tree))
+        (bstsearch  (cadr tree) value))
+      ((> value (car tree))
+        (bstsearch (caddr tree) value))
+      ((= value (car tree))
+        #t)))
+
+(define root '(50 (30 (20 () ()) (40 () ())) (70 (65 () ()) (80 () (95 () ())))))
+(bstsearch root 30)
+(bstsearch root 50)
+(bstsearch root 40)
+(bstsearch root 20)
+(bstsearch root 70)
+(bstsearch root 10)
+(bstsearch root 80)
+(bstsearch root 65)
+(bstsearch root 90)
+(bstsearch root 0)

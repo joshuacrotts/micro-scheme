@@ -9,7 +9,10 @@ import com.joshuacrotts.minischeme.parser.MSSemanticException;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import com.joshuacrotts.minischeme.symbol.SymbolType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 /**
  *
@@ -37,6 +40,22 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * @param
+     */
+    public void execute() {
+        for (MSSyntaxTree ch : this.interpreterTree.getChildren()) {
+            LValue lhs;
+            if ((lhs = this.interpretTree(ch)) != null && !lhs.toString().isEmpty()) {
+                System.out.println(lhs);
+            }
+        }
+    }
+
+    public void setInterpreterTree(final MSSyntaxTree tree) {
+        this.interpreterTree = tree;
+    }
+
+    /**
      * @param procDef
      * @param body
      * @param args
@@ -60,10 +79,14 @@ public class MiniSchemeInterpreter {
                                      final MSSyntaxTree arg, final int replaceIdx,
                                      final ArrayList<MSSyntaxTree> args) {
         // If the body is null then there's nothing to replace.
-        if (body == null) { return; }
+        if (body == null) {
+            return;
+        }
         for (int i = 0; i < body.getChildrenSize(); i++) {
             MSSyntaxTree child = body.getChild(i);
-            if (child == null) { return; }
+            if (child == null) {
+                return;
+            }
             // If it's an ID then we want to replace it.
             if (child.isId()) {
                 MSIdentifierNode id = (MSIdentifierNode) child;
@@ -82,61 +105,71 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * @param
-     */
-    public void execute() {
-        for (MSSyntaxTree ch : this.interpreterTree.getChildren()) {
-            LValue lhs;
-            if ((lhs = this.interpretTree(ch)) != null && !lhs.toString().isEmpty()) {
-                System.out.println(lhs);
-            }
-        }
-    }
-
-    public void setInterpreterTree(final MSSyntaxTree tree) {
-        this.interpreterTree = tree;
-    }
-
-    /**
      * Interprets a single tree node. This should be recursively defined.
      *
      * @param tree of some node type.
-     *
      * @return LValue dependent on the MSNodeType. If tree is null, the LValue
-     *         returned is null. If there is no case for the tree MSNodeType,
-     *         the returned LValue is a "blank" LValue.
+     * returned is null. If there is no case for the tree MSNodeType,
+     * the returned LValue is a "blank" LValue.
      */
     private LValue interpretTree(final MSSyntaxTree tree) {
-        if (tree == null) { return new LValue(LValue.LValueType.NULL); }
+        if (tree == null) {
+            return new LValue(LValue.LValueType.NULL);
+        }
         try {
             switch (tree.getNodeType()) {
-                case ROOT: return this.interpretTree(tree.getChild(0));
-                case SEQ: return this.interpretSequence((MSSequenceNode) tree);
-                case LET_DECL: return this.interpretLet((MSLetDeclarationNode) tree);
-                case VAR_DECL: return this.interpretVariableDeclaration((MSVariableDeclarationNode) tree);
-                case PROC_DECL: return this.interpretProcedureDeclaration((MSProcedureDeclarationNode) tree);
-                case LAMBDA_DECL: return this.interpretLambdaDeclaration((MSLambdaDeclarationNode) tree);
-                case DECL_READ: return this.interpretDeclarationRead((MSDeclarationReadNode) tree);
-                case SET_READ: return this.interpretSetRead((MSSetReadNode) tree);
-                case ID: return this.interpretIdentifier((MSIdentifierNode) tree);
-                case OP: return this.interpretOperator((MSOpNode) tree);
-                case SYMBOL: return this.interpretSymbol((MSSymbolNode) tree);
-                case SYMBOL_LIT: return this.interpretSymbolLiteral((MSSymbolLiteralNode) tree);
-                case SET: return this.interpretSetOp((MSSetNode) tree);
-                case NUM: return this.interpretNumber((MSNumberNode) tree);
-                case BOOL: return this.interpretBoolean((MSBooleanNode) tree);
-                case CHAR: return this.interpretCharacter((MSCharacterNode) tree);
-                case STR: return this.interpretString((MSStringNode) tree);
-                case LIST: return this.interpretList((MSPairNode) tree);
-                case VECTOR: return this.interpretVector((MSVectorNode) tree);
-                case IF: return this.interpretIf((MSIfNode) tree);
-                case COND: return this.interpretCond((MSCondNode) tree);
-                case DO: return this.interpretDo((MSDoNode) tree);
-                case CALL: return this.interpretCall((MSCallNode) tree);
-                case EXPR_LAMBDA_DECL_CALL: return this.interpretLambdaDeclCall((MSLambdaDeclarationCallNode) tree);
-                default: break;
+                case ROOT:
+                    return this.interpretTree(tree.getChild(0));
+                case SEQ:
+                    return this.interpretSequence((MSSequenceNode) tree);
+                case LET_DECL:
+                    return this.interpretLet((MSLetDeclarationNode) tree);
+                case VAR_DECL:
+                    return this.interpretVariableDeclaration((MSVariableDeclarationNode) tree);
+                case PROC_DECL:
+                    return this.interpretProcedureDeclaration((MSProcedureDeclarationNode) tree);
+                case LAMBDA_DECL:
+                    return this.interpretLambdaDeclaration((MSLambdaDeclarationNode) tree);
+                case DECL_READ:
+                    return this.interpretDeclarationRead((MSDeclarationReadNode) tree);
+                case SET_READ:
+                    return this.interpretSetRead((MSSetReadNode) tree);
+                case ID:
+                    return this.interpretIdentifier((MSIdentifierNode) tree);
+                case OP:
+                    return this.interpretOperator((MSOpNode) tree);
+                case SYMBOL:
+                    return this.interpretSymbol((MSSymbolNode) tree);
+                case SYMBOL_LIT:
+                    return this.interpretSymbolLiteral((MSSymbolLiteralNode) tree);
+                case SET:
+                    return this.interpretSetOp((MSSetNode) tree);
+                case NUM:
+                    return this.interpretNumber((MSNumberNode) tree);
+                case BOOL:
+                    return this.interpretBoolean((MSBooleanNode) tree);
+                case CHAR:
+                    return this.interpretCharacter((MSCharacterNode) tree);
+                case STR:
+                    return this.interpretString((MSStringNode) tree);
+                case LIST:
+                    return this.interpretList((MSListNode) tree);
+                case VECTOR:
+                    return this.interpretVector((MSVectorNode) tree);
+                case IF:
+                    return this.interpretIf((MSIfNode) tree);
+                case COND:
+                    return this.interpretCond((MSCondNode) tree);
+                case DO:
+                    return this.interpretDo((MSDoNode) tree);
+                case CALL:
+                    return this.interpretCall((MSCallNode) tree);
+                case EXPR_LAMBDA_DECL_CALL:
+                    return this.interpretLambdaDeclCall((MSLambdaDeclarationCallNode) tree);
+                default:
+                    break;
             }
-        } catch (MSSemanticException | MSInterpreterException err) {
+        } catch (MSSemanticException err) {
             System.out.println(err.getMessage());
         }
 
@@ -148,15 +181,14 @@ public class MiniSchemeInterpreter {
      * in the symbol table, with the key being the string literal identifier, and the value
      * being a VariableDeclaration. The exception to this rule is when we want to assign a
      * variable to another term. For example,
-     *
+     * <p>
      * (define x 5)
      * (define y x)
-     *
+     * <p>
      * With this code, x is assigned 5, and we copy that assignment into y. So, there is a MSNumberNode
      * associated with y. This is *not* the same object as x in memory, though.
      *
      * @param varDecl variable declaration AST node.
-     *
      * @return blank LValue object.
      */
     private LValue interpretVariableDeclaration(final MSVariableDeclarationNode varDecl) {
@@ -182,11 +214,10 @@ public class MiniSchemeInterpreter {
      * preceded by an identifier in a (define ...) call. The procedure
      * declaration encompasses the define and identifier. Following the
      * identifier is 0 or more parameters.
-     *
+     * <p>
      * (define (square x) (* x x))
      *
      * @param procDecl procedure declaration AST node.
-     *
      * @return blank LValue object.
      */
     private LValue interpretProcedureDeclaration(final MSProcedureDeclarationNode procDecl) {
@@ -201,7 +232,6 @@ public class MiniSchemeInterpreter {
      * specific lambda declarations cannot be anonymous.
      *
      * @param lambdaDecl lambda declaration AST node.
-     *
      * @return blank LValue object.
      */
     private LValue interpretLambdaDeclaration(final MSLambdaDeclarationNode lambdaDecl) {
@@ -215,7 +245,6 @@ public class MiniSchemeInterpreter {
      * evaluated. The sequence "returns" the LValue of the last expression evaluated.
      *
      * @param sequenceNode MSSequenceNode AST.
-     *
      * @return LValue of last expression evaluated in the sequence.
      */
     private LValue interpretSequence(final MSSequenceNode sequenceNode) {
@@ -232,15 +261,18 @@ public class MiniSchemeInterpreter {
      * let declaration.
      *
      * @param letDecl let declaration AST node.
-     *
      * @return LValue of let evaluated.
      */
     private LValue interpretLet(final MSLetDeclarationNode letDecl) throws MSInterpreterException {
         switch (letDecl.getLetType()) {
-            case LET: return this.interpretLetDeclaration(letDecl);
-            case LET_STAR: return this.interpretLetStarDeclaration(letDecl);
-            case LET_REC: return this.interpretLetRecDeclaration(letDecl);
-            case LET_NAMED: return this.interpretLetNamedDeclaration(letDecl);
+            case LET:
+                return this.interpretLetDeclaration(letDecl);
+            case LET_STAR:
+                return this.interpretLetStarDeclaration(letDecl);
+            case LET_REC:
+                return this.interpretLetRecDeclaration(letDecl);
+            case LET_NAMED:
+                return this.interpretLetNamedDeclaration(letDecl);
             default:
                 throw new MSInterpreterException("Cannot interpret let of type " + letDecl.getLetType());
         }
@@ -253,7 +285,6 @@ public class MiniSchemeInterpreter {
      * until all have been evaluated (this differs from let*).
      *
      * @param letDecl let declaration AST node.
-     *
      * @return LValue of body of let.
      */
     private LValue interpretLetDeclaration(final MSLetDeclarationNode letDecl) {
@@ -305,7 +336,6 @@ public class MiniSchemeInterpreter {
      * declared prior to another in the let declarations is visible in that environment.
      *
      * @param letStarDecl let star declaration AST node.
-     *
      * @return LValue of let body evaluation.
      */
     private LValue interpretLetStarDeclaration(final MSLetDeclarationNode letStarDecl) {
@@ -352,7 +382,6 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
      * @param letRecDecl
      * @return
      */
@@ -367,7 +396,6 @@ public class MiniSchemeInterpreter {
      * until all have been evaluated (this differs from let*).
      *
      * @param letNamedDecl let named declaration AST node.
-     *
      * @return LValue of body of let.
      */
     private LValue interpretLetNamedDeclaration(final MSLetDeclarationNode letNamedDecl) {
@@ -422,7 +450,6 @@ public class MiniSchemeInterpreter {
      * result of reading from stdin into a define.
      *
      * @param declRead MSDeclarationReadNode abstract syntax tree node.
-     *
      * @return Blank LValue (nothing to return).
      */
     private LValue interpretDeclarationRead(final MSDeclarationReadNode declRead) {
@@ -436,7 +463,6 @@ public class MiniSchemeInterpreter {
      * reading from stdin into a variable.
      *
      * @param setRead MSSetReadNode abstract syntax tree node.
-     *
      * @return Blank LValue (nothing to return).
      */
     private LValue interpretSetRead(final MSSetReadNode setRead) {
@@ -449,7 +475,6 @@ public class MiniSchemeInterpreter {
      * Interprets a number literal.
      *
      * @param numberNode - MSNumberNode ast.
-     *
      * @return LValue with number node.
      */
     private LValue interpretNumber(final MSNumberNode numberNode) {
@@ -460,7 +485,6 @@ public class MiniSchemeInterpreter {
      * Interprets a boolean literal.
      *
      * @param booleanNode - MSBooleanNode ast.
-     *
      * @return LValue with boolean node.
      */
     private LValue interpretBoolean(final MSBooleanNode booleanNode) {
@@ -471,7 +495,6 @@ public class MiniSchemeInterpreter {
      * Interprets a character.
      *
      * @param characterNode MSCharacterNode abstract syntax tree node.
-     *
      * @return LValue with char node.
      */
     private LValue interpretCharacter(final MSCharacterNode characterNode) {
@@ -482,7 +505,6 @@ public class MiniSchemeInterpreter {
      * Interprets a String literal.
      *
      * @param stringNode MSStringNode ast.
-     *
      * @return LValue with string node.
      */
     private LValue interpretString(final MSStringNode stringNode) {
@@ -494,7 +516,6 @@ public class MiniSchemeInterpreter {
      * expression that should not be evaluated.
      *
      * @param symbolNode AST symbol node.
-     *
      * @return LValue with symbol's expression.
      */
     private LValue interpretSymbol(final MSSymbolNode symbolNode) {
@@ -508,7 +529,6 @@ public class MiniSchemeInterpreter {
      * types (x and z being identifiers, and + being an operator).
      *
      * @param symbolLiteralNode MSSymbolLiteralNode abstract syntax tree node.
-     *
      * @return LValue from interpreting the symbol literal.
      */
     private LValue interpretSymbolLiteral(final MSSymbolLiteralNode symbolLiteralNode) {
@@ -521,24 +541,20 @@ public class MiniSchemeInterpreter {
      * with the exception that this recursively evaluates each element in the cdr.
      * This also evaluates cons pairs.
      *
-     * @param pairNode MSPairNode ast as a list.
-     *
+     * @param listNode MSListNode ast as a list.
      * @return LValue with list node.
      */
-    private LValue interpretList(final MSPairNode pairNode) {
+    private LValue interpretList(final MSListNode listNode) {
         // We need to evaluate every element of the "list".
-        MSSyntaxTree carNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCar()));
-        MSSyntaxTree cdrNode = LValue.getAstFromLValue(this.interpretTree(pairNode.getCdr()));
-        pairNode.setCar(carNode);
-        pairNode.setCdr(cdrNode);
-        return new LValue(pairNode);
+        listNode.setCar(LValue.getAstFromLValue(this.interpretTree(listNode.getCar())));
+        listNode.setCdr(LValue.getAstFromLValue(this.interpretTree(listNode.getCdr())));
+        return new LValue(listNode);
     }
 
     /**
-     * Interprets a vector.
+     * Interprets a vector declaration. This doesn't really do much other than return the LValue.
      *
      * @param vectorNode MSVectorNode abstract syntax tree node.
-     *
      * @return LValue from interpreting the vector.
      */
     private LValue interpretVector(final MSVectorNode vectorNode) {
@@ -552,7 +568,6 @@ public class MiniSchemeInterpreter {
      * are in MiniSchemeOperatorInterpreter.java.
      *
      * @param opNode MSOpNode abstract syntax tree node.
-     *
      * @return LValue from interpreting the operator.
      */
     private LValue interpretOperator(final MSOpNode opNode) throws MSSemanticException {
@@ -562,12 +577,10 @@ public class MiniSchemeInterpreter {
                     opType, this.interpretTree(opNode.getChild(0)));
         } else if (opNode.isBinary()) {
             return MiniSchemeOperatorInterpreter.interpretPrimitiveBinaryOperator(
-                    opType, this.interpretTree(opNode.getChild(0)),
-                    this.interpretTree(opNode.getChild(1)));
+                    opType, this.interpretTree(opNode.getChild(0)), this.interpretTree(opNode.getChild(1)));
         } else if (opNode.isTernary()) {
             return MiniSchemeOperatorInterpreter.interpretPrimitiveTernaryOperator(
-                    opType, this.interpretTree(opNode.getChild(0)),
-                    this.interpretTree(opNode.getChild(1)),
+                    opType, this.interpretTree(opNode.getChild(0)), this.interpretTree(opNode.getChild(1)),
                     this.interpretTree(opNode.getChild(2)));
         } else {
             LValue res = this.interpretTree(opNode.getChild(0));
@@ -585,7 +598,6 @@ public class MiniSchemeInterpreter {
      * procedures, or lambdas.
      *
      * @param idNode MSIdentifierNode ast.
-     *
      * @return LValue when interpreting identifier.
      */
     private LValue interpretIdentifier(final MSIdentifierNode idNode) throws MSSemanticException {
@@ -607,18 +619,14 @@ public class MiniSchemeInterpreter {
      * Interprets an if expression.
      *
      * @param ifNode MSIfNode ast.
-     *
      * @return LValue of if expression body evaluated.
      */
     private LValue interpretIf(final MSIfNode ifNode) throws MSSemanticException {
         LValue ifCond = this.interpretTree(ifNode.getCondition());
         if (ifCond.getType() == LValue.LValueType.BOOL) {
-            return ifCond.getBoolValue()
-                    ? this.interpretTree(ifNode.getConsequent())
-                    : this.interpretTree(ifNode.getAlternative());
+            return ifCond.getBoolValue() ? this.interpretTree(ifNode.getConsequent()) : this.interpretTree(ifNode.getAlternative());
         } else {
-            throw new MSSemanticException("cannot evaluate if statement condition;"
-                    + " expected predicate or procedure");
+            throw new MSArgumentMismatchException("if statement condition", "predicate/procedure", ifCond.getType().toString());
         }
     }
 
@@ -628,7 +636,6 @@ public class MiniSchemeInterpreter {
      * other expressions or predicates in the COND are evaluated afterwards.
      *
      * @param condNode - MSCondNode ast.
-     *
      * @return LValue of cond body expression.
      */
     private LValue interpretCond(final MSCondNode condNode) throws MSSemanticException {
@@ -639,8 +646,7 @@ public class MiniSchemeInterpreter {
         while (condIdx < condNode.getChildrenSize() && bodyIdx < condNode.getChildrenSize()) {
             LValue condCond = this.interpretTree(condNode.getChild(condIdx));
             if (condCond.getType() != LValueType.BOOL) {
-                throw new MSSemanticException("cannot evaluate cond statement condition;"
-                        + " expected predicate or true/false");
+                throw new MSArgumentMismatchException("cond", "predicate/procedure", condCond.getType().toString());
             } else {
                 if (condCond.getBoolValue()) {
                     // If the condition is true, evaluate that expression.
@@ -662,9 +668,7 @@ public class MiniSchemeInterpreter {
      * Interprets a do loop.
      *
      * @param doNode MSDoNode abstract syntax tree node.
-     *
      * @return LValue from do expression once the "test" expression is true.
-     *
      * @throws MSSemanticException if the test expression is not a predicate/true/false value.
      */
     private LValue interpretDo(final MSDoNode doNode) throws MSSemanticException {
@@ -704,7 +708,7 @@ public class MiniSchemeInterpreter {
             }
         }
 
-        // Now execute the test statement and body if the test is true.
+        // Now, execute the test statement and body if the test is true.
         while (true) {
             LValue testLhs = this.interpretTree(doNode.getTestExpression());
             if (!testLhs.isLBool()) {
@@ -738,9 +742,7 @@ public class MiniSchemeInterpreter {
      * forward.
      *
      * @param callNode MSCallNode abstract syntax tree.
-     *
      * @return LValue from evaluating the body of the call.
-     *
      * @throws MSSemanticException if the identifier found is unknown.
      */
     private LValue interpretCall(final MSCallNode callNode) throws MSSemanticException {
@@ -770,9 +772,7 @@ public class MiniSchemeInterpreter {
      * lambda arguments. These all need to be passed forward and evaluated.
      *
      * @param procCall MSCallNode abstract syntax tree node.
-     *
      * @return LValue when interpreting the procedure.
-     *
      * @throws MSSemanticException if the procedure call arity does not match the definition.
      */
     private LValue interpretProcedureCall(final MSCallNode procCall) throws MSSemanticException {
@@ -782,9 +782,7 @@ public class MiniSchemeInterpreter {
 
         // Before anything, check to make sure the procedure parameters and argument sizes match.
         if (procCall.getProcedureArgumentCount() != procDef.getParameterCount()) {
-            throw new MSSemanticException(id + ": procedure arity mismatch; expected "
-                    + procDef.getParameterCount() + " arguments but got "
-                    + procCall.getProcedureArgumentCount());
+            throw new MSArgumentMismatchException(id, procDef.getParameterCount(), procCall.getProcedureArgumentCount());
         }
 
         // Now, bind the arguments to parameters.
@@ -797,21 +795,25 @@ public class MiniSchemeInterpreter {
             } else {
                 // Otherwise, evaluate the arg.
                 LValue lhs = this.interpretTree(procCallArg);
-                if (lhs.isLNumber()) { args.add(new MSNumberNode(lhs.getDoubleValue())); }
-                else if (lhs.isLBool()) { args.add(new MSBooleanNode(lhs.getBoolValue())); }
-                else if (lhs.isLChar()) { args.add(new MSCharacterNode(lhs.getCharValue())); }
-                else if (lhs.isLString()) { args.add(new MSStringNode(lhs.getStringValue())); }
-                else if (lhs.isLProcCall() || lhs.isLSymbol() || lhs.isLLambdaCall()) { args.add(lhs.getTreeValue()); }
-                else if (lhs.isLPair() || lhs.isLVector()) {
+                if (lhs.isLNumber()) {
+                    args.add(new MSNumberNode(lhs.getDoubleValue()));
+                } else if (lhs.isLBool()) {
+                    args.add(new MSBooleanNode(lhs.getBoolValue()));
+                } else if (lhs.isLChar()) {
+                    args.add(new MSCharacterNode(lhs.getCharValue()));
+                } else if (lhs.isLString()) {
+                    args.add(new MSStringNode(lhs.getStringValue()));
+                } else if (lhs.isLProcCall() || lhs.isLSymbol() || lhs.isLLambdaCall()) {
+                    args.add(lhs.getTreeValue());
+                } else if (lhs.isLList() || lhs.isLVector()) {
                     // If it is null, then evaluate the null list.
                     if (lhs.getTreeValue() == null) {
-                        args.add(new MSPairNode());
+                        args.add(new MSListNode());
                     } else {
                         args.add(lhs.getTreeValue());
                     }
                 } else {
-                    throw new IllegalArgumentException("Internal interpreter error -" +
-                            " proc decl call found an incorrect lvalue: " + lhs.getType());
+                    throw new MSInterpreterException("Proc decl call found an incorrect lvalue: " + lhs.getType());
                 }
             }
         }
@@ -835,9 +837,7 @@ public class MiniSchemeInterpreter {
      * (define x (lambda ...)).
      *
      * @param lambdaCall MSCallNode abstract syntax tree node.
-     *
      * @return LValue when evaluating the body of the lambda.
-     *
      * @throws MSSemanticException if the arity of the lambda call does not match its declaration.
      */
     private LValue interpretLambdaCall(final MSCallNode lambdaCall) throws MSSemanticException {
@@ -848,9 +848,7 @@ public class MiniSchemeInterpreter {
 
         // Check to see if we have enough arguments for the lambda.
         if (lambdaDecl.getLambdaParameterCount() != lambdaCall.getProcedureArgumentCount()) {
-            throw new MSSemanticException("lambda arity mismatch; expected "
-                    + lambdaDeclCall.getLambdaParameterCount() + " arguments but got " +
-                    + lambdaDeclCall.getLambdaArgumentCount());
+            throw new MSArgumentMismatchException("lambda", lambdaDecl.getLambdaParameterCount(), lambdaCall.getLambdaArgumentCount());
         }
         return this.interpretTree(lambdaDeclCall);
     }
@@ -860,9 +858,7 @@ public class MiniSchemeInterpreter {
      * is declared and evaluated in the same line e.g., ((lambda (x) (+ x x)) 5).
      *
      * @param lambdaDeclCall MSLambdaDeclarationCallNode abstract syntax tree node.
-     *
      * @return LValue when evaluating the body of the lambda.
-     *
      * @throws MSSemanticException if one of the other methods throws an exception.
      */
     private LValue interpretLambdaDeclCall(final MSLambdaDeclarationCallNode lambdaDeclCall) throws MSSemanticException {
@@ -876,21 +872,25 @@ public class MiniSchemeInterpreter {
             } else {
                 // Otherwise, evaluate the arg.
                 LValue lhs = this.interpretTree(lambdaDeclCall.getLambdaArguments().get(i));
-                if (lhs.isLNumber()) { args.add(new MSNumberNode(lhs.getDoubleValue())); }
-                else if (lhs.isLBool()) { args.add(new MSBooleanNode(lhs.getBoolValue())); }
-                else if (lhs.isLChar()) { args.add(new MSCharacterNode(lhs.getCharValue())); }
-                else if (lhs.isLString()) { args.add(new MSStringNode(lhs.getStringValue())); }
-                else if (lhs.isLProcCall() || lhs.isLSymbol() || lhs.isLLambdaCall()) { args.add(lhs.getTreeValue()); }
-                else if (lhs.isLPair() || lhs.isLVector()) {
+                if (lhs.isLNumber()) {
+                    args.add(new MSNumberNode(lhs.getDoubleValue()));
+                } else if (lhs.isLBool()) {
+                    args.add(new MSBooleanNode(lhs.getBoolValue()));
+                } else if (lhs.isLChar()) {
+                    args.add(new MSCharacterNode(lhs.getCharValue()));
+                } else if (lhs.isLString()) {
+                    args.add(new MSStringNode(lhs.getStringValue()));
+                } else if (lhs.isLProcCall() || lhs.isLSymbol() || lhs.isLLambdaCall()) {
+                    args.add(lhs.getTreeValue());
+                } else if (lhs.isLList() || lhs.isLVector()) {
                     // If it is null, then evaluate the null list.
                     if (lhs.getTreeValue() == null) {
-                        args.add(new MSPairNode());
+                        args.add(new MSListNode());
                     } else {
                         args.add(lhs.getTreeValue());
                     }
                 } else {
-                    throw new IllegalStateException("Internal interpreter error -" +
-                            " lambda decl call found an incorrect lvalue: " + lhs.getType() + "");
+                    throw new MSInterpreterException("Lambda decl call found an incorrect lvalue: " + lhs.getType());
                 }
             }
         }
@@ -906,9 +906,7 @@ public class MiniSchemeInterpreter {
      * This is subject to change.
      *
      * @param setNode MSSetNode abstract syntax tree node.
-     *
      * @return Blank LValue.
-     *
      * @throws MSSemanticException if any of the other called methods throw one.
      */
     private LValue interpretSetOp(final MSSetNode setNode) throws MSSemanticException {
@@ -926,8 +924,7 @@ public class MiniSchemeInterpreter {
                 this.interpretSetVectorFn(setNode);
                 break;
             default:
-                throw new IllegalArgumentException("Internal interpreter error "
-                        + "- cannot set with operator of type " + setNode.getNodeType() + ".");
+                throw new MSInterpreterException("Cannot set operator of type " + setNode.getNodeType());
         }
 
         return new LValue();
@@ -937,7 +934,6 @@ public class MiniSchemeInterpreter {
      * Interprets a set-car! procedure call. This sets the head of a list to some value.
      *
      * @param setNode MSSetNode ast.
-     *
      * @throws MSArgumentMismatchException if the set expression is not an lvalue or does not
      *                                     reduce to an lvalue. If we pass more than 2 arguments
      *                                     to the function. If we pass a non pair/list as the lvalue.
@@ -955,21 +951,24 @@ public class MiniSchemeInterpreter {
         // Check to see if we need to evaluate the id or data.
         MSSyntaxTree expr = setNode.getExpression();
         MSSyntaxTree data = setNode.getData().get(0);
-        if (!expr.isTerminalType()) { expr = LValue.getAstFromLValue(this.interpretTree(expr)); }
-        if (!data.isTerminalType()) { data = LValue.getAstFromLValue(this.interpretTree(data)); }
+        if (!expr.isTerminalType()) {
+            expr = LValue.getAstFromLValue(this.interpretTree(expr));
+        }
+        if (!data.isTerminalType()) {
+            data = LValue.getAstFromLValue(this.interpretTree(data));
+        }
 
         if (expr == null || !expr.isList()) {
             throw new MSArgumentMismatchException("set-car!", "pair/list", (expr == null ? "null" : expr.getNodeType().toString()));
         }
 
-        ((MSPairNode) expr).setCar(data);
+        ((MSListNode) expr).setCar(data);
     }
 
     /**
      * Interprets a set-cdr! procedure call. This sets the tail of a list to some value.
      *
      * @param setNode MSSetNode ast.
-     *
      * @throws MSArgumentMismatchException if the set expression is not an lvalue or does not
      *                                     reduce to an lvalue. If we pass more than 2 arguments
      *                                     to the function. If we pass a non pair/list as the lvalue.
@@ -987,15 +986,19 @@ public class MiniSchemeInterpreter {
         // Check to see if we need to evaluate the id or data.
         MSSyntaxTree expr = setNode.getExpression();
         MSSyntaxTree data = setNode.getData().get(0);
-        if (!expr.isTerminalType()) { expr = LValue.getAstFromLValue(this.interpretTree(expr)); }
-        if (!data.isTerminalType()) { data = LValue.getAstFromLValue(this.interpretTree(data)); }
+        if (!expr.isTerminalType()) {
+            expr = LValue.getAstFromLValue(this.interpretTree(expr));
+        }
+        if (!data.isTerminalType()) {
+            data = LValue.getAstFromLValue(this.interpretTree(data));
+        }
 
         // Check to make sure that we're setting the cdr of a list.
         if (expr == null || !expr.isList()) {
             throw new MSArgumentMismatchException("set-cdr!", "pair/list", (expr == null ? "null" : expr.getNodeType().toString()));
         }
 
-        ((MSPairNode) expr).setCdr(data);
+        ((MSListNode) expr).setCdr(data);
     }
 
     /**
@@ -1003,8 +1006,7 @@ public class MiniSchemeInterpreter {
      * to some value. This variable must be previously declared or an error
      * will be thrown.
      *
-     * @param setNode  MSSetNode AST.
-     *
+     * @param setNode MSSetNode AST.
      * @throws MSSemanticException if set! does not have two arguments.
      */
     private void interpretSetVariableFn(final MSSetNode setNode) throws MSSemanticException {
@@ -1023,9 +1025,7 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
      * @param setNode
-     *
      * @throws MSSemanticException
      */
     private void interpretSetVectorFn(final MSSetNode setNode) throws MSSemanticException {
@@ -1058,19 +1058,18 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
-     *
      * @param opType
-     *
      * @return
      */
     private MSSyntaxTree interpretReadFn(final int opType) {
         Scanner in = new Scanner(System.in);
         switch (opType) {
-            case MiniSchemeParser.READNUMBER_FN: return new MSNumberNode(in.nextDouble());
-            case MiniSchemeParser.READLINE_FN: return new MSStringNode(in.nextLine());
+            case MiniSchemeParser.READNUMBER_FN:
+                return new MSNumberNode(in.nextDouble());
+            case MiniSchemeParser.READLINE_FN:
+                return new MSStringNode(in.nextLine());
             default:
-                throw new IllegalArgumentException("Internal interpreter error - could not read from stdin");
+                throw new MSInterpreterException("Could not read from stdin");
         }
     }
 }

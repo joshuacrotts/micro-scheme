@@ -37,7 +37,6 @@ public class MSUtils {
     }
 
     /**
-     *
      * @param min
      * @param max
      * @return

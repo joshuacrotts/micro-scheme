@@ -107,7 +107,7 @@ public class LValue {
             this.TYPE = LValueType.SYM;
             this.tval = tval;
         } else {
-            this.TYPE = LValueType.PAIR;
+            this.TYPE = LValueType.LIST;
             this.tval = tval;
         }
     }
@@ -121,27 +121,6 @@ public class LValue {
         this(LValueType.NULL);
     }
 
-    /**
-     *
-     * @param lval
-     * @return
-     */
-    protected static MSSyntaxTree getAstFromLValue(final LValue lval) {
-        switch (lval.getType()) {
-            case NUM: return new MSNumberNode(lval.getDoubleValue());
-            case BOOL: return new MSBooleanNode(lval.getBoolValue());
-            case CHAR: return new MSCharacterNode(lval.getCharValue());
-            case STR: return new MSStringNode(lval.getStringValue());
-            case SYM:
-            case VECTOR:
-            case PROCCALL:
-            case LAMBDACALL:
-            case PAIR: return lval.getTreeValue();
-            default:
-                return null;
-        }
-    }
-
     @Override
     public String toString() {
         switch (this.TYPE) {
@@ -149,17 +128,47 @@ public class LValue {
                 return ((int) this.dval.getValue() == this.dval.getValue())
                         ? Integer.toString((int) this.dval.getValue())
                         : Double.toString(this.dval.getValue());
-            case BOOL: return this.bval.getValue() ? "#t" : "#f";
-            case CHAR: return this.cval.getStringRep();
-            case STR: return this.strval.getValue();
+            case BOOL:
+                return this.bval.getValue() ? "#t" : "#f";
+            case CHAR:
+                return this.cval.getStringRep();
+            case STR:
+                return this.strval.getValue();
             case SYM:
             case VECTOR:
-            case PAIR:
+            case LIST:
                 return this.tval == null ? "()" : this.tval.getStringRep();
-            case PROCCALL: return "#<procedure-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
-            case LAMBDACALL: return "#<lambda-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case PROCCALL:
+                return "#<procedure-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case LAMBDACALL:
+                return "#<lambda-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
         }
         return "";
+    }
+
+    /**
+     * @param lval
+     * @return
+     */
+    protected static MSSyntaxTree getAstFromLValue(final LValue lval) {
+        switch (lval.getType()) {
+            case NUM:
+                return new MSNumberNode(lval.getDoubleValue());
+            case BOOL:
+                return new MSBooleanNode(lval.getBoolValue());
+            case CHAR:
+                return new MSCharacterNode(lval.getCharValue());
+            case STR:
+                return new MSStringNode(lval.getStringValue());
+            case SYM:
+            case VECTOR:
+            case PROCCALL:
+            case LAMBDACALL:
+            case LIST:
+                return lval.getTreeValue();
+            default:
+                return null;
+        }
     }
 
     /**
@@ -173,7 +182,9 @@ public class LValue {
         return this.dval.getValue();
     }
 
-    protected char getCharValue() { return this.cval.getValue(); }
+    protected char getCharValue() {
+        return this.cval.getValue();
+    }
 
     protected boolean getBoolValue() {
         return this.bval.getValue();
@@ -191,25 +202,41 @@ public class LValue {
         return this.tval;
     }
 
-    protected boolean isLNumber() { return this.TYPE == LValueType.NUM; }
+    protected boolean isLNumber() {
+        return this.TYPE == LValueType.NUM;
+    }
 
-    protected boolean isLBool() { return this.TYPE == LValueType.BOOL; }
+    protected boolean isLBool() {
+        return this.TYPE == LValueType.BOOL;
+    }
 
     protected boolean isLChar() {
         return this.TYPE == LValueType.CHAR;
     }
 
-    protected boolean isLString() { return this.TYPE == LValueType.STR; }
+    protected boolean isLString() {
+        return this.TYPE == LValueType.STR;
+    }
 
-    protected boolean isLSymbol() { return this.TYPE == LValueType.SYM; }
+    protected boolean isLSymbol() {
+        return this.TYPE == LValueType.SYM;
+    }
 
-    protected boolean isLVector() { return this.TYPE == LValueType.VECTOR; }
+    protected boolean isLVector() {
+        return this.TYPE == LValueType.VECTOR;
+    }
 
-    protected boolean isLPair() { return this.TYPE == LValueType.PAIR; }
+    protected boolean isLList() {
+        return this.TYPE == LValueType.LIST;
+    }
 
-    protected boolean isLProcCall() { return this.TYPE == LValueType.PROCCALL; }
+    protected boolean isLProcCall() {
+        return this.TYPE == LValueType.PROCCALL;
+    }
 
-    protected boolean isLLambdaCall() { return this.TYPE == LValueType.LAMBDACALL; }
+    protected boolean isLLambdaCall() {
+        return this.TYPE == LValueType.LAMBDACALL;
+    }
 
     /**
      *
@@ -218,7 +245,7 @@ public class LValue {
         NUM("number"),
         BOOL("boolean"),
         CHAR("character"),
-        PAIR("pair"),
+        LIST("list"),
         STR("string"),
         SYM("symbol"),
         VECTOR("vector"),
@@ -229,7 +256,7 @@ public class LValue {
 
         private final String value;
 
-        private LValueType(final String value) {
+        LValueType(final String value) {
             this.value = value;
         }
 

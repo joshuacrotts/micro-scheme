@@ -3,8 +3,6 @@ package com.joshuacrotts.minischeme.ast;
 import java.util.ArrayList;
 
 /**
- *
- *
  * @author Joshua Crotts
  * @version 12/23/2021
  */
@@ -42,8 +40,12 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
         ArrayList<MSSyntaxTree> argsCopy = new ArrayList<>();
         MSSyntaxTree bodyCopy = this.getBody().copy();
 
-        for (int i = 0; i < this.NUM_LAMBDA_PARAMS; i++) { paramsCopy.add(this.getChild(i).copy()); }
-        for (int i = 0; i < this.NUM_LAMBDA_ARGS; i++) { argsCopy.add(this.getChild(i + 1 + this.NUM_LAMBDA_PARAMS).copy()); }
+        for (int i = 0; i < this.NUM_LAMBDA_PARAMS; i++) {
+            paramsCopy.add(this.getChild(i).copy());
+        }
+        for (int i = 0; i < this.NUM_LAMBDA_ARGS; i++) {
+            argsCopy.add(this.getChild(i + 1 + this.NUM_LAMBDA_PARAMS).copy());
+        }
 
         return new MSLambdaDeclarationCallNode(paramsCopy, bodyCopy, argsCopy);
     }
@@ -85,7 +87,6 @@ public class MSLambdaDeclarationCallNode extends MSSyntaxTree implements Callabl
     }
 
     /**
-     *
      * @return
      */
     public ArrayList<MSSyntaxTree> getLambdaArguments() {

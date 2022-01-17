@@ -2,7 +2,7 @@ package com.joshuacrotts.minischeme.ast;
 
 /**
  * Represents a read from stdin. The type of data depends on what the user enters.
- *
+ * <p>
  * CHILD 0: identifier of declaration to store result.
  *
  * @author Joshua Crotts

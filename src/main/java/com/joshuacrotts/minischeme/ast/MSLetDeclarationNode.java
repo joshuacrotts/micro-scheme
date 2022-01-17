@@ -1,10 +1,10 @@
 package com.joshuacrotts.minischeme.ast;
 
+import com.joshuacrotts.minischeme.parser.MSInterpreterException;
+
 import java.util.ArrayList;
 
 /**
- *
- *
  * @author Joshua Crotts
  * @version 12/30/2021
  */
@@ -40,6 +40,32 @@ public class MSLetDeclarationNode extends MSDeclaration {
         this.addChild(letBody);
     }
 
+    @Override
+    public MSSyntaxTree copy() {
+        ArrayList<MSSyntaxTree> declarationsCopy = new ArrayList<>();
+        for (int i = 0; i < this.NUM_DECLARATIONS; i++) {
+            declarationsCopy.add(this.getChild(i).copy());
+        }
+        MSSyntaxTree letBodyCopy = this.getChild(this.getChildrenSize() - 1).copy();
+        return new MSLetDeclarationNode(this.LET_TYPE, declarationsCopy, letBodyCopy);
+    }
+
+    @Override
+    public String getStringRep() {
+        return this.getNodeType().toString();
+    }
+
+    @Override
+    public String toString() {
+        return this.getNodeType().toString();
+    }
+
+    /**
+     * Converts this let declaration to a procedure call. This conversion
+     * is to make the interpreter's job simpler.
+     *
+     * @return MSProcedureDeclaration of corresponding named let declaration.
+     */
     public MSProcedureDeclarationNode createProcedureDeclaration() {
         if (this.LET_TYPE == LetType.LET_NAMED) {
             ArrayList<MSSyntaxTree> parameters = new ArrayList<>();
@@ -49,18 +75,7 @@ public class MSLetDeclarationNode extends MSDeclaration {
             return new MSProcedureDeclarationNode(this.getChild(0), parameters, this.getBody());
         }
 
-        throw new IllegalArgumentException("Internal interpreter error - this" +
-                "let declaration should be a named let declaration");
-    }
-
-    @Override
-    public MSSyntaxTree copy() {
-        ArrayList<MSSyntaxTree> declarationsCopy = new ArrayList<>();
-        for (int i = 0; i < this.NUM_DECLARATIONS; i++) {
-            declarationsCopy.add(this.getChild(i).copy());
-        }
-        MSSyntaxTree letBodyCopy = this.getChild(this.getChildrenSize() - 1).copy();
-        return new MSLetDeclarationNode(this.LET_TYPE, declarationsCopy, letBodyCopy);
+        throw new MSInterpreterException("Let declaration should be a named let declaration");
     }
 
     public LetType getLetType() {
@@ -77,7 +92,7 @@ public class MSLetDeclarationNode extends MSDeclaration {
     public ArrayList<MSSyntaxTree> getDeclarations() {
         int offset = this.LET_TYPE == LetType.LET_NAMED ? 1 : 0;
         ArrayList<MSSyntaxTree> declarations = new ArrayList<>();
-        for (int i = 0; i < this. NUM_DECLARATIONS; i++) {
+        for (int i = 0; i < this.NUM_DECLARATIONS; i++) {
             declarations.add(this.getChild(i + offset));
         }
         return declarations;
@@ -85,16 +100,6 @@ public class MSLetDeclarationNode extends MSDeclaration {
 
     public MSSyntaxTree getBody() {
         return this.getChild(this.getChildrenSize() - 1);
-    }
-
-    @Override
-    public String getStringRep() {
-        return this.getNodeType().toString();
-    }
-
-    @Override
-    public String toString() {
-        return this.getNodeType().toString();
     }
 
     public enum LetType {

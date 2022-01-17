@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * Represents the calling of a procedure-based lambda. A procedure-based
  * lambda is a procedure that has a lambda as its body.
- *
+ * <p>
  * CHILD 0: procedure identifier.
  * CHILD 1...m: procedure arguments.
  * CHILD m + 1...n: lambda arguments.

@@ -5,7 +5,7 @@ import com.joshuacrotts.minischeme.MiniSchemeParser;
 /**
  * Defines an operation expression. An operation expression can be either unary or n-ary, where unary
  * takes one argument and n-ary takes n.
- *
+ * <p>
  * CHILD 0...n-1: expressions to evaluate with the operator.
  *
  * @author Joshua Crotts
@@ -59,18 +59,23 @@ public class MSOpNode extends MSSyntaxTree {
         return this.OP_TYPE;
     }
 
-    public boolean isUnary() { return this.OP_GROUP == MiniSchemeParser.RULE_unaryop; }
+    public boolean isUnary() {
+        return this.OP_GROUP == MiniSchemeParser.RULE_unaryop;
+    }
 
-    public boolean isBinary() { return this.OP_GROUP == MiniSchemeParser.RULE_binaryop; }
+    public boolean isBinary() {
+        return this.OP_GROUP == MiniSchemeParser.RULE_binaryop;
+    }
 
-    public boolean isTernary() { return this.OP_GROUP == MiniSchemeParser.RULE_ternaryop; }
+    public boolean isTernary() {
+        return this.OP_GROUP == MiniSchemeParser.RULE_ternaryop;
+    }
 
     /**
      * Returns the literal string representation of an operation. In the lexer, the operation
      * has a string representation and this is used to determine which operation is used.
      *
      * @param opType - token type from the parser.
-     *
      * @return string representation of op.
      */
     private String getOpTypeString(int opType) {

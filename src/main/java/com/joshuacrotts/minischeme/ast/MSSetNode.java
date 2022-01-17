@@ -3,7 +3,6 @@ package com.joshuacrotts.minischeme.ast;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * A "set" operation refers to the act of changing a variable that is already

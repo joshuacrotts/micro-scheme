@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * the identifier (i.e., the name of the procedure), its parameters (which may be empty), and then
  * an expression defining the body of a procedure. Note that the body expression can be as complex
  * as it ought to be since expressions are recursive.
- *
+ * <p>
  * Child 0: Identifier of procedure.
  * Child 1...n-1: Parameters of procedure, if any.
  * Child n: Body of procedure.
@@ -64,10 +64,6 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
         return this.getNodeType().toString();
     }
 
-    public MSIdentifierNode getIdentifier() {
-        return (MSIdentifierNode) this.getChild(0);
-    }
-
     public int getArgumentIndex(String idStr) {
         // Offset to account for the identifier and body being children.
         for (int i = 0; i < this.NUM_PARAMS; i++) {
@@ -77,6 +73,10 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
             }
         }
         return -1;
+    }
+
+    public MSIdentifierNode getIdentifier() {
+        return (MSIdentifierNode) this.getChild(0);
     }
 
     public MSSyntaxTree getBody() {

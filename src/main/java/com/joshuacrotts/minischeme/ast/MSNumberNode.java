@@ -4,7 +4,7 @@ package com.joshuacrotts.minischeme.ast;
  * Represents a literal numeric value. For now, these are only doubles
  * but if I ever plan to increase this to, say, BigDecimal, it should be
  * easy.
- *
+ * <p>
  * If the numeric value is able to be represented as an integer (e.g., 5.000 is
  * represented as 5), it will be shown as an integer.
  *
@@ -35,8 +35,8 @@ public class MSNumberNode extends MSSyntaxTree {
     @Override
     public String getStringRep() {
         return ((int) this.VALUE) == this.VALUE
-               ? Integer.toString((int) this.VALUE)
-               : Double.toString(this.VALUE);
+                ? Integer.toString((int) this.VALUE)
+                : Double.toString(this.VALUE);
     }
 
     @Override
@@ -48,5 +48,7 @@ public class MSNumberNode extends MSSyntaxTree {
         return this.VALUE;
     }
 
-    public boolean isInteger() { return this.VALUE == (int) this.VALUE; }
+    public boolean isInteger() {
+        return this.VALUE == (int) this.VALUE;
+    }
 }

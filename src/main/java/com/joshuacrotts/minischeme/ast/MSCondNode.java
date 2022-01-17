@@ -6,12 +6,12 @@ import java.util.ArrayList;
  * Represents a COND call. COND is equivalent to an if/else if/else chain
  * in other imperative languages. Each cond statement consists of a predicate
  * and an expression if its corresponding predicate returns true.
- *
+ * <p>
  * Example: (cond ([< x 0] (- x))
- *                (else (x)))
- *
+ * (else (x)))
+ * <p>
  * COND statements don't require else expressions.
- *
+ * <p>
  * Child 0...2...4...: COND predicate.
  * Child 1...3...5...: COND expression if predicate is true.
  * Optional Child n-1: ELSE expression.

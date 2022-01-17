@@ -4,11 +4,9 @@ package com.joshuacrotts.minischeme.ast;
  * A symbol is an expression that evaluates to an identifier. Thus, this node cannot be accurately
  * used without interpreting the child.
  *
- * @CHILD 0: expression that we want to say is a symbol.
- *
  * @author Joshua Crotts
- *
  * @version 01/15/2022
+ * @CHILD 0: expression that we want to say is a symbol.
  */
 public class MSSymbolNode extends MSSyntaxTree {
 

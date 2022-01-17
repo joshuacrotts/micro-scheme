@@ -3,7 +3,7 @@ package com.joshuacrotts.minischeme.ast;
 /**
  * Defines an if expression node. An if expression has the condition, the expression to evaluate
  * when the condition is true, then the false expression.
- *
+ * <p>
  * CHILD 0: if condition expression.
  * CHILD 1: expression to be evaluated when CHILD 0 is true.
  * CHILD 2: expression to be evaluated when CHILD 0 is false.
@@ -31,8 +31,13 @@ public class MSIfNode extends MSSyntaxTree {
     @Override
     public String getStringRep() {
         return "(IF " + this.getCondition().getStringRep()
-            + " ? " + this.getConsequent().getStringRep()
-            + " : " + this.getAlternative().getStringRep() + ")";
+                + " ? " + this.getConsequent().getStringRep()
+                + " : " + this.getAlternative().getStringRep() + ")";
+    }
+
+    @Override
+    public String toString() {
+        return this.getNodeType().toString();
     }
 
     public MSSyntaxTree getCondition() {
@@ -45,10 +50,5 @@ public class MSIfNode extends MSSyntaxTree {
 
     public MSSyntaxTree getAlternative() {
         return this.getChild(2);
-    }
-
-    @Override
-    public String toString() {
-        return this.getNodeType().toString();
     }
 }

@@ -26,15 +26,15 @@ public class SymbolEntry {
         return this.symbolType;
     }
 
+    public void setSymbolType(SymbolType symbolType) {
+        this.symbolType = symbolType;
+    }
+
     public MSSyntaxTree getSymbolData() {
         return this.symbolData;
     }
 
     public void setSymbolData(MSSyntaxTree symbolData) {
         this.symbolData = symbolData;
-    }
-
-    public void setSymbolType(SymbolType symbolType) {
-        this.symbolType = symbolType;
     }
 }

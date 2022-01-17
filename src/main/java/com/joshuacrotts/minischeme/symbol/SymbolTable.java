@@ -1,9 +1,13 @@
 package com.joshuacrotts.minischeme.symbol;
 
+import com.joshuacrotts.minischeme.ast.MSIdentifierNode;
+import com.joshuacrotts.minischeme.ast.MSSymbolNode;
+import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+import com.joshuacrotts.minischeme.ast.MSVariableDeclarationNode;
+import com.joshuacrotts.minischeme.parser.MSInterpreterException;
+
 import java.util.Stack;
 import java.util.TreeMap;
-
-import com.joshuacrotts.minischeme.ast.*;
 
 /**
  * @author Joshua Crotts
@@ -39,27 +43,25 @@ public class SymbolTable {
     /**
      * Given an identifier and another identifier, we can "copy" one identifier to another.
      *
-     * @param id
-     * @param parentId
+     * @param id identifier to add
+     * @param parentId identifier of the node to copy over.
      */
     public void addSymbol(String id, MSIdentifierNode parentId) {
         SymbolEntry se = this.getSymbolEntry(parentId.getIdentifier());
         if (se == null) {
-            throw new IllegalArgumentException("Internal interpreter error - cannot copy assignment from "
-                    + parentId.getIdentifier() + " to " + id);
+            throw new IllegalArgumentException("Cannot copy assignment from " + parentId.getIdentifier() + " to " + id);
         }
         this.ENV_TABLE.peek().addSymbol(id, se.getSymbolType(), se.getSymbolData());
     }
 
     /**
-     *
      * @param id
      * @param data
      */
     public void setSymbol(String id, MSSyntaxTree data) {
         SymbolEntry entry = this.getSymbolEntry(id);
         if (entry == null) {
-            throw new IllegalArgumentException("Internal interpreter error - cannot set " + id);
+            throw new MSInterpreterException("Cannot set identifier " + id);
         }
         entry.setSymbolType(SymbolType.getSymbolTypeFromNodeType(data.getNodeType()));
         entry.setSymbolData(data);
@@ -70,7 +72,6 @@ public class SymbolTable {
      * symbol table.
      *
      * @param id - identifier of symbol.
-     *
      * @return true if the symbol is in any environment stack, false otherwise.
      */
     public boolean hasSymbol(String id) {
@@ -80,7 +81,9 @@ public class SymbolTable {
         for (int i = this.ENV_TABLE.size() - 1; i >= 0; i--) {
             Environment curr = this.ENV_TABLE.get(i);
             found = hasSymbolInEnvironment(id, curr);
-            if (found) { return true; }
+            if (found) {
+                return true;
+            }
         }
 
         return false;
@@ -91,7 +94,6 @@ public class SymbolTable {
      * comparing datatypes of a variable, procedure, etc.
      *
      * @param id - identifier of symbol.
-     *
      * @return SymbolEntry value for identifier key.
      */
     public SymbolEntry getSymbolEntry(String id) {
@@ -124,29 +126,10 @@ public class SymbolTable {
         this.ENV_TABLE.pop();
     }
 
-    /**
-     * This method should print out all of the global variables. It can be called
-     * after parsing in order to see what global variables were seen. Names should
-     * be output in alphabetical order.
-     */
-    public void printGlobalVars() {
-        int stackSize = this.ENV_TABLE.size();
-        // Retrieve the bottom of the stack (which is the global block).
-        Environment globalEnvironment = this.ENV_TABLE.get(stackSize - 1);
-
-        // Return the set of keys.
-        TreeMap<String, SymbolEntry> map = globalEnvironment.getSymbolTable();
-
-        // Now iterate through the map and find all vars.
-        for (String key : map.keySet()) {
-            if (map.get(key).getSymbolType() == SymbolType.VARIABLE) {
-                System.out.println(key);
-            }
-        }
-    }
-
     public boolean isVariable(String id) {
-        if (this.hasSymbol(id)) { return this.getSymbolEntry(id).getSymbolType() == SymbolType.VARIABLE; }
+        if (this.hasSymbol(id)) {
+            return this.getSymbolEntry(id).getSymbolType() == SymbolType.VARIABLE;
+        }
         return false;
     }
 
@@ -168,12 +151,16 @@ public class SymbolTable {
     }
 
     public boolean isProcedure(String id) {
-        if (this.hasSymbol(id)) { return this.getSymbolEntry(id).getSymbolType() == SymbolType.PROCEDURE; }
+        if (this.hasSymbol(id)) {
+            return this.getSymbolEntry(id).getSymbolType() == SymbolType.PROCEDURE;
+        }
         return false;
     }
 
     public boolean isLambda(String id) {
-        if (this.hasSymbol(id)) { return this.getSymbolEntry(id).getSymbolType() == SymbolType.LAMBDA; }
+        if (this.hasSymbol(id)) {
+            return this.getSymbolEntry(id).getSymbolType() == SymbolType.LAMBDA;
+        }
         return false;
     }
 

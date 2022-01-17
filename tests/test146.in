@@ -1,0 +1,39 @@
+;
+; Small testing with binary search tree.
+;
+
+(define (cddr l) (cdr (cdr l)))
+(define (cadr l) (car (cdr l)))
+(define (caddr l) (car (cdr (cdr l))))
+
+;; Creates a leaf. A leaf has a value but no children.
+(define (create-leaf key) (list key '() '()))
+
+;; Sets the left subtree of a binary tree node.
+(define (set-bstleft! tree node) (set-car! (cdr tree) node))
+
+;; Sets the right subtree of a binary tree node.
+(define (set-bstright! tree node) (set-car! (cddr tree) node))
+
+;; Returns the left subtree of a binary tree node. This is the head of the tail (the second element).
+(define (leftof-bstnode node) (cadr node))
+
+;; Returns the right subtree of a binary tree node. This is the head of the tail of the tail (the third element).
+(define (rightof-bstnode node) (caddr node))
+
+;; Returns the value of a binary tree node. This is simply the head of the list.
+(define (valueof-bstnode node) (car node))
+
+;; Inserts an element into the bst node. This calls the recursive helper procedure with the root.
+(define (insert-bstnode key) (insert-bstnode-helper root key))
+(define (insert-bstnode-helper node key)
+    (cond ((null? node) (create-leaf key))
+          ((< key (valueof-bstnode node)) (set-bstleft! node (insert-bstnode-helper (leftof-bstnode node) key)))
+          (else (set-bstright! node (insert-bstnode-helper (rightof-bstnode node) key)))
+    )
+)
+
+(define root (create-leaf 65))
+(insert-bstnode 50)
+(insert-bstnode 70)
+root

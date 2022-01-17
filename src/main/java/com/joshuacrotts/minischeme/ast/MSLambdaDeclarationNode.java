@@ -1,10 +1,10 @@
 package com.joshuacrotts.minischeme.ast;
 
+import com.joshuacrotts.minischeme.parser.MSInterpreterException;
+
 import java.util.ArrayList;
 
 /**
- *
- *
  * @author Joshua Crotts
  * @version 12/23/2021
  */
@@ -43,23 +43,6 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
         this.addChild(lambdaBody);
     }
 
-    /**
-     * Creates a non-anonymous lambda from an anonymous lambda expression.
-     * This is useful for binding a lambda to an identifier in a let declaration.
-     *
-     * @param id - identifier to bind lambda to.
-     * @param expr - anonymous MSLambdaDeclarationNode ast.
-     *
-     * @return new MSLambdaDeclarationNode with bound identifier.
-     */
-    public static MSLambdaDeclarationNode createNonAnonymous(MSSyntaxTree id, MSLambdaDeclarationNode expr) {
-        if (!expr.isAnonymous()) {
-            throw new IllegalArgumentException("Internal interpreter error - this lambda is already anonymous!");
-        }
-
-        return new MSLambdaDeclarationNode(id, expr.getLambdaParameters(), expr.getBody());
-    }
-
     @Override
     public MSSyntaxTree copy() {
         ArrayList<MSSyntaxTree> lambdaParamsCopy = new ArrayList<>();
@@ -69,8 +52,8 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
         }
 
         return offset == 1 ? new MSLambdaDeclarationNode(this.getChild(0).copy(),
-                                lambdaParamsCopy, this.getChild(this.getChildrenSize() - 1).copy())
-                           : new MSLambdaDeclarationNode(lambdaParamsCopy, this.getChild(this.getChildrenSize() - 1).copy());
+                lambdaParamsCopy, this.getChild(this.getChildrenSize() - 1).copy())
+                : new MSLambdaDeclarationNode(lambdaParamsCopy, this.getChild(this.getChildrenSize() - 1).copy());
     }
 
     @Override
@@ -81,6 +64,22 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
     @Override
     public String toString() {
         return this.getNodeType().toString();
+    }
+
+    /**
+     * Creates a non-anonymous lambda from an anonymous lambda expression.
+     * This is useful for binding a lambda to an identifier in a let declaration.
+     *
+     * @param id   - identifier to bind lambda to.
+     * @param expr - anonymous MSLambdaDeclarationNode ast.
+     * @return new MSLambdaDeclarationNode with bound identifier.
+     */
+    public static MSLambdaDeclarationNode createNonAnonymous(MSSyntaxTree id, MSLambdaDeclarationNode expr) {
+        if (!expr.isAnonymous()) {
+            throw new MSInterpreterException("This lambda is already anonymous!");
+        }
+
+        return new MSLambdaDeclarationNode(id, expr.getLambdaParameters(), expr.getBody());
     }
 
     public ArrayList<MSSyntaxTree> getLambdaParameters() {
@@ -100,7 +99,7 @@ public class MSLambdaDeclarationNode extends MSDeclaration {
         if (!this.IS_ANONYMOUS) {
             return (MSIdentifierNode) this.getChild(0);
         }
-        throw new IllegalStateException("Lambda not bound to identifier");
+        throw new MSInterpreterException("Lambda not bound to identifier");
     }
 
     public int getLambdaParameterCount() {

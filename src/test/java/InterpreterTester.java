@@ -2,8 +2,6 @@ import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.main.MiniSchemeInterpreter;
 import com.joshuacrotts.minischeme.main.MiniSchemeTester;
 import com.joshuacrotts.minischeme.parser.MSListener;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opentest4j.AssertionFailedError;
@@ -31,19 +29,19 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 public class InterpreterTester {
 
-    private static final int NUM_TESTS = 145;
+    private static final int NUM_TESTS = 147;
 
     /**
      * Helper function to count number of newlines in a string
+     *
      * @param s the string
      * @return the number of newlines
      */
     private static int countNLs(String s) {
-        if (s == null) return 0;
+        if (s == null) { return 0; }
         int count = 0;
-        for (int i=0; i<s.length(); i++) {
-            if (s.charAt(i) == '\n')
-                count++;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '\n') { count++; }
         }
         return count;
     }
@@ -54,7 +52,7 @@ public class InterpreterTester {
      * is skipped over and not used for the comparison, so the outputs can
      * be formatted/spaced entirely differently.
      *
-     * @param got the bytes printed out by the program under test
+     * @param got    the bytes printed out by the program under test
      * @param expect the expected output
      */
     private static void compare(byte[] got, byte[] expect) {
@@ -87,13 +85,13 @@ public class InterpreterTester {
                     }
                 } else {
                     result = "Produced output ended too early - expected \""
-                            +expToken+"\" (line "+expLine+")";
+                            + expToken + "\" (line " + expLine + ")";
                     done = true;
                 }
             } else {
                 if (gotToken != null) {
-                    result = "Got extra output: unexpected \""+gotToken
-                            +"\" (line "+gotLine+")";
+                    result = "Got extra output: unexpected \"" + gotToken
+                            + "\" (line " + gotLine + ")";
                 }
                 done = true;
             }
@@ -101,7 +99,6 @@ public class InterpreterTester {
 
         assertNull(result, result);
     }
-
 
 
     /**
@@ -127,8 +124,7 @@ public class InterpreterTester {
         System.setOut(new PrintStream(captureOut));
         System.setErr(new PrintStream(captureOut));
         MSListener parser = MiniSchemeTester.parseFromFile(inName);
-        if (parser == null)
-            throw new AssertionFailedError("Failed reading test input file "+inName);
+        if (parser == null) { throw new AssertionFailedError("Failed reading test input file " + inName); }
         MSSyntaxTree syntaxTree = parser.getSyntaxTree();
         MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter(syntaxTree);
         interpreter.execute();
@@ -150,19 +146,19 @@ public class InterpreterTester {
      * Cleanup function. I originally used this with the @AfterEach tag, but because
      * there are group tests that rely on a cleanup, I had to force this into a
      * function and call it before the assertion in runICTest(...).
-     *
+     * <p>
      * Removes the errors.
      */
     private static void cleanup() {
+    }
+
+    private static Stream<String> fileNameSource() {
+        return IntStream.range(1, NUM_TESTS + 1).mapToObj(i -> String.format("test%03d", i));
     }
 
     @ParameterizedTest
     @MethodSource("fileNameSource")
     public void test(final String fileName) {
         goodFileTest(fileName);
-    }
-
-    private static Stream<String> fileNameSource() {
-        return IntStream.range(1, NUM_TESTS + 1).mapToObj(i -> String.format("test%03d", i));
     }
 }
