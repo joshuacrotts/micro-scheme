@@ -22,7 +22,6 @@ public enum SymbolType {
             case NUM:
             case BOOL:
             case STR:
-            case PAIR:
             case LIST:
             case VECTOR:
             case OP:

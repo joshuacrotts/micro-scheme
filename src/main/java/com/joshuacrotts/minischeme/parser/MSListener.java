@@ -139,7 +139,7 @@ public class MSListener extends MiniSchemeBaseListener {
             MSPairNode prevPair = null;
             for (int i = ctx.exprSymbolComponent().size() - 1; i >= 0; i--) {
                 MSSyntaxTree rexpr = this.map.get(ctx.exprSymbolComponent(i));
-                prevPair = new MSPairNode(MSNodeType.PAIR, rexpr, prevPair);
+                prevPair = new MSPairNode(rexpr, prevPair);
             }
             // If they enter the empty list, then we need to add a "blank" pair node.
             parentPair = Optional.ofNullable(prevPair).orElse(new MSPairNode());
@@ -152,7 +152,7 @@ public class MSListener extends MiniSchemeBaseListener {
         super.exitExprCons(ctx);
         MSSyntaxTree lhsExpr = this.map.get(ctx.expr(0));
         MSSyntaxTree rhsExpr = this.map.get(ctx.expr(1));
-        this.map.put(ctx, new MSPairNode(MSNodeType.PAIR, lhsExpr, rhsExpr));
+        this.map.put(ctx, new MSPairNode(lhsExpr, rhsExpr));
     }
 
     @Override
@@ -162,7 +162,7 @@ public class MSListener extends MiniSchemeBaseListener {
         MSPairNode prevPair = null;
         for (int i = ctx.expr().size() - 1; i >= 0; i--) {
             MSSyntaxTree rexpr = this.map.get(ctx.expr(i));
-            prevPair = new MSPairNode(MSNodeType.LIST, rexpr, prevPair);
+            prevPair = new MSPairNode(rexpr, prevPair);
         }
         // If they enter the empty list, then we need to add a "blank" pair node.
         parentPair = Optional.ofNullable(prevPair).orElse(new MSPairNode());

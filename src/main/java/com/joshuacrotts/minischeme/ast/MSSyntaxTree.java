@@ -105,10 +105,6 @@ public class MSSyntaxTree implements Copyable {
         return this.NODE_TYPE == MSNodeType.NUM;
     }
 
-    public boolean isPair() {
-        return this.NODE_TYPE == MSNodeType.PAIR;
-    }
-
     public boolean isList() {
         return this.NODE_TYPE == MSNodeType.LIST;
     }

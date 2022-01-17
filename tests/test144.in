@@ -1,3 +1,9 @@
+;
+; Simple testing with the list command and setting.
+;
+
 (define t (list 50 '() '()))
-(set-car! (cdr t) (list 40))
+(set-car! (cdr t) (list 40 '() '()))
+t
+(set-car! (cdr (cdr t)) (list 60 '() '()))
 t

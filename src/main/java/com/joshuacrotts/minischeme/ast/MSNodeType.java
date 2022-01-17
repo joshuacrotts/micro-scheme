@@ -9,7 +9,6 @@ public enum MSNodeType {
     NUM,
     CHAR,
     STR,
-    PAIR,
     LIST,
     BOOL,
     SYMBOL,

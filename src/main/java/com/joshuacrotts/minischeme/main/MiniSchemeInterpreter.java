@@ -127,7 +127,6 @@ public class MiniSchemeInterpreter {
                 case BOOL: return this.interpretBoolean((MSBooleanNode) tree);
                 case CHAR: return this.interpretCharacter((MSCharacterNode) tree);
                 case STR: return this.interpretString((MSStringNode) tree);
-                case PAIR:
                 case LIST: return this.interpretList((MSPairNode) tree);
                 case VECTOR: return this.interpretVector((MSVectorNode) tree);
                 case IF: return this.interpretIf((MSIfNode) tree);
@@ -162,6 +161,12 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretVariableDeclaration(final MSVariableDeclarationNode varDecl) {
         String identifier = varDecl.getIdentifier().getIdentifier();
+        // First, check to see if we can evaluate the expression in the var decl.
+        if (!varDecl.isTerminalType()) {
+            MSSyntaxTree evalExpr = LValue.getAstFromLValue(this.interpretTree(varDecl.getExpression()));
+            varDecl.setChild(1, evalExpr);
+        }
+
         // If we run into an identifier, we can just copy that identifier's expression over in the symbol table.
         if (varDecl.getExpression().isId()) {
             this.symbolTable.addSymbol(identifier, (MSIdentifierNode) varDecl.getExpression());
@@ -946,22 +951,18 @@ public class MiniSchemeInterpreter {
         else if (setNode.getData().size() > 1) {
             throw new MSArgumentMismatchException("set-car!", 2, setNode.getData().size() + 2);
         }
-        // Now, if the lvalue is an expression, we evaluate it.
-        else if (!setNode.getExpression().isId()) {
-            MSSyntaxTree newPair = LValue.getAstFromLValue(this.interpretTree(setNode.getExpression()));
-            if ((newPair == null) || (newPair.isPair() && newPair.isList())) {
-                throw new MSArgumentMismatchException("set-car!", "pair/list", (newPair == null ? "null" : newPair.getNodeType().toString()));
-            }
-            ((MSPairNode) newPair).setCar(setNode.getData().get(0));
+
+        // Check to see if we need to evaluate the id or data.
+        MSSyntaxTree expr = setNode.getExpression();
+        MSSyntaxTree data = setNode.getData().get(0);
+        if (!expr.isTerminalType()) { expr = LValue.getAstFromLValue(this.interpretTree(expr)); }
+        if (!data.isTerminalType()) { data = LValue.getAstFromLValue(this.interpretTree(data)); }
+
+        if (expr == null || !expr.isList()) {
+            throw new MSArgumentMismatchException("set-car!", "pair/list", (expr == null ? "null" : expr.getNodeType().toString()));
         }
-        // Lastly, if it's an identifier, set it in the symbol table.
-        else {
-            String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
-            MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
-            ArrayList<MSSyntaxTree> setData = setNode.getData();
-            pair.setCar(setData.get(0));
-            this.symbolTable.setSymbol(id, pair);
-        }
+
+        ((MSPairNode) expr).setCar(data);
     }
 
     /**
@@ -982,22 +983,19 @@ public class MiniSchemeInterpreter {
         else if (setNode.getData().size() > 1) {
             throw new MSArgumentMismatchException("set-cdr!", 2, setNode.getData().size() + 2);
         }
-        // Now, if the lvalue is an expression, we evaluate it.
-        else if (!setNode.getExpression().isId()) {
-            MSSyntaxTree newPair = LValue.getAstFromLValue(this.interpretTree(setNode.getExpression()));
-            if ((newPair == null) || (newPair.isPair() && newPair.isList())) {
-                throw new MSArgumentMismatchException("set-cdr!", "pair/list", (newPair == null ? "null" : newPair.getNodeType().toString()));
-            }
-            ((MSPairNode) newPair).setCdr(setNode.getData().get(0));
+
+        // Check to see if we need to evaluate the id or data.
+        MSSyntaxTree expr = setNode.getExpression();
+        MSSyntaxTree data = setNode.getData().get(0);
+        if (!expr.isTerminalType()) { expr = LValue.getAstFromLValue(this.interpretTree(expr)); }
+        if (!data.isTerminalType()) { data = LValue.getAstFromLValue(this.interpretTree(data)); }
+
+        // Check to make sure that we're setting the cdr of a list.
+        if (expr == null || !expr.isList()) {
+            throw new MSArgumentMismatchException("set-cdr!", "pair/list", (expr == null ? "null" : expr.getNodeType().toString()));
         }
-        // Lastly, if it's an identifier, set it in the symbol table.
-        else {
-            String id = ((MSIdentifierNode) setNode.getExpression()).getIdentifier();
-            MSPairNode pair = (MSPairNode) this.symbolTable.getVariable(id);
-            ArrayList<MSSyntaxTree> setData = setNode.getData();
-            pair.setCdr(setData.get(0));
-            this.symbolTable.setSymbol(id, pair);
-        }
+
+        ((MSPairNode) expr).setCdr(data);
     }
 
     /**

@@ -11,12 +11,14 @@ package com.joshuacrotts.minischeme.ast;
  */
 public class MSPairNode extends MSSyntaxTree {
 
-    public MSPairNode(final MSNodeType type, final MSSyntaxTree car, final MSSyntaxTree cdr) {
-        super(type, car, cdr);
+    public MSPairNode(final MSSyntaxTree car, final MSSyntaxTree cdr) {
+        super(MSNodeType.LIST);
+        if (car != null) { this.addChild(car); }
+        if (cdr != null) { this.addChild(cdr); }
     }
 
     public MSPairNode() {
-        super(MSNodeType.PAIR);
+        super(MSNodeType.LIST);
     }
 
     @Override
@@ -25,14 +27,12 @@ public class MSPairNode extends MSSyntaxTree {
         MSSyntaxTree cdrCopy = this.getCdr();
         if (carCopy != null) { carCopy = carCopy.copy(); }
         if (cdrCopy != null) { cdrCopy = cdrCopy.copy(); }
-        return new MSPairNode(this.getNodeType(), carCopy, cdrCopy);
+        return new MSPairNode(carCopy, cdrCopy);
     }
 
     @Override
     public String getStringRep() {
-        return this.isPair()
-                ? this.getPairStringRep()
-                : this.getListStringRep();
+        return this.getListStringRep();
     }
 
     @Override
@@ -83,7 +83,7 @@ public class MSPairNode extends MSSyntaxTree {
         // We're on the last element of a list and the head is a node but the tail is ().
         else if (this.getCar() != null && this.getCdr() == null) { return true; }
         // Check to make sure the tail is not either a pair or a list.
-        else if (!this.getCdr().isPair() && !this.getCdr().isList()) { return false; }
+        else if (!this.getCdr().isList()) { return false; }
         // Recurse.
         else { return ((MSPairNode) this.getCdr()).isProper(); }
     }
@@ -91,7 +91,7 @@ public class MSPairNode extends MSSyntaxTree {
     /**
      * @return
      */
-    private String getPairStringRep() {
+    private String getListStringRep() {
         if (this.isNull()) {
             return "()";
         }
@@ -112,13 +112,6 @@ public class MSPairNode extends MSSyntaxTree {
                         + ")";
             }
         }
-    }
-
-    /**
-     * @return
-     */
-    private String getListStringRep() {
-        return this.getPairStringRep();
     }
 
     /**

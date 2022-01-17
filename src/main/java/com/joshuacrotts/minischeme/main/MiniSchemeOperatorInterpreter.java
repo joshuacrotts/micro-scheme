@@ -501,9 +501,9 @@ public class MiniSchemeOperatorInterpreter {
         int idx = 0;
         while (true) {
             // Once we hit the end of the list, just break.
-            if (curr == null || (curr.isPair() && ((MSPairNode) curr).isNull())) {
+            if (curr == null || (curr.isList() && ((MSPairNode) curr).isNull())) {
                 break;
-            } else if (!curr.isList() && !curr.isPair()) {
+            } else if (!curr.isList()) {
                 throw new MSArgumentMismatchException("list->string list", "char at index " + idx, curr.getNodeType().toString());
             }
 
@@ -511,6 +511,7 @@ public class MiniSchemeOperatorInterpreter {
             if (!pair.getCar().isChar()) {
                 throw new MSArgumentMismatchException("list->string list", "char at index " + idx, curr.getNodeType().toString());
             }
+
             sb.append(pair.getCar().getStringRep());
             curr = pair.getCdr();
         }
@@ -535,7 +536,7 @@ public class MiniSchemeOperatorInterpreter {
         String str = lhs.getStringValue();
         for (int i = str.length() - 1; i >= 0; i--) {
             MSSyntaxTree rchar = new MSCharacterNode(str.charAt(i));
-            prevPair = new MSPairNode(MSNodeType.LIST, rchar, prevPair);
+            prevPair = new MSPairNode(rchar, prevPair);
         }
         // If they enter the empty list, then we need to add a "blank" pair node.
         parentPair = Optional.ofNullable(prevPair).orElse(new MSPairNode());
