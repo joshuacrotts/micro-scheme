@@ -179,6 +179,7 @@ expr: exprBegin
     | exprOp
     | exprVector
     | exprList
+    | exprClosure
     | exprApplication
     | exprLambdaDecl
     | exprIf
@@ -217,6 +218,10 @@ exprList: '(' CREATE_LIST_FN expr* ')';
 
 // Calling a procedure or procedure with lambda args.
 exprApplication: '(' expr args? ')';
+
+
+// Declaring a closure.
+exprClosure: '(' LET '(' letDecl? ')' exprLambdaDecl ')';
 
 
 // Declaration of a lambda inside an expression.

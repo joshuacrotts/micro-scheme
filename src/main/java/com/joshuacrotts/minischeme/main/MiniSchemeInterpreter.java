@@ -139,6 +139,7 @@ public class MiniSchemeInterpreter {
                 case DO: return this.interpretDo((MSDoNode) tree);
                 case EXPR_LAMBDA_DECL: return new LValue(tree);
                 case APPLICATION: return this.interpretApplication((MSApplicationNode) tree);
+                case CLOSURE: return this.interpretClosure((MSClosureNode) tree);
                 default: throw new MSInterpreterException("Cannot support AST type " + tree.getNodeType());
             }
         } catch (MSSemanticException err) {
@@ -166,7 +167,7 @@ public class MiniSchemeInterpreter {
     private LValue interpretVariableDeclaration(final MSVariableDeclarationNode varDecl) {
         String identifier = varDecl.getIdentifier().getIdentifier();
         // First, check to see if we can evaluate the expression in the var decl.
-        if (!varDecl.getExpression().isTerminalType() && !varDecl.getExpression().isExprLambdaDecl()) {
+        if (!varDecl.getExpression().isTerminalType() && !varDecl.getExpression().isExprLambdaDecl() && !varDecl.getExpression().isClosure()) {
             MSSyntaxTree evalExpr = LValue.getAstFromLValue(this.interpretTree(varDecl.getExpression()));
             varDecl.setChild(1, evalExpr);
         }
@@ -174,7 +175,7 @@ public class MiniSchemeInterpreter {
         // If we run into an identifier, we can just copy that identifier's expression over in the symbol table.
         if (varDecl.getExpression().isId()) {
             this.symbolTable.addSymbol(identifier, (MSIdentifierNode) varDecl.getExpression());
-        } else if (varDecl.getExpression().isExprLambdaDecl()) {
+        } else if (varDecl.getExpression().isExprLambdaDecl() || varDecl.getExpression().isClosure()) {
             this.symbolTable.addSymbol(identifier, SymbolType.VARIABLE, varDecl.getExpression());
         } else {
             this.symbolTable.addSymbol(identifier, SymbolType.VARIABLE, varDecl);
@@ -688,10 +689,56 @@ public class MiniSchemeInterpreter {
             lhsExpr = this.symbolTable.getSymbolEntry(((MSIdentifierNode) lhsExpr).getIdentifier()).getSymbolData();
         }
 
+        if (lhsExpr.isClosure()) {
+            return this.interpretClosure((MSClosureNode) lhsExpr);
+        }
+
         Callable callableObj = (Callable) lhsExpr;
         MSSyntaxTree bodyCopy = callableObj.getBody().copy();
         this.replaceParams(callableObj, bodyCopy, rhsArgs);
         return this.interpretTree(bodyCopy);
+    }
+
+    /**
+     *
+     * @param closureNode
+     * @return
+     */
+    private LValue interpretClosure(final MSClosureNode closureNode) {
+        this.symbolTable.addEnvironment(closureNode.getEnvironment());
+        if (closureNode.getEnvironment().getSymbolTable().isEmpty()) {
+            // Iterate over the variable declarations and evaluate their expressions.
+            // If we find a variable in the let decl that's not global, it's an error.
+            for (MSSyntaxTree t : closureNode.getLetDeclarations()) {
+                MSVariableDeclarationNode vd = (MSVariableDeclarationNode) t;
+                MSSyntaxTree resultExpr = null;
+                switch (vd.getExpression().getNodeType()) {
+                    case EXPR_LAMBDA_DECL:
+                    case PROC_DECL:
+                    case LET_DECL:
+                        resultExpr = vd.getExpression();
+                        break;
+                    default:
+                        resultExpr = LValue.getAstFromLValue(this.interpretTree(vd.getExpression()));
+                }
+
+                // Only copy over values if the resultExpr is non-null.
+                if (resultExpr != null) {
+                    // If the expr is an identifier, we need to copy its value over.
+                    if (resultExpr.isId()) {
+                        this.symbolTable.addSymbol(vd.getIdentifier().getIdentifier(), (MSIdentifierNode) vd.getExpression());
+                    } else {
+                        this.symbolTable.addSymbol(vd.getIdentifier().getIdentifier(),
+                                SymbolType.getSymbolTypeFromNodeType(vd.getExpression().getNodeType()), resultExpr);
+                    }
+                }
+            }
+        }
+
+        MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) (closureNode.getLambdaDeclaration());
+        LValue lval = this.interpretTree(lambdaDecl.getBody().copy());
+        this.symbolTable.popEnvironment();
+        return lval;
     }
 
     /**

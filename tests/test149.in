@@ -2,21 +2,21 @@
 ; More working with local variables...
 ;
 
-(define cnt
+(define (cnt)
     (let ((I 0))
         (lambda () (set! I (+ I 1)) I)))
 
-(define reset
+(define (reset)
     (lambda ()
         (let ((I 0))
             (set! I (+ I 1)) I)))
 
-(display (cnt))
-(display (cnt))
-(display (cnt))
-(display (reset))
-(display (cnt))
-(display (cnt))
-(display (reset))
-(display (cnt))
-(display (cnt))
+((cnt))
+((cnt))
+((cnt))
+((reset))
+((cnt))
+((cnt))
+((reset))
+((cnt))
+((cnt))

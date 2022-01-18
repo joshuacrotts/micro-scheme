@@ -119,6 +119,10 @@ public class SymbolTable {
         this.ENV_TABLE.push(new Environment());
     }
 
+    public void addEnvironment(final Environment env) {
+        this.ENV_TABLE.push(env);
+    }
+
     /**
      * Removes the top-most environment from the stack. This is useful for going out
      * of scope of a function, for instance (really, this is the ONLY place it is

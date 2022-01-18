@@ -29,6 +29,7 @@ public enum MSNodeType {
     VAR_DECL,
     LET_DECL,
     LET_NAMED_DECL,
+    CLOSURE,
 
     // Expression calls.
     APPLICATION,

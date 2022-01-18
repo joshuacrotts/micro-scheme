@@ -2,6 +2,7 @@ package com.joshuacrotts.minischeme.symbol;
 
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -16,6 +17,10 @@ public class Environment {
 
     public Environment() {
         this.SYMBOL_TABLE = new TreeMap<>();
+    }
+
+    public Environment(final TreeMap<String, SymbolEntry> symbolTable) {
+        this.SYMBOL_TABLE = symbolTable;
     }
 
     /**
@@ -38,5 +43,15 @@ public class Environment {
 
     public TreeMap<String, SymbolEntry> getSymbolTable() {
         return this.SYMBOL_TABLE;
+    }
+
+    public Environment copy() {
+        TreeMap<String, SymbolEntry> symbolTableCopy = new TreeMap<>();
+        for (Map.Entry<String, SymbolEntry> pair : this.SYMBOL_TABLE.entrySet()) {
+            SymbolEntry symEntry = pair.getValue();
+            SymbolEntry symEntryCopy = new SymbolEntry(symEntry.getSymbolType(), symEntry.getSymbolData().copy());
+            symbolTableCopy.put(pair.getKey(), symEntryCopy);
+        }
+        return new Environment(symbolTableCopy);
     }
 }

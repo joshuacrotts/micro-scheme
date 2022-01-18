@@ -199,6 +199,23 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitExprClosure(MiniSchemeParser.ExprClosureContext ctx) {
+        super.exitExprClosure(ctx);
+        ArrayList<MSSyntaxTree> declarations = new ArrayList<>();
+        if (ctx.letDecl() != null) {
+            // We can't use an enhanced for loop since we're traversing over two distinct rules.
+            for (int i = 0; i < ctx.letDecl().expr().size(); i++) {
+                MSSyntaxTree term = this.map.get(ctx.letDecl().term(i));
+                MSSyntaxTree expr = this.map.get(ctx.letDecl().expr(i));
+                declarations.add(new MSVariableDeclarationNode(term, expr));
+            }
+        }
+
+        MSSyntaxTree lambdaDeclNode = this.map.get(ctx.exprLambdaDecl());
+        this.map.put(ctx, new MSClosureNode(declarations, lambdaDeclNode));
+    }
+
+    @Override
     public void exitExprLetDecl(MiniSchemeParser.ExprLetDeclContext ctx) {
         super.exitExprLetDecl(ctx);
         // Child 1 is which type of let we're using.
