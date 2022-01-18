@@ -106,9 +106,14 @@ public class LValue {
         } else if (tval instanceof MSSymbolNode || tval instanceof MSSymbolLiteralNode) {
             this.TYPE = LValueType.SYM;
             this.tval = tval;
-        } else {
+        } else if (tval instanceof MSListNode) {
             this.TYPE = LValueType.LIST;
             this.tval = tval;
+        } else if (tval instanceof MSLambdaDeclarationNode) {
+            this.TYPE = LValueType.LAMBDADECL;
+            this.tval = tval;
+        } else {
+            throw new IllegalArgumentException("Cannot convert " + tval.getNodeType() + " syntax tree type to corresponding LValue type");
         }
     }
 
@@ -128,20 +133,16 @@ public class LValue {
                 return ((int) this.dval.getValue() == this.dval.getValue())
                         ? Integer.toString((int) this.dval.getValue())
                         : Double.toString(this.dval.getValue());
-            case BOOL:
-                return this.bval.getValue() ? "#t" : "#f";
-            case CHAR:
-                return this.cval.getStringRep();
-            case STR:
-                return this.strval.getValue();
+            case BOOL: return this.bval.getValue() ? "#t" : "#f";
+            case CHAR: return this.cval.getStringRep();
+            case STR: return this.strval.getValue();
             case SYM:
             case VECTOR:
-            case LIST:
-                return this.tval == null ? "()" : this.tval.getStringRep();
-            case PROCCALL:
-                return "#<procedure-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
-            case LAMBDACALL:
-                return "#<lambda-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case LIST: return this.tval == null ? "()" : this.tval.getStringRep();
+            case PROCCALL: return "#<procedure-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case LAMBDACALL: return "#<lambda-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case LAMBDADECL: return "#<lambdadecl>";
+
         }
         return "";
     }
@@ -152,20 +153,16 @@ public class LValue {
      */
     protected static MSSyntaxTree getAstFromLValue(final LValue lval) {
         switch (lval.getType()) {
-            case NUM:
-                return new MSNumberNode(lval.getDoubleValue());
-            case BOOL:
-                return new MSBooleanNode(lval.getBoolValue());
-            case CHAR:
-                return new MSCharacterNode(lval.getCharValue());
-            case STR:
-                return new MSStringNode(lval.getStringValue());
+            case NUM: return new MSNumberNode(lval.getDoubleValue());
+            case BOOL: return new MSBooleanNode(lval.getBoolValue());
+            case CHAR: return new MSCharacterNode(lval.getCharValue());
+            case STR: return new MSStringNode(lval.getStringValue());
             case SYM:
             case VECTOR:
             case PROCCALL:
             case LAMBDACALL:
-            case LIST:
-                return lval.getTreeValue();
+            case LAMBDADECL:
+            case LIST: return lval.getTreeValue();
             default:
                 return null;
         }
@@ -238,6 +235,10 @@ public class LValue {
         return this.TYPE == LValueType.LAMBDACALL;
     }
 
+    protected boolean isLLambdaDecl() {
+        return this.TYPE == LValueType.LAMBDADECL;
+    }
+
     /**
      *
      */
@@ -252,6 +253,7 @@ public class LValue {
         DISP("display"),
         PROCCALL("procedure call"),
         LAMBDACALL("lambda call"),
+        LAMBDADECL("lambda decl"),
         NULL("null");
 
         private final String value;

@@ -160,17 +160,9 @@ miniScheme: (decl | expr)*;
 
 
 // Declarations of lambdas, variables, procedures.
-decl: lambdaDecl
-    | varDecl
-    | varDeclRead
-    | procDecl;
-
-
-// Different definitions.
-varDecl:     '(' DEFINE term expr ')';
-varDeclRead: '(' DEFINE term '(' readop ')' ')';
-procDecl:    '(' DEFINE '(' term procParams? ')' procBody ')';
-lambdaDecl:  '(' DEFINE term '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')' ')';
+decl: '(' DEFINE variable expr ')' #varDecl
+    | '(' DEFINE '(' term procParams? ')' procBody ')' #procDecl
+    | '(' DEFINE term '(' readop ')' ')' #varDeclRead;
 
 
 // Defines an expression.
@@ -206,8 +198,7 @@ exprSetRead: '(' setop expr '(' readop ')' ')';
 
 
 // Operator expression.
-exprOp: ('(' (unaryop | binaryop | ternaryop | naryop) expr* ')')
-      | ((unaryop | binaryop | ternaryop | naryop) expr*);
+exprOp: '(' (unaryop | binaryop | ternaryop | naryop) expr* ')';
 
 
 // Creation of a vector.
@@ -251,7 +242,7 @@ exprLetNamed: LET ID;
 
 // Symbol declaration.
 exprSymbol: ((QUOTE | SINGLE_QUOTE) exprSymbolComponent) ;
-exprSymbolComponent: ('(' exprSymbolComponent* ')') | term | op | exprCall | exprSymbol;
+exprSymbolComponent: ('(' exprSymbolComponent* ')') | variable | constant | op | exprCall | exprSymbol;
 
 
 // Term expression.
@@ -331,8 +322,6 @@ readop: READLINE_FN | READNUMBER_FN;
 
 
 // Identifier and literals.
-term: NUMBERLIT
-    | STRINGLIT
-    | BOOLLIT
-    | CHARLIT
-    | ID;
+term: variable | constant;
+variable: ID;
+constant: NUMBERLIT | STRINGLIT | BOOLLIT | CHARLIT;

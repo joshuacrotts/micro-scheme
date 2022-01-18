@@ -79,6 +79,14 @@ public class MSProcedureDeclarationNode extends MSDeclaration implements Callabl
         return (MSIdentifierNode) this.getChild(0);
     }
 
+    public ArrayList<MSSyntaxTree> getProcedureParameters() {
+        ArrayList<MSSyntaxTree> parameters = new ArrayList<>();
+        for (int i = 0; i < this.NUM_PARAMS; i++) {
+            parameters.add(this.getChild(i + 1));
+        }
+        return parameters;
+    }
+
     public MSSyntaxTree getBody() {
         return this.getChild(this.getChildrenSize() - 1);
     }

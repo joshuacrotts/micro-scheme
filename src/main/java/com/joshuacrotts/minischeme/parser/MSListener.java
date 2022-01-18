@@ -42,17 +42,11 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitDecl(MiniSchemeParser.DeclContext ctx) {
-        super.exitDecl(ctx);
-        this.map.put(ctx, this.map.get(ctx.getChild(0)));
-    }
-
-    @Override
     public void exitVarDecl(MiniSchemeParser.VarDeclContext ctx) {
         super.exitVarDecl(ctx);
-        this.map.put(ctx, new MSVariableDeclarationNode(this.map.get(ctx.term()), this.map.get(ctx.expr())));
+        this.map.put(ctx, new MSVariableDeclarationNode(this.map.get(ctx.variable()), this.map.get(ctx.expr())));
     }
-
+//
     @Override
     public void exitVarDeclRead(MiniSchemeParser.VarDeclReadContext ctx) {
         super.exitVarDeclRead(ctx);
@@ -73,19 +67,19 @@ public class MSListener extends MiniSchemeBaseListener {
         this.map.put(ctx, new MSProcedureDeclarationNode(this.map.get(ctx.term()),
                 params, this.map.get(ctx.procBody().seq())));
     }
-
-    @Override
-    public void exitLambdaDecl(MiniSchemeParser.LambdaDeclContext ctx) {
-        super.exitLambdaDecl(ctx);
-        ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
-        if (ctx.lambdaParams() != null) {
-            for (ParseTree pt : ctx.lambdaParams().expr()) {
-                lambdaParams.add(this.map.get(pt));
-            }
-        }
-        this.map.put(ctx, new MSLambdaDeclarationNode(this.map.get(ctx.term()),
-                lambdaParams, this.map.get(ctx.lambdaBody().seq())));
-    }
+//
+//    @Override
+//    public void exitLambdaDecl(MiniSchemeParser.LambdaDeclContext ctx) {
+//        super.exitLambdaDecl(ctx);
+//        ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
+//        if (ctx.lambdaParams() != null) {
+//            for (ParseTree pt : ctx.lambdaParams().expr()) {
+//                lambdaParams.add(this.map.get(pt));
+//            }
+//        }
+//        this.map.put(ctx, new MSLambdaDeclarationNode(this.map.get(ctx.term()),
+//                lambdaParams, this.map.get(ctx.lambdaBody().seq())));
+//    }
 
     @Override
     public void exitSeq(MiniSchemeParser.SeqContext ctx) {
@@ -126,10 +120,8 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitExprSymbolComponent(MiniSchemeParser.ExprSymbolComponentContext ctx) {
         super.exitExprSymbolComponent(ctx);
-        if ((ctx.term() != null && ctx.term().ID() != null) || ctx.op() != null) {
+        if (ctx.constant() != null || ctx.variable() != null || ctx.op() != null) {
             this.map.put(ctx, new MSSymbolLiteralNode(ctx.getChild(0).getChild(0).getText()));
-        } else if (ctx.term() != null) {
-            this.map.put(ctx, this.map.get(ctx.term()));
         } else if (ctx.exprCall() != null) {
             this.map.put(ctx, this.map.get(ctx.exprCall()));
         } else if (ctx.exprSymbol() != null) {
@@ -376,9 +368,12 @@ public class MSListener extends MiniSchemeBaseListener {
         this.map.put(ctx, this.map.get(ctx.term()));
     }
 
+    public void exitVariable(MiniSchemeParser.VariableContext ctx) {
+        this.map.put(ctx, new MSIdentifierNode(ctx.ID().getText()));
+    }
+
     @Override
-    public void exitTerm(MiniSchemeParser.TermContext ctx) {
-        super.exitTerm(ctx);
+    public void exitConstant(MiniSchemeParser.ConstantContext ctx) {
         MSSyntaxTree term = null;
         int tokType = ((TerminalNode) ctx.getChild(0)).getSymbol().getType();
         switch (tokType) {
@@ -394,14 +389,16 @@ public class MSListener extends MiniSchemeBaseListener {
             case MiniSchemeParser.STRINGLIT:
                 term = new MSStringNode(ctx.getText());
                 break;
-            case MiniSchemeParser.ID:
-                term = new MSIdentifierNode(ctx.getText());
-                break;
             default:
-                throw new UnsupportedOperationException("Cannot support this token yet");
+                throw new IllegalArgumentException("Invalid token type " + tokType);
         }
-
         this.map.put(ctx, term);
+    }
+
+    @Override
+    public void exitTerm(MiniSchemeParser.TermContext ctx) {
+        super.exitTerm(ctx);
+        this.map.put(ctx, this.map.get(ctx.getChild(0)));
     }
 
     public MSSyntaxTree getSyntaxTree() {

@@ -132,6 +132,8 @@ public class MSSyntaxTree implements Copyable {
         return this.NODE_TYPE == MSNodeType.LET_DECL;
     }
 
+    public boolean isCall() { return this.NODE_TYPE == MSNodeType.CALL; }
+
     public boolean isTerminalType() {
         return this.isNumber() || this.isSymbol() || this.isString() || this.isSymbolLit() || this.isBool();
     }
