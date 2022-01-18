@@ -61,10 +61,12 @@ public class SymbolTable {
     public void setSymbol(String id, MSSyntaxTree data) {
         SymbolEntry entry = this.getSymbolEntry(id);
         if (entry == null) {
+            //this.addSymbol(id, SymbolType.VARIABLE, data);
             throw new MSInterpreterException("Cannot set identifier " + id);
+        } else {
+            entry.setSymbolType(SymbolType.getSymbolTypeFromNodeType(data.getNodeType()));
+            entry.setSymbolData(data);
         }
-        entry.setSymbolType(SymbolType.getSymbolTypeFromNodeType(data.getNodeType()));
-        entry.setSymbolData(data);
     }
 
     /**

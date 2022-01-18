@@ -160,8 +160,7 @@ miniScheme: (decl | expr)*;
 
 
 // Declarations of lambdas, variables, procedures.
-decl: lambdaDecl
-    | varDecl
+decl: varDecl
     | varDeclRead
     | procDecl;
 
@@ -170,7 +169,6 @@ decl: lambdaDecl
 varDecl:     '(' DEFINE term expr ')';
 varDeclRead: '(' DEFINE term '(' readop ')' ')';
 procDecl:    '(' DEFINE '(' term procParams? ')' procBody ')';
-lambdaDecl:  '(' DEFINE term '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')' ')';
 
 
 // Defines an expression.
@@ -181,9 +179,8 @@ expr: exprBegin
     | exprOp
     | exprVector
     | exprList
-    | exprCall
+    | exprApplication
     | exprLambdaDecl
-    | exprLambdaDeclCall
     | exprIf
     | exprCond
     | exprDo
@@ -219,16 +216,11 @@ exprList: '(' CREATE_LIST_FN expr* ')';
 
 
 // Calling a procedure or procedure with lambda args.
-exprCall: ('(' term args? ')')
-        | ('(' '(' term args? ')' lambdaArgs? ')');
+exprApplication: '(' expr args? ')';
 
 
 // Declaration of a lambda inside an expression.
 exprLambdaDecl: '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')';
-
-
-// Declaration of a lambda followed by immediately calling it.
-exprLambdaDeclCall: '(' '(' LAMBDA '(' lambdaParams? ')' lambdaBody ')' lambdaArgs? ')';
 
 
 // If expression.
@@ -251,7 +243,7 @@ exprLetNamed: LET ID;
 
 // Symbol declaration.
 exprSymbol: ((QUOTE | SINGLE_QUOTE) exprSymbolComponent) ;
-exprSymbolComponent: ('(' exprSymbolComponent* ')') | term | op | exprCall | exprSymbol;
+exprSymbolComponent: ('(' exprSymbolComponent* ')') | term | op | exprApplication | exprSymbol;
 
 
 // Term expression.

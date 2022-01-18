@@ -106,6 +106,9 @@ public class LValue {
         } else if (tval instanceof MSSymbolNode || tval instanceof MSSymbolLiteralNode) {
             this.TYPE = LValueType.SYM;
             this.tval = tval;
+        } else if (tval instanceof MSLambdaDeclarationNode) {
+            this.TYPE = LValueType.LAMBDADECL;
+            this.tval = tval;
         } else {
             this.TYPE = LValueType.LIST;
             this.tval = tval;
@@ -137,11 +140,10 @@ public class LValue {
             case SYM:
             case VECTOR:
             case LIST:
+            case LAMBDADECL:
                 return this.tval == null ? "()" : this.tval.getStringRep();
-            case PROCCALL:
-                return "#<procedure-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
-            case LAMBDACALL:
-                return "#<lambda-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case APPLICATION:
+                return "#<application-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
         }
         return "";
     }
@@ -162,8 +164,8 @@ public class LValue {
                 return new MSStringNode(lval.getStringValue());
             case SYM:
             case VECTOR:
-            case PROCCALL:
-            case LAMBDACALL:
+            case APPLICATION:
+            case LAMBDADECL:
             case LIST:
                 return lval.getTreeValue();
             default:
@@ -230,12 +232,8 @@ public class LValue {
         return this.TYPE == LValueType.LIST;
     }
 
-    protected boolean isLProcCall() {
-        return this.TYPE == LValueType.PROCCALL;
-    }
-
-    protected boolean isLLambdaCall() {
-        return this.TYPE == LValueType.LAMBDACALL;
+    protected boolean isLApplication() {
+        return this.TYPE == LValueType.APPLICATION;
     }
 
     /**
@@ -250,8 +248,8 @@ public class LValue {
         SYM("symbol"),
         VECTOR("vector"),
         DISP("display"),
-        PROCCALL("procedure call"),
-        LAMBDACALL("lambda call"),
+        APPLICATION("application"),
+        LAMBDADECL("lambda decl"),
         NULL("null");
 
         private final String value;

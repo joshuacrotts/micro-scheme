@@ -75,19 +75,6 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitLambdaDecl(MiniSchemeParser.LambdaDeclContext ctx) {
-        super.exitLambdaDecl(ctx);
-        ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
-        if (ctx.lambdaParams() != null) {
-            for (ParseTree pt : ctx.lambdaParams().expr()) {
-                lambdaParams.add(this.map.get(pt));
-            }
-        }
-        this.map.put(ctx, new MSLambdaDeclarationNode(this.map.get(ctx.term()),
-                lambdaParams, this.map.get(ctx.lambdaBody().seq())));
-    }
-
-    @Override
     public void exitSeq(MiniSchemeParser.SeqContext ctx) {
         super.exitSeq(ctx);
         ArrayList<MSSyntaxTree> exprs = new ArrayList<>();
@@ -130,8 +117,8 @@ public class MSListener extends MiniSchemeBaseListener {
             this.map.put(ctx, new MSSymbolLiteralNode(ctx.getChild(0).getChild(0).getText()));
         } else if (ctx.term() != null) {
             this.map.put(ctx, this.map.get(ctx.term()));
-        } else if (ctx.exprCall() != null) {
-            this.map.put(ctx, this.map.get(ctx.exprCall()));
+        } else if (ctx.exprApplication() != null) {
+            this.map.put(ctx, this.map.get(ctx.exprApplication()));
         } else if (ctx.exprSymbol() != null) {
             this.map.put(ctx, this.map.get(ctx.exprSymbol()));
         } else {
@@ -199,22 +186,16 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitExprCall(MiniSchemeParser.ExprCallContext ctx) {
-        super.exitExprCall(ctx);
-        ArrayList<MSSyntaxTree> procArgs = new ArrayList<>();
+    public void exitExprApplication(MiniSchemeParser.ExprApplicationContext ctx) {
+        super.exitExprApplication(ctx);
+        MSSyntaxTree lhsExpr = this.map.get(ctx.expr());
+        ArrayList<MSSyntaxTree> rhsArgs = new ArrayList<>();
         if (ctx.args() != null) {
             for (ParseTree pt : ctx.args().expr()) {
-                procArgs.add(this.map.get(pt));
+                rhsArgs.add(this.map.get(pt));
             }
         }
-
-        ArrayList<MSSyntaxTree> lambdaArgs = new ArrayList<>();
-        if (ctx.lambdaArgs() != null) {
-            for (ParseTree pt : ctx.lambdaArgs().expr()) {
-                lambdaArgs.add(this.map.get(pt));
-            }
-        }
-        this.map.put(ctx, new MSCallNode(this.map.get(ctx.term()), procArgs, lambdaArgs));
+        this.map.put(ctx, new MSApplicationNode(lhsExpr, rhsArgs));
     }
 
     @Override
@@ -272,29 +253,6 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
         this.map.put(ctx, new MSLambdaDeclarationNode(lambdaParams, this.map.get(ctx.lambdaBody().seq())));
-    }
-
-    @Override
-    public void exitExprLambdaDeclCall(MiniSchemeParser.ExprLambdaDeclCallContext ctx) {
-        super.exitExprLambdaDeclCall(ctx);
-        // Now retrieve the params.
-        ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
-        if (ctx.lambdaParams() != null) {
-            for (ParseTree pt : ctx.lambdaParams().expr()) {
-                lambdaParams.add(this.map.get(pt));
-            }
-        }
-
-        // Lastly, retrieve the args.
-        ArrayList<MSSyntaxTree> lambdaArgs = new ArrayList<>();
-        if (ctx.lambdaArgs() != null) {
-            for (ParseTree pt : ctx.lambdaArgs().expr()) {
-                lambdaArgs.add(this.map.get(pt));
-            }
-        }
-
-        this.map.put(ctx, new MSLambdaDeclarationCallNode(lambdaParams,
-                this.map.get(ctx.lambdaBody().seq()), lambdaArgs));
     }
 
     @Override

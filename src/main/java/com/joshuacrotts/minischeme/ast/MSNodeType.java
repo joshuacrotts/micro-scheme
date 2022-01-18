@@ -31,8 +31,7 @@ public enum MSNodeType {
     LET_NAMED_DECL,
 
     // Expression calls.
-    EXPR_LAMBDA_DECL_CALL,
-    CALL,
+    APPLICATION,
 
     // I/O or set.,
     SET,

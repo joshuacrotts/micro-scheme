@@ -1,0 +1,11 @@
+;
+; Working with local variables...
+;
+
+(define cnt
+    (let ((I 0))
+        (lambda () (set! I (+ I 1)) I)))
+
+(cnt)
+(cnt)
+(cnt)

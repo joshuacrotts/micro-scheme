@@ -2,6 +2,13 @@ import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.main.MiniSchemeInterpreter;
 import com.joshuacrotts.minischeme.main.MiniSchemeTester;
 import com.joshuacrotts.minischeme.parser.MSListener;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opentest4j.AssertionFailedError;
@@ -10,14 +17,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 /**
  * Testing file for the parser. This tester is designed to run test cases
@@ -27,9 +37,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * produce null for the syntax tree, indicating an error) are tested by method
  * badFileInput(). See those methods for more information.
  */
+
 public class InterpreterTester {
 
-    private static final int NUM_TESTS = 147;
+    private static final int NUM_TESTS = 150;
 
     /**
      * Helper function to count number of newlines in a string
@@ -138,7 +149,9 @@ public class InterpreterTester {
         } catch (IOException e) {
             throw new AssertionFailedError("Missing expected output file " + expName);
         }
-        compare(actual, expected);
+        //compare(actual, expected);
+        assertTimeoutPreemptively(Duration.ofSeconds(2), () ->
+                compare(actual, expected));
         InterpreterTester.cleanup();
     }
 
