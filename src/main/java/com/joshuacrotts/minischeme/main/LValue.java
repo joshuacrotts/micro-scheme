@@ -131,19 +131,14 @@ public class LValue {
                 return ((int) this.dval.getValue() == this.dval.getValue())
                         ? Integer.toString((int) this.dval.getValue())
                         : Double.toString(this.dval.getValue());
-            case BOOL:
-                return this.bval.getValue() ? "#t" : "#f";
-            case CHAR:
-                return this.cval.getStringRep();
-            case STR:
-                return this.strval.getValue();
+            case BOOL: return this.bval.getValue() ? "#t" : "#f";
+            case CHAR: return this.cval.getStringRep();
+            case STR: return this.strval.getValue();
             case SYM:
             case VECTOR:
             case LIST:
-            case LAMBDADECL:
-                return this.tval == null ? "()" : this.tval.getStringRep();
-            case APPLICATION:
-                return "#<application-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
+            case LAMBDADECL: return this.tval == null ? "()" : this.tval.getStringRep();
+            case APPLICATION: return "#<application-" + ((MSIdentifierNode) this.tval).getIdentifier() + ">";
         }
         return "";
     }
@@ -154,20 +149,15 @@ public class LValue {
      */
     protected static MSSyntaxTree getAstFromLValue(final LValue lval) {
         switch (lval.getType()) {
-            case NUM:
-                return new MSNumberNode(lval.getDoubleValue());
-            case BOOL:
-                return new MSBooleanNode(lval.getBoolValue());
-            case CHAR:
-                return new MSCharacterNode(lval.getCharValue());
-            case STR:
-                return new MSStringNode(lval.getStringValue());
+            case NUM: return new MSNumberNode(lval.getDoubleValue());
+            case BOOL: return new MSBooleanNode(lval.getBoolValue());
+            case CHAR: return new MSCharacterNode(lval.getCharValue());
+            case STR: return new MSStringNode(lval.getStringValue());
             case SYM:
             case VECTOR:
             case APPLICATION:
             case LAMBDADECL:
-            case LIST:
-                return lval.getTreeValue();
+            case LIST: return lval.getTreeValue();
             default:
                 return null;
         }

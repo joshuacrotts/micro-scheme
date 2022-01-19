@@ -136,6 +136,8 @@ public class MSSyntaxTree implements Copyable {
 
     public boolean isClosure() { return this.NODE_TYPE == MSNodeType.CLOSURE; }
 
+    public boolean isCallable() { return this.NODE_TYPE == MSNodeType.EXPR_LAMBDA_DECL || this.NODE_TYPE == MSNodeType.PROC_DECL; }
+
     public boolean isSet() { return this.NODE_TYPE == MSNodeType.SET; }
 
     public boolean isTerminalType() {

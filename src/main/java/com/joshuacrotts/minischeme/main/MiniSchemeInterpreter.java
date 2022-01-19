@@ -79,24 +79,20 @@ public class MiniSchemeInterpreter {
                                      final MSSyntaxTree arg, final int replaceIdx,
                                      final ArrayList<MSSyntaxTree> args) {
         // If the body is null then there's nothing to replace.
-        if (body == null) {
-            return;
-        }
+        if (body == null) { return; }
+
         for (int i = 0; i < body.getChildrenSize(); i++) {
             MSSyntaxTree child = body.getChild(i);
-            if (child == null) {
-                return;
-            }
+            if (child == null) { return; }
             // If it's an ID then we want to replace it.
             if (child.isId()) {
                 MSIdentifierNode id = (MSIdentifierNode) child;
                 if (definition.getArgumentIndex(id.getIdentifier()) == replaceIdx) {
                     body.setChild(i, arg);
                 }
-
                 // If we have a lambda we need to find the correct arg.
 //                if (body.getChild(i).isExprLambdaDecl()) {
-//                    this.replaceParams(definition, body.getChild(i), args);
+//                    this.replaceParams(definition, body, args);
 //                }
             } else {
                 this.replaceParamsHelper(definition, child, arg, replaceIdx, args);
@@ -166,17 +162,15 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretVariableDeclaration(final MSVariableDeclarationNode varDecl) {
         String identifier = varDecl.getIdentifier().getIdentifier();
-        // First, check to see if we can evaluate the expression in the var decl.
-        if (!varDecl.getExpression().isTerminalType() && !varDecl.getExpression().isExprLambdaDecl() && !varDecl.getExpression().isClosure()) {
-            MSSyntaxTree evalExpr = LValue.getAstFromLValue(this.interpretTree(varDecl.getExpression()));
-            varDecl.setChild(1, evalExpr);
-        }
 
-        // If we run into an identifier, we can just copy that identifier's expression over in the symbol table.
         if (varDecl.getExpression().isId()) {
             this.symbolTable.addSymbol(identifier, (MSIdentifierNode) varDecl.getExpression());
-        } else if (varDecl.getExpression().isExprLambdaDecl() || varDecl.getExpression().isClosure()) {
-            this.symbolTable.addSymbol(identifier, SymbolType.VARIABLE, varDecl.getExpression());
+        } else if (varDecl.getExpression().isApplication()) {
+            LValue exprVal = this.interpretTree(varDecl.getExpression());
+            this.symbolTable.addSymbol(identifier, SymbolType.VARIABLE, LValue.getAstFromLValue(exprVal));
+        } else if (varDecl.getExpression().isExprLambdaDecl()) {
+            LValue exprVal = this.interpretTree(varDecl.getExpression());
+            this.symbolTable.addSymbol(identifier, SymbolType.LAMBDA, LValue.getAstFromLValue(exprVal));
         } else {
             this.symbolTable.addSymbol(identifier, SymbolType.VARIABLE, varDecl);
         }
@@ -552,6 +546,9 @@ public class MiniSchemeInterpreter {
         } else if (this.symbolTable.isProcedure(id)) {
             MSProcedureDeclarationNode procDecl = (MSProcedureDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
             return new LValue(LValueType.APPLICATION, procDecl.getIdentifier());
+        } else if (this.symbolTable.isLambda(id)) {
+            MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
+            return new LValue(LValueType.APPLICATION, lambdaDecl);
         } else {
             throw new MSSemanticException("undefined identifier '" + id + "'");
         }
@@ -677,25 +674,58 @@ public class MiniSchemeInterpreter {
      *
      */
     private LValue interpretApplication(final MSApplicationNode applicationNode) throws MSSemanticException {
-        MSSyntaxTree lhsExpr = applicationNode.getExpression();
-        ArrayList<MSSyntaxTree> rhsArgs = applicationNode.getArguments();
-
-        if (lhsExpr.isApplication()) {
-            lhsExpr = LValue.getAstFromLValue(this.interpretTree(lhsExpr));
-            if (lhsExpr == null || (!lhsExpr.isApplication() && !lhsExpr.isExprLambdaDecl())) {
-                return new LValue(lhsExpr);
+        Callable def = null;
+        if (applicationNode.getExpression().isId()) {
+            String id = ((MSIdentifierNode) applicationNode.getExpression()).getIdentifier();
+            def = ( Callable) this.symbolTable.getSymbolEntry(id).getSymbolData();
+        } else if (applicationNode.getExpression().isExprLambdaDecl()) {
+            def = ((MSLambdaDeclarationNode) applicationNode.getExpression());
+        } else if (applicationNode.getExpression().isApplication()) {
+            LValue lhsRet = this.interpretTree(applicationNode.getExpression());
+            MSSyntaxTree lhsAst = LValue.getAstFromLValue(lhsRet);
+            assert lhsAst != null;
+            if (lhsAst.isCallable()) {
+                def = (Callable) lhsAst;
+            } else {
+                return lhsRet;
             }
-        } else if (lhsExpr.isId()) {
-            lhsExpr = this.symbolTable.getSymbolEntry(((MSIdentifierNode) lhsExpr).getIdentifier()).getSymbolData();
+        } else {
+            throw new MSInterpreterException("Cannot apply " + applicationNode.getExpression().getNodeType());
+        }
+        ArrayList<MSSyntaxTree> rhsArgs = applicationNode.getArguments();
+        ArrayList<MSSyntaxTree> args = new ArrayList<>();
+        for (int i = 0; i < rhsArgs.size(); i++) {
+            MSSyntaxTree procCallArg = rhsArgs.get(i);
+            if (procCallArg.isExprLambdaDecl()) {
+                args.add(procCallArg);
+            } else {
+                // Otherwise, evaluate the arg.
+                LValue lhs = this.interpretTree(procCallArg);
+                if (lhs.isLNumber()) {
+                    args.add(new MSNumberNode(lhs.getDoubleValue()));
+                } else if (lhs.isLBool()) {
+                    args.add(new MSBooleanNode(lhs.getBoolValue()));
+                } else if (lhs.isLChar()) {
+                    args.add(new MSCharacterNode(lhs.getCharValue()));
+                } else if (lhs.isLString()) {
+                    args.add(new MSStringNode(lhs.getStringValue()));
+                } else if (lhs.isLApplication() || lhs.isLSymbol()) {
+                    args.add(lhs.getTreeValue());
+                } else if (lhs.isLList() || lhs.isLVector()) {
+                    // If it is null, then evaluate the null list.
+                    if (lhs.getTreeValue() == null) {
+                        args.add(new MSListNode());
+                    } else {
+                        args.add(lhs.getTreeValue());
+                    }
+                } else {
+                    throw new MSInterpreterException("Proc decl call found an incorrect lvalue: " + lhs.getType());
+                }
+            }
         }
 
-        if (lhsExpr.isClosure()) {
-            return this.interpretClosure((MSClosureNode) lhsExpr);
-        }
-
-        Callable callableObj = (Callable) lhsExpr;
-        MSSyntaxTree bodyCopy = callableObj.getBody().copy();
-        this.replaceParams(callableObj, bodyCopy, rhsArgs);
+        MSSyntaxTree bodyCopy = def.getBody().copy();
+        this.replaceParams(def, bodyCopy, args);
         return this.interpretTree(bodyCopy);
     }
 
