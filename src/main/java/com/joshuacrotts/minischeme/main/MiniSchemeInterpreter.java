@@ -673,6 +673,11 @@ public class MiniSchemeInterpreter {
         Callable def = null;
         if (applicationNode.getExpression().isId()) {
             String id = ((MSIdentifierNode) applicationNode.getExpression()).getIdentifier();
+            MSSyntaxTree data = this.symbolTable.getSymbolEntry(id).getSymbolData();
+            if (data.isVarDecl()) {
+                return this.interpretClosure((MSClosureNode) (((MSVariableDeclarationNode) data).getExpression()));
+            }
+
             def = (Callable) this.symbolTable.getSymbolEntry(id).getSymbolData();
         } else if (applicationNode.getExpression().isExprLambdaDecl()) {
             def = ((MSLambdaDeclarationNode) applicationNode.getExpression());
