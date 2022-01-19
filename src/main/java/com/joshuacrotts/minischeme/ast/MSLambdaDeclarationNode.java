@@ -44,24 +44,8 @@ public class MSLambdaDeclarationNode extends MSDeclaration implements Callable {
     public String toString() {
         return this.getNodeType().toString();
     }
-//
-//    /**
-//     * Creates a non-anonymous lambda from an anonymous lambda expression.
-//     * This is useful for binding a lambda to an identifier in a let declaration.
-//     *
-//     * @param id   - identifier to bind lambda to.
-//     * @param expr - anonymous MSLambdaDeclarationNode ast.
-//     * @return new MSLambdaDeclarationNode with bound identifier.
-//     */
-//    public static MSLambdaDeclarationNode createNonAnonymous(MSSyntaxTree id, MSLambdaDeclarationNode expr) {
-//        if (!expr.isAnonymous()) {
-//            throw new MSInterpreterException("This lambda is already anonymous!");
-//        }
-//
-//        return new MSLambdaDeclarationNode(id, expr.getLambdaParameters(), expr.getBody());
-//    }
 
-    public ArrayList<MSSyntaxTree> getLambdaParameters() {
+    public ArrayList<MSSyntaxTree> getParameters() {
         ArrayList<MSSyntaxTree> lambdaParams = new ArrayList<>();
         for (int i = 0; i < this.NUM_PARAMS; i++) {
             lambdaParams.add(this.getChild(i));

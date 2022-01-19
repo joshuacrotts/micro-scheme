@@ -12,13 +12,7 @@ package com.joshuacrotts.minischeme.ast;
 public class MSListNode extends MSSyntaxTree {
 
     public MSListNode(final MSSyntaxTree car, final MSSyntaxTree cdr) {
-        super(MSNodeType.LIST);
-        if (car != null) {
-            this.addChild(car);
-        }
-        if (cdr != null) {
-            this.addChild(cdr);
-        }
+        super(MSNodeType.LIST, car ,cdr);
     }
 
     public MSListNode() {

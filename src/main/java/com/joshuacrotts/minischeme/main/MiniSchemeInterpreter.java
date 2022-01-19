@@ -6,6 +6,7 @@ import com.joshuacrotts.minischeme.main.LValue.LValueType;
 import com.joshuacrotts.minischeme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 import com.joshuacrotts.minischeme.parser.MSSemanticException;
+import com.joshuacrotts.minischeme.symbol.Environment;
 import com.joshuacrotts.minischeme.symbol.SymbolTable;
 import com.joshuacrotts.minischeme.symbol.SymbolType;
 
@@ -53,47 +54,6 @@ public class MiniSchemeInterpreter {
 
     public void setInterpreterTree(final MSSyntaxTree tree) {
         this.interpreterTree = tree;
-    }
-
-    /**
-     * @param procDef
-     * @param body
-     * @param args
-     */
-    private void replaceParams(final Callable procDef, final MSSyntaxTree body,
-                               final ArrayList<MSSyntaxTree> args) {
-        for (int i = 0; i < args.size(); i++) {
-            for (int j = 0; j < body.getChildrenSize(); j++) {
-                this.replaceParamsHelper(procDef, body.getChild(j), args.get(i), i, args);
-            }
-        }
-    }
-
-    /**
-     * @param definition
-     * @param body
-     * @param arg
-     * @param replaceIdx
-     */
-    private void replaceParamsHelper(final Callable definition, final MSSyntaxTree body,
-                                     final MSSyntaxTree arg, final int replaceIdx,
-                                     final ArrayList<MSSyntaxTree> args) {
-        // If the body is null then there's nothing to replace.
-        if (body == null) { return; }
-
-        for (int i = 0; i < body.getChildrenSize(); i++) {
-            MSSyntaxTree child = body.getChild(i);
-            if (child == null) { return; }
-            // If it's an ID then we want to replace it.
-            if (child.isId()) {
-                MSIdentifierNode id = (MSIdentifierNode) child;
-                if (definition.getArgumentIndex(id.getIdentifier()) == replaceIdx) {
-                    body.setChild(i, arg);
-                }
-            } else {
-                this.replaceParamsHelper(definition, child, arg, replaceIdx, args);
-            }
-        }
     }
 
     /**
@@ -481,6 +441,10 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretList(final MSListNode listNode) {
         // We need to evaluate every element of the "list".
+//        MSSyntaxTree car = LValue.getAstFromLValue(this.interpretTree(listNode.getCar()));
+//        MSSyntaxTree cdr = LValue.getAstFromLValue(this.interpretTree(listNode.getCdr()));
+//        return new LValue(new MSListNode(car, cdr));
+        // We need to evaluate every element of the "list".
         listNode.setCar(LValue.getAstFromLValue(this.interpretTree(listNode.getCar())));
         listNode.setCdr(LValue.getAstFromLValue(this.interpretTree(listNode.getCdr())));
         return new LValue(listNode);
@@ -541,7 +505,7 @@ public class MiniSchemeInterpreter {
             return this.interpretTree(this.symbolTable.getVariable(id));
         } else if (this.symbolTable.isProcedure(id)) {
             MSProcedureDeclarationNode procDecl = (MSProcedureDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
-            return new LValue(LValueType.APPLICATION, procDecl.getIdentifier());
+            return new LValue(LValueType.APPLICATION, procDecl);
         } else if (this.symbolTable.isLambda(id)) {
             MSLambdaDeclarationNode lambdaDecl = (MSLambdaDeclarationNode) this.symbolTable.getSymbolEntry(id).getSymbolData();
             return new LValue(LValueType.APPLICATION, lambdaDecl);
@@ -673,63 +637,38 @@ public class MiniSchemeInterpreter {
         Callable def = null;
         if (applicationNode.getExpression().isId()) {
             String id = ((MSIdentifierNode) applicationNode.getExpression()).getIdentifier();
-            MSSyntaxTree data = this.symbolTable.getSymbolEntry(id).getSymbolData();
-            if (data.isVarDecl()) {
-                return this.interpretClosure((MSClosureNode) (((MSVariableDeclarationNode) data).getExpression()));
-            }
-
             def = (Callable) this.symbolTable.getSymbolEntry(id).getSymbolData();
         } else if (applicationNode.getExpression().isExprLambdaDecl()) {
-            def = ((MSLambdaDeclarationNode) applicationNode.getExpression());
-        } else if (applicationNode.getExpression().isApplication()) {
-            LValue lhsRet = this.interpretTree(applicationNode.getExpression());
-            MSSyntaxTree lhsAst = LValue.getAstFromLValue(lhsRet);
-            assert lhsAst != null;
-            if (lhsAst.isCallable()) {
-                def = (Callable) lhsAst;
-            } else {
-                return lhsRet;
-            }
+            def = (Callable) applicationNode.getExpression();
         } else {
-            throw new MSInterpreterException("Cannot apply " + applicationNode.getExpression().getNodeType());
-        }
-        ArrayList<MSSyntaxTree> rhsArgs = applicationNode.getArguments();
-        ArrayList<MSSyntaxTree> args = new ArrayList<>();
-        for (int i = 0; i < rhsArgs.size(); i++) {
-            MSSyntaxTree procCallArg = rhsArgs.get(i);
-            if (procCallArg.isExprLambdaDecl()) {
-                args.add(procCallArg);
-            } else {
-                // Otherwise, evaluate the arg.
-                LValue lhs = this.interpretTree(procCallArg);
-                if (lhs.isLApplication()) {
-                    args.add(procCallArg);
-                } else if (lhs.isLNumber()) {
-                    args.add(new MSNumberNode(lhs.getDoubleValue()));
-                } else if (lhs.isLBool()) {
-                    args.add(new MSBooleanNode(lhs.getBoolValue()));
-                } else if (lhs.isLChar()) {
-                    args.add(new MSCharacterNode(lhs.getCharValue()));
-                } else if (lhs.isLString()) {
-                    args.add(new MSStringNode(lhs.getStringValue()));
-                } else if (lhs.isLSymbol() || lhs.isLApplication()) {
-                    args.add(lhs.getTreeValue());
-                } else if (lhs.isLList() || lhs.isLVector()) {
-                    // If it is null, then evaluate the null list.
-                    if (lhs.getTreeValue() == null) {
-                        args.add(new MSListNode());
-                    } else {
-                        args.add(lhs.getTreeValue());
-                    }
-                } else {
-                    throw new MSInterpreterException("Proc decl call found an incorrect lvalue: " + lhs.getType());
-                }
-            }
+            throw new UnsupportedOperationException("Cannot retrieve definition for " + applicationNode.getExpression().getNodeType());
         }
 
-        MSSyntaxTree bodyCopy = def.getBody().copy();
-        this.replaceParams(def, bodyCopy, args);
-        return this.interpretTree(bodyCopy);
+        Environment env = new Environment();
+        ArrayList<MSSyntaxTree> args = applicationNode.getArguments();
+        for (int i = 0; i < args.size(); i++) {
+            MSIdentifierNode currParam = (MSIdentifierNode) def.getParameters().get(i);
+            MSSyntaxTree currArg = args.get(i);
+            LValue argLVal = this.interpretTree(currArg);
+            MSSyntaxTree evalArg = null;
+            if (argLVal.isLList()) {
+                // If it is null, then evaluate the null list.
+                if (argLVal.getTreeValue() == null) {
+                    evalArg = new MSListNode();
+                } else {
+                    evalArg = argLVal.getTreeValue();
+                }
+            } else {
+                evalArg = LValue.getAstFromLValue(argLVal);
+            }
+
+            env.addSymbol(currParam.getIdentifier(), SymbolType.getSymbolTypeFromNodeType(evalArg.getNodeType()), evalArg);
+        }
+
+        this.symbolTable.addEnvironment(env);
+        LValue bodyLVal = this.interpretTree(def.getBody().copy());
+        this.symbolTable.popEnvironment();
+        return bodyLVal;
     }
 
     /**
@@ -828,6 +767,7 @@ public class MiniSchemeInterpreter {
         if (!expr.isTerminalType()) {
             expr = LValue.getAstFromLValue(this.interpretTree(expr));
         }
+        System.out.println(expr.hashCode());
         if (!data.isTerminalType()) {
             data = LValue.getAstFromLValue(this.interpretTree(data));
         }
@@ -837,6 +777,7 @@ public class MiniSchemeInterpreter {
         }
 
         ((MSListNode) expr).setCar(data);
+        System.out.println(this.symbolTable.getVariable("x").hashCode());
     }
 
     /**
