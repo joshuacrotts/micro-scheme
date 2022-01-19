@@ -90,10 +90,6 @@ public class MiniSchemeInterpreter {
                 if (definition.getArgumentIndex(id.getIdentifier()) == replaceIdx) {
                     body.setChild(i, arg);
                 }
-                // If we have a lambda we need to find the correct arg.
-//                if (body.getChild(i).isExprLambdaDecl()) {
-//                    this.replaceParams(definition, body, args);
-//                }
             } else {
                 this.replaceParamsHelper(definition, child, arg, replaceIdx, args);
             }
@@ -677,7 +673,7 @@ public class MiniSchemeInterpreter {
         Callable def = null;
         if (applicationNode.getExpression().isId()) {
             String id = ((MSIdentifierNode) applicationNode.getExpression()).getIdentifier();
-            def = ( Callable) this.symbolTable.getSymbolEntry(id).getSymbolData();
+            def = (Callable) this.symbolTable.getSymbolEntry(id).getSymbolData();
         } else if (applicationNode.getExpression().isExprLambdaDecl()) {
             def = ((MSLambdaDeclarationNode) applicationNode.getExpression());
         } else if (applicationNode.getExpression().isApplication()) {
@@ -701,7 +697,9 @@ public class MiniSchemeInterpreter {
             } else {
                 // Otherwise, evaluate the arg.
                 LValue lhs = this.interpretTree(procCallArg);
-                if (lhs.isLNumber()) {
+                if (lhs.isLApplication()) {
+                    args.add(procCallArg);
+                } else if (lhs.isLNumber()) {
                     args.add(new MSNumberNode(lhs.getDoubleValue()));
                 } else if (lhs.isLBool()) {
                     args.add(new MSBooleanNode(lhs.getBoolValue()));
@@ -709,7 +707,7 @@ public class MiniSchemeInterpreter {
                     args.add(new MSCharacterNode(lhs.getCharValue()));
                 } else if (lhs.isLString()) {
                     args.add(new MSStringNode(lhs.getStringValue()));
-                } else if (lhs.isLApplication() || lhs.isLSymbol()) {
+                } else if (lhs.isLSymbol() || lhs.isLApplication()) {
                     args.add(lhs.getTreeValue());
                 } else if (lhs.isLList() || lhs.isLVector()) {
                     // If it is null, then evaluate the null list.

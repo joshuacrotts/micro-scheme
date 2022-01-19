@@ -226,6 +226,10 @@ public class LValue {
         return this.TYPE == LValueType.APPLICATION;
     }
 
+    protected boolean isLLambdaDecl() {
+        return this.TYPE == LValueType.LAMBDADECL;
+    }
+
     /**
      *
      */
