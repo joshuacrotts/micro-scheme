@@ -9,11 +9,3 @@
 )
 
 (length '(1 2 3 4 5))
-
-(define (create-list l)
-    (cond ((null? l) '())
-          (else (cons (car l) (create-list cdr l)))))
-
-(define (c l)
-    (cons (car l) (cdr (cdr l))))
-(create-list '(1 2 3 4 5))

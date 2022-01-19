@@ -640,8 +640,17 @@ public class MiniSchemeInterpreter {
             def = (Callable) this.symbolTable.getSymbolEntry(id).getSymbolData();
         } else if (applicationNode.getExpression().isExprLambdaDecl()) {
             def = (Callable) applicationNode.getExpression();
+        } else if (applicationNode.getExpression().isApplication()) {
+            LValue lval = this.interpretTree(applicationNode.getExpression());
+            if (lval.isLLambdaDecl()) {
+                def = (Callable) LValue.getAstFromLValue(lval);
+            } else {
+                return lval;
+            }
         } else {
-            throw new UnsupportedOperationException("Cannot retrieve definition for " + applicationNode.getExpression().getNodeType());
+                throw new UnsupportedOperationException(
+                    "Cannot retrieve definition for " + applicationNode.getExpression()
+                                                                       .getNodeType());
         }
 
         Environment env = new Environment();
@@ -667,7 +676,8 @@ public class MiniSchemeInterpreter {
 
         this.symbolTable.addEnvironment(env);
         LValue bodyLVal = this.interpretTree(def.getBody().copy());
-        this.symbolTable.popEnvironment();
+        if (!bodyLVal.isLLambdaDecl())
+            this.symbolTable.popEnvironment();
         return bodyLVal;
     }
 
@@ -767,7 +777,6 @@ public class MiniSchemeInterpreter {
         if (!expr.isTerminalType()) {
             expr = LValue.getAstFromLValue(this.interpretTree(expr));
         }
-        System.out.println(expr.hashCode());
         if (!data.isTerminalType()) {
             data = LValue.getAstFromLValue(this.interpretTree(data));
         }
@@ -777,7 +786,6 @@ public class MiniSchemeInterpreter {
         }
 
         ((MSListNode) expr).setCar(data);
-        System.out.println(this.symbolTable.getVariable("x").hashCode());
     }
 
     /**

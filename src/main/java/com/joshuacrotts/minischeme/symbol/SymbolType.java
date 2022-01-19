@@ -25,6 +25,8 @@ public enum SymbolType {
             case LIST:
             case VECTOR:
             case OP:
+            case SYMBOL:
+            case SYMBOL_LIT:
                 return VARIABLE;
             case LAMBDA_DECL:
             case EXPR_LAMBDA_DECL:
