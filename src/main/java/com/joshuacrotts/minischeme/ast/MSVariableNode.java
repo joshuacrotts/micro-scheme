@@ -1,17 +1,15 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
- * Defines an identifier in Scheme. An identifier, in this case, just represents the label of a
- * variable or a procedure. The actual data associated with either of these structures is in their
- * separate respective classes.
+ * Defines an identifier in Scheme.
  *
  * @author Joshua Crotts
- * @version 12/23/2021
+ * @version 01/19/2022
  */
 public class MSVariableNode extends MSSyntaxTree {
 
     /**
-     * Identifier to use.
+     * Identifier used to reference this variable.
      */
     private final String IDENTIFIER;
 
@@ -31,7 +29,7 @@ public class MSVariableNode extends MSSyntaxTree {
     }
 
     public String toString() {
-        return "(VAR " + this.IDENTIFIER + ")";
+        return "(VARIABLE " + this.IDENTIFIER + ")";
     }
 
     public String getIdentifier() {

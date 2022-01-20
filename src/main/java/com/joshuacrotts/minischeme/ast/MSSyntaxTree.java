@@ -80,9 +80,23 @@ public class MSSyntaxTree {
         return this.NODE_TYPE;
     }
 
-    public boolean isVariable() {
-        return this.NODE_TYPE == MSNodeType.VARIABLE;
-    }
+    public boolean isRoot() { return this.NODE_TYPE == MSNodeType.ROOT; }
+
+    public boolean isVariable() { return this.NODE_TYPE == MSNodeType.VARIABLE; }
+
+    public boolean isLambda() { return this.NODE_TYPE == MSNodeType.LAMBDA; }
+
+    public boolean isBoolean() { return this.NODE_TYPE == MSNodeType.BOOLEAN; }
+
+    public boolean isCharacter() { return this.NODE_TYPE == MSNodeType.CHARACTER; }
+
+    public boolean isCond() { return this.NODE_TYPE == MSNodeType.COND; }
+
+    public boolean isString() { return this.NODE_TYPE == MSNodeType.STRING; }
+
+    public boolean isApplication() { return this.NODE_TYPE == MSNodeType.APPLICATION; }
+
+    public boolean isSymbol() { return this.NODE_TYPE == MSNodeType.SYMBOL; }
     
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();

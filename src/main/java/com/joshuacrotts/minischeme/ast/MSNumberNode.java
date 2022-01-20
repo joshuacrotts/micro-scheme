@@ -12,29 +12,29 @@ public class MSNumberNode extends MSSyntaxTree {
     /**
      * Number associated with this node.
      */
-    private final BigDecimal NUMBER;
+    private final BigDecimal VALUE;
 
     public MSNumberNode(final String stringRep) {
         super(MSNodeType.NUMBER);
-        this.NUMBER = new BigDecimal(stringRep);
+        this.VALUE = new BigDecimal(stringRep);
     }
 
     public MSNumberNode(final BigDecimal bigDecimal) {
         super(MSNodeType.NUMBER);
-        this.NUMBER = bigDecimal;
+        this.VALUE = bigDecimal;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSNumberNode(this.NUMBER);
+        return new MSNumberNode(this.VALUE);
     }
 
     @Override
     public String getStringRep() {
-        return this.NUMBER.toString();
+        return this.VALUE.toString();
     }
 
     public BigDecimal getNumber() {
-        return this.NUMBER;
+        return this.VALUE;
     }
 }
