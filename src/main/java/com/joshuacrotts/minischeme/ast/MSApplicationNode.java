@@ -5,45 +5,34 @@ import java.util.ArrayList;
 public class MSApplicationNode extends MSSyntaxTree {
 
     /**
-     *
+     * The number of arguments that this application has.
      */
-    private final int NUM_ARGS;
+    private final int NUM_ARGUMENTS;
 
-    public MSApplicationNode(MSSyntaxTree lhs, ArrayList<MSSyntaxTree> rhsArgs) {
-        super(MSNodeType.APPLICATION, lhs);
-        rhsArgs.forEach(this::addChild);
-        this.NUM_ARGS = rhsArgs.size();
+    public MSApplicationNode(MSSyntaxTree variableNode, ArrayList<MSSyntaxTree> arguments) {
+        super(MSNodeType.APPLICATION, variableNode);
+        this.NUM_ARGUMENTS = arguments.size();
+        arguments.forEach(this::addChild);
     }
 
-    @Override
     public MSSyntaxTree copy() {
-        MSSyntaxTree lhsCopy = this.getChild(0).copy();
-        ArrayList<MSSyntaxTree> rhsArgsCopy = new ArrayList<>();
-        for (int i = 0; i < this.NUM_ARGS; i++) {
-            rhsArgsCopy.add(this.getChild(i + 1).copy());
+        MSSyntaxTree variableCopy = this.getChild(0).copy();
+        ArrayList<MSSyntaxTree> argumentsCopy = new ArrayList<>();
+        for (int i = 0; i < this.NUM_ARGUMENTS; i++) {
+            argumentsCopy.add(this.getChild(i + 1).copy());
         }
-        return new MSApplicationNode(lhsCopy, rhsArgsCopy);
+        return new MSApplicationNode(variableCopy, argumentsCopy);
     }
 
-    @Override
-    public String getStringRep() {
-        return this.getNodeType().toString();
-    }
-
-    @Override
-    public String toString() {
-        return this.getNodeType().toString();
-    }
-
-    public MSSyntaxTree getExpression() {
+    public MSSyntaxTree getVariable() {
         return this.getChild(0);
     }
 
     public ArrayList<MSSyntaxTree> getArguments() {
-        ArrayList<MSSyntaxTree> rhsArgs = new ArrayList<>();
-        for (int i = 0; i < this.NUM_ARGS; i++) {
-            rhsArgs.add(this.getChild(i + 1));
+        ArrayList<MSSyntaxTree> arguments = new ArrayList<>();
+        for (int i = 0; i < this.NUM_ARGUMENTS; i++) {
+            arguments.add(this.getChild(i + 1));
         }
-        return rhsArgs;
+        return arguments;
     }
 }

@@ -1,0 +1,11 @@
+;
+; Closure example.
+;
+
+(define x 1)
+(define f (lambda (y) (+ x y)))
+(define z
+	(let ((x 2)
+		  (y 3))
+		 (f (+ x y))))
+z

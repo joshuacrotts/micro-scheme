@@ -8,21 +8,21 @@ package com.joshuacrotts.minischeme.ast;
  * @author Joshua Crotts
  * @version 12/23/2021
  */
-public class MSIdentifierNode extends MSSyntaxTree {
+public class MSVariableNode extends MSSyntaxTree {
 
     /**
      * Identifier to use.
      */
     private final String IDENTIFIER;
 
-    public MSIdentifierNode(final String id) {
-        super(MSNodeType.ID);
+    public MSVariableNode(final String id) {
+        super(MSNodeType.VARIABLE);
         this.IDENTIFIER = id;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSIdentifierNode(this.IDENTIFIER);
+        return new MSVariableNode(this.IDENTIFIER);
     }
 
     @Override
@@ -30,9 +30,8 @@ public class MSIdentifierNode extends MSSyntaxTree {
         return this.IDENTIFIER;
     }
 
-    @Override
     public String toString() {
-        return "(ID " + this.IDENTIFIER + ")";
+        return "(VAR " + this.IDENTIFIER + ")";
     }
 
     public String getIdentifier() {

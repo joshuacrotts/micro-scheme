@@ -1,54 +1,40 @@
 package com.joshuacrotts.minischeme.ast;
 
+import java.math.BigDecimal;
+
 /**
- * Represents a literal numeric value. For now, these are only doubles
- * but if I ever plan to increase this to, say, BigDecimal, it should be
- * easy.
- * <p>
- * If the numeric value is able to be represented as an integer (e.g., 5.000 is
- * represented as 5), it will be shown as an integer.
  *
  * @author Joshua Crotts
- * @version 12/31/2021
+ * @version 01/19/2022
  */
 public class MSNumberNode extends MSSyntaxTree {
 
     /**
      * Number associated with this node.
      */
-    private final double VALUE;
+    private final BigDecimal NUMBER;
 
-    public MSNumberNode(final String value) {
-        this(Double.parseDouble(value));
+    public MSNumberNode(final String stringRep) {
+        super(MSNodeType.NUMBER);
+        this.NUMBER = new BigDecimal(stringRep);
     }
 
-    public MSNumberNode(final double value) {
-        super(MSNodeType.NUM);
-        this.VALUE = value;
+    public MSNumberNode(final BigDecimal bigDecimal) {
+        super(MSNodeType.NUMBER);
+        this.NUMBER = bigDecimal;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSNumberNode(this.VALUE);
+        return new MSNumberNode(this.NUMBER);
     }
 
     @Override
     public String getStringRep() {
-        return ((int) this.VALUE) == this.VALUE
-                ? Integer.toString((int) this.VALUE)
-                : Double.toString(this.VALUE);
+        return this.NUMBER.toString();
     }
 
-    @Override
-    public String toString() {
-        return "(NUMBER " + this.getStringRep() + ")";
-    }
-
-    public double getValue() {
-        return this.VALUE;
-    }
-
-    public boolean isInteger() {
-        return this.VALUE == (int) this.VALUE;
+    public BigDecimal getNumber() {
+        return this.NUMBER;
     }
 }

@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
+ *
  * @author Joshua Crotts
- * @version 12/23/2021
+ * @version 01/19/2022
  */
-public class MSSyntaxTree implements Copyable {
+public class MSSyntaxTree {
 
     /**
      * Each MSSyntaxTree has 0...n children associated with it. This
@@ -37,7 +38,6 @@ public class MSSyntaxTree implements Copyable {
         this.NODE_TYPE = nodeType;
     }
 
-    @Override
     public MSSyntaxTree copy() {
         MSSyntaxTree t = new MSSyntaxTree(this.NODE_TYPE);
         t.copyHelper(this, t);
@@ -46,7 +46,7 @@ public class MSSyntaxTree implements Copyable {
 
     @Override
     public String toString() {
-        return "ROOT";
+        return this.getNodeType().toString();
     }
 
     /**
@@ -78,70 +78,6 @@ public class MSSyntaxTree implements Copyable {
 
     public MSNodeType getNodeType() {
         return this.NODE_TYPE;
-    }
-
-    public boolean isExprLambdaDecl() {
-        return this.NODE_TYPE == MSNodeType.EXPR_LAMBDA_DECL;
-    }
-
-    public boolean isOp() {
-        return this.NODE_TYPE == MSNodeType.OP;
-    }
-
-    public boolean isId() {
-        return this.NODE_TYPE == MSNodeType.ID;
-    }
-
-    public boolean isVector() {
-        return this.NODE_TYPE == MSNodeType.VECTOR;
-    }
-
-    public boolean isVarDecl() {
-        return this.NODE_TYPE == MSNodeType.VAR_DECL;
-    }
-
-    public boolean isNumber() {
-        return this.NODE_TYPE == MSNodeType.NUM;
-    }
-
-    public boolean isList() {
-        return this.NODE_TYPE == MSNodeType.LIST;
-    }
-
-    public boolean isBool() {
-        return this.NODE_TYPE == MSNodeType.BOOL;
-    }
-
-    public boolean isChar() {
-        return this.NODE_TYPE == MSNodeType.CHAR;
-    }
-
-    public boolean isString() {
-        return this.NODE_TYPE == MSNodeType.STR;
-    }
-
-    public boolean isSymbol() {
-        return this.NODE_TYPE == MSNodeType.SYMBOL;
-    }
-
-    public boolean isSymbolLit() {
-        return this.NODE_TYPE == MSNodeType.SYMBOL_LIT;
-    }
-
-    public boolean isLetDecl() {
-        return this.NODE_TYPE == MSNodeType.LET_DECL;
-    }
-
-    public boolean isApplication() { return this.NODE_TYPE == MSNodeType.APPLICATION; }
-
-    public boolean isClosure() { return this.NODE_TYPE == MSNodeType.CLOSURE; }
-
-    public boolean isCallable() { return this.NODE_TYPE == MSNodeType.EXPR_LAMBDA_DECL || this.NODE_TYPE == MSNodeType.PROC_DECL; }
-
-    public boolean isSet() { return this.NODE_TYPE == MSNodeType.SET; }
-
-    public boolean isTerminalType() {
-        return this.isNumber() || this.isSymbol() || this.isString() || this.isSymbolLit() || this.isBool();
     }
 
     public String getStringRep() {

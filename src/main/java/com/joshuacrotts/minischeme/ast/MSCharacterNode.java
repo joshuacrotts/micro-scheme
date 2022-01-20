@@ -1,8 +1,9 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
+ *
  * @author Joshua Crotts
- * @version 01/10/2021
+ * @version 01/19/2022
  */
 public class MSCharacterNode extends MSSyntaxTree {
 
@@ -12,12 +13,12 @@ public class MSCharacterNode extends MSSyntaxTree {
     private final char VALUE;
 
     public MSCharacterNode(String charInput) {
-        super(MSNodeType.CHAR);
+        super(MSNodeType.CHARACTER);
         this.VALUE = charInput.charAt(2);
     }
 
     public MSCharacterNode(char charInput) {
-        super(MSNodeType.CHAR);
+        super(MSNodeType.CHARACTER);
         this.VALUE = charInput;
     }
 

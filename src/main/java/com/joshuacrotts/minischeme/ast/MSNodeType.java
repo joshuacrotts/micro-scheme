@@ -1,41 +1,20 @@
 package com.joshuacrotts.minischeme.ast;
 
+/**
+ *
+ * @author Joshua Crotts
+ * @version 01/19/2022
+ */
 public enum MSNodeType {
-    // Data types.
     ROOT,
     SEQ,
-    ID,
-    OP,
-    NUM,
-    CHAR,
-    STR,
-    LIST,
-    BOOL,
+    NUMBER,
+    STRING,
+    BOOLEAN,
+    CHARACTER,
     SYMBOL,
-    VECTOR,
-    SYMBOL_LIT,
-
-    // Conditionals.
-    IF,
+    VARIABLE,
     COND,
-
-    // Misc. declarations.
-    DO,
-
-    // Declarations.
-    PROC_DECL,
-    LAMBDA_DECL,
-    EXPR_LAMBDA_DECL,
-    VAR_DECL,
-    LET_DECL,
-    LET_NAMED_DECL,
-    CLOSURE,
-
-    // Expression calls.
-    APPLICATION,
-
-    // I/O or set.,
-    SET,
-    SET_READ,
-    DECL_READ
+    LAMBDA,
+    APPLICATION;
 }

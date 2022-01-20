@@ -1,10 +1,9 @@
 package com.joshuacrotts.minischeme.ast;
 
 /**
- * Represents a String literal. Fairly straightforward.
  *
  * @author Joshua Crotts
- * @version 12/23/2021
+ * @version 01/19/2022
  */
 public class MSStringNode extends MSSyntaxTree {
 
@@ -14,7 +13,7 @@ public class MSStringNode extends MSSyntaxTree {
     private final String VALUE;
 
     public MSStringNode(final String value) {
-        super(MSNodeType.STR);
+        super(MSNodeType.STRING);
         this.VALUE = value;
     }
 
@@ -35,7 +34,7 @@ public class MSStringNode extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        return "(STR " + this.VALUE + ")";
+        return "(STRING " + this.VALUE + ")";
     }
 
     public String getValue() {

@@ -1,0 +1,12 @@
+(define x 1)
+(define f
+    (lambda (y)
+        (let ([x (+ y 1)])
+            (lambda (z) (+ x y z)))))
+(define z
+    (let ([x 3]
+          [g (f 4)]
+          [y 5])
+      (g 6)))
+
+z

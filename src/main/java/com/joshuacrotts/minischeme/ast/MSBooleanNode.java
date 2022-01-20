@@ -15,12 +15,12 @@ public class MSBooleanNode extends MSSyntaxTree {
     private final boolean VALUE;
 
     public MSBooleanNode(final String value) {
-        super(MSNodeType.BOOL);
+        super(MSNodeType.BOOLEAN);
         this.VALUE = value.equals("#t");
     }
 
     public MSBooleanNode(final boolean value) {
-        super(MSNodeType.BOOL);
+        super(MSNodeType.BOOLEAN);
         this.VALUE = value;
     }
 
@@ -36,7 +36,7 @@ public class MSBooleanNode extends MSSyntaxTree {
 
     @Override
     public String toString() {
-        return "(BOOL " + this.VALUE + ")";
+        return "(BOOLEAN " + this.VALUE + ")";
     }
 
     public boolean getValue() {
