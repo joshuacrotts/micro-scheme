@@ -80,6 +80,10 @@ public class MSSyntaxTree {
         return this.NODE_TYPE;
     }
 
+    public boolean isVariable() {
+        return this.NODE_TYPE == MSNodeType.VARIABLE;
+    }
+    
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
         for (MSSyntaxTree child : this.getChildren()) {

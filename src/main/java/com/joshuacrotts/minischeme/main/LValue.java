@@ -21,6 +21,24 @@ public class LValue {
         this.TREE = tree;
     }
 
+    /**
+     * Returns the corresponding value for an LValue. This is usually just
+     * the AST in the underlying LValue for further evaluation.
+     *
+     * @param lval LValue object to get AST from.
+     * @return MSSyntaxTree object corresponding to LValue.
+     */
+    public static MSSyntaxTree getAst(final LValue lval) {
+        switch (lval.TREE.getNodeType()) {
+            case NUMBER:
+            case VARIABLE:
+            case APPLICATION:
+                return lval.TREE;
+        }
+
+        throw new MSInterpreterException("Cannot return ast for " + lval.TREE.getNodeType());
+    }
+
     public BigDecimal getNumberValue() {
         if (this.TREE.getNodeType() == MSNodeType.NUMBER) {
             return ((MSNumberNode) this.TREE).getNumber();

@@ -33,11 +33,6 @@ HASH: '#';
 LOGICAL_NOT: 'not';
 LOGICAL_AND: 'and';
 LOGICAL_OR: 'or';
-LOGICAL_EQ: '=';
-LOGICAL_LE: '<=';
-LOGICAL_GE: '>=';
-LOGICAL_LT: '<';
-LOGICAL_GT: '>';
 
 // Bitwise operations.
 BITWISE_SHL: '<<';
@@ -60,7 +55,7 @@ BEGIN: 'begin';
 QUOTE: 'quote';
 
 
-ID: [a-zA-Z_=></*-+][a-zA-Z0-9_=?!></*-+]*;
+ID: [-+*/<>=a-zA-Z_][-+*/<>=?!a-zA-Z0-9_]*;
 
 // ================= Parser rules. ==================== //
 
@@ -92,15 +87,16 @@ lambdaParameters: expr*;
 
 // Cond expressions take the form (cond (<condForm>))
 condExpr: '(' COND ('(' condForm ')')+ ')'
-        | '(' COND ('(' condForm ')')+ ')' '(' ELSE expr ')'')';
+        | '(' COND ('(' condForm ')')+ '(' ELSE expr ')'')';
 condForm: expr expr;
 
 // If expressions take the form (if expr expr) (if expr expr expr).
 ifExpr: '(' IF expr expr expr ')'
       | '(' IF expr expr ')';
 
-// Applications take the form (<variable> <expr>*)
-applicationExpr: '(' variable expr* ')';
+// Applications take the form (<expr> <expr>*)
+applicationExpr: '(' expr applicationArgs ')';
+applicationArgs: expr*;
 
 // Variables are, realistically, any symbol.
 constant: STRINGLIT | CHARLIT | BOOLLIT | NUMBERLIT;

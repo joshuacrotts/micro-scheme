@@ -9,22 +9,22 @@ public class MSApplicationNode extends MSSyntaxTree {
      */
     private final int NUM_ARGUMENTS;
 
-    public MSApplicationNode(MSSyntaxTree variableNode, ArrayList<MSSyntaxTree> arguments) {
-        super(MSNodeType.APPLICATION, variableNode);
+    public MSApplicationNode(MSSyntaxTree expressionNode, ArrayList<MSSyntaxTree> arguments) {
+        super(MSNodeType.APPLICATION, expressionNode);
         this.NUM_ARGUMENTS = arguments.size();
         arguments.forEach(this::addChild);
     }
 
     public MSSyntaxTree copy() {
-        MSSyntaxTree variableCopy = this.getChild(0).copy();
+        MSSyntaxTree expressionCopy = this.getChild(0).copy();
         ArrayList<MSSyntaxTree> argumentsCopy = new ArrayList<>();
         for (int i = 0; i < this.NUM_ARGUMENTS; i++) {
             argumentsCopy.add(this.getChild(i + 1).copy());
         }
-        return new MSApplicationNode(variableCopy, argumentsCopy);
+        return new MSApplicationNode(expressionCopy, argumentsCopy);
     }
 
-    public MSSyntaxTree getVariable() {
+    public MSSyntaxTree getExpression() {
         return this.getChild(0);
     }
 

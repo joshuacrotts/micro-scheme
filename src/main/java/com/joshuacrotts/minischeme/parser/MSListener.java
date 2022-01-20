@@ -61,10 +61,10 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitApplicationExpr(MiniSchemeParser.ApplicationExprContext ctx) {
         super.exitApplicationExpr(ctx);
-        MSVariableNode variableNode = (MSVariableNode) this.map.get(ctx.variable());
+        MSVariableNode variableNode = (MSVariableNode) this.map.get(ctx.expr());
         ArrayList<MSSyntaxTree> arguments = new ArrayList<>();
         if (ctx.expr() != null) {
-            for (ParseTree pt : ctx.expr()) {
+            for (ParseTree pt : ctx.applicationArgs().expr()) {
                 arguments.add(this.map.get(pt));
             }
         }

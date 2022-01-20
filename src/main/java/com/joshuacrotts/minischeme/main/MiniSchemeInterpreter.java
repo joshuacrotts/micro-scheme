@@ -93,8 +93,8 @@ public class MiniSchemeInterpreter {
         }
 
         // Now, check to see if it's a primitive.
-        MSVariableNode variableNode = (MSVariableNode) applicationNode.getVariable();
-        LValue primitiveLVal = BuiltinOperator.interpretBuiltinOperator(variableNode, evaluatedArguments);
+        MSSyntaxTree expressionLVal = LValue.getAst(this.interpretTree(applicationNode.getExpression()));
+        LValue primitiveLVal = BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments);
 
         if (primitiveLVal != null) { return primitiveLVal; }
         else { throw new MSInterpreterException("It's not a primitive, but we can't support that yet!"); }

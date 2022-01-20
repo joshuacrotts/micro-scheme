@@ -19,12 +19,13 @@ public class BuiltinOperator {
 
     /**
      *
-     * @param variableNode
+     * @param expressionNode
      * @param evalArguments
      * @return
      */
-    public static LValue interpretBuiltinOperator(MSSyntaxTree variableNode, ArrayList<LValue> evalArguments) throws MSSemanticException {
-        switch (variableNode.getStringRep()) {
+    public static LValue interpretBuiltinOperator(MSSyntaxTree expressionNode, ArrayList<LValue> evalArguments) throws MSSemanticException {
+        if (!expressionNode.isVariable()) { return null; }
+        switch (expressionNode.getStringRep()) {
             case "+": return BuiltinOperator.interpretAdd(evalArguments);
             case "-": return BuiltinOperator.interpretSubtract(evalArguments);
             case "*": return BuiltinOperator.interpretMultiply(evalArguments);
@@ -41,9 +42,7 @@ public class BuiltinOperator {
      */
     private static LValue interpretAdd(ArrayList<LValue> addArguments) {
         BigDecimal result = addArguments.get(0).getNumberValue();
-        for (int i = 1; i < addArguments.size(); i++) {
-            result = result.add(addArguments.get(i).getNumberValue());
-        }
+        for (int i = 1; i < addArguments.size(); i++) { result = result.add(addArguments.get(i).getNumberValue()); }
         return new LValue(new MSNumberNode(result));
     }
 
@@ -54,9 +53,7 @@ public class BuiltinOperator {
      */
     private static LValue interpretSubtract(ArrayList<LValue> subtractArguments) {
         BigDecimal result = subtractArguments.get(0).getNumberValue();
-        for (int i = 1; i < subtractArguments.size(); i++) {
-            result = result.subtract(subtractArguments.get(i).getNumberValue());
-        }
+        for (int i = 1; i < subtractArguments.size(); i++) { result = result.subtract(subtractArguments.get(i).getNumberValue()); }
         return new LValue(new MSNumberNode(result));
     }
 
@@ -67,9 +64,7 @@ public class BuiltinOperator {
      */
     private static LValue interpretMultiply(ArrayList<LValue> multiplyArguments) {
         BigDecimal result = multiplyArguments.get(0).getNumberValue();
-        for (int i = 1; i < multiplyArguments.size(); i++) {
-            result = result.multiply(multiplyArguments.get(i).getNumberValue());
-        }
+        for (int i = 1; i < multiplyArguments.size(); i++) { result = result.multiply(multiplyArguments.get(i).getNumberValue()); }
         return new LValue(new MSNumberNode(result));
     }
 
