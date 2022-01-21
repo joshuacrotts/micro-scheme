@@ -52,6 +52,7 @@ public class BuiltinOperator {
             case "list": return BuiltinOperator.interpretListFunction(evalArguments);
             case "car": return BuiltinOperator.interpretCarFunction(evalArguments);
             case "cdr": return BuiltinOperator.interpretCdrFunction(evalArguments);
+            case "null?": return BuiltinOperator.interpretNullFunction(evalArguments);
             default:
                 return null;
         }
@@ -201,7 +202,7 @@ public class BuiltinOperator {
             currList = new MSListNode(rhsExpression, currList);
         }
 
-        rootList = Optional.ofNullable(currList).orElse(new MSListNode());
+        rootList = Optional.ofNullable(currList).orElse(MSListNode.EMPTY_LIST);
         return new LValue(rootList);
     }
 
@@ -212,10 +213,12 @@ public class BuiltinOperator {
      */
     private static LValue interpretCarFunction(ArrayList<LValue> carArguments) throws MSArgumentMismatchException {
         if (carArguments.size() != 1) { throw new MSArgumentMismatchException("car", 1, carArguments.size()); }
-        MSSyntaxTree listArgument = LValue.getAst(carArguments.get(0));
-        if (!listArgument.isList()) { throw new MSArgumentMismatchException("car", "list/cons pair", listArgument.getNodeType().toString()); }
-
-        return new LValue(((MSListNode) listArgument).getCar());
+        MSSyntaxTree argument = LValue.getAst(carArguments.get(0));
+        if (!argument.isList()) { throw new MSArgumentMismatchException("car", "list/cons pair", argument.getNodeType().toString()); }
+        MSListNode listArgument = (MSListNode) argument;
+        // Check to make sure we're not doing cdr on an empty list.
+        if (listArgument.isEmptyList()) { throw new MSArgumentMismatchException("car", "non-empty list/cons pair", "()"); }
+        return new LValue(listArgument.getCar());
     }
 
     /**
@@ -225,10 +228,24 @@ public class BuiltinOperator {
      */
     private static LValue interpretCdrFunction(ArrayList<LValue> cdrArguments) throws MSArgumentMismatchException {
         if (cdrArguments.size() != 1) { throw new MSArgumentMismatchException("cdr", 1, cdrArguments.size()); }
-        MSSyntaxTree listArgument = LValue.getAst(cdrArguments.get(0));
-        if (!listArgument.isList()) { throw new MSArgumentMismatchException("cdr", "list/cons pair", listArgument.getNodeType().toString()); }
+        MSSyntaxTree argument = LValue.getAst(cdrArguments.get(0));
+        if (!argument.isList()) { throw new MSArgumentMismatchException("cdr", "list/cons pair", argument.getNodeType().toString()); }
+        MSListNode listArgument = (MSListNode) argument;
+        // Check to make sure we're not doing cdr on an empty list.
+        if (listArgument.isEmptyList()) { throw new MSArgumentMismatchException("cdr", "non-empty list/cons pair", "()"); }
+        return new LValue(listArgument.getCdr());
+    }
 
-        return new LValue(((MSListNode) listArgument).getCdr());
+    /**
+     *
+     * @param nullArguments
+     * @return
+     */
+    private static LValue interpretNullFunction(ArrayList<LValue> nullArguments) throws MSArgumentMismatchException {
+        if (nullArguments.size() != 1) { throw new MSArgumentMismatchException("null?", 1, nullArguments.size()); }
+        MSSyntaxTree argument = LValue.getAst(nullArguments.get(0));
+        if (!argument.isList()) { return new LValue(new MSBooleanNode(false)); }
+        return new LValue(new MSBooleanNode(argument.getChildrenSize() == 0));
     }
 
 }

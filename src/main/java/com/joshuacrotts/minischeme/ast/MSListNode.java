@@ -1,6 +1,17 @@
 package com.joshuacrotts.minischeme.ast;
 
+/**
+ *
+ * @author Joshua Crotts
+ * @version 01/21/2022
+ */
 public class MSListNode extends MSSyntaxTree {
+
+    /**
+     * Creates a global "empty list" to use. These can, realistically,
+     * all be the same reference.
+     */
+    public static final MSListNode EMPTY_LIST = new MSListNode();
 
     public MSListNode(final MSSyntaxTree car, final MSSyntaxTree cdr) {
         super(MSNodeType.LIST);
@@ -8,7 +19,7 @@ public class MSListNode extends MSSyntaxTree {
         if (cdr != null) { this.addChild(cdr); }
     }
 
-    public MSListNode() {
+    private MSListNode() {
         this(null, null);
     }
 
@@ -32,7 +43,7 @@ public class MSListNode extends MSSyntaxTree {
     }
 
     public MSSyntaxTree getCar() {
-        return this.getChildrenSize() >= 1 ? this.getChild(0) : null;
+        return this.getChildrenSize() >= 1 ? this.getChild(0) : MSListNode.EMPTY_LIST;
     }
 
     public void setCar(final MSSyntaxTree newCar) {
@@ -41,7 +52,7 @@ public class MSListNode extends MSSyntaxTree {
     }
 
     public MSSyntaxTree getCdr() {
-        return this.getChildrenSize() >= 2 ? this.getChild(1) : null;
+        return this.getChildrenSize() >= 2 ? this.getChild(1) : MSListNode.EMPTY_LIST;
     }
 
     public void setCdr(final MSSyntaxTree newCdr) {
@@ -50,12 +61,13 @@ public class MSListNode extends MSSyntaxTree {
     }
 
     public boolean isProper() {
-        if (this.getCar() != null && this.getChildrenSize() == 1) {
-            return true;
-        } else if (this.getCar() != null && this.getCdr() != null && this.getCdr().isList()) {
-            return ((MSListNode) this.getCdr()).isProper();
-        }
+        if (this.getCar() != null && this.getChildrenSize() >= 1) { return true; }
+        else if (this.getChildrenSize() >= 2 && this.getCdr().isList()) { return ((MSListNode) this.getCdr()).isProper(); }
         return false;
+    }
+
+    public boolean isEmptyList() {
+        return this.getChildrenSize() == 0 || this == MSListNode.EMPTY_LIST;
     }
 
     /**
@@ -72,9 +84,8 @@ public class MSListNode extends MSSyntaxTree {
             return sb.toString();
         } else {
             // If the tail is null then we print the head with parentheses surrounding.
-            if (this.getCdr() == null) {
-                return "(" + this.getCar().getStringRep() + ")";
-            } else {
+            if (this.getCdr() == null) { return "(" + this.getCar().getStringRep() + ")"; }
+            else {
                 return "(" + this.getCar().getStringRep()
                         + (this.isProper() ? " " : " . ")
                         + this.getCdr().getStringRep()
@@ -97,7 +108,7 @@ public class MSListNode extends MSSyntaxTree {
             sb.append(currList.getCar().getStringRep());
             if (currList.getCdr() != null) {
                 sb.append(" ");
-                getProperStringRep(currList.getCdr(), sb);
+                this.getProperStringRep(currList.getCdr(), sb);
             }
         }
     }
