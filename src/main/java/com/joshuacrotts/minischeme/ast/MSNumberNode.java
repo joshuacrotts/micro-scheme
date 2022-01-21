@@ -1,6 +1,9 @@
 package com.joshuacrotts.minischeme.ast;
 
+import ch.obermuhlner.math.big.BigFloat;
+
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  *
@@ -8,6 +11,11 @@ import java.math.BigDecimal;
  * @version 01/19/2022
  */
 public class MSNumberNode extends MSSyntaxTree {
+
+    /**
+     *
+     */
+    public static final MathContext PRECISION = new MathContext(24);
 
     /**
      * Number associated with this node.
@@ -34,7 +42,7 @@ public class MSNumberNode extends MSSyntaxTree {
         return this.VALUE.toString();
     }
 
-    public BigDecimal getNumber() {
+    public BigDecimal getValue() {
         return this.VALUE;
     }
 }

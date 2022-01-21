@@ -16,5 +16,6 @@ public enum MSNodeType {
     VARIABLE,
     COND,
     LAMBDA,
+    DECLARATION,
     APPLICATION;
 }

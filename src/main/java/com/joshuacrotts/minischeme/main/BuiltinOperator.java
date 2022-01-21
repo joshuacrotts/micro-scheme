@@ -1,9 +1,10 @@
 package com.joshuacrotts.minischeme.main;
 
-import com.joshuacrotts.minischeme.ast.MSApplicationNode;
+import ch.obermuhlner.math.big.BigDecimalMath;
+import ch.obermuhlner.math.big.BigFloat;
+import com.joshuacrotts.minischeme.ast.MSBooleanNode;
 import com.joshuacrotts.minischeme.ast.MSNumberNode;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
-import com.joshuacrotts.minischeme.ast.MSVariableNode;
 import com.joshuacrotts.minischeme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.minischeme.parser.MSSemanticException;
 
@@ -20,6 +21,15 @@ public class BuiltinOperator {
     /**
      *
      * @param expressionNode
+     * @return
+     */
+    public static boolean isBuiltinOperator(MSSyntaxTree expressionNode) {
+        return false;
+    }
+
+    /**
+     *
+     * @param expressionNode
      * @param evalArguments
      * @return
      */
@@ -30,6 +40,12 @@ public class BuiltinOperator {
             case "-": return BuiltinOperator.interpretSubtract(evalArguments);
             case "*": return BuiltinOperator.interpretMultiply(evalArguments);
             case "/": return BuiltinOperator.interpretDivide(evalArguments);
+            case "**": return BuiltinOperator.interpretPower(evalArguments);
+            case "<": return BuiltinOperator.interpretLess(evalArguments);
+            case "<=": return BuiltinOperator.interpretLessEqual(evalArguments);
+            case ">": return BuiltinOperator.interpretGreater(evalArguments);
+            case ">=": return BuiltinOperator.interpretGreaterEqual(evalArguments);
+            case "=": return BuiltinOperator.interpretNumericEqual(evalArguments);
             default:
                 return null;
         }
@@ -80,7 +96,85 @@ public class BuiltinOperator {
         BigDecimal divisor = divideArguments.get(1).getNumberValue();
 
         if (divisor.equals(BigDecimal.ZERO)) { throw new MSSemanticException("division by zero"); }
-
         return new LValue(new MSNumberNode(dividend.divide(divisor)));
+    }
+
+    /**
+     *
+     * @param powerArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretPower(ArrayList<LValue> powerArguments) throws MSArgumentMismatchException {
+        if (powerArguments.size() != 2) { throw new MSArgumentMismatchException("**", 2, powerArguments.size()); }
+
+        BigDecimal base = powerArguments.get(0).getNumberValue();
+        BigDecimal power = powerArguments.get(1).getNumberValue();
+        return new LValue(new MSNumberNode(BigDecimalMath.pow(base, power, MSNumberNode.PRECISION)));
+    }
+
+    /**
+     *
+     * @param lessArguments
+     * @return
+     */
+    private static LValue interpretLess(ArrayList<LValue> lessArguments) throws MSArgumentMismatchException {
+        if (lessArguments.size() != 2) { throw new MSArgumentMismatchException("<", 2, lessArguments.size()); }
+
+        BigDecimal lhs = lessArguments.get(0).getNumberValue();
+        BigDecimal rhs = lessArguments.get(1).getNumberValue();
+        return new LValue(new MSBooleanNode(lhs.compareTo(rhs) < 0));
+    }
+
+    /**
+     *
+     * @param lessEqualArguments
+     * @return
+     */
+    private static LValue interpretLessEqual(ArrayList<LValue> lessEqualArguments) throws MSArgumentMismatchException {
+        if (lessEqualArguments.size() != 2) { throw new MSArgumentMismatchException("<=", 2, lessEqualArguments.size()); }
+
+        BigDecimal lhs = lessEqualArguments.get(0).getNumberValue();
+        BigDecimal rhs = lessEqualArguments.get(1).getNumberValue();
+        return new LValue(new MSBooleanNode(lhs.compareTo(rhs) <= 0));
+    }
+
+    /**
+     *
+     * @param greaterArguments
+     * @return
+     */
+    private static LValue interpretGreater(ArrayList<LValue> greaterArguments) throws MSArgumentMismatchException {
+        if (greaterArguments.size() != 2) { throw new MSArgumentMismatchException(">", 2, greaterArguments.size()); }
+
+        BigDecimal lhs = greaterArguments.get(0).getNumberValue();
+        BigDecimal rhs = greaterArguments.get(1).getNumberValue();
+        return new LValue(new MSBooleanNode(lhs.compareTo(rhs) > 0));
+    }
+
+    /**
+     *
+     * @param greaterEqualArguments
+     * @return
+     */
+    private static LValue interpretGreaterEqual(ArrayList<LValue> greaterEqualArguments) throws MSArgumentMismatchException {
+        if (greaterEqualArguments.size() != 2) { throw new MSArgumentMismatchException(">=", 2, greaterEqualArguments.size()); }
+
+        BigDecimal lhs = greaterEqualArguments.get(0).getNumberValue();
+        BigDecimal rhs = greaterEqualArguments.get(1).getNumberValue();
+        return new LValue(new MSBooleanNode(lhs.compareTo(rhs) >= 0));
+    }
+
+    /**
+     *
+     * @param numericEqualArguments
+     * @return
+     */
+    private static LValue interpretNumericEqual(ArrayList<LValue> numericEqualArguments) throws MSArgumentMismatchException {
+        if (numericEqualArguments.size() != 2) { throw new MSArgumentMismatchException("=", 2, numericEqualArguments.size()); }
+
+        BigDecimal lhs = numericEqualArguments.get(0).getNumberValue();
+        BigDecimal rhs = numericEqualArguments.get(1).getNumberValue();
+        return new LValue(new MSBooleanNode(lhs.equals(rhs)));
     }
 }

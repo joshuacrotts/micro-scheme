@@ -42,26 +42,44 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitVariableDeclaration(MiniSchemeParser.VariableDeclarationContext ctx) {
-        super.exitVariableDeclaration(ctx);
-
-    }
-
-    @Override
-    public void exitProcedureDeclaration(MiniSchemeParser.ProcedureDeclarationContext ctx) {
-        super.exitProcedureDeclaration(ctx);
-    }
-
-    @Override
     public void exitExpr(MiniSchemeParser.ExprContext ctx) {
         super.exitExpr(ctx);
         this.map.put(ctx, this.map.get(ctx.getChild(0)));
     }
 
+
+    @Override
+    public void exitDecl(MiniSchemeParser.DeclContext ctx) {
+        super.exitDecl(ctx);
+        this.map.put(ctx, this.map.get(ctx.getChild(0)));
+    }
+
+    @Override
+    public void exitVariableDeclaration(MiniSchemeParser.VariableDeclarationContext ctx) {
+        super.exitVariableDeclaration(ctx);
+        this.map.put(ctx, new MSDeclaration(this.map.get(ctx.variable()), this.map.get(ctx.expr())));
+    }
+
+    @Override
+    public void exitProcedureDeclaration(MiniSchemeParser.ProcedureDeclarationContext ctx) {
+        super.exitProcedureDeclaration(ctx);
+        MSSyntaxTree procedureName = this.map.get(ctx.variable());
+        ArrayList<MSSyntaxTree> procedureParameters = new ArrayList<>();
+        if (ctx.procedureParameters().expr() != null) {
+            for (ParseTree pt : ctx.procedureParameters().expr()) {
+                procedureParameters.add(this.map.get(pt));
+            }
+        }
+
+        MSSyntaxTree procedureBody = this.map.get(ctx.expr());
+        MSLambdaNode procedureLambda = new MSLambdaNode(procedureParameters, procedureBody);
+        this.map.put(ctx, new MSDeclaration(procedureName, procedureLambda));
+    }
+
     @Override
     public void exitApplicationExpr(MiniSchemeParser.ApplicationExprContext ctx) {
         super.exitApplicationExpr(ctx);
-        MSVariableNode variableNode = (MSVariableNode) this.map.get(ctx.expr());
+        MSSyntaxTree lhsExpression = this.map.get(ctx.expr());
         ArrayList<MSSyntaxTree> arguments = new ArrayList<>();
         if (ctx.expr() != null) {
             for (ParseTree pt : ctx.applicationArgs().expr()) {
@@ -69,17 +87,58 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
 
-        this.map.put(ctx, new MSApplicationNode(variableNode, arguments));
+        this.map.put(ctx, new MSApplicationNode(lhsExpression, arguments));
     }
 
     @Override
     public void exitLambdaExpr(MiniSchemeParser.LambdaExprContext ctx) {
         super.exitLambdaExpr(ctx);
+        ArrayList<MSSyntaxTree> lambdaParameters = new ArrayList<>();
+        if (ctx.lambdaParameters().expr() != null) {
+            for (ParseTree pt : ctx.lambdaParameters().expr()) {
+                lambdaParameters.add(this.map.get(pt));
+            }
+        }
+        MSSyntaxTree lambdaBody = this.map.get(ctx.expr());
+        this.map.put(ctx, new MSLambdaNode(lambdaParameters, lambdaBody));
+    }
+
+    @Override
+    public void exitIfExpr(MiniSchemeParser.IfExprContext ctx) {
+        super.exitIfExpr(ctx);
+        ArrayList<MSSyntaxTree> condPredicateList = new ArrayList<>();
+        ArrayList<MSSyntaxTree> condConsequentList = new ArrayList<>();
+
+        // Add the if statement.
+        condPredicateList.add(this.map.get(ctx.expr(0)));
+
+        // Add the if consequent.
+        condConsequentList.add(this.map.get(ctx.expr(1)));
+
+        // If there's an alternative add that.
+        if (ctx.expr(2) != null) {
+            condConsequentList.add(this.map.get(ctx.expr(2)));
+        }
+
+        this.map.put(ctx, new MSCondNode(condPredicateList, condConsequentList));
     }
 
     @Override
     public void exitCondExpr(MiniSchemeParser.CondExprContext ctx) {
         super.exitCondExpr(ctx);
+        ArrayList<MSSyntaxTree> condPredicateList = new ArrayList<>();
+        ArrayList<MSSyntaxTree> condConsequentList = new ArrayList<>();
+        for (int i = 0; i < ctx.condForm().size(); i++) {
+            condPredicateList.add(this.map.get(ctx.condForm().get(i).expr(0)));
+            condConsequentList.add(this.map.get(ctx.condForm().get(i).expr(1)));
+        }
+
+        // If the expr is non-null, there's an else statement.
+        if (ctx.expr() != null) {
+            condConsequentList.add(this.map.get(ctx.expr()));
+        }
+
+        this.map.put(ctx, new MSCondNode(condPredicateList, condConsequentList));
     }
 
     @Override

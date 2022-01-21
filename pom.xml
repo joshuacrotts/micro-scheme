@@ -41,6 +41,11 @@
             <artifactId>antlr4-runtime</artifactId>
             <version>4.9.3</version>
         </dependency>
+        <dependency>
+            <groupId>ch.obermuhlner</groupId>
+            <artifactId>big-math</artifactId>
+            <version>2.3.0</version>
+        </dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

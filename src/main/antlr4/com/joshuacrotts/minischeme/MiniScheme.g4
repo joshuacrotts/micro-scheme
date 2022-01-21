@@ -69,8 +69,8 @@ decl: variableDeclaration
 variableDeclaration: '(' DEFINE variable expr ')';
 
 // Procedure declarations take the form (define (<var> <expr>*) <expr>)
-procedureDeclaration: '(' DEFINE '(' variable expr* ')' expr ')';
-
+procedureDeclaration: '(' DEFINE '(' variable procedureParameters ')' expr ')';
+procedureParameters: expr*;
 
 // There are several different types of declarations.
 expr: lambdaExpr
@@ -87,12 +87,13 @@ lambdaParameters: expr*;
 
 // Cond expressions take the form (cond (<condForm>))
 condExpr: '(' COND ('(' condForm ')')+ ')'
-        | '(' COND ('(' condForm ')')+ '(' ELSE expr ')'')';
+        | '[' COND ('(' condForm ')')+ ']'
+        | '(' COND ('(' condForm ')')+ '(' ELSE expr ')'')'
+        | '(' COND ('[' condForm ']')+ '[' ELSE expr ']'')';
 condForm: expr expr;
 
-// If expressions take the form (if expr expr) (if expr expr expr).
-ifExpr: '(' IF expr expr expr ')'
-      | '(' IF expr expr ')';
+// If expressions take the form (if expr expr expr).
+ifExpr: '(' IF expr expr expr ')';
 
 // Applications take the form (<expr> <expr>*)
 applicationExpr: '(' expr applicationArgs ')';

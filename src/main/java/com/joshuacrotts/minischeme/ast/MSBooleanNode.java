@@ -31,7 +31,7 @@ public class MSBooleanNode extends MSSyntaxTree {
 
     @Override
     public String getStringRep() {
-        return Boolean.toString(this.VALUE);
+        return this.VALUE ? "#t" : "#f";
     }
 
     @Override
