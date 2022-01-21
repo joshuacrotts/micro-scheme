@@ -25,6 +25,7 @@ public class MSListNode extends MSSyntaxTree {
 
     @Override
     public MSSyntaxTree copy() {
+        if (this.isEmptyList()) { return MSListNode.EMPTY_LIST; }
         MSSyntaxTree carCopy = this.getCar();
         MSSyntaxTree cdrCopy = this.getCdr();
         if (carCopy != null) { carCopy = carCopy.copy(); }
@@ -61,8 +62,9 @@ public class MSListNode extends MSSyntaxTree {
     }
 
     public boolean isProper() {
-        if (this.getCar() != null && this.getChildrenSize() >= 1) { return true; }
-        else if (this.getChildrenSize() >= 2 && this.getCdr().isList()) { return ((MSListNode) this.getCdr()).isProper(); }
+        if (this.isEmptyList()) { return true; }
+        else if (this.getCar() != null && this.getChildrenSize() == 1) { return true; }
+        else if (this.getChildrenSize() == 2 && this.getCdr().isList()) { return ((MSListNode) this.getCdr()).isProper(); }
         return false;
     }
 

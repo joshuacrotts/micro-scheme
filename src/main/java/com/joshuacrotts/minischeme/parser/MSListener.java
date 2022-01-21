@@ -147,8 +147,8 @@ public class MSListener extends MiniSchemeBaseListener {
             // Otherwise, construct a list of SymbolDatums.
             MSSyntaxTree parentList = null;
             MSSyntaxTree currList = null;
-            for (ParseTree pt : ctx.symbolDatum()) {
-                MSSyntaxTree rhsList = this.map.get(pt);
+            for (int i = ctx.symbolDatum().size() - 1; i >= 0; i--) {
+                MSSyntaxTree rhsList = this.map.get(ctx.symbolDatum(i));
                 currList = new MSListNode(rhsList, currList);
             }
 
@@ -164,8 +164,8 @@ public class MSListener extends MiniSchemeBaseListener {
         if (ctx.expr() != null) {
             MSSyntaxTree parentList = null;
             MSSyntaxTree currList = null;
-            for (ParseTree pt : ctx.expr()) {
-                MSSyntaxTree rhsList = this.map.get(pt);
+            for (int i = ctx.expr().size() - 1; i >= 0; i--) {
+                MSSyntaxTree rhsList = this.map.get(ctx.expr(i));
                 currList = new MSListNode(rhsList, currList);
             }
 

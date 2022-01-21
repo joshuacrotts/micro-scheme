@@ -78,7 +78,7 @@ expr: lambdaExpr
     | condExpr
     | ifExpr
     | applicationExpr
-    //| symbolExpr
+    | symbolExpr
     | constant
     | variable;
 
