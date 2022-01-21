@@ -34,7 +34,13 @@ public class MSCondNode extends MSSyntaxTree {
 
     @Override
     public MSSyntaxTree copy() {
-        throw new UnsupportedOperationException();
+        ArrayList<MSSyntaxTree> predicateListCopy = new ArrayList<>();
+        for (int i = 0; i < this.NUM_PREDICATES; i++) { predicateListCopy.add(this.getChild(i).copy()); }
+
+        ArrayList<MSSyntaxTree> consequentListCopy = new ArrayList<>();
+        for (int i = 0; i < this.NUM_CONSEQUENTS; i++) { consequentListCopy.add(this.getChild(i + this.NUM_PREDICATES).copy()); }
+
+        return new MSCondNode(predicateListCopy, consequentListCopy);
     }
 
     @Override

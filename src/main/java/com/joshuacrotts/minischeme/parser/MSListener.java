@@ -116,10 +116,7 @@ public class MSListener extends MiniSchemeBaseListener {
         condConsequentList.add(this.map.get(ctx.expr(1)));
 
         // If there's an alternative add that.
-        if (ctx.expr(2) != null) {
-            condConsequentList.add(this.map.get(ctx.expr(2)));
-        }
-
+        if (ctx.expr(2) != null) { condConsequentList.add(this.map.get(ctx.expr(2))); }
         this.map.put(ctx, new MSCondNode(condPredicateList, condConsequentList));
     }
 
@@ -134,10 +131,7 @@ public class MSListener extends MiniSchemeBaseListener {
         }
 
         // If the expr is non-null, there's an else statement.
-        if (ctx.expr() != null) {
-            condConsequentList.add(this.map.get(ctx.expr()));
-        }
-
+        if (ctx.expr() != null) { condConsequentList.add(this.map.get(ctx.expr())); }
         this.map.put(ctx, new MSCondNode(condPredicateList, condConsequentList));
     }
 

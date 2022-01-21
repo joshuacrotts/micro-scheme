@@ -13,6 +13,7 @@ public enum MSNodeType {
     BOOLEAN,
     CHARACTER,
     SYMBOL,
+    LIST,
     VARIABLE,
     COND,
     LAMBDA,

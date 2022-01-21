@@ -59,6 +59,8 @@ public class MiniSchemeInterpreter {
         switch (tree.getNodeType()) {
             case NUMBER: return this.interpretNumber((MSNumberNode) tree);
             case BOOLEAN: return this.interpretBoolean((MSBooleanNode) tree);
+            case CHARACTER: return this.interpretCharacter((MSCharacterNode) tree);
+            case STRING: return this.interpretString((MSStringNode) tree);
             case VARIABLE: return this.interpretVariable((MSVariableNode) tree);
             case DECLARATION: return this.interpretDeclaration((MSDeclaration) tree);
             case COND: return this.interpretCond((MSCondNode) tree);
@@ -86,6 +88,22 @@ public class MiniSchemeInterpreter {
     private LValue interpretBoolean(MSBooleanNode booleanNode) {
         return new LValue(booleanNode);
     }
+
+    /**
+     *
+     * @param stringNode
+     * @return
+     */
+    private LValue interpretString(MSStringNode stringNode) {
+        return new LValue(stringNode);
+    }
+
+    /**
+     *
+     * @param characterNode
+     * @return
+     */
+    private LValue interpretCharacter(MSCharacterNode characterNode) { return new LValue(characterNode); }
 
     /**
      *

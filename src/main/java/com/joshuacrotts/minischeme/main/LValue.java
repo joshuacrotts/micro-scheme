@@ -35,6 +35,7 @@ public class LValue {
             case CHARACTER:
             case STRING:
             case VARIABLE:
+            case LIST:
             case APPLICATION:
             case LAMBDA:
                 return lval.TREE;
@@ -78,6 +79,7 @@ public class LValue {
             case BOOLEAN: return ((MSBooleanNode) this.TREE).getStringRep();
             case STRING: return ((MSStringNode) this.TREE).getStringRep();
             case CHARACTER: return ((MSCharacterNode) this.TREE).getStringRep();
+            case LIST: return ((MSListNode) this.TREE).getStringRep();
             default:
                 throw new MSInterpreterException("Cannot return LValue for " + this.TREE.getNodeType() + " yet.");
         }
