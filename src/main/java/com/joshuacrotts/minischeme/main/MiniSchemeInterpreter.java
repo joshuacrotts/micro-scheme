@@ -62,6 +62,7 @@ public class MiniSchemeInterpreter {
             case CHARACTER: return this.interpretCharacter((MSCharacterNode) tree);
             case STRING: return this.interpretString((MSStringNode) tree);
             case VARIABLE: return this.interpretVariable((MSVariableNode) tree);
+            case SYMBOL: return this.interpretSymbol((MSSymbolNode) tree);
             case DECLARATION: return this.interpretDeclaration((MSDeclaration) tree);
             case COND: return this.interpretCond((MSCondNode) tree);
             case LAMBDA: return this.interpretLambda((MSLambdaNode) tree);
@@ -115,6 +116,15 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree variableData = this.bindings.lookup(variableNode);
         if (variableData != null) { return new LValue(variableData); }
         return new LValue(variableNode);
+    }
+
+    /**
+     *
+     * @param symbolNode
+     * @return
+     */
+    private LValue interpretSymbol(MSSymbolNode symbolNode) {
+        return new LValue(symbolNode.getValue());
     }
 
     /**

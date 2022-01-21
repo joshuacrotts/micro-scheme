@@ -10,24 +10,24 @@ public class MSSymbolNode extends MSSyntaxTree {
     /**
      * Symbol text associated with this node.
      */
-    private final String VALUE;
+    private final MSSyntaxTree VALUE;
 
-    public MSSymbolNode(final String symbol) {
+    public MSSymbolNode(final MSSyntaxTree symbol) {
         super(MSNodeType.SYMBOL);
         this.VALUE = symbol;
     }
 
     @Override
     public String getStringRep() {
-        return this.VALUE;
+        return this.VALUE.getStringRep();
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSSymbolNode(this.VALUE);
+        return new MSSymbolNode(this.VALUE.copy());
     }
 
-    public String getValue() {
+    public MSSyntaxTree getValue() {
         return this.VALUE;
     }
 }

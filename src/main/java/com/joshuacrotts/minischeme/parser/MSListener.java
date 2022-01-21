@@ -2,6 +2,8 @@ package com.joshuacrotts.minischeme.parser;
 
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
+import com.joshuacrotts.minischeme.MiniSchemeParser.SymbolDatumContext;
+import com.joshuacrotts.minischeme.MiniSchemeParser.SymbolExprContext;
 import com.joshuacrotts.minischeme.ast.*;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -133,6 +135,46 @@ public class MSListener extends MiniSchemeBaseListener {
         // If the expr is non-null, there's an else statement.
         if (ctx.expr() != null) { condConsequentList.add(this.map.get(ctx.expr())); }
         this.map.put(ctx, new MSCondNode(condPredicateList, condConsequentList));
+    }
+
+    @Override
+    public void exitSymbolExpr(SymbolExprContext ctx) {
+        super.exitSymbolExpr(ctx);
+        // If it's just one symbol datum, then just return that.
+        if (ctx.symbolDatum(0) != null) {
+            this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.symbolDatum(0))));
+        } else {
+            // Otherwise, construct a list of SymbolDatums.
+            MSSyntaxTree parentList = null;
+            MSSyntaxTree currList = null;
+            for (ParseTree pt : ctx.symbolDatum()) {
+                MSSyntaxTree rhsList = this.map.get(pt);
+                currList = new MSListNode(rhsList, currList);
+            }
+
+            parentList = Optional.ofNullable(currList).orElse(MSListNode.EMPTY_LIST);
+            this.map.put(ctx, new MSSymbolNode(parentList));
+        }
+    }
+
+    @Override
+    public void exitSymbolDatum(SymbolDatumContext ctx) {
+        super.exitSymbolDatum(ctx);
+        // First, check to see if it's a list of expressions. If so, make it a MSListNode.
+        if (ctx.expr() != null) {
+            MSSyntaxTree parentList = null;
+            MSSyntaxTree currList = null;
+            for (ParseTree pt : ctx.expr()) {
+                MSSyntaxTree rhsList = this.map.get(pt);
+                currList = new MSListNode(rhsList, currList);
+            }
+
+            parentList = Optional.ofNullable(currList).orElse(MSListNode.EMPTY_LIST);
+            this.map.put(ctx, parentList);
+        } else {
+            // Otherwise, just take the child that's there (either a variable or constant).
+            this.map.put(ctx, this.map.get(ctx.getChild(0)));
+        }
     }
 
     @Override

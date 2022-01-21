@@ -27,6 +27,7 @@ OPEN_PAREN: '(';
 CLOSE_PAREN: ')';
 OPEN_BRACKET: '[';
 CLOSE_BRACKET: ']';
+SINGLE_QUOTE: '\'';
 HASH: '#';
 
 // Logical operators.
@@ -77,6 +78,7 @@ expr: lambdaExpr
     | condExpr
     | ifExpr
     | applicationExpr
+    //| symbolExpr
     | constant
     | variable;
 
@@ -98,6 +100,10 @@ ifExpr: '(' IF expr expr expr ')';
 // Applications take the form (<expr> <expr>*)
 applicationExpr: '(' expr applicationArgs ')';
 applicationArgs: expr*;
+
+// Symbols take the form (quote | '(<expr>*) or <expr>)
+symbolExpr: (QUOTE | SINGLE_QUOTE) (symbolDatum | ('(' symbolDatum* ')'));
+symbolDatum: constant | variable | '(' expr* ')';
 
 // Variables are, realistically, any symbol.
 constant: STRINGLIT | CHARLIT | BOOLLIT | NUMBERLIT;
