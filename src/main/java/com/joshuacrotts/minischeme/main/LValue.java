@@ -35,6 +35,7 @@ public class LValue {
             case CHARACTER:
             case STRING:
             case VARIABLE:
+            case SYMBOL:
             case LIST:
             case APPLICATION:
             case LAMBDA:
@@ -72,6 +73,13 @@ public class LValue {
         throw new MSInterpreterException("Cannot return string from non-string lvalue " + this.TREE.getNodeType());
     }
 
+    public MSSyntaxTree getSymbolValue() {
+        if (this.TREE.getNodeType() == MSNodeType.SYMBOL) {
+            return ((MSSymbolNode) this.TREE).getValue();
+        }
+        throw new MSInterpreterException("Cannot return symbol from non-symbol lvalue " + this.TREE.getNodeType());
+    }
+
     public String toString() {
         switch (this.TREE.getNodeType()) {
             case VARIABLE: return ((MSVariableNode) this.TREE).getStringRep();
@@ -79,6 +87,7 @@ public class LValue {
             case BOOLEAN: return ((MSBooleanNode) this.TREE).getStringRep();
             case STRING: return ((MSStringNode) this.TREE).getStringRep();
             case CHARACTER: return ((MSCharacterNode) this.TREE).getStringRep();
+            case SYMBOL: return ((MSSymbolNode) this.TREE).getStringRep();
             case LIST: return ((MSListNode) this.TREE).getStringRep();
             default:
                 throw new MSInterpreterException("Cannot return LValue for " + this.TREE.getNodeType() + " yet.");

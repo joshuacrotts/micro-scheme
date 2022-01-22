@@ -2,10 +2,7 @@ package com.joshuacrotts.minischeme.main;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 import ch.obermuhlner.math.big.BigFloat;
-import com.joshuacrotts.minischeme.ast.MSBooleanNode;
-import com.joshuacrotts.minischeme.ast.MSListNode;
-import com.joshuacrotts.minischeme.ast.MSNumberNode;
-import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
+import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.minischeme.parser.MSSemanticException;
 
@@ -38,6 +35,7 @@ public class BuiltinOperator {
     public static LValue interpretBuiltinOperator(MSSyntaxTree expressionNode, ArrayList<LValue> evalArguments) throws MSSemanticException {
         if (!expressionNode.isVariable()) { return null; }
         switch (expressionNode.getStringRep()) {
+            case "display": return BuiltinOperator.interpretDisplay(evalArguments);
             case "+": return BuiltinOperator.interpretAdd(evalArguments);
             case "-": return BuiltinOperator.interpretSubtract(evalArguments);
             case "*": return BuiltinOperator.interpretMultiply(evalArguments);
@@ -48,14 +46,28 @@ public class BuiltinOperator {
             case ">": return BuiltinOperator.interpretGreater(evalArguments);
             case ">=": return BuiltinOperator.interpretGreaterEqual(evalArguments);
             case "=": return BuiltinOperator.interpretNumericEqual(evalArguments);
+            case "equal?": return BuiltinOperator.interpretEqualFunction(evalArguments);
+            case "eq?": return BuiltinOperator.interpretEqFunction(evalArguments);
             case "cons": return BuiltinOperator.interpretConsFunction(evalArguments);
             case "list": return BuiltinOperator.interpretListFunction(evalArguments);
             case "car": return BuiltinOperator.interpretCarFunction(evalArguments);
             case "cdr": return BuiltinOperator.interpretCdrFunction(evalArguments);
             case "null?": return BuiltinOperator.interpretNullFunction(evalArguments);
+            case "string-append": return BuiltinOperator.interpretStringAppendFunction(evalArguments);
             default:
                 return null;
         }
+    }
+
+    /**
+     *
+     * @param displayArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretDisplay(ArrayList<LValue> displayArguments) throws MSArgumentMismatchException {
+        if (displayArguments.size() != 1) { throw new MSArgumentMismatchException("display", 1, displayArguments.size());}
+        return displayArguments.get(0);
     }
 
     /**
@@ -180,6 +192,62 @@ public class BuiltinOperator {
 
     /**
      *
+     * @param equalArguments
+     * @return
+     */
+    private static LValue interpretEqualFunction(ArrayList<LValue> equalArguments) throws MSArgumentMismatchException {
+        if (equalArguments.size() != 2) { throw new MSArgumentMismatchException("equal?", 2, equalArguments.size()); }
+        LValue lhs = equalArguments.get(0);
+        LValue rhs = equalArguments.get(1);
+
+        if (lhs == rhs) { return new LValue(new MSBooleanNode(true)); }
+        else if (lhs.getTree().getNodeType() == rhs.getTree().getNodeType()) {
+            // Check the type.
+            switch (lhs.getTree().getNodeType()) {
+                case NUMBER: return new LValue(new MSBooleanNode(lhs.getNumberValue().equals(rhs.getNumberValue())));
+                case STRING: return new LValue(new MSBooleanNode(lhs.getStringValue().equals(rhs.getStringValue())));
+                case BOOLEAN: return new LValue(new MSBooleanNode(lhs.getBooleanValue() == rhs.getBooleanValue()));
+                case CHARACTER: return new LValue(new MSBooleanNode(lhs.getCharacterValue() == rhs.getCharacterValue()));
+                case SYMBOL: return new LValue(new MSBooleanNode(lhs.getSymbolValue().getStringRep().equals(rhs.getSymbolValue().getStringRep())));
+                case LIST: return new LValue(new MSBooleanNode(lhs.getTree().getStringRep().equals(rhs.getTree().getStringRep())));
+                default:
+                    break;
+            }
+        }
+
+        return new LValue(new MSBooleanNode(false));
+    }
+
+    /**
+     *
+     * @param equalArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretEqFunction(ArrayList<LValue> equalArguments) throws MSArgumentMismatchException {
+        if (equalArguments.size() != 2) { throw new MSArgumentMismatchException("eq?", 2, equalArguments.size()); }
+        LValue lhs = equalArguments.get(0);
+        LValue rhs = equalArguments.get(1);
+
+        if (lhs == rhs) { return new LValue(new MSBooleanNode(true)); }
+        else if (lhs.getTree().getNodeType() == rhs.getTree().getNodeType()) {
+            // Check the type.
+            switch (lhs.getTree().getNodeType()) {
+                case NUMBER: return new LValue(new MSBooleanNode(lhs.getNumberValue().equals(rhs.getNumberValue())));
+                case STRING: return new LValue(new MSBooleanNode(lhs.getStringValue().equals(rhs.getStringValue())));
+                case CHARACTER: return new LValue(new MSBooleanNode(lhs.getCharacterValue() == rhs.getCharacterValue()));
+                case BOOLEAN: return new LValue(new MSBooleanNode(lhs.getBooleanValue() == rhs.getBooleanValue()));
+                case SYMBOL: return new LValue(new MSBooleanNode(lhs.getSymbolValue().getStringRep().equals(rhs.getSymbolValue().getStringRep())));
+                default:
+                    break;
+            }
+        }
+
+        return new LValue(new MSBooleanNode(false));
+    }
+
+    /**
+     *
      * @param consArguments
      * @return
      */
@@ -245,7 +313,25 @@ public class BuiltinOperator {
         if (nullArguments.size() != 1) { throw new MSArgumentMismatchException("null?", 1, nullArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(nullArguments.get(0));
         if (!argument.isList()) { return new LValue(new MSBooleanNode(false)); }
-        return new LValue(new MSBooleanNode(argument.getChildrenSize() == 0));
+        return new LValue(new MSBooleanNode(((MSListNode) argument).isEmptyList()));
+    }
+
+    /**
+     *
+     * @param stringAppendArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretStringAppendFunction(ArrayList<LValue> stringAppendArguments) throws MSArgumentMismatchException {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < stringAppendArguments.size(); i++) {
+            LValue currentArgument = stringAppendArguments.get(i);
+            if (!currentArgument.getTree().isString()) {
+                throw new MSArgumentMismatchException("string-append", i + 1, "string", currentArgument.getTree().getNodeType().toString());
+            }
+            stringBuilder.append(currentArgument.getTree().getStringRep());
+        }
+        return new LValue(new MSStringNode(stringBuilder.toString()));
     }
 
 }
