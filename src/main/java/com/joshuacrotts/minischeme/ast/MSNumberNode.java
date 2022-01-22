@@ -32,6 +32,16 @@ public class MSNumberNode extends MSSyntaxTree {
         this.VALUE = bigDecimal;
     }
 
+    public MSNumberNode(final int number) {
+        super(MSNodeType.NUMBER);
+        this.VALUE = new BigDecimal(number);
+    }
+
+    public MSNumberNode(final double number) {
+        super(MSNodeType.NUMBER);
+        this.VALUE = new BigDecimal(number);
+    }
+
     @Override
     public MSSyntaxTree copy() {
         return new MSNumberNode(this.VALUE);
@@ -39,10 +49,18 @@ public class MSNumberNode extends MSSyntaxTree {
 
     @Override
     public String getStringRep() {
-        return this.VALUE.toString();
+        if (this.isIntegerValue(this.VALUE)) {
+            return this.VALUE.stripTrailingZeros().toPlainString();
+        } else {
+            return this.VALUE.toString();
+        }
     }
 
     public BigDecimal getValue() {
         return this.VALUE;
+    }
+
+    private boolean isIntegerValue(BigDecimal bd) {
+        return bd.signum() == 0 || bd.scale() <= 0 || bd.stripTrailingZeros().scale() <= 0;
     }
 }

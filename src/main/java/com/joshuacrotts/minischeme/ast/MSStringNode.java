@@ -40,4 +40,8 @@ public class MSStringNode extends MSSyntaxTree {
     public String getValue() {
         return this.VALUE;
     }
+
+    public int length() {
+        return this.getStringRep().length();
+    }
 }

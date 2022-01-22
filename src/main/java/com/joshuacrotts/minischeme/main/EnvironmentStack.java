@@ -42,6 +42,8 @@ public class EnvironmentStack {
         this.ENVIRONMENT_STACK.push(new Environment());
     }
 
+    public Environment peekEnvironment() { return this.ENVIRONMENT_STACK.peek(); }
+
     public void popEnvironment() {
         this.ENVIRONMENT_STACK.pop();
     }

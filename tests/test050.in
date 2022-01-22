@@ -1,3 +1,5 @@
+(define sqrt (lambda (x) (** x 0.5)))
+
 (define (map-sqrt l)
     (if (null? l)
         '()

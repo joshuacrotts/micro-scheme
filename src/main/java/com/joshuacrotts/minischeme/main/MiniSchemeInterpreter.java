@@ -165,7 +165,9 @@ public class MiniSchemeInterpreter {
      * @param lambdaNode
      * @return
      */
-    private LValue interpretLambda(MSLambdaNode lambdaNode) { return new LValue(lambdaNode); }
+    private LValue interpretLambda(MSLambdaNode lambdaNode) {
+        //lambdaNode.setClosureEnvironment(this.bindings.peekEnvironment());
+        return new LValue(lambdaNode); }
 
     /**
      *

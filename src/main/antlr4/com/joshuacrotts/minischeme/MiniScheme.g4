@@ -30,16 +30,6 @@ CLOSE_BRACKET: ']';
 SINGLE_QUOTE: '\'';
 HASH: '#';
 
-// Logical operators.
-LOGICAL_NOT: 'not';
-LOGICAL_AND: 'and';
-LOGICAL_OR: 'or';
-
-// Bitwise operations.
-BITWISE_SHL: '<<';
-BITWISE_SHR: '>>';
-BITWISE_NEG: '~' ;
-
 // Literals.
 NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
 STRINGLIT: '"' ( QUOTCHAR | ~ ["\\] )* '"';

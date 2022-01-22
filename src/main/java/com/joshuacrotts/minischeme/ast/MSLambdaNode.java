@@ -69,20 +69,8 @@ public class MSLambdaNode extends MSSyntaxTree {
 
     public Environment getClosureEnvironment() { return this.closureEnvironment; }
 
-    public boolean isClosure() { return this.isClosure; }
-
-    /**
-     *
-     * @return
-     */
-    private void determineIfClosure() {
-        this.isClosure = this.determineIfClosureHelper(this);
+    public void setClosureEnvironment(final Environment closureEnvironment) {
+        this.closureEnvironment = closureEnvironment;
     }
 
-    /**
-     *
-     * @param curr
-     * @return
-     */
-    private boolean determineIfClosureHelper(MSSyntaxTree curr) { return false; }
 }
