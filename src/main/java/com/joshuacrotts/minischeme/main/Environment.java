@@ -4,6 +4,7 @@ import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.ast.MSVariableNode;
 import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -64,5 +65,19 @@ public class Environment {
         }
 
         return this.findInEnvironment(((MSVariableNode) id).getIdentifier());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, MSSyntaxTree> mapping : this.BINDINGS.entrySet()) {
+            sb.append(mapping.getKey() + "=" + mapping.getValue().getStringRep());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    public int numberOfBindings() {
+         return this.BINDINGS.size();
     }
 }

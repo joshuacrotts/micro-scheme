@@ -48,6 +48,8 @@ public class EnvironmentStack {
         this.ENVIRONMENT_STACK.pop();
     }
 
+    public int size() { return this.ENVIRONMENT_STACK.size(); }
+
     /**
      * Given an identifier, we return if the symbol is declared inside an arbitrary
      * environment.

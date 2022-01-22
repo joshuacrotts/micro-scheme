@@ -134,8 +134,8 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretDeclaration(MSDeclaration declarationNode) throws MSSemanticException {
         MSSyntaxTree rExpr = LValue.getAst(this.interpretTree(declarationNode.getExpression()));
-        // this.bindings.bind(declarationNode.getVariable(), rExpr);
-        this.bindings.bind(declarationNode.getVariable(), rExpr.copy());
+        this.bindings.bind(declarationNode.getVariable(), rExpr);
+        if (rExpr.isLambda()) { ((MSLambdaNode) rExpr).setClosureEnvironment(this.bindings.peekEnvironment()); }
         return null;
     }
 
@@ -166,7 +166,6 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretLambda(MSLambdaNode lambdaNode) {
-        lambdaNode.setClosureEnvironment(this.bindings.peekEnvironment());
         return new LValue(lambdaNode);
     }
 
@@ -202,7 +201,11 @@ public class MiniSchemeInterpreter {
 
             // Now, do the bindings.
             for (int i = 0; i < lambdaParameters.size(); i++) {
-                lambdaEnvironment.bind(lambdaParameters.get(i), LValue.getAst(evaluatedArguments.get(i)));
+                // If there's a preexisting mapping, use that.
+                // Causes test 16 to fail...
+                if (lambdaEnvironment.findInEnvironment(lambdaParameters.get(i)) == null) {
+                    lambdaEnvironment.bind(lambdaParameters.get(i), LValue.getAst(evaluatedArguments.get(i)));
+                }
             }
 
             // Push the lambda's environment to the stack... This may not be right.

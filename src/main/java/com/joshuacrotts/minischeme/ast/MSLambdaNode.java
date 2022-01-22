@@ -23,11 +23,6 @@ public class MSLambdaNode extends MSSyntaxTree {
     /**
      *
      */
-    private final MSSyntaxTree IDENTIFIER;
-
-    /**
-     *
-     */
     private Environment closureEnvironment;
 
     /**
@@ -35,20 +30,13 @@ public class MSLambdaNode extends MSSyntaxTree {
      */
     private boolean isClosure;
 
-    public MSLambdaNode(MSSyntaxTree id, ArrayList<MSSyntaxTree> lambdaParameters,
+    public MSLambdaNode(ArrayList<MSSyntaxTree> lambdaParameters,
                         MSSyntaxTree lambdaBody) {
         super(MSNodeType.LAMBDA);
-        this.IDENTIFIER = id;
         this.closureEnvironment = new Environment();
         this.NUM_LAMBDA_PARAMETERS = lambdaParameters.size();
         lambdaParameters.forEach(this::addChild);
         this.addChild(lambdaBody);
-        this.determineIfClosure();
-    }
-
-    public MSLambdaNode(ArrayList<MSSyntaxTree> lambdaParameters,
-                        MSSyntaxTree lambdaBody) {
-        this(null, lambdaParameters, lambdaBody);
     }
 
     @Override
@@ -58,7 +46,7 @@ public class MSLambdaNode extends MSSyntaxTree {
             lambdaParametersCopy.add(this.getChild(i).copy());
         }
         MSSyntaxTree lambdaBodyCopy = this.getChild(this.getChildrenSize() - 1).copy();
-        return new MSLambdaNode(this.IDENTIFIER, lambdaParametersCopy, lambdaBodyCopy);
+        return new MSLambdaNode(lambdaParametersCopy, lambdaBodyCopy);
     }
 
     @Override
@@ -87,6 +75,7 @@ public class MSLambdaNode extends MSSyntaxTree {
 
     public void setClosureEnvironment(final Environment closureEnvironment) {
         this.closureEnvironment = closureEnvironment;
+        this.determineIfClosure();
     }
 
     public boolean isClosure() {
@@ -114,11 +103,9 @@ public class MSLambdaNode extends MSSyntaxTree {
 
     private boolean closureConditions(MSVariableNode var) {
         boolean matchesParam = this.matchesParameter(var);
+        boolean matchesEnvSymbol = this.matchesEnvironmentSymbol(var);
         boolean isBuiltin = BuiltinOperator.isBuiltinOperator(var);
-        if (this.IDENTIFIER != null) {
-            return !matchesParam && !isBuiltin && !var.getStringRep().equals(this.IDENTIFIER.getStringRep());
-        }
-        return !matchesParam && !isBuiltin;
+        return !matchesParam && !matchesEnvSymbol && !isBuiltin;
     }
 
     private boolean matchesParameter(MSVariableNode var) {
@@ -130,6 +117,16 @@ public class MSLambdaNode extends MSSyntaxTree {
             }
         }
 
+        return false;
+    }
+
+    private boolean matchesEnvironmentSymbol(MSVariableNode var) {
+        for (int i = 0; i < this.closureEnvironment.numberOfBindings(); i++) {
+            MSSyntaxTree envVar = this.closureEnvironment.findInEnvironment(var);
+            if (envVar != null && envVar.isLambda()) {
+                return true;
+            }
+        }
         return false;
     }
 
