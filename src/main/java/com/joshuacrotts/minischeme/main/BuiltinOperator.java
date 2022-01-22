@@ -25,7 +25,49 @@ public class BuiltinOperator {
      * @return
      */
     public static boolean isBuiltinOperator(MSSyntaxTree expressionNode) {
-        return false;
+        switch (expressionNode.getStringRep()) {
+            case "display":
+            case "+":
+            case "-":
+            case "*":
+            case "/":
+            case "**":
+            case "log":
+            case "floor":
+            case "ceiling":
+            case "round":
+            case "truncate":
+            case "modulo":
+            case "remainder":
+            case "sin":
+            case "cos":
+            case "tan":
+            case "sinh":
+            case "cosh":
+            case "tanh":
+            case "<":
+            case "<=":
+            case ">":
+            case ">=":
+            case "=":
+            case "not":
+            case "and":
+            case "or":
+            case "equal?":
+            case "eq?":
+            case "cons":
+            case "list":
+            case "car":
+            case "cdr":
+            case "null?":
+            case "pair?":
+            case "list?":
+            case "string-append":
+            case "string-length":
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
@@ -135,7 +177,7 @@ public class BuiltinOperator {
         BigDecimal divisor = divideArguments.get(1).getNumberValue();
 
         if (divisor.equals(BigDecimal.ZERO)) { throw new MSSemanticException("division by zero"); }
-        return new LValue(new MSNumberNode(dividend.divide(divisor)));
+        return new LValue(new MSNumberNode(dividend.divide(divisor, MSNumberNode.PRECISION)));
     }
 
     /**

@@ -5,7 +5,7 @@ package com.joshuacrotts.minischeme.ast;
  * @author Joshua Crotts
  * @version 01/19/2022
  */
-public class MSSymbolNode extends MSSyntaxTree {
+public class    MSSymbolNode extends MSSyntaxTree {
 
     /**
      * Symbol text associated with this node.

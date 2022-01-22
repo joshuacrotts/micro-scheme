@@ -62,11 +62,11 @@ public class MSCondNode extends MSSyntaxTree {
     }
 
     public ArrayList<MSSyntaxTree> getConsequentList() {
-        ArrayList<MSSyntaxTree> predicateList = new ArrayList<>();
+        ArrayList<MSSyntaxTree> consequentList = new ArrayList<>();
         for (int i = 0; i < this.NUM_CONSEQUENTS; i++) {
-            predicateList.add(this.getChild(i + this.NUM_PREDICATES));
+            consequentList.add(this.getChild(i + this.NUM_PREDICATES));
         }
-        return predicateList;
+        return consequentList;
     }
 
     public boolean hasElse() {

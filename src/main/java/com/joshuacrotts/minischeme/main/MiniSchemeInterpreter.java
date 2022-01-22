@@ -166,8 +166,9 @@ public class MiniSchemeInterpreter {
      * @return
      */
     private LValue interpretLambda(MSLambdaNode lambdaNode) {
-        //lambdaNode.setClosureEnvironment(this.bindings.peekEnvironment());
-        return new LValue(lambdaNode); }
+        lambdaNode.setClosureEnvironment(this.bindings.peekEnvironment());
+        return new LValue(lambdaNode);
+    }
 
     /**
      *
@@ -178,17 +179,18 @@ public class MiniSchemeInterpreter {
         // First, interpret all the children.
         ArrayList<MSSyntaxTree> rhsArguments = applicationNode.getArguments();
         ArrayList<LValue> evaluatedArguments = new ArrayList<>();
-        for (MSSyntaxTree rhsArg : rhsArguments) { evaluatedArguments.add(this.interpretTree(rhsArg)); }
+        for (MSSyntaxTree rhsArg : rhsArguments) {
+            LValue lhs = this.interpretTree(rhsArg);
+            evaluatedArguments.add(lhs);
+        }
 
         // Now, check to see if it's a primitive.
         MSSyntaxTree expressionLVal = LValue.getAst(this.interpretTree(applicationNode.getExpression()));
-        LValue primitiveLVal = BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments);
-
-        if (primitiveLVal != null) { return primitiveLVal; }
+        if (BuiltinOperator.isBuiltinOperator(expressionLVal)) { return BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments); }
         else {
             // Create the bindings and interpret the body.
             MSLambdaNode lambdaNode = (MSLambdaNode) expressionLVal;
-            Environment lambdaEnvironment = lambdaNode.getClosureEnvironment();
+            Environment lambdaEnvironment = lambdaNode.isClosure() ? lambdaNode.getClosureEnvironment() : new Environment();
             ArrayList<MSSyntaxTree> lambdaParameters = lambdaNode.getLambdaParameters();
             MSSyntaxTree lambdaBody = lambdaNode.getLambdaBody();
 

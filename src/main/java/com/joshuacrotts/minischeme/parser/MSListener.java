@@ -74,7 +74,7 @@ public class MSListener extends MiniSchemeBaseListener {
         }
 
         MSSyntaxTree procedureBody = this.map.get(ctx.expr());
-        MSLambdaNode procedureLambda = new MSLambdaNode(procedureParameters, procedureBody);
+        MSLambdaNode procedureLambda = new MSLambdaNode(procedureName, procedureParameters, procedureBody);
         this.map.put(ctx, new MSDeclaration(procedureName, procedureLambda));
     }
 
