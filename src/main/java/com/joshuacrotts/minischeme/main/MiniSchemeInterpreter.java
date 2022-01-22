@@ -114,8 +114,13 @@ public class MiniSchemeInterpreter {
     private LValue interpretVariable(MSVariableNode variableNode) throws MSSemanticException {
         // We REALLY need to check and see if the data is a primitive operator or not...
         MSSyntaxTree variableData = this.bindings.lookup(variableNode);
-        if (variableData != null) { return new LValue(variableData); }
-        return new LValue(variableNode);
+        if (variableData != null) {
+            return new LValue(variableData);
+        } else if (BuiltinOperator.isBuiltinOperator(variableNode)) {
+            return new LValue(variableNode);
+        } else {
+            throw new MSSemanticException("undefined identifier '" + variableNode.getStringRep() + "'");
+        }
     }
 
     /**

@@ -7,18 +7,6 @@
 )
 
 
-;; sort : list-of-numbers -> list-of-numbers
-;; to create a list of numbers with the same
-;; numbers
-;; as alon sorted in descending order
-(define (sort alon)
-    (cond
-        [(null? alon) '()]
-        [(pair? alon) (insert (car alon) (sort (cdr alon)))]
-        [else '()]
-    )
-)
-
 ;;
 ;; insert : number sorted-number-list -> number-list
 ;; to create a list of numbers from n and alon that is
@@ -32,6 +20,19 @@
                 [else (cons (car alon) (insert n (cdr alon)))]
             )
         ]
+    )
+)
+
+
+;; sort : list-of-numbers -> list-of-numbers
+;; to create a list of numbers with the same
+;; numbers
+;; as alon sorted in descending order
+(define (sort alon)
+    (cond
+        [(null? alon) '()]
+        [(pair? alon) (insert (car alon) (sort (cdr alon)))]
+        [else '()]
     )
 )
 

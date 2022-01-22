@@ -2,6 +2,7 @@ package com.joshuacrotts.minischeme.ast;
 
 import com.joshuacrotts.minischeme.main.BuiltinOperator;
 import com.joshuacrotts.minischeme.main.Environment;
+import org.antlr.v4.runtime.misc.Pair;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -83,34 +84,41 @@ public class MSLambdaNode extends MSSyntaxTree {
     }
 
     private void determineIfClosure() {
-        MSSyntaxTree root = this;
-        Queue<MSSyntaxTree> queue = new LinkedList<>();
+        Queue<Pair<MSSyntaxTree, MSLambdaNode>> queue = new LinkedList<>();
+        Pair<MSSyntaxTree, MSLambdaNode> root = new Pair<>(this, this);
         queue.add(root);
         while (!queue.isEmpty()) {
-            MSSyntaxTree curr = queue.poll();
-            if (curr.isVariable()) {
-                MSVariableNode v = (MSVariableNode) curr;
-                if (this.closureConditions(v)) {
+            Pair<MSSyntaxTree, MSLambdaNode> curr = queue.poll();
+            if (curr.a.isLambda()) {
+                for (MSSyntaxTree ch : curr.a.getChildren()) {
+                    queue.add(new Pair<>(ch, (MSLambdaNode) curr.a));
+                }
+                continue;
+            } else if (curr.a.isVariable()) {
+                if (this.closureConditions((MSVariableNode) curr.a, curr.b)) {
                     this.isClosure = true;
                     return;
                 }
             }
-            queue.addAll(curr.getChildren());
+
+            for (MSSyntaxTree ch : curr.a.getChildren()) {
+                queue.add(new Pair<>(ch, curr.b));
+            }
         }
 
         this.isClosure = false;
     }
 
-    private boolean closureConditions(MSVariableNode var) {
-        boolean matchesParam = this.matchesParameter(var);
+    private boolean closureConditions(MSVariableNode var, MSLambdaNode lambdaNode) {
+        boolean matchesParam = this.matchesParameter(var, lambdaNode);
         boolean matchesEnvSymbol = this.matchesEnvironmentSymbol(var);
         boolean isBuiltin = BuiltinOperator.isBuiltinOperator(var);
         return !matchesParam && !matchesEnvSymbol && !isBuiltin;
     }
 
-    private boolean matchesParameter(MSVariableNode var) {
-        ArrayList<MSSyntaxTree> lambdaParameters = this.getLambdaParameters();
-        for (int i = 0; i < this.NUM_LAMBDA_PARAMETERS; i++) {
+    private boolean matchesParameter(MSVariableNode var, MSLambdaNode lambdaRoot) {
+        ArrayList<MSSyntaxTree> lambdaParameters = lambdaRoot.getLambdaParameters();
+        for (int i = 0; i < lambdaRoot.NUM_LAMBDA_PARAMETERS; i++) {
             MSVariableNode param = (MSVariableNode) lambdaParameters.get(i);
             if (param.getStringRep().equals(var.getStringRep())) {
                 return true;
@@ -129,5 +137,4 @@ public class MSLambdaNode extends MSSyntaxTree {
         }
         return false;
     }
-
 }
