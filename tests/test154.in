@@ -1,0 +1,5 @@
+(define x 1)
+(define (f y) (+ x y))
+(define y 4)
+(define z (let ((x 2)) (f (+ x y))))
+z

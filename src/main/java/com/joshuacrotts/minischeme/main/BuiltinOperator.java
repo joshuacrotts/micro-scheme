@@ -64,6 +64,7 @@ public class BuiltinOperator {
             case "list?":
             case "string-append":
             case "string-length":
+            case "set!":
                 return true;
             default:
                 return false;
@@ -76,7 +77,7 @@ public class BuiltinOperator {
      * @param evalArguments
      * @return
      */
-    public static LValue interpretBuiltinOperator(MSSyntaxTree expressionNode, ArrayList<LValue> evalArguments) throws MSSemanticException {
+    public static LValue interpretBuiltinOperator(MSSyntaxTree expressionNode, ArrayList<LValue> evalArguments, Environment env) throws MSSemanticException {
         if (!expressionNode.isVariable()) { return null; }
         switch (expressionNode.getStringRep()) {
             case "display": return BuiltinOperator.interpretDisplay(evalArguments);

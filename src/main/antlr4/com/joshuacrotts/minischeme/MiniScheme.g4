@@ -44,7 +44,7 @@ ELSE: 'else';
 LAMBDA: 'lambda' | 'λ';
 BEGIN: 'begin';
 QUOTE: 'quote';
-
+LET: 'let';
 
 ID: [-+*/<>=a-zA-Z_][-+*/<>=?!a-zA-Z0-9_]*;
 
@@ -64,7 +64,9 @@ procedureDeclaration: '(' DEFINE '(' variable procedureParameters ')' expr ')';
 procedureParameters: expr*;
 
 // There are several different types of declarations.
-expr: lambdaExpr
+expr: letExpr
+    // | setExpr
+    | lambdaExpr
     | condExpr
     | ifExpr
     | applicationExpr
@@ -72,6 +74,10 @@ expr: lambdaExpr
     | constant
     | variable;
 
+// Let expression takes the form (let ((<var> <expr>)*) (<expr>))
+letExpr: '(' LET '(' letParameters* ')' expr ')';
+letParameters: ('(' expr expr ')')
+             | ('[' expr expr ']');
 
 // Lambda expressions take the form (lambda (<params>) <body>).
 lambdaExpr: '(' LAMBDA '(' lambdaParameters ')' expr ')';

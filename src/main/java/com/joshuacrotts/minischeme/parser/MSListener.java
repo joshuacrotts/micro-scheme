@@ -93,6 +93,21 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitLetExpr(MiniSchemeParser.LetExprContext ctx) {
+        super.exitLetExpr(ctx);
+        // Convert the let into a lambda as an application.
+        ArrayList<MSSyntaxTree> letVariables = new ArrayList<>();
+        ArrayList<MSSyntaxTree> letBindings = new ArrayList<>();
+        for (int i = 0; i < ctx.letParameters().size(); i++) {
+            letVariables.add(this.map.get(ctx.letParameters().get(i).expr(0)));
+            letBindings.add(this.map.get(ctx.letParameters().get(i).expr(1)));
+        }
+        MSSyntaxTree letBody = this.map.get(ctx.expr());
+        MSLambdaNode lambdaNode = new MSLambdaNode(letVariables, letBody);
+        this.map.put(ctx, new MSApplicationNode(lambdaNode, letBindings));
+    }
+
+    @Override
     public void exitLambdaExpr(MiniSchemeParser.LambdaExprContext ctx) {
         super.exitLambdaExpr(ctx);
         ArrayList<MSSyntaxTree> lambdaParameters = new ArrayList<>();
@@ -138,7 +153,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitSymbolExpr(SymbolExprContext ctx) {
+    public void exitSymbolExpr(MiniSchemeParser.SymbolExprContext ctx) {
         super.exitSymbolExpr(ctx);
         // If it's just one symbol datum, then just return that.
         if (ctx.symbolDatum(0) != null) {
@@ -158,7 +173,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitSymbolDatum(SymbolDatumContext ctx) {
+    public void exitSymbolDatum(MiniSchemeParser.SymbolDatumContext ctx) {
         super.exitSymbolDatum(ctx);
         // First, check to see if it's a list of expressions. If so, make it a MSListNode.
         if (ctx.expr() != null) {
@@ -176,6 +191,14 @@ public class MSListener extends MiniSchemeBaseListener {
             this.map.put(ctx, this.map.get(ctx.getChild(0)));
         }
     }
+
+//    @Override
+//    public void exitSetExpr(MiniSchemeParser.SetExprContext ctx) {
+//        super.exitSetExpr(ctx);
+//        MSSyntaxTree lhs = this.map.get(ctx.expr(0));
+//        MSSyntaxTree rhs = this.map.get(ctx.expr(1));
+//        this.map.put(ctx, new MSSetNode(lhs, rhs));
+//    }
 
     @Override
     public void exitConstant(MiniSchemeParser.ConstantContext ctx) {

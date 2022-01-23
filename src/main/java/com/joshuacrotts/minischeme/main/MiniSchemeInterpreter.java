@@ -190,7 +190,7 @@ public class MiniSchemeInterpreter {
 
         // Now, check to see if it's a primitive.
         MSSyntaxTree expressionLVal = LValue.getAst(this.interpretTree(applicationNode.getExpression()));
-        if (BuiltinOperator.isBuiltinOperator(expressionLVal)) { return BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments); }
+        if (BuiltinOperator.isBuiltinOperator(expressionLVal)) { return BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments, this.bindings.peekEnvironment()); }
         else {
             // Create the bindings and interpret the body.
             MSLambdaNode lambdaNode = (MSLambdaNode) expressionLVal;
@@ -208,9 +208,9 @@ public class MiniSchemeInterpreter {
             for (int i = 0; i < lambdaParameters.size(); i++) {
                 // If there's a preexisting mapping, use that.
                 // Causes test 16 to fail...
-                if (lambdaEnvironment.findInEnvironment(lambdaParameters.get(i)) == null) {
+                // if (lambdaEnvironment.findInEnvironment(lambdaParameters.get(i)) == null) {
                     lambdaEnvironment.bind(lambdaParameters.get(i), LValue.getAst(evaluatedArguments.get(i)));
-                }
+                // }
             }
 
             // Push the lambda's environment to the stack... This may not be right.

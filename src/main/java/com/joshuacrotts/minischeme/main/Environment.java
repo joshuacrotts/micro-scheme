@@ -23,6 +23,31 @@ public class Environment {
         this.BINDINGS = new TreeMap<>();
     }
 
+    public Environment(final TreeMap<String, MSSyntaxTree> bindings) {
+        this.BINDINGS = bindings;
+    }
+
+    public Environment copy() {
+        TreeMap<String, MSSyntaxTree> bindingsCopy = new TreeMap<>();
+        for (Map.Entry<String, MSSyntaxTree> bindings : this.BINDINGS.entrySet()) {
+            bindingsCopy.put(new String(bindings.getKey()), bindings.getValue().copy());
+        }
+        System.out.println(this);
+        Environment environmentCopy = new Environment(bindingsCopy);
+        System.out.println(environmentCopy);
+        return environmentCopy;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, MSSyntaxTree> mapping : this.BINDINGS.entrySet()) {
+            sb.append(mapping.getKey() + "=" + mapping.getValue().getStringRep());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
     /**
      *
      * @param id
@@ -65,16 +90,6 @@ public class Environment {
         }
 
         return this.findInEnvironment(((MSVariableNode) id).getIdentifier());
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, MSSyntaxTree> mapping : this.BINDINGS.entrySet()) {
-            sb.append(mapping.getKey() + "=" + mapping.getValue().getStringRep());
-            sb.append("\n");
-        }
-        return sb.toString();
     }
 
     public int numberOfBindings() {
