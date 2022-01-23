@@ -1,0 +1,5 @@
+(define (adder x) (lambda (y) (+ x y)))
+(define add-five (adder 5))
+(define add-six (adder 6))
+(add-five 10)
+(add-six 10)

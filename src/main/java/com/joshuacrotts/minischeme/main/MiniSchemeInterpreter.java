@@ -59,7 +59,7 @@ public class MiniSchemeInterpreter {
             case SYMBOL: return this.interpretSymbol((MSSymbolNode) tree);
             case DECLARATION: return this.interpretDeclaration((MSDeclaration) tree, env);
             case COND: return this.interpretCond((MSCondNode) tree, env);
-            case LAMBDA: return this.interpretLambda((MSLambdaNode) tree);
+            case LAMBDA: return this.interpretLambda((MSLambdaNode) tree, env);
             case APPLICATION: return this.interpretApplication((MSApplicationNode) tree, env);
             default:
                 throw new MSInterpreterException("Unsupported node type " + tree.getNodeType());
@@ -109,7 +109,7 @@ public class MiniSchemeInterpreter {
         // We REALLY need to check and see if the data is a primitive operator or not...
         LValue variableData = env.lookup(variableNode.getIdentifier());
         if (variableData != null) { return variableData; }
-        else if (BuiltinOperator.isBuiltinOperator(variableNode)) { return new LValue(variableNode); }
+        else if (BuiltinOperator.isBuiltinOperator(variableNode)) { return new LValue(variableNode, env); }
         else { throw new MSSemanticException("undefined identifier '" + variableNode.getStringRep() + "'"); }
     }
 
@@ -129,9 +129,6 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretDeclaration(MSDeclaration declarationNode, Environment env) throws MSSemanticException {
         LValue rExpr = this.interpretTree(declarationNode.getExpression(), env);
-        if (rExpr.env == null) {
-            rExpr.env = env;
-        }
         env.bind(declarationNode.getVariable(), rExpr);
         return null;
     }
@@ -162,8 +159,8 @@ public class MiniSchemeInterpreter {
      * @param lambdaNode
      * @return
      */
-    private LValue interpretLambda(MSLambdaNode lambdaNode) {
-        return new LValue(lambdaNode);
+    private LValue interpretLambda(MSLambdaNode lambdaNode, Environment env) {
+        return new LValue(lambdaNode, env);
     }
 
     /**
@@ -183,10 +180,14 @@ public class MiniSchemeInterpreter {
         // Now, check to see if it's a primitive.
         LValue lv = this.interpretTree(applicationNode.getExpression(), env);
         MSSyntaxTree expressionLVal = LValue.getAst(lv);
-        if (BuiltinOperator.isBuiltinOperator(expressionLVal)) { return BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments, env); }
+        if (BuiltinOperator.isBuiltinOperator(expressionLVal)) {
+            // --- DOES NOT FIX --- //
+            return BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments, env);
+        }
         else {
             // Create the bindings and interpret the body.
             MSLambdaNode lambdaNode = (MSLambdaNode) expressionLVal;
+            // --- DOES NOT FIX --- //
             Environment lambdaEnvironment = lv.env;//lambdaNode.isClosure() ? lambdaNode.getClosureEnvironment() : new Environment();
             ArrayList<MSSyntaxTree> lambdaParameters = lambdaNode.getLambdaParameters();
             MSSyntaxTree lambdaBody = lambdaNode.getLambdaBody();
@@ -199,10 +200,7 @@ public class MiniSchemeInterpreter {
 
 
             Environment e1 = lambdaEnvironment.createChildEnvironment(lambdaParameters, evaluatedArguments);
-
-            LValue lambdaLValue = this.interpretTree(lambdaBody, e1);
-            lambdaLValue.env = e1;
-            return lambdaLValue;
+            return this.interpretTree(lambdaBody, e1);
         }
     }
 

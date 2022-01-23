@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 public class InterpreterTester {
 
-    private static final int NUM_TESTS = 150;
+    private static final int NUM_TESTS = 155;
 
     /**
      * Helper function to count number of newlines in a string
