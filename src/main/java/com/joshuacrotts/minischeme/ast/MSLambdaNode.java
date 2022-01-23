@@ -56,12 +56,16 @@ public class MSLambdaNode extends MSSyntaxTree {
         sb.append("(lambda");
 
         ArrayList<MSSyntaxTree> params =this.getLambdaParameters();
-        sb.append(" (");
-        for (int i = 0; i < params.size() - 1; i++) {
-            sb.append(params.get(i).getStringRep());
-            sb.append(" ");
+        if (!params.isEmpty()) {
+            sb.append(" (");
+            for (int i = 0; i < params.size() - 1; i++) {
+                sb.append(params.get(i).getStringRep());
+                sb.append(" ");
+            }
+            sb.append(params.get(params.size() - 1).getStringRep()).append(")");
+        } else {
+            sb.append(" ()");
         }
-        sb.append(params.get(params.size() - 1).getStringRep()).append(")");
         sb.append(" ");
         sb.append(this.getLambdaBody().getStringRep());
         sb.append(")");

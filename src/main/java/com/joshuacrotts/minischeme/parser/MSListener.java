@@ -112,22 +112,23 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitLetStarExpr(MiniSchemeParser.LetStarExprContext ctx) {
         super.exitLetStarExpr(ctx);
-        ArrayList<MSSyntaxTree> letArgument;
         MSApplicationNode rootApplication = null;
-        MSApplicationNode lastApplication = null;
         for (int i = ctx.letParameters().size() - 1; i >= 0; i--) {
-            letArgument = new ArrayList<>();
+            // Retrieve the variable and its data. Create a lambda node from
+            // them and attach it as the body of the next outer lambda.
             MSSyntaxTree variable = this.map.get(ctx.letParameters().get(i).expr(0));
             MSSyntaxTree expression = this.map.get(ctx.letParameters().get(i).expr(1));
+            ArrayList<MSSyntaxTree> letArgument = new ArrayList<>();
             ArrayList<MSSyntaxTree> letParameter = new ArrayList<>();
             letParameter.add(variable);
             letArgument.add(expression);
-            // If we're on the first expression, we need to create the lambda with the
-            // body as the expr.
-            if (i == ctx.letParameters().size() - 1) {
-
-            }
+            // If we're on the first expression, we need to create the lambda with the body as the expr.
+            MSLambdaNode lambdaNode;
+            if (i == ctx.letParameters().size() - 1) { lambdaNode = new MSLambdaNode(letParameter, this.map.get(ctx.expr())); }
+            else { lambdaNode = new MSLambdaNode(letParameter, rootApplication); }
+            rootApplication = new MSApplicationNode(lambdaNode, letArgument);;
         }
+
         this.map.put(ctx, rootApplication);
     }
 

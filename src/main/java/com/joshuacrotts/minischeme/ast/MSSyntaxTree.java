@@ -99,6 +99,8 @@ public class MSSyntaxTree {
     public boolean isSymbol() { return this.NODE_TYPE == MSNodeType.SYMBOL; }
 
     public boolean isList() { return this.NODE_TYPE == MSNodeType.LIST; }
+
+    public boolean isNumber() { return this.NODE_TYPE == MSNodeType.NUMBER; }
     
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();

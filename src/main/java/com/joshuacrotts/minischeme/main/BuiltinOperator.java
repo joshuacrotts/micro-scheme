@@ -60,6 +60,10 @@ public class BuiltinOperator {
             case "car":
             case "cdr":
             case "null?":
+            case "number?":
+            case "character?":
+            case "string?":
+            case "symbol?":
             case "pair?":
             case "list?":
             case "string-append":
@@ -114,6 +118,10 @@ public class BuiltinOperator {
             case "car": return BuiltinOperator.interpretCarFunction(evalArguments);
             case "cdr": return BuiltinOperator.interpretCdrFunction(evalArguments);
             case "null?": return BuiltinOperator.interpretNullPredicate(evalArguments);
+            case "number?": return BuiltinOperator.interpretNumberPredicate(evalArguments);
+            case "character?": return BuiltinOperator.interpretCharacterPredicate(evalArguments);
+            case "string?": return BuiltinOperator.interpretStringPredicate(evalArguments);
+            case "symbol?": return BuiltinOperator.interpretSymbolPredicate(evalArguments);
             case "pair?": return BuiltinOperator.interpretPairPredicate(evalArguments);
             case "list?": return BuiltinOperator.interpretListPredicate(evalArguments);
             case "string-append": return BuiltinOperator.interpretStringAppendFunction(evalArguments);
@@ -403,7 +411,7 @@ public class BuiltinOperator {
         if (numericEqualArguments.size() != 2) { throw new MSArgumentMismatchException("=", 2, numericEqualArguments.size()); }
         BigDecimal lhs = numericEqualArguments.get(0).getNumberValue();
         BigDecimal rhs = numericEqualArguments.get(1).getNumberValue();
-        return new LValue(new MSBooleanNode(lhs.equals(rhs)));
+        return new LValue(new MSBooleanNode(lhs.compareTo(rhs) == 0));
     }
 
     /**
@@ -571,6 +579,50 @@ public class BuiltinOperator {
         MSSyntaxTree argument = LValue.getAst(nullArguments.get(0));
         if (!argument.isList()) { return new LValue(new MSBooleanNode(false)); }
         return new LValue(new MSBooleanNode(((MSListNode) argument).isEmptyList()));
+    }
+
+    /**
+     *
+     * @param numberArguments
+     * @return
+     */
+    private static LValue interpretNumberPredicate(ArrayList<LValue> numberArguments) throws MSArgumentMismatchException {
+        if (numberArguments.size() != 1) { throw new MSArgumentMismatchException("number?", 1, numberArguments.size()); }
+        MSSyntaxTree argument = LValue.getAst(numberArguments.get(0));
+        return new LValue(new MSBooleanNode(argument.isNumber()));
+    }
+
+    /**
+     *
+     * @param characterArguments
+     * @return
+     */
+    private static LValue interpretCharacterPredicate(ArrayList<LValue> characterArguments) throws MSArgumentMismatchException {
+        if (characterArguments.size() != 1) { throw new MSArgumentMismatchException("character?", 1, characterArguments.size()); }
+        MSSyntaxTree argument = LValue.getAst(characterArguments.get(0));
+        return new LValue(new MSBooleanNode(argument.isCharacter()));
+    }
+
+    /**
+     *
+     * @param stringArguments
+     * @return
+     */
+    private static LValue interpretStringPredicate(ArrayList<LValue> stringArguments) throws MSArgumentMismatchException {
+        if (stringArguments.size() != 1) { throw new MSArgumentMismatchException("string?", 1, stringArguments.size()); }
+        MSSyntaxTree argument = LValue.getAst(stringArguments.get(0));
+        return new LValue(new MSBooleanNode(argument.isString()));
+    }
+
+    /**
+     *
+     * @param symbolArguments
+     * @return
+     */
+    private static LValue interpretSymbolPredicate(ArrayList<LValue> symbolArguments) throws MSArgumentMismatchException {
+        if (symbolArguments.size() != 1) { throw new MSArgumentMismatchException("symbol?", 1, symbolArguments.size()); }
+        MSSyntaxTree argument = LValue.getAst(symbolArguments.get(0));
+        return new LValue(new MSBooleanNode(argument.isSymbol() || argument.isVariable()));
     }
 
     /**
