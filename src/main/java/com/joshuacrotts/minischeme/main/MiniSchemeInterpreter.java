@@ -114,13 +114,9 @@ public class MiniSchemeInterpreter {
     private LValue interpretVariable(MSVariableNode variableNode) throws MSSemanticException {
         // We REALLY need to check and see if the data is a primitive operator or not...
         MSSyntaxTree variableData = this.bindings.lookup(variableNode);
-        if (variableData != null) {
-            return new LValue(variableData);
-        } else if (BuiltinOperator.isBuiltinOperator(variableNode)) {
-            return new LValue(variableNode);
-        } else {
-            throw new MSSemanticException("undefined identifier '" + variableNode.getStringRep() + "'");
-        }
+        if (variableData != null) { return new LValue(variableData); }
+        else if (BuiltinOperator.isBuiltinOperator(variableNode)) { return new LValue(variableNode); }
+        else { throw new MSSemanticException("undefined identifier '" + variableNode.getStringRep() + "'"); }
     }
 
     /**
@@ -207,10 +203,7 @@ public class MiniSchemeInterpreter {
             // Now, do the bindings.
             for (int i = 0; i < lambdaParameters.size(); i++) {
                 // If there's a preexisting mapping, use that.
-                // Causes test 16 to fail...
-                // if (lambdaEnvironment.findInEnvironment(lambdaParameters.get(i)) == null) {
-                    lambdaEnvironment.bind(lambdaParameters.get(i), LValue.getAst(evaluatedArguments.get(i)));
-                // }
+                lambdaEnvironment.bind(lambdaParameters.get(i), LValue.getAst(evaluatedArguments.get(i)));
             }
 
             // Push the lambda's environment to the stack... This may not be right.

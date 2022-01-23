@@ -45,6 +45,7 @@ LAMBDA: 'lambda' | 'λ';
 BEGIN: 'begin';
 QUOTE: 'quote';
 LET: 'let';
+LETSTAR: 'let*';
 
 ID: [-+*/<>=a-zA-Z_][-+*/<>=?!a-zA-Z0-9_]*;
 
@@ -65,6 +66,7 @@ procedureParameters: expr*;
 
 // There are several different types of declarations.
 expr: letExpr
+    | letStarExpr
     // | setExpr
     | lambdaExpr
     | condExpr
@@ -76,6 +78,7 @@ expr: letExpr
 
 // Let expression takes the form (let ((<var> <expr>)*) (<expr>))
 letExpr: '(' LET '(' letParameters* ')' expr ')';
+letStarExpr: '(' LETSTAR '(' letParameters* ')' expr ')';
 letParameters: ('(' expr expr ')')
              | ('[' expr expr ']');
 
@@ -98,8 +101,8 @@ applicationExpr: '(' expr applicationArgs ')';
 applicationArgs: expr*;
 
 // Symbols take the form (quote | '(<expr>*) or <expr>)
-symbolExpr: (QUOTE | SINGLE_QUOTE) (symbolDatum | ('(' symbolDatum* ')'));
-symbolDatum: constant | variable | '(' expr* ')';
+symbolExpr: (QUOTE | SINGLE_QUOTE) symbolDatum;
+symbolDatum: constant | variable | '(' symbolDatum* ')';
 
 // Variables are, realistically, any symbol.
 constant: STRINGLIT | CHARLIT | BOOLLIT | NUMBERLIT;

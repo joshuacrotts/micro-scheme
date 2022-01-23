@@ -6,10 +6,12 @@ import com.joshuacrotts.minischeme.MiniSchemeParser.SymbolDatumContext;
 import com.joshuacrotts.minischeme.MiniSchemeParser.SymbolExprContext;
 import com.joshuacrotts.minischeme.ast.*;
 import org.antlr.v4.runtime.RuleContext;
+import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -108,6 +110,28 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitLetStarExpr(MiniSchemeParser.LetStarExprContext ctx) {
+        super.exitLetStarExpr(ctx);
+        ArrayList<MSSyntaxTree> letArgument;
+        MSApplicationNode rootApplication = null;
+        MSApplicationNode lastApplication = null;
+        for (int i = ctx.letParameters().size() - 1; i >= 0; i--) {
+            letArgument = new ArrayList<>();
+            MSSyntaxTree variable = this.map.get(ctx.letParameters().get(i).expr(0));
+            MSSyntaxTree expression = this.map.get(ctx.letParameters().get(i).expr(1));
+            ArrayList<MSSyntaxTree> letParameter = new ArrayList<>();
+            letParameter.add(variable);
+            letArgument.add(expression);
+            // If we're on the first expression, we need to create the lambda with the
+            // body as the expr.
+            if (i == ctx.letParameters().size() - 1) {
+
+            }
+        }
+        this.map.put(ctx, rootApplication);
+    }
+
+    @Override
     public void exitLambdaExpr(MiniSchemeParser.LambdaExprContext ctx) {
         super.exitLambdaExpr(ctx);
         ArrayList<MSSyntaxTree> lambdaParameters = new ArrayList<>();
@@ -156,31 +180,18 @@ public class MSListener extends MiniSchemeBaseListener {
     public void exitSymbolExpr(MiniSchemeParser.SymbolExprContext ctx) {
         super.exitSymbolExpr(ctx);
         // If it's just one symbol datum, then just return that.
-        if (ctx.symbolDatum(0) != null) {
-            this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.symbolDatum(0))));
-        } else {
-            // Otherwise, construct a list of SymbolDatums.
-            MSSyntaxTree parentList = null;
-            MSSyntaxTree currList = null;
-            for (int i = ctx.symbolDatum().size() - 1; i >= 0; i--) {
-                MSSyntaxTree rhsList = this.map.get(ctx.symbolDatum(i));
-                currList = new MSListNode(rhsList, currList);
-            }
-
-            parentList = Optional.ofNullable(currList).orElse(MSListNode.EMPTY_LIST);
-            this.map.put(ctx, new MSSymbolNode(parentList));
-        }
+        this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.symbolDatum())));
     }
 
     @Override
     public void exitSymbolDatum(MiniSchemeParser.SymbolDatumContext ctx) {
         super.exitSymbolDatum(ctx);
         // First, check to see if it's a list of expressions. If so, make it a MSListNode.
-        if (ctx.expr() != null) {
+        if (ctx.variable() == null && ctx.constant() == null) {
             MSSyntaxTree parentList = null;
             MSSyntaxTree currList = null;
-            for (int i = ctx.expr().size() - 1; i >= 0; i--) {
-                MSSyntaxTree rhsList = this.map.get(ctx.expr(i));
+            for (int i = ctx.symbolDatum().size() - 1; i >= 0; i--) {
+                MSSyntaxTree rhsList = this.map.get(ctx.symbolDatum(i));
                 currList = new MSListNode(rhsList, currList);
             }
 

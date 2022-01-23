@@ -32,9 +32,7 @@ public class Environment {
         for (Map.Entry<String, MSSyntaxTree> bindings : this.BINDINGS.entrySet()) {
             bindingsCopy.put(new String(bindings.getKey()), bindings.getValue().copy());
         }
-        System.out.println(this);
         Environment environmentCopy = new Environment(bindingsCopy);
-        System.out.println(environmentCopy);
         return environmentCopy;
     }
 

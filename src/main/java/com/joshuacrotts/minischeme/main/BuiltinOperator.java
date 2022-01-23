@@ -485,7 +485,6 @@ public class BuiltinOperator {
         if (equalArguments.size() != 2) { throw new MSArgumentMismatchException("eq?", 2, equalArguments.size()); }
         LValue lhs = equalArguments.get(0);
         LValue rhs = equalArguments.get(1);
-
         if (lhs == rhs) { return new LValue(new MSBooleanNode(true)); }
         else if (lhs.getTree().getNodeType() == rhs.getTree().getNodeType()) {
             // Check the type.
@@ -495,6 +494,7 @@ public class BuiltinOperator {
                 case CHARACTER: return new LValue(new MSBooleanNode(lhs.getCharacterValue() == rhs.getCharacterValue()));
                 case BOOLEAN: return new LValue(new MSBooleanNode(lhs.getBooleanValue() == rhs.getBooleanValue()));
                 case SYMBOL: return new LValue(new MSBooleanNode(lhs.getSymbolValue().getStringRep().equals(rhs.getSymbolValue().getStringRep())));
+                case VARIABLE: return new LValue(new MSBooleanNode(lhs.getTree().getStringRep().equals(rhs.getTree().getStringRep())));
                 default:
                     break;
             }
