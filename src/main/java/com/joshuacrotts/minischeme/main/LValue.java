@@ -17,16 +17,19 @@ public class LValue {
      */
     private final MSSyntaxTree TREE;
 
-    public Environment env;
+    /**
+     * Environment associated with this LValue.
+     */
+    private final Environment ENVIRONMENT;
 
     public LValue(final MSSyntaxTree tree) {
         this.TREE = tree;
-        this.env = null;
+        this.ENVIRONMENT = null;
     }
 
     public LValue(final MSSyntaxTree tree, final Environment env) {
-        this(tree);
-        this.env = env;
+        this.TREE = tree;
+        this.ENVIRONMENT = env;
     }
 
     /**
@@ -51,6 +54,21 @@ public class LValue {
         }
 
         throw new MSInterpreterException("Cannot return ast for " + lval.TREE.getNodeType());
+    }
+
+    @Override
+    public String toString() {
+        switch (this.TREE.getNodeType()) {
+            case VARIABLE:
+            case NUMBER:
+            case BOOLEAN:
+            case STRING:
+            case CHARACTER:
+            case SYMBOL:
+            case LIST: return this.TREE.getStringRep();
+            default:
+                throw new MSInterpreterException("Cannot return LValue for " + this.TREE.getNodeType() + " yet.");
+        }
     }
 
     public BigDecimal getNumberValue() {
@@ -88,21 +106,9 @@ public class LValue {
         throw new MSInterpreterException("Cannot return symbol from non-symbol lvalue " + this.TREE.getNodeType());
     }
 
-    public String toString() {
-        switch (this.TREE.getNodeType()) {
-            case VARIABLE: return ((MSVariableNode) this.TREE).getStringRep();
-            case NUMBER: return ((MSNumberNode) this.TREE).getStringRep();
-            case BOOLEAN: return ((MSBooleanNode) this.TREE).getStringRep();
-            case STRING: return ((MSStringNode) this.TREE).getStringRep();
-            case CHARACTER: return ((MSCharacterNode) this.TREE).getStringRep();
-            case SYMBOL: return ((MSSymbolNode) this.TREE).getStringRep();
-            case LIST: return ((MSListNode) this.TREE).getStringRep();
-            default:
-                throw new MSInterpreterException("Cannot return LValue for " + this.TREE.getNodeType() + " yet.");
-        }
-    }
-
     public MSSyntaxTree getTree() {
         return this.TREE;
     }
+
+    public Environment getEnvironment() { return this.ENVIRONMENT; }
 }

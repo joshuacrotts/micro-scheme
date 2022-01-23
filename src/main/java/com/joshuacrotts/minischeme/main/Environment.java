@@ -27,17 +27,44 @@ public class Environment {
         this.PARENT = parent;
     }
 
-    public Environment createChildEnvironment(ArrayList<MSSyntaxTree> formals, ArrayList<LValue> args) {
-        Environment e1 = new Environment(this);
-        for (int i = 0; i < formals.size(); i++) {
-            e1.bind(formals.get(i).getStringRep(), args.get(i));
-        }
-        return e1;
-    }
-
     @Override
     public String toString() {
-        return "Environment";
+        StringBuilder sb = new StringBuilder();
+        // First, construct the current environment.
+        sb.append("<");
+        int idx = 0;
+        for (Map.Entry<String, LValue> symbol : this.BINDINGS.entrySet()) {
+            sb.append("{");
+            sb.append(String.format("%s:%s", symbol.getKey(), symbol.getValue()));
+            sb.append((idx++ != this.BINDINGS.size() - 1 ) ? "}, " : "}");
+        }
+
+        // Then, if we have a parent environment, construct that.
+        if (this.PARENT != null) {
+            idx = 0;
+            sb.append(" -> ");
+            for (Map.Entry<String, LValue> symbol : this.PARENT.BINDINGS.entrySet()) {
+                sb.append("{");
+                sb.append(String.format("%s:%s", symbol.getKey(), symbol.getValue()));
+                sb.append((idx++ != this.BINDINGS.size() - 1 ) ? "}, " : "}");
+            }
+        }
+        sb.append(">");
+        return sb.toString();
+    }
+
+    /**
+     *
+     * @param formals
+     * @param arguments
+     * @return
+     */
+    public Environment createChildEnvironment(ArrayList<MSSyntaxTree> formals, ArrayList<LValue> arguments) {
+        Environment e1 = new Environment(this);
+        for (int i = 0; i < formals.size(); i++) {
+            e1.bind(formals.get(i).getStringRep(), arguments.get(i));
+        }
+        return e1;
     }
 
     /**
@@ -52,19 +79,6 @@ public class Environment {
     /**
      *
      * @param id
-     * @param expr
-     */
-    public void bind(MSSyntaxTree id, LValue expr) {
-        if (!id.isVariable()) {
-            throw new MSInterpreterException("Cannot bind non-variable " + id.getStringRep());
-        }
-
-        this.bind(((MSVariableNode) id).getIdentifier(), expr);
-    }
-
-    /**
-     *
-     * @param id
      * @return
      */
     public LValue lookup(String id) {
@@ -73,9 +87,5 @@ public class Environment {
             l = this.PARENT.lookup(id);
         }
         return l;
-    }
-
-    public int numberOfBindings() {
-         return this.BINDINGS.size();
     }
 }
