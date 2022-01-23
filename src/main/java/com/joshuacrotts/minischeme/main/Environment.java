@@ -4,6 +4,7 @@ import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.ast.MSVariableNode;
 import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -17,33 +18,26 @@ public class Environment {
     /**
      *
      */
-    private final TreeMap<String, MSSyntaxTree> BINDINGS;
+    private final TreeMap<String, LValue> BINDINGS;
 
-    public Environment() {
+    private Environment PARENT;
+
+    public Environment(Environment parent) {
         this.BINDINGS = new TreeMap<>();
+        this.PARENT = parent;
     }
 
-    public Environment(final TreeMap<String, MSSyntaxTree> bindings) {
-        this.BINDINGS = bindings;
-    }
-
-    public Environment copy() {
-        TreeMap<String, MSSyntaxTree> bindingsCopy = new TreeMap<>();
-        for (Map.Entry<String, MSSyntaxTree> bindings : this.BINDINGS.entrySet()) {
-            bindingsCopy.put(new String(bindings.getKey()), bindings.getValue().copy());
+    public Environment createChildEnvironment(ArrayList<MSSyntaxTree> formals, ArrayList<LValue> args) {
+        Environment e1 = new Environment(this);
+        for (int i = 0; i < formals.size(); i++) {
+            e1.bind(formals.get(i).getStringRep(), args.get(i));
         }
-        Environment environmentCopy = new Environment(bindingsCopy);
-        return environmentCopy;
+        return e1;
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, MSSyntaxTree> mapping : this.BINDINGS.entrySet()) {
-            sb.append(mapping.getKey() + "=" + mapping.getValue().getStringRep());
-            sb.append("\n");
-        }
-        return sb.toString();
+        return "Environment";
     }
 
     /**
@@ -51,7 +45,7 @@ public class Environment {
      * @param id
      * @param expr
      */
-    public void bind(String id, MSSyntaxTree expr) {
+    public void bind(String id, LValue expr) {
         this.BINDINGS.put(id, expr);
     }
 
@@ -60,7 +54,7 @@ public class Environment {
      * @param id
      * @param expr
      */
-    public void bind(MSSyntaxTree id, MSSyntaxTree expr) {
+    public void bind(MSSyntaxTree id, LValue expr) {
         if (!id.isVariable()) {
             throw new MSInterpreterException("Cannot bind non-variable " + id.getStringRep());
         }
@@ -73,21 +67,12 @@ public class Environment {
      * @param id
      * @return
      */
-    public MSSyntaxTree findInEnvironment(String id) {
-        return this.BINDINGS.get(id);
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public MSSyntaxTree findInEnvironment(MSSyntaxTree id) {
-        if (!id.isVariable()) {
-            throw new MSInterpreterException("Cannot lookup non-variable " + id.getStringRep());
+    public LValue lookup(String id) {
+        LValue l = this.BINDINGS.get(id);
+        if (l == null && this.PARENT != null) {
+            l = this.PARENT.lookup(id);
         }
-
-        return this.findInEnvironment(((MSVariableNode) id).getIdentifier());
+        return l;
     }
 
     public int numberOfBindings() {

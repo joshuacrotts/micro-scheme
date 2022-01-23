@@ -17,6 +17,8 @@ public class LValue {
      */
     private final MSSyntaxTree TREE;
 
+    public Environment env;
+
     public LValue(final MSSyntaxTree tree) {
         this.TREE = tree;
     }
