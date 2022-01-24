@@ -1,6 +1,9 @@
 package com.joshuacrotts.minischeme.ast;
 
 import com.joshuacrotts.minischeme.MiniSchemeParser;
+import com.joshuacrotts.minischeme.parser.MSInterpreterException;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -14,16 +17,17 @@ public class MSSetNode extends MSSyntaxTree {
      */
     private final int TYPE;
 
-    public MSSetNode(int type, MSSyntaxTree lhsExpression, MSSyntaxTree rhsExpression) {
-        super(type == MiniSchemeParser.SET ? MSNodeType.SET
-                : type == MiniSchemeParser.SETCAR ? MSNodeType.SETCAR
-                    : MSNodeType.SETCDR, lhsExpression, rhsExpression);
+    public MSSetNode(int type, ArrayList<MSSyntaxTree> setData) {
+        super(MSSetNode.getCorrespondingNodeType(type));
         this.TYPE = type;
+        for (MSSyntaxTree setElementData : setData) { this.addChild(setElementData); }
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSSetNode(this.TYPE, this.getAssignee().copy(), this.getExpression().copy());
+        ArrayList<MSSyntaxTree> setDataCopy = new ArrayList<>();
+        for (int i = 0; i < this.getChildrenSize(); i++) { setDataCopy.add(this.getChild(i).copy()); }
+        return new MSSetNode(this.TYPE, setDataCopy);
     }
 
     @Override
@@ -36,11 +40,14 @@ public class MSSetNode extends MSSyntaxTree {
         return this.getNodeType().toString();
     }
 
-    public MSSyntaxTree getAssignee() {
-        return this.getChild(0);
-    }
-
-    public MSSyntaxTree getExpression() {
-        return this.getChild(1);
+    private static MSNodeType getCorrespondingNodeType(int parserType) {
+        switch (parserType) {
+            case MiniSchemeParser.SET: return MSNodeType.SET;
+            case MiniSchemeParser.SETCAR: return MSNodeType.SETCAR;
+            case MiniSchemeParser.SETCDR: return MSNodeType.SETCDR;
+            case MiniSchemeParser.SETVECTOR: return MSNodeType.SETVECTOR;
+            default:
+                throw new MSInterpreterException("Cannot get node type from parser type " + parserType);
+        }
     }
 }

@@ -130,7 +130,7 @@ public class MSListener extends MiniSchemeBaseListener {
             MSLambdaNode lambdaNode;
             if (i == ctx.letParameters().size() - 1) { lambdaNode = new MSLambdaNode(letParameter, this.map.get(ctx.expr())); }
             else { lambdaNode = new MSLambdaNode(letParameter, rootApplication); }
-            rootApplication = new MSApplicationNode(lambdaNode, letArgument);;
+            rootApplication = new MSApplicationNode(lambdaNode, letArgument);
         }
 
         this.map.put(ctx, rootApplication);
@@ -193,7 +193,7 @@ public class MSListener extends MiniSchemeBaseListener {
         super.exitSymbolDatum(ctx);
         // First, check to see if it's a list of expressions. If so, make it a MSListNode.
         if (ctx.variable() == null && ctx.constant() == null) {
-            MSSyntaxTree parentList = null;
+            MSSyntaxTree parentList;
             MSSyntaxTree currList = null;
             for (int i = ctx.symbolDatum().size() - 1; i >= 0; i--) {
                 MSSyntaxTree rhsList = this.map.get(ctx.symbolDatum(i));
@@ -211,17 +211,18 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitSetExpr(MiniSchemeParser.SetExprContext ctx) {
         super.exitSetExpr(ctx);
-        MSSyntaxTree lhs = this.map.get(ctx.variable());
-        MSSyntaxTree rhs = this.map.get(ctx.expr());
-        this.map.put(ctx, new MSSetNode(MiniSchemeParser.SET, lhs, rhs));
+        ArrayList<MSSyntaxTree> setData = new ArrayList<>();
+        setData.add(this.map.get(ctx.variable()));
+        setData.add(this.map.get(ctx.expr()));
+        this.map.put(ctx, new MSSetNode(MiniSchemeParser.SET, setData));
     }
 
     @Override
     public void exitSetListExpr(MiniSchemeParser.SetListExprContext ctx) {
         super.exitSetListExpr(ctx);
-        MSSyntaxTree lhs = this.map.get(ctx.expr(0));
-        MSSyntaxTree rhs = this.map.get(ctx.expr(1));
-        this.map.put(ctx, new MSSetNode(((TerminalNode) ctx.getChild(1)).getSymbol().getType(), lhs, rhs));
+        ArrayList<MSSyntaxTree> setData = new ArrayList<>();
+        for (ParseTree pt : ctx.expr()) { setData.add(this.map.get(pt)); }
+        this.map.put(ctx, new MSSetNode(((TerminalNode) ctx.getChild(1)).getSymbol().getType(), setData));
     }
 
     @Override

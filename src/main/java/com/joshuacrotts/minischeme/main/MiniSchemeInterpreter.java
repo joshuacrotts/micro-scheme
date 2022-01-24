@@ -61,6 +61,7 @@ public class MiniSchemeInterpreter {
             case SET: return this.interpretSet((MSSetNode) tree, env);
             case SETCAR: return this.interpretSetCar((MSSetNode) tree, env);
             case SETCDR: return this.interpretSetCdr((MSSetNode) tree, env);
+            case SETVECTOR: return this.interpretSetVector((MSSetNode) tree, env);
             case COND: return this.interpretCond((MSCondNode) tree, env);
             case LAMBDA: return this.interpretLambda((MSLambdaNode) tree, env);
             case APPLICATION: return this.interpretApplication((MSApplicationNode) tree, env);
@@ -222,8 +223,8 @@ public class MiniSchemeInterpreter {
      * @throws MSSemanticException
      */
     private LValue interpretSet(final MSSetNode setNode, final Environment env) throws MSSemanticException {
-        MSSyntaxTree assignee = setNode.getAssignee();
-        LValue evaluatedExpression = this.interpretTree(setNode.getExpression(), env);
+        MSSyntaxTree assignee = setNode.getChild(0);
+        LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
         if (!assignee.isVariable()) { throw new MSArgumentMismatchException("set!", 0, "variable", assignee.getNodeType().toString()); }
         String id = ((MSVariableNode) assignee).getIdentifier();
         LValue lookupSymbol = env.lookup(id);
@@ -239,8 +240,8 @@ public class MiniSchemeInterpreter {
      * @throws MSSemanticException
      */
     private LValue interpretSetCar(final MSSetNode setNode, final Environment env) throws MSSemanticException {
-        LValue evaluatedAssignee = this.interpretTree(setNode.getAssignee(), env);
-        LValue evaluatedExpression = this.interpretTree(setNode.getExpression(), env);
+        LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
+        LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
 
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
         if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-car!", 0, "list/cons pair", assigneeAst.getNodeType().toString()); }
@@ -256,12 +257,29 @@ public class MiniSchemeInterpreter {
      * @throws MSSemanticException
      */
     private LValue interpretSetCdr(final MSSetNode setNode, final Environment env) throws MSSemanticException {
-        LValue evaluatedAssignee = this.interpretTree(setNode.getAssignee(), env);
-        LValue evaluatedExpression = this.interpretTree(setNode.getExpression(), env);
+        LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
+        LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
 
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
         if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-cdr!", 0, "list/cons pair", assigneeAst.getNodeType().toString()); }
         ((MSListNode) assigneeAst).setCdr(LValue.getAst(evaluatedExpression));
+        return null;
+    }
+
+    /**
+     *
+     * @param setNode
+     * @param env
+     * @return
+     * @throws MSSemanticException
+     */
+    private LValue interpretSetVector(final MSSetNode setNode, final Environment env) throws MSSemanticException {
+        LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
+        LValue vectorIdx = this.interpretTree(setNode.getChild(1), env);
+        LValue evaluatedExpression = this.interpretTree(setNode.getChild(2), env);
+        MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
+        if (!assigneeAst.isVector()) { throw new MSArgumentMismatchException("vector-set!", 0, "vector", assigneeAst.getNodeType().toString()); }
+        ((MSVectorNode) assigneeAst).setChild(vectorIdx.getNumberValue().intValue(), LValue.getAst(evaluatedExpression));
         return null;
     }
 

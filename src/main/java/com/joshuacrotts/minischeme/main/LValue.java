@@ -50,6 +50,7 @@ public class LValue {
             case LIST:
             case APPLICATION:
             case LAMBDA:
+            case VECTOR:
                 return lval.TREE;
         }
 
@@ -65,6 +66,7 @@ public class LValue {
             case STRING:
             case CHARACTER:
             case SYMBOL:
+            case VECTOR:
             case LIST: return this.TREE.getStringRep();
             default:
                 throw new MSInterpreterException("Cannot return LValue for " + this.TREE.getNodeType() + " yet.");

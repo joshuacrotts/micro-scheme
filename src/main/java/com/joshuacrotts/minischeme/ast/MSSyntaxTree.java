@@ -101,6 +101,8 @@ public class MSSyntaxTree {
     public boolean isList() { return this.NODE_TYPE == MSNodeType.LIST; }
 
     public boolean isNumber() { return this.NODE_TYPE == MSNodeType.NUMBER; }
+
+    public boolean isVector() { return this.NODE_TYPE == MSNodeType.VECTOR; }
     
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();

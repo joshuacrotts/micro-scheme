@@ -59,6 +59,11 @@ public final class BuiltinOperator {
             case "list":
             case "car":
             case "cdr":
+            case "set-car!":
+            case "set-cdr!":
+            case "vector":
+            case "vector-ref":
+            case "vector-length":
             case "null?":
             case "number?":
             case "character?":
@@ -66,6 +71,7 @@ public final class BuiltinOperator {
             case "symbol?":
             case "pair?":
             case "list?":
+            case "vector?":
             case "string-append":
             case "string-length":
             case "string<?":
@@ -123,13 +129,17 @@ public final class BuiltinOperator {
             case "list": return BuiltinOperator.interpretListFunction(evalArguments);
             case "car": return BuiltinOperator.interpretCarFunction(evalArguments);
             case "cdr": return BuiltinOperator.interpretCdrFunction(evalArguments);
+            case "vector": return BuiltinOperator.interpretVectorFunction(evalArguments);
+            case "vector-ref": return BuiltinOperator.interpretVectorRefFunction(evalArguments);
+            case "vector-length": return BuiltinOperator.interpretVectorLengthFunction(evalArguments);
             case "null?": return BuiltinOperator.interpretNullPredicate(evalArguments);
             case "number?": return BuiltinOperator.interpretNumberPredicate(evalArguments);
-            case "character?": return BuiltinOperator.interpretCharacterPredicate(evalArguments);
+            case "char?": return BuiltinOperator.interpretCharPredicate(evalArguments);
             case "string?": return BuiltinOperator.interpretStringPredicate(evalArguments);
             case "symbol?": return BuiltinOperator.interpretSymbolPredicate(evalArguments);
             case "pair?": return BuiltinOperator.interpretPairPredicate(evalArguments);
             case "list?": return BuiltinOperator.interpretListPredicate(evalArguments);
+            case "vector?": return BuiltinOperator.interpretVectorPredicate(evalArguments);
             case "string-append": return BuiltinOperator.interpretStringAppendFunction(evalArguments);
             case "string-length": return BuiltinOperator.interpretStringLengthFunction(evalArguments);
             case "string<?": return BuiltinOperator.interpretStringLess(evalArguments);
@@ -581,6 +591,42 @@ public final class BuiltinOperator {
 
     /**
      *
+     * @param vectorArguments
+     * @return
+     */
+    private static LValue interpretVectorFunction(final ArrayList<LValue> vectorArguments) {
+        ArrayList<MSSyntaxTree> vectorElements = new ArrayList<>();
+        for (LValue lval : vectorArguments) { vectorElements.add(LValue.getAst(lval)); }
+        return new LValue(new MSVectorNode(vectorElements));
+    }
+
+    /**
+     *
+     * @param vectorRefArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretVectorRefFunction(final ArrayList<LValue> vectorRefArguments) throws MSArgumentMismatchException {
+        if (vectorRefArguments.size() != 2) { throw new MSArgumentMismatchException("vector-ref", 2, vectorRefArguments.size()); }
+        MSSyntaxTree vector = LValue.getAst(vectorRefArguments.get(0));
+        LValue index = vectorRefArguments.get(1);
+        return new LValue(vector.getChild(index.getNumberValue().intValue()));
+    }
+
+    /**
+     *
+     * @param vectorLengthArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretVectorLengthFunction(final ArrayList<LValue> vectorLengthArguments) throws MSArgumentMismatchException {
+        if (vectorLengthArguments.size() != 1) { throw new MSArgumentMismatchException("vector-length", 1, vectorLengthArguments.size()); }
+        MSSyntaxTree vector = LValue.getAst(vectorLengthArguments.get(0));
+        return new LValue(new MSNumberNode(((MSVectorNode) vector).size()));
+    }
+
+    /**
+     *
      * @param nullArguments
      * @return
      */
@@ -607,7 +653,7 @@ public final class BuiltinOperator {
      * @param characterArguments
      * @return
      */
-    private static LValue interpretCharacterPredicate(final ArrayList<LValue> characterArguments) throws MSArgumentMismatchException {
+    private static LValue interpretCharPredicate(final ArrayList<LValue> characterArguments) throws MSArgumentMismatchException {
         if (characterArguments.size() != 1) { throw new MSArgumentMismatchException("character?", 1, characterArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(characterArguments.get(0));
         return new LValue(new MSBooleanNode(argument.isCharacter()));
@@ -659,6 +705,17 @@ public final class BuiltinOperator {
         if (!argument.isList()) { return new LValue(new MSBooleanNode(false)); }
         MSListNode listArgument = (MSListNode) argument;
         return new LValue(new MSBooleanNode(listArgument.isProper()));
+    }
+
+    /**
+     *
+     * @param vectorArguments
+     * @return
+     */
+    private static LValue interpretVectorPredicate(final ArrayList<LValue> vectorArguments) throws MSArgumentMismatchException {
+        if (vectorArguments.size() != 1) { throw new MSArgumentMismatchException("vector?", 1, vectorArguments.size()); }
+        MSSyntaxTree argument = LValue.getAst(vectorArguments.get(0));
+        return new LValue(new MSBooleanNode(argument.isVector()));
     }
 
     /**

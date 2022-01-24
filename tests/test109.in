@@ -2,7 +2,7 @@
 ; Simple setting vector element as expression. Expression should be evaluated.
 ;
 
-(define v1 (vector (1 2 3 4 5 6 7 8 9 10)))
+(define v1 (vector 1 2 3 4 5 6 7 8 9 10))
 (define var (+ 1000 3))
 (vector-set! v1 0 var)
 (display v1)

@@ -14,12 +14,14 @@ public enum MSNodeType {
     CHARACTER,
     SYMBOL,
     LIST,
+    VECTOR,
     VARIABLE,
     COND,
     LAMBDA,
     SET,
     SETCAR,
     SETCDR,
+    SETVECTOR,
     DECLARATION,
     APPLICATION;
 }

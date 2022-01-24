@@ -49,6 +49,7 @@ LETSTAR: 'let*';
 SET: 'set!';
 SETCAR: 'set-car!';
 SETCDR: 'set-cdr!';
+SETVECTOR: 'vector-set!';
 
 ID: [-+*/<>=a-zA-Z_][-+*/<>=?!a-zA-Z0-9_]*;
 
@@ -93,8 +94,8 @@ letParameters: ('(' expr expr ')')
 // Set expression takes the form (set! <var> <expr>). <expr> should not be evaluated.
 setExpr: '(' SET variable expr ')';
 
-// Set-list expressions are either set-car or set-cdr.
-setListExpr: '(' (SETCAR | SETCDR) expr expr ')';
+// Set-list expressions are either set-car, set-cdr, or vector-set.
+setListExpr: '(' (SETCAR | SETCDR | SETVECTOR) expr+')';
 
 // Lambda expressions take the form (lambda (<params>) <body>).
 lambdaExpr: '(' LAMBDA '(' lambdaParameters ')' expr ')';
