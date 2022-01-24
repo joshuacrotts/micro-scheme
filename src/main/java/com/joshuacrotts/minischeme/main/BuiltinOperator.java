@@ -66,7 +66,7 @@ public final class BuiltinOperator {
             case "vector-length":
             case "null?":
             case "number?":
-            case "character?":
+            case "char?":
             case "string?":
             case "symbol?":
             case "pair?":
@@ -502,6 +502,7 @@ public final class BuiltinOperator {
                 case BOOLEAN: return new LValue(new MSBooleanNode(lhs.getBooleanValue() == rhs.getBooleanValue()));
                 case CHARACTER: return new LValue(new MSBooleanNode(lhs.getCharacterValue() == rhs.getCharacterValue()));
                 case SYMBOL: return new LValue(new MSBooleanNode(lhs.getSymbolValue().getStringRep().equals(rhs.getSymbolValue().getStringRep())));
+                case VARIABLE:
                 case LIST: return new LValue(new MSBooleanNode(lhs.getTree().getStringRep().equals(rhs.getTree().getStringRep())));
                 default:
                     break;
@@ -840,14 +841,15 @@ public final class BuiltinOperator {
      */
     private static LValue interpretListStringFunction(final ArrayList<LValue> listStringArguments) throws MSArgumentMismatchException {
         if (listStringArguments.size() != 1) { throw new MSArgumentMismatchException("list->string", 1, listStringArguments.size()); }
-        MSListNode listArgument = (MSListNode) LValue.getAst(listStringArguments.get(0));
+        MSListNode curr = (MSListNode) LValue.getAst(listStringArguments.get(0));
         StringBuilder sb = new StringBuilder();
-//        while (true) {
-//            MSSyntaxTree curr = listArgument.getCar();
-//            if (curr.isList() && ((MSListNode) curr).isEmptyList()) { break; }
-//            sb.append(curr.getStringRep());
-//            listArgument = (MSListNode) listArgument.getCdr();
-//        }
+        for (int i = 0;; i++) {
+            if (curr == null || (curr.isEmptyList())) { break; }
+            if (!curr.getCar().isCharacter()) { throw new MSArgumentMismatchException("list->string", i, "char", curr.getNodeType().toString()); }
+
+            sb.append(curr.getCar().getStringRep());
+            curr = (MSListNode) curr.getCdr();
+        }
         return new LValue(new MSStringNode(sb.toString()));
     }
 
@@ -859,9 +861,15 @@ public final class BuiltinOperator {
      */
     private static LValue interpretStringListFunction(final ArrayList<LValue> stringListArguments) throws MSArgumentMismatchException {
         if (stringListArguments.size() != 1) { throw new MSArgumentMismatchException("string->list", 1, stringListArguments.size()); }
-        MSStringNode stringArgument = (MSStringNode) LValue.getAst(stringListArguments.get(0));
-        // TODO finish
-        return null;
+        // Grab each character, convert it to a MSCharacterNode, then add it to the pair.
+        MSSyntaxTree parentList;
+        MSListNode prevList = null;
+        String str = stringListArguments.get(0).getTree().getStringRep();
+        for (int i = str.length() - 1; i >= 0; i--) {
+            MSSyntaxTree rhsCharacter = new MSCharacterNode(str.charAt(i));
+            prevList = new MSListNode(rhsCharacter, prevList);
+        }
+        // If they enter the empty list, then we need to add a "blank" list node.
+        return new LValue(Optional.ofNullable(prevList).orElse(MSListNode.EMPTY_LIST));
     }
-
 }

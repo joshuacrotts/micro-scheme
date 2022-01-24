@@ -13,11 +13,7 @@
     )
 )
 
-(define L
- '( (a 10) (b 20) (c 30) ) )
-(assoc 'a L) 
-; (a 10)
+(define L '((a 10) (b 20) (c 30)))
+(assoc 'a L)
 (assoc 'b L)
-; (b 20)
 (assoc 'x L)
-; #f

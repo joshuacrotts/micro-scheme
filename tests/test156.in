@@ -1,0 +1,24 @@
+;
+; Another slightly simple OOP example.
+;
+(define (make-simple-cell value)
+    (λ (selector)
+        (cond ((eq? selector 'fetch)
+               (λ () value))
+              ((eq? selector 'store!)
+               (λ (new-value)
+                (set! value new-value)))
+              ((eq? selector 'cell?)
+               (λ () #t))
+              (else "Not handled"))))
+
+(define a-cell (make-simple-cell 13))
+((a-cell 'fetch)) ;; 13
+((a-cell 'store!) 21)
+((a-cell 'cell?))
+(define b-cell (make-simple-cell 17))
+((b-cell 'fetch)) ;; 17
+((b-cell 'store!) 24)
+((b-cell 'cell?))
+((a-cell 'fetch)) ;; 21
+((b-cell 'fetch)) ;; 24
