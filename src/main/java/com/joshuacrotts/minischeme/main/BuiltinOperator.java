@@ -78,6 +78,10 @@ public final class BuiltinOperator {
             case "string<=?":
             case "string>?":
             case "string>=?":
+            case "number->string":
+            case "string->number":
+            case "list->string":
+            case "string->list":
                 return true;
             default:
                 return false;
@@ -146,6 +150,10 @@ public final class BuiltinOperator {
             case "string<=?": return BuiltinOperator.interpretStringLessEqual(evalArguments);
             case "string>?": return BuiltinOperator.interpretStringGreater(evalArguments);
             case "string>=?": return BuiltinOperator.interpretStringGreaterEqual(evalArguments);
+            case "number->string": return BuiltinOperator.interpretNumberStringFunction(evalArguments);
+            case "string->number": return BuiltinOperator.interpretStringNumberFunction(evalArguments);
+            case "list->string": return BuiltinOperator.interpretListStringFunction(evalArguments);
+            case "string->list": return BuiltinOperator.interpretStringListFunction(evalArguments);
             default:
                 return null;
         }
@@ -798,6 +806,62 @@ public final class BuiltinOperator {
         String leftArgument = stringGreaterEqualArguments.get(0).getStringValue();
         String rightArgument = stringGreaterEqualArguments.get(1).getStringValue();
         return new LValue(new MSBooleanNode(leftArgument.compareTo(rightArgument) >= 0));
+    }
+
+    /**
+     *
+     * @param numberStringArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretNumberStringFunction(final ArrayList<LValue> numberStringArguments) throws MSArgumentMismatchException {
+        if (numberStringArguments.size() != 1) { throw new MSArgumentMismatchException("number->string", 1, numberStringArguments.size()); }
+        LValue argument = numberStringArguments.get(0);
+        return new LValue(new MSStringNode(argument.getNumberValue().toPlainString()));
+    }
+
+    /**
+     *
+     * @param stringNumberArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretStringNumberFunction(final ArrayList<LValue> stringNumberArguments) throws MSArgumentMismatchException {
+        if (stringNumberArguments.size() != 1) { throw new MSArgumentMismatchException("string->number", 1, stringNumberArguments.size()); }
+        LValue argument = stringNumberArguments.get(0);
+        return new LValue(new MSNumberNode(argument.getStringValue()));
+    }
+
+    /**
+     *
+     * @param listStringArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretListStringFunction(final ArrayList<LValue> listStringArguments) throws MSArgumentMismatchException {
+        if (listStringArguments.size() != 1) { throw new MSArgumentMismatchException("list->string", 1, listStringArguments.size()); }
+        MSListNode listArgument = (MSListNode) LValue.getAst(listStringArguments.get(0));
+        StringBuilder sb = new StringBuilder();
+//        while (true) {
+//            MSSyntaxTree curr = listArgument.getCar();
+//            if (curr.isList() && ((MSListNode) curr).isEmptyList()) { break; }
+//            sb.append(curr.getStringRep());
+//            listArgument = (MSListNode) listArgument.getCdr();
+//        }
+        return new LValue(new MSStringNode(sb.toString()));
+    }
+
+    /**
+     *
+     * @param stringListArguments
+     * @return
+     * @throws MSArgumentMismatchException
+     */
+    private static LValue interpretStringListFunction(final ArrayList<LValue> stringListArguments) throws MSArgumentMismatchException {
+        if (stringListArguments.size() != 1) { throw new MSArgumentMismatchException("string->list", 1, stringListArguments.size()); }
+        MSStringNode stringArgument = (MSStringNode) LValue.getAst(stringListArguments.get(0));
+        // TODO finish
+        return null;
     }
 
 }
