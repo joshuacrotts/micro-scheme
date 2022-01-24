@@ -7,7 +7,7 @@ package com.joshuacrotts.minischeme.ast;
  */
 public enum MSNodeType {
     ROOT,
-    SEQ,
+    SEQUENCE,
     NUMBER,
     STRING,
     BOOLEAN,

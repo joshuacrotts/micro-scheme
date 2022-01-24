@@ -1,6 +1,7 @@
 package com.joshuacrotts.minischeme.main;
 
 import com.joshuacrotts.minischeme.ast.*;
+import com.joshuacrotts.minischeme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 import com.joshuacrotts.minischeme.parser.MSSemanticException;
 
@@ -53,9 +54,11 @@ public class MiniSchemeInterpreter {
             case BOOLEAN: return this.interpretBoolean((MSBooleanNode) tree);
             case CHARACTER: return this.interpretCharacter((MSCharacterNode) tree);
             case STRING: return this.interpretString((MSStringNode) tree);
-            case VARIABLE: return this.interpretVariable((MSVariableNode) tree, env);
             case SYMBOL: return this.interpretSymbol((MSSymbolNode) tree);
+            case VARIABLE: return this.interpretVariable((MSVariableNode) tree, env);
+            case SEQUENCE: return this.interpretSequence((MSSequenceNode) tree, env);
             case DECLARATION: return this.interpretDeclaration((MSDeclaration) tree, env);
+            case SET: return this.interpretSet((MSSetNode) tree, env);
             case COND: return this.interpretCond((MSCondNode) tree, env);
             case LAMBDA: return this.interpretLambda((MSLambdaNode) tree, env);
             case APPLICATION: return this.interpretApplication((MSApplicationNode) tree, env);
@@ -130,6 +133,21 @@ public class MiniSchemeInterpreter {
 
     /**
      *
+     * @param sequence
+     * @param env
+     * @return
+     * @throws MSSemanticException
+     */
+    private LValue interpretSequence(final MSSequenceNode sequence, final Environment env) throws MSSemanticException {
+        LValue returnValue = null;
+        for (int i = 0; i < sequence.getChildrenSize(); i++) {
+            returnValue = this.interpretTree(sequence.getChild(i), env);
+        }
+        return returnValue;
+    }
+
+    /**
+     *
      * @param condNode
      * @return
      */
@@ -189,8 +207,26 @@ public class MiniSchemeInterpreter {
                         + lambdaParameters.size() + ", Got: " + evaluatedArguments.size());
             }
 
-            return this.interpretTree(lambdaBody, lambdaEnvironment.createChildEnvironment(lambdaParameters, evaluatedArguments));
+            Environment e1 = lambdaEnvironment.createChildEnvironment(lambdaParameters, evaluatedArguments);
+            return this.interpretTree(lambdaBody, e1);
         }
+    }
+
+    /**
+     *
+     * @param setNode
+     * @param env
+     * @return
+     * @throws MSSemanticException
+     */
+    private LValue interpretSet(final MSSetNode setNode, final Environment env) throws MSSemanticException {
+        MSSyntaxTree assignee = setNode.getAssignee();
+        LValue evaluatedExpression = this.interpretTree(setNode.getExpression(), env);
+        if (!assignee.isVariable()) { throw new MSArgumentMismatchException("set!", 0, "variable", assignee.getNodeType().toString()); }
+        String id = ((MSVariableNode) assignee).getIdentifier();
+        LValue lookupSymbol = env.lookup(id);
+        if (lookupSymbol != null) { env.bind(id, evaluatedExpression); return null; }
+        throw new MSSemanticException("undefined identifier '" + id + "'");
     }
 
     public void setInterpreterTree(final MSSyntaxTree interpreterTree) {

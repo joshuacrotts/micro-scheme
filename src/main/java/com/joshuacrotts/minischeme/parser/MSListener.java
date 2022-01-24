@@ -46,16 +46,25 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitDecl(MiniSchemeParser.DeclContext ctx) {
+        super.exitDecl(ctx);
+        this.map.put(ctx, this.map.get(ctx.getChild(0)));
+    }
+
+    @Override
     public void exitExpr(MiniSchemeParser.ExprContext ctx) {
         super.exitExpr(ctx);
         this.map.put(ctx, this.map.get(ctx.getChild(0)));
     }
 
-
     @Override
-    public void exitDecl(MiniSchemeParser.DeclContext ctx) {
-        super.exitDecl(ctx);
-        this.map.put(ctx, this.map.get(ctx.getChild(0)));
+    public void exitBeginExpr(MiniSchemeParser.BeginExprContext ctx) {
+        super.exitBeginExpr(ctx);
+        ArrayList<MSSyntaxTree> expressions = new ArrayList<>();
+        for (ParseTree pt : ctx.expr()) {
+            expressions.add(this.map.get(pt));
+        }
+        this.map.put(ctx, new MSSequenceNode(expressions));
     }
 
     @Override
@@ -204,13 +213,13 @@ public class MSListener extends MiniSchemeBaseListener {
         }
     }
 
-//    @Override
-//    public void exitSetExpr(MiniSchemeParser.SetExprContext ctx) {
-//        super.exitSetExpr(ctx);
-//        MSSyntaxTree lhs = this.map.get(ctx.expr(0));
-//        MSSyntaxTree rhs = this.map.get(ctx.expr(1));
-//        this.map.put(ctx, new MSSetNode(lhs, rhs));
-//    }
+    @Override
+    public void exitSetExpr(MiniSchemeParser.SetExprContext ctx) {
+        super.exitSetExpr(ctx);
+        MSSyntaxTree lhs = this.map.get(ctx.variable());
+        MSSyntaxTree rhs = this.map.get(ctx.expr());
+        this.map.put(ctx, new MSSetNode(lhs, rhs));
+    }
 
     @Override
     public void exitConstant(MiniSchemeParser.ConstantContext ctx) {

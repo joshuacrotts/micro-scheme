@@ -25,28 +25,21 @@
 (define (multiplicand s) (car (cdr (cdr s))))
 
 (define (deriv exp var)
-    (cond   [(constant? exp) 0]
-            [(variable? exp)
-                (if (same-variable? exp var) 1 0)]
-            [(sum? exp)
+    (cond   ((constant? exp) 0)
+            ((variable? exp)
+                (if (same-variable? exp var) 1 0))
+            ((sum? exp)
                 (make-sum
                     (deriv (addend exp) var)
-                    (deriv (augend exp) var)
-                )
-            ]
-            [(product? exp)
+                    (deriv (augend exp) var)))
+            ((product? exp)
                 (make-sum
                     (make-product
                         (multiplier exp)
                         (deriv (multiplicand exp) var))
                     (make-product
                         (deriv (multiplier exp) var)
-                        (multiplicand exp)
-                    )
-                )
-            ]
-    )
-)
+                        (multiplicand exp))))))
 
 (deriv (list "+" 7 "x") "x") ; 1
 (deriv (list "*" 7 "x") "x") ; 7

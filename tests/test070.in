@@ -1,5 +1,5 @@
-(string=? "Apple" "apple")
-(string=? "a" "as")
+(equal? "Apple" "apple")
+(equal? "a" "as")
 (string<? "Apple" "apple")
 (string<? "apple" "Apple")
 (string<? "a" "b")

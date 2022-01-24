@@ -46,6 +46,9 @@ BEGIN: 'begin';
 QUOTE: 'quote';
 LET: 'let';
 LETSTAR: 'let*';
+SET: 'set!';
+SETCAR: 'set-car!';
+SETCDR: 'set-cdr!';
 
 ID: [-+*/<>=a-zA-Z_][-+*/<>=?!a-zA-Z0-9_]*;
 
@@ -65,9 +68,11 @@ procedureDeclaration: '(' DEFINE '(' variable procedureParameters ')' expr ')';
 procedureParameters: expr*;
 
 // There are several different types of declarations.
-expr: letExpr
+expr: beginExpr
+    | letExpr
     | letStarExpr
-    // | setExpr
+    | setExpr
+    | setListExpr
     | lambdaExpr
     | condExpr
     | ifExpr
@@ -76,11 +81,20 @@ expr: letExpr
     | constant
     | variable;
 
+// A begin expression is a sequence of expressions, evaluated from left ro right.
+beginExpr: '(' BEGIN expr+ ')';
+
 // Let expression takes the form (let ((<var> <expr>)*) (<expr>))
 letExpr: '(' LET '(' letParameters* ')' expr ')';
 letStarExpr: '(' LETSTAR '(' letParameters* ')' expr ')';
 letParameters: ('(' expr expr ')')
              | ('[' expr expr ']');
+
+// Set expression takes the form (set! <var> <expr>). <expr> should not be evaluated.
+setExpr: '(' SET variable expr ')';
+
+// Set-list expressions are either set-car or set-cdr.
+setListExpr: '(' (SETCAR | SETCDR) expr expr ')';
 
 // Lambda expressions take the form (lambda (<params>) <body>).
 lambdaExpr: '(' LAMBDA '(' lambdaParameters ')' expr ')';
@@ -88,7 +102,7 @@ lambdaParameters: expr*;
 
 // Cond expressions take the form (cond (<condForm>))
 condExpr: '(' COND ('(' condForm ')')+ ')'
-        | '[' COND ('(' condForm ')')+ ']'
+        | '(' COND ('[' condForm ']')+ ')'
         | '(' COND ('(' condForm ')')+ '(' ELSE expr ')'')'
         | '(' COND ('[' condForm ']')+ '[' ELSE expr ']'')';
 condForm: expr expr;

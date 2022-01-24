@@ -1,6 +1,6 @@
-;
-; "OOP" 1
-;
+(define (sqrt x) (** x 0.5))
+(define (atan x) (/ 1 (tan x)))
+
 (define (point x y)
     (list
         (list 'rect
