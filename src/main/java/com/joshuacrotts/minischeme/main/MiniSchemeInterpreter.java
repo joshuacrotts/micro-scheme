@@ -59,6 +59,8 @@ public class MiniSchemeInterpreter {
             case SEQUENCE: return this.interpretSequence((MSSequenceNode) tree, env);
             case DECLARATION: return this.interpretDeclaration((MSDeclaration) tree, env);
             case SET: return this.interpretSet((MSSetNode) tree, env);
+            case SETCAR: return this.interpretSetCar((MSSetNode) tree, env);
+            case SETCDR: return this.interpretSetCdr((MSSetNode) tree, env);
             case COND: return this.interpretCond((MSCondNode) tree, env);
             case LAMBDA: return this.interpretLambda((MSLambdaNode) tree, env);
             case APPLICATION: return this.interpretApplication((MSApplicationNode) tree, env);
@@ -227,6 +229,40 @@ public class MiniSchemeInterpreter {
         LValue lookupSymbol = env.lookup(id);
         if (lookupSymbol != null) { env.bind(id, evaluatedExpression); return null; }
         throw new MSSemanticException("undefined identifier '" + id + "'");
+    }
+
+    /**
+     *
+     * @param setNode
+     * @param env
+     * @return
+     * @throws MSSemanticException
+     */
+    private LValue interpretSetCar(final MSSetNode setNode, final Environment env) throws MSSemanticException {
+        LValue evaluatedAssignee = this.interpretTree(setNode.getAssignee(), env);
+        LValue evaluatedExpression = this.interpretTree(setNode.getExpression(), env);
+
+        MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
+        if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-car!", 0, "list/cons pair", assigneeAst.getNodeType().toString()); }
+        ((MSListNode) assigneeAst).setCar(LValue.getAst(evaluatedExpression));
+        return null;
+    }
+
+    /**
+     *
+     * @param setNode
+     * @param env
+     * @return
+     * @throws MSSemanticException
+     */
+    private LValue interpretSetCdr(final MSSetNode setNode, final Environment env) throws MSSemanticException {
+        LValue evaluatedAssignee = this.interpretTree(setNode.getAssignee(), env);
+        LValue evaluatedExpression = this.interpretTree(setNode.getExpression(), env);
+
+        MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
+        if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-cdr!", 0, "list/cons pair", assigneeAst.getNodeType().toString()); }
+        ((MSListNode) assigneeAst).setCdr(LValue.getAst(evaluatedExpression));
+        return null;
     }
 
     public void setInterpreterTree(final MSSyntaxTree interpreterTree) {

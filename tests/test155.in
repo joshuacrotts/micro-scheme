@@ -3,3 +3,6 @@
 (define add-six (adder 6))
 (add-five 10)
 (add-six 10)
+(add-five 12)
+(add-six 17)
+(add-five (add-five 5))

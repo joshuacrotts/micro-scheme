@@ -18,6 +18,8 @@ public enum MSNodeType {
     COND,
     LAMBDA,
     SET,
+    SETCAR,
+    SETCDR,
     DECLARATION,
     APPLICATION;
 }

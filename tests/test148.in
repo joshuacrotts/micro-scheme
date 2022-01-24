@@ -4,7 +4,7 @@
 
 (define cnt
     (let ((I 0))
-        (lambda () (begin (set! I (+ I 1)) I))))
+        (lambda () (begin (display I) (set! I (+ I 1))))))
 
 (cnt)
 (cnt)

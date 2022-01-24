@@ -2,16 +2,11 @@ package com.joshuacrotts.minischeme.parser;
 
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
-import com.joshuacrotts.minischeme.MiniSchemeParser.SymbolDatumContext;
-import com.joshuacrotts.minischeme.MiniSchemeParser.SymbolExprContext;
 import com.joshuacrotts.minischeme.ast.*;
-import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -36,7 +31,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitMiniScheme(MiniSchemeParser.MiniSchemeContext ctx) {
+    public void exitMiniScheme(final MiniSchemeParser.MiniSchemeContext ctx) {
         super.exitMiniScheme(ctx);
         for (int i = 0; i < ctx.children.size(); i++) {
             if (ctx.getChild(i) != null) {
@@ -218,7 +213,15 @@ public class MSListener extends MiniSchemeBaseListener {
         super.exitSetExpr(ctx);
         MSSyntaxTree lhs = this.map.get(ctx.variable());
         MSSyntaxTree rhs = this.map.get(ctx.expr());
-        this.map.put(ctx, new MSSetNode(lhs, rhs));
+        this.map.put(ctx, new MSSetNode(MiniSchemeParser.SET, lhs, rhs));
+    }
+
+    @Override
+    public void exitSetListExpr(MiniSchemeParser.SetListExprContext ctx) {
+        super.exitSetListExpr(ctx);
+        MSSyntaxTree lhs = this.map.get(ctx.expr(0));
+        MSSyntaxTree rhs = this.map.get(ctx.expr(1));
+        this.map.put(ctx, new MSSetNode(((TerminalNode) ctx.getChild(1)).getSymbol().getType(), lhs, rhs));
     }
 
     @Override

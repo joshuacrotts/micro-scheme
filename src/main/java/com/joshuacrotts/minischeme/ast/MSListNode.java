@@ -49,7 +49,7 @@ public class MSListNode extends MSSyntaxTree {
 
     public void setCar(final MSSyntaxTree newCar) {
         if (this.getCar() != null) { this.setChild(0, newCar); }
-        this.addChild(newCar);
+        else { this.addChild(newCar); };
     }
 
     public MSSyntaxTree getCdr() {
@@ -57,8 +57,8 @@ public class MSListNode extends MSSyntaxTree {
     }
 
     public void setCdr(final MSSyntaxTree newCdr) {
-        if (this.getCdr() != null) { this.setChild(0, newCdr); }
-        this.addChild(newCdr);
+        if (this.getCdr() != null) { this.setChild(1, newCdr); }
+        else { this.addChild(newCdr); }
     }
 
     public boolean isProper() {

@@ -43,10 +43,15 @@ public class Environment {
         if (this.PARENT != null) {
             idx = 0;
             sb.append(" -> ");
-            for (Map.Entry<String, LValue> symbol : this.PARENT.BINDINGS.entrySet()) {
-                sb.append("{");
-                sb.append(String.format("%s:%s", symbol.getKey(), symbol.getValue()));
-                sb.append((idx++ != this.BINDINGS.size() - 1 ) ? "}, " : "}");
+            // If the mapping is empty, then just append <EMPTY>.
+            if (this.PARENT.BINDINGS.isEmpty()) {
+                sb.append("<EMPTY>");
+            } else {
+                for (Map.Entry<String, LValue> symbol : this.PARENT.BINDINGS.entrySet()) {
+                    sb.append("{");
+                    sb.append(String.format("%s:%s", symbol.getKey(), symbol.getValue()));
+                    sb.append((idx++ != this.BINDINGS.size() - 1) ? "}, " : "}");
+                }
             }
         }
         sb.append(">");

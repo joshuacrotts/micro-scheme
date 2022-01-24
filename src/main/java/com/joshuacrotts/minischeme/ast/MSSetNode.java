@@ -1,5 +1,7 @@
 package com.joshuacrotts.minischeme.ast;
 
+import com.joshuacrotts.minischeme.MiniSchemeParser;
+
 /**
  *
  * @author Joshua Crotts
@@ -7,13 +9,21 @@ package com.joshuacrotts.minischeme.ast;
  */
 public class MSSetNode extends MSSyntaxTree {
 
-    public MSSetNode(MSSyntaxTree lhsExpression, MSSyntaxTree rhsExpression) {
-        super(MSNodeType.SET, lhsExpression, rhsExpression);
+    /**
+     *
+     */
+    private final int TYPE;
+
+    public MSSetNode(int type, MSSyntaxTree lhsExpression, MSSyntaxTree rhsExpression) {
+        super(type == MiniSchemeParser.SET ? MSNodeType.SET
+                : type == MiniSchemeParser.SETCAR ? MSNodeType.SETCAR
+                    : MSNodeType.SETCDR, lhsExpression, rhsExpression);
+        this.TYPE = type;
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSSetNode(this.getAssignee().copy(), this.getExpression().copy());
+        return new MSSetNode(this.TYPE, this.getAssignee().copy(), this.getExpression().copy());
     }
 
     @Override
