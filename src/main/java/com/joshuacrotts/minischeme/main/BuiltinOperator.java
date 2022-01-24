@@ -42,9 +42,15 @@ public final class BuiltinOperator {
             case "sin":
             case "cos":
             case "tan":
+            case "asin":
+            case "acos":
+            case "atan":
             case "sinh":
             case "cosh":
             case "tanh":
+            case "asinh":
+            case "acosh":
+            case "atanh":
             case "<":
             case "<=":
             case ">":
@@ -116,9 +122,15 @@ public final class BuiltinOperator {
             case "sin": return BuiltinOperator.interpretSin(evalArguments);
             case "cos": return BuiltinOperator.interpretCos(evalArguments);
             case "tan": return BuiltinOperator.interpretTan(evalArguments);
+            case "asin": return BuiltinOperator.interpretAsin(evalArguments);
+            case "acos": return BuiltinOperator.interpretAcos(evalArguments);
+            case "atan": return BuiltinOperator.interpretAtan(evalArguments);
             case "sinh": return BuiltinOperator.interpretSinh(evalArguments);
             case "cosh": return BuiltinOperator.interpretCosh(evalArguments);
             case "tanh": return BuiltinOperator.interpretTanh(evalArguments);
+            case "asinh": return BuiltinOperator.interpretAsinh(evalArguments);
+            case "acosh": return BuiltinOperator.interpretAcosh(evalArguments);
+            case "atanh": return BuiltinOperator.interpretAtanh(evalArguments);
             case "<": return BuiltinOperator.interpretLess(evalArguments);
             case "<=": return BuiltinOperator.interpretLessEqual(evalArguments);
             case ">": return BuiltinOperator.interpretGreater(evalArguments);
@@ -351,6 +363,39 @@ public final class BuiltinOperator {
 
     /**
      *
+     * @param sinArguments
+     * @return
+     */
+    private static LValue interpretAsin(final ArrayList<LValue> sinArguments) throws MSArgumentMismatchException {
+        if (sinArguments.size() != 1) { throw new MSArgumentMismatchException("asin", 1, sinArguments.size()); }
+        BigDecimal argument = sinArguments.get(0).getNumberValue();
+        return new LValue(new MSNumberNode(BigDecimalMath.asin(argument, MSNumberNode.PRECISION)));
+    }
+
+    /**
+     *
+     * @param cosArguments
+     * @return
+     */
+    private static LValue interpretAcos(final ArrayList<LValue> cosArguments) throws MSArgumentMismatchException {
+        if (cosArguments.size() != 1) { throw new MSArgumentMismatchException("acos", 1, cosArguments.size()); }
+        BigDecimal argument = cosArguments.get(0).getNumberValue();
+        return new LValue(new MSNumberNode(BigDecimalMath.acos(argument, MSNumberNode.PRECISION)));
+    }
+
+    /**
+     *
+     * @param tanArguments
+     * @return
+     */
+    private static LValue interpretAtan(final ArrayList<LValue> tanArguments) throws MSArgumentMismatchException {
+        if (tanArguments.size() != 1) { throw new MSArgumentMismatchException("atan", 1, tanArguments.size()); }
+        BigDecimal argument = tanArguments.get(0).getNumberValue();
+        return new LValue(new MSNumberNode(BigDecimalMath.atan(argument, MSNumberNode.PRECISION)));
+    }
+
+    /**
+     *
      * @param sinhArguments
      * @return
      */
@@ -380,6 +425,39 @@ public final class BuiltinOperator {
         if (tanhArguments.size() != 1) { throw new MSArgumentMismatchException("tanh", 1, tanhArguments.size()); }
         BigDecimal argument = tanhArguments.get(0).getNumberValue();
         return new LValue(new MSNumberNode(BigDecimalMath.tanh(argument, MSNumberNode.PRECISION)));
+    }
+
+    /**
+     *
+     * @param sinhArguments
+     * @return
+     */
+    private static LValue interpretAsinh(final ArrayList<LValue> sinhArguments) throws MSArgumentMismatchException {
+        if (sinhArguments.size() != 1) { throw new MSArgumentMismatchException("asinh", 1, sinhArguments.size()); }
+        BigDecimal argument = sinhArguments.get(0).getNumberValue();
+        return new LValue(new MSNumberNode(BigDecimalMath.asinh(argument, MSNumberNode.PRECISION)));
+    }
+
+    /**
+     *
+     * @param coshArguments
+     * @return
+     */
+    private static LValue interpretAcosh(final ArrayList<LValue> coshArguments) throws MSArgumentMismatchException {
+        if (coshArguments.size() != 1) { throw new MSArgumentMismatchException("acosh", 1, coshArguments.size()); }
+        BigDecimal argument = coshArguments.get(0).getNumberValue();
+        return new LValue(new MSNumberNode(BigDecimalMath.acosh(argument, MSNumberNode.PRECISION)));
+    }
+
+    /**
+     *
+     * @param tanhArguments
+     * @return
+     */
+    private static LValue interpretAtanh(final ArrayList<LValue> tanhArguments) throws MSArgumentMismatchException {
+        if (tanhArguments.size() != 1) { throw new MSArgumentMismatchException("atanh", 1, tanhArguments.size()); }
+        BigDecimal argument = tanhArguments.get(0).getNumberValue();
+        return new LValue(new MSNumberNode(BigDecimalMath.atanh(argument, MSNumberNode.PRECISION)));
     }
 
     /**

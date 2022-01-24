@@ -227,9 +227,14 @@ public class MiniSchemeInterpreter {
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
         if (!assignee.isVariable()) { throw new MSArgumentMismatchException("set!", 0, "variable", assignee.getNodeType().toString()); }
         String id = ((MSVariableNode) assignee).getIdentifier();
-        LValue lookupSymbol = env.lookup(id);
-        if (lookupSymbol != null) { env.bind(id, evaluatedExpression); return null; }
-        throw new MSSemanticException("undefined identifier '" + id + "'");
+        Environment curr = env;
+        while (curr != null) {
+            LValue lookupSymbol = curr.lookup(id);
+            if (lookupSymbol != null) { curr.bind(id, evaluatedExpression); }
+            curr = curr.getParent();
+        }
+        return null;
+        // throw new MSSemanticException("undefined identifier '" + id + "'");
     }
 
     /**

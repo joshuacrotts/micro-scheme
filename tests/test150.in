@@ -1,21 +1,12 @@
 (define (sqrt x) (** x 0.5))
-(define (atan x) (/ 1 (tan x)))
 
 (define (point x y)
-    (list
-        (list 'rect
-            (lambda () (list x y)))
-        (list 'polar
-            (lambda ()
-                (list
-                    (sqrt (+ (* x x) (* y y)))
-                    (atan (/ x y)))))))
-
-(define (structure key p)
-    (cond ((eq? key 'rect) (car (cdr (car p))))
-          ((eq? key 'polar) (car (cdr (car (cdr p)))))
-          (else #f)))
+    (lambda (arg)
+        (cond ((eq? 'rect arg) (lambda () (list x y)))
+              ((eq? 'polar arg) (lambda () (list (sqrt (+ (* x x) (* y y))) (atan (/ x y)))))
+              (else #f))))
 
 (define p (point 1 1))
-((structure 'rect p))
-((structure 'polar p))
+((p 'rect))
+((p 'polar))
+

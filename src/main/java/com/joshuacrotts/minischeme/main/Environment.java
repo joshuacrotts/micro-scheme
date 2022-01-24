@@ -93,4 +93,8 @@ public class Environment {
         }
         return l;
     }
+
+    public Environment getParent() {
+        return this.PARENT;
+    }
 }
