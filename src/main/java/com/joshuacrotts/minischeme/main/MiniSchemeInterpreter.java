@@ -72,50 +72,66 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
-     * @param numberNode
-     * @return
+     * Converts a MSNumberNode AST into an LValue.
+     *  
+     * @param numberNode AST
+     * 
+     * @return LValue with number.
      */
     private LValue interpretNumber(final MSNumberNode numberNode) {
         return new LValue(numberNode);
     }
 
     /**
-     *
-     * @param booleanNode
-     * @return
+     * Converts a MSBooleanNode AST into an LValue.
+     * 
+     * @param booleanNode AST
+     * 
+     * @return LValue with boolean.
      */
     private LValue interpretBoolean(final MSBooleanNode booleanNode) {
         return new LValue(booleanNode);
     }
 
     /**
-     *
-     * @param stringNode
-     * @return
+     * Converts a MSStringNode AST into an LValue.
+     * 
+     * @param stringNode AST
+     * 
+     * @return LValue with string.
      */
     private LValue interpretString(final MSStringNode stringNode) {
         return new LValue(stringNode);
     }
 
     /**
-     *
-     * @param characterNode
-     * @return
+     * Converts a MSCharacterNode AST into an LValue.
+     * 
+     * @param characterNode AST
+     * 
+     * @return LValue with character.
      */
     private LValue interpretCharacter(final MSCharacterNode characterNode) { return new LValue(characterNode); }
 
     /**
-     *
-     * @param symbolNode
-     * @return
+     * Converts a MSSymbolNode AST into an LValue.
+     * 
+     * @param symbolNode AST
+     * 
+     * @return LValue with symbol.
      */
     private LValue interpretSymbol(final MSSymbolNode symbolNode) { return new LValue(symbolNode.getValue()); }
 
     /**
-     *
-     * @param variableNode
-     * @return
+     * Interprets a variable in the provided environment. If it is not found in the passed environment or its
+     * parent and it's not an operator, an error is displayed.
+     * 
+     * @param variableNode AST
+     * @param env Environment to look variable up in
+     * 
+     * @return LValue of variable data in environment. If it is a builtin operator, we just return the variableNode.
+     * 
+     * @throws MSSemanticException if variableNode is not found in env and it's not builtin.
      */
     private LValue interpretVariable(final MSVariableNode variableNode, final Environment env) throws MSSemanticException {
         LValue variableData = env.lookup(variableNode.getIdentifier());
@@ -125,9 +141,14 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
-     * @param declarationNode
-     * @return
+     * Interprets a declaration. We first evaluate the right-hand side, then bind it to the passed environment.
+     * 
+     * @param declarationNode AST.
+     * @param env Environment to store declaration in.
+     * 
+     * @return null (declarations do not return any values).
+     * 
+     * @throws MSSemanticException if an exception is thrown when interpreting the rhs.
      */
     private LValue interpretDeclaration(final MSDeclaration declarationNode, final Environment env) throws MSSemanticException {
         LValue rExpr = this.interpretTree(declarationNode.getExpression(), env);
@@ -136,11 +157,14 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
-     * @param sequence
-     * @param env
-     * @return
-     * @throws MSSemanticException
+     * Interprets a sequence of expressions.
+     * 
+     * @param sequence AST
+     * @param env Environment to interpret the sequence of expressions in.
+     * 
+     * @return LValue of last expression evaluated in the sequence.
+     * 
+     * @throws MSSemanticException if an exception is thrown when interpreting the sequence.
      */
     private LValue interpretSequence(final MSSequenceNode sequence, final Environment env) throws MSSemanticException {
         LValue returnValue = null;
@@ -151,9 +175,16 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
-     * @param condNode
-     * @return
+     * Interprets a conditional (cond or if). Each conditional is evaluated from left-to-right, and if
+     * this conditional is true, we evaluate its corresponding consequent expression. If there is an
+     * else expression and none of the cond expressions are true, it is evaluated last.
+     * 
+     * @param condNode AST of either a COND or an IF.
+     * @param env Environment to evaluate the conditionals in.
+     * 
+     * @return LValue of consequent expression evaluated.
+     * 
+     * @throws MSSemanticException if the conditional does not have an else but requires one (all cases fall through).
      */
     private LValue interpretCond(final MSCondNode condNode, final Environment env) throws MSSemanticException {
         ArrayList<MSSyntaxTree> condPredicateList = condNode.getPredicateList();
@@ -172,15 +203,33 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
-     * @param lambdaNode
-     * @return
+     * Interprets a lambda AST.
+     * 
+     * @param lambdaNode AST
+     * @param env Environment to evaluate the lambda in.
+     * 
+     * @return LValue wrapping the lambda and its current environment.
      */
     private LValue interpretLambda(final MSLambdaNode lambdaNode, final Environment env) {
         return new LValue(lambdaNode, env);
     }
 
-
+    /**
+     * Interprets a DO iterative loop. A do loop in Scheme has a declaration section, "variable steps",
+     * a test, a list of "true" expressions, and then the body. 
+     * 
+     * Do sets up the variable bindings in a new local environment. It then evaluates the do test, and 
+     * if it is true, we evaluate the "do true" expressions. Otherwise, we evaluate the body of the 
+     * do loop. Finally, the "variable steps" (i.e., a list of SETs) are processed. 
+     * 
+     * @param doNode AST
+     * @param env parent environment of the do node.
+     * 
+     * @return LValue of the last "true" expression evaluated.
+     * 
+     * @throws MSSemanticException if the "test" is not boolean expression, or a sub-evaluation throws
+     *         an exception.
+     */
     private LValue interpretDo(final MSDoNode doNode, final Environment env) throws MSSemanticException {
         // First, set up the declarations and evaluate their expressions.
         ArrayList<MSSyntaxTree> doFormals = new ArrayList<>();

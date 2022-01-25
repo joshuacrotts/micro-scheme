@@ -1,13 +1,11 @@
 package com.joshuacrotts.minischeme.main;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
-import ch.obermuhlner.math.big.BigFloat;
 import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.minischeme.parser.MSSemanticException;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Optional;
