@@ -44,6 +44,7 @@ ELSE: 'else';
 LAMBDA: 'lambda' | 'λ';
 BEGIN: 'begin';
 QUOTE: 'quote';
+DO: 'do';
 LET: 'let';
 LETSTAR: 'let*';
 SET: 'set!';
@@ -70,6 +71,7 @@ procedureParameters: expr*;
 
 // There are several different types of declarations.
 expr: beginExpr
+    | doExpr
     | letExpr
     | letStarExpr
     | setExpr
@@ -84,6 +86,14 @@ expr: beginExpr
 
 // A begin expression is a sequence of expressions, evaluated from left ro right.
 beginExpr: '(' BEGIN expr+ ')';
+
+// A do expression takes the form (do ((<var> <expr> <expr>)*) (<test> <expr>) <seq>)
+doExpr: '(' DO '(' doDecl* ')' '(' doTest doTrueExpr* ')' doBody ')';
+doDecl: '(' variable expr ')'
+      | '(' variable expr expr ')';
+doTest: expr;
+doTrueExpr: expr;
+doBody: expr+;
 
 // Let expression takes the form (let ((<var> <expr>)*) (<expr>))
 letExpr: '(' LET '(' letParameters* ')' expr ')';

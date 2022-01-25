@@ -4,7 +4,7 @@
 
 (define sum-from-iterative
     (λ (a b) 
-        (do ((i a) (total 0)) ((i (+ i 1)))
+        (do ((i a (+ i 1)) (total 0))
             ((> i b) total)
             (set! total (+ total i))
         )))

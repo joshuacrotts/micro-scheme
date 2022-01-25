@@ -99,6 +99,43 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitDoExpr(MiniSchemeParser.DoExprContext ctx) {
+        super.exitDoExpr(ctx);
+        // First, collect the variable declarations and set expressions.
+        ArrayList<MSSyntaxTree> doDeclarations = new ArrayList<>();
+        ArrayList<MSSyntaxTree> doSetExpressions = new ArrayList<>();
+        for (int i = 0; i < ctx.doDecl().size(); i++) {
+            MSSyntaxTree varNode = this.map.get(ctx.doDecl().get(i).variable());
+            MSSyntaxTree expressionNode = this.map.get(ctx.doDecl().get(i).expr(0));
+            doDeclarations.add(new MSDeclaration(varNode, expressionNode));
+            // Check to see if there's a second expression, indicating we need a SET.
+            if (ctx.doDecl().get(i).expr(1) != null) {
+                MSSyntaxTree setExpression = this.map.get(ctx.doDecl().get(i).expr(1));
+                ArrayList<MSSyntaxTree> setData = new ArrayList<>();
+                setData.add(varNode);
+                setData.add(setExpression);
+                doSetExpressions.add(new MSSetNode(MiniSchemeParser.SET, setData));
+            }
+        }
+
+        // Now, retrieve the test condition and what to do when it is true.
+        MSSyntaxTree doTestExpression = this.map.get(ctx.doTest().expr());
+        ArrayList<MSSyntaxTree> doTrueExpressions = new ArrayList<>();
+        for (int i = 0; i < ctx.doTrueExpr().size(); i++) {
+            doTrueExpressions.add(this.map.get(ctx.doTrueExpr().get(i).expr()));
+        }
+
+        // Finally, retrieve the body.
+        ArrayList<MSSyntaxTree> doBodyList = new ArrayList<>();
+        for (int i = 0; i < ctx.doBody().expr().size(); i++) {
+            doBodyList.add(this.map.get(ctx.doBody().expr().get(i)));
+        }
+
+        MSSequenceNode doBody = new MSSequenceNode(doBodyList);
+        this.map.put(ctx, new MSDoNode(doDeclarations, doSetExpressions, doTestExpression, doTrueExpressions, doBody));
+    }
+
+    @Override
     public void exitLetExpr(MiniSchemeParser.LetExprContext ctx) {
         super.exitLetExpr(ctx);
         // Convert the let into a lambda as an application.

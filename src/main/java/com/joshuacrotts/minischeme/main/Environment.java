@@ -1,5 +1,6 @@
 package com.joshuacrotts.minischeme.main;
 
+import com.joshuacrotts.minischeme.ast.MSDeclaration;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.ast.MSVariableNode;
 import com.joshuacrotts.minischeme.parser.MSInterpreterException;

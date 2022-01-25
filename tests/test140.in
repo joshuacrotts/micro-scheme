@@ -3,7 +3,7 @@
 ;
 
 (define (fact-iterative n)
-	(do ((idx 1) (product 1)) ((idx (+ 1 idx)))
+	(do ((idx 1 (+ idx 1)) (product 1))
 		((> idx n) product)
 		(set! product (* product idx))))
 

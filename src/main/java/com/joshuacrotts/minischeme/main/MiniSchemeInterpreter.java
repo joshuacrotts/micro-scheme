@@ -64,6 +64,7 @@ public class MiniSchemeInterpreter {
             case SETVECTOR: return this.interpretSetVector((MSSetNode) tree, env);
             case COND: return this.interpretCond((MSCondNode) tree, env);
             case LAMBDA: return this.interpretLambda((MSLambdaNode) tree, env);
+            case DO: return this.interpretDo((MSDoNode) tree, env);
             case APPLICATION: return this.interpretApplication((MSApplicationNode) tree, env);
             default:
                 throw new MSInterpreterException("Unsupported node type " + tree.getNodeType());
@@ -179,6 +180,40 @@ public class MiniSchemeInterpreter {
         return new LValue(lambdaNode, env);
     }
 
+
+    private LValue interpretDo(final MSDoNode doNode, final Environment env) throws MSSemanticException {
+        // First, set up the declarations and evaluate their expressions.
+        ArrayList<MSSyntaxTree> doFormals = new ArrayList<>();
+        ArrayList<LValue> evalDoArguments = new ArrayList<>();
+        for (MSSyntaxTree formal : doNode.getDoDeclarations()) {
+            MSDeclaration declaration = (MSDeclaration) formal;
+            doFormals.add(declaration.getVariable());
+            evalDoArguments.add(this.interpretTree(declaration.getExpression(), env));
+        }
+
+        // Then, create the local environment used for the do.
+        Environment doEnv = env.createChildEnvironment(doFormals, evalDoArguments);
+        while (true) {
+            // Evaluate the test expression. If true, evaluate the true args and return the LValue of the last.
+            LValue testLVal = this.interpretTree(doNode.getDoTest(), doEnv);
+            if (testLVal.getBooleanValue()) {
+                LValue trueLVal = null;
+                for (MSSyntaxTree trueExpr : doNode.getDoTrueExpressions()) {
+                    trueLVal = this.interpretTree(trueExpr, doEnv);
+                }
+                return trueLVal;
+            } else {
+                // Otherwise, evaluate the body then do the step. LValues are irrelevant.
+                LValue body = this.interpretTree(doNode.getDoBody(), doEnv);
+                if (body != null)
+                    System.out.println(body);
+                for (MSSyntaxTree setExpr : doNode.getDoSetExpressions()) {
+                    LValue setLVal = this.interpretTree(setExpr, doEnv);
+                }
+            }
+        }
+    }
+
     /**
      *
      * @param applicationNode
@@ -234,7 +269,6 @@ public class MiniSchemeInterpreter {
             curr = curr.getParent();
         }
         return null;
-        // throw new MSSemanticException("undefined identifier '" + id + "'");
     }
 
     /**

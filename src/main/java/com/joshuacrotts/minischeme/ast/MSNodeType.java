@@ -22,6 +22,7 @@ public enum MSNodeType {
     SETCAR,
     SETCDR,
     SETVECTOR,
+    DO,
     DECLARATION,
-    APPLICATION;
+    APPLICATION
 }
