@@ -12,23 +12,35 @@
 package com.joshuacrotts.minischeme.ast;
 
 public enum MSNodeType {
-    ROOT,
-    SEQUENCE,
-    NUMBER,
-    STRING,
-    BOOLEAN,
-    CHARACTER,
-    SYMBOL,
-    LIST,
-    VECTOR,
-    VARIABLE,
-    COND,
-    LAMBDA,
-    SET,
-    SETCAR,
-    SETCDR,
-    SETVECTOR,
-    DO,
-    DECLARATION,
-    APPLICATION
+
+    ROOT("root"),
+    SEQUENCE("sequence"),
+    NUMBER("number"),
+    STRING("string"),
+    BOOLEAN("boolean"),
+    CHARACTER("char"),
+    SYMBOL("symbol"),
+    LIST("list"),
+    VECTOR("vector"),
+    VARIABLE("variable"),
+    COND("cond"),
+    LAMBDA("lambda"),
+    SET("set!"),
+    SETCAR("set-car!"),
+    SETCDR("set-cdr!"),
+    SETVECTOR("vector-set!"),
+    DO("do"),
+    DECLARATION("declaration"),
+    APPLICATION("application");
+        
+    private final String STRING_REP;
+    
+    private MSNodeType(final String stringRep) {
+        this.STRING_REP = stringRep;
+    }
+    
+    @Override
+    public String toString() {
+        return this.STRING_REP;
+    }
 }

@@ -3,7 +3,7 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 01/26/2022
  *
  *
  ******************************************************************************/
@@ -14,6 +14,7 @@ import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 import com.joshuacrotts.minischeme.parser.MSSemanticException;
+import com.joshuacrotts.minischeme.parser.MSUndefinedSymbolException;
 
 import java.util.ArrayList;
 
@@ -142,7 +143,7 @@ public class MiniSchemeInterpreter {
         LValue variableData = env.lookup(variableNode.getIdentifier());
         if (variableData != null) { return variableData; }
         else if (BuiltinOperator.isBuiltinOperator(variableNode)) { return new LValue(variableNode, env); }
-        else { throw new MSSemanticException("undefined identifier '" + variableNode.getStringRep() + "'"); }
+        else { throw new MSUndefinedSymbolException(variableNode.getStringRep()); }
     }
 
     /**
@@ -189,6 +190,7 @@ public class MiniSchemeInterpreter {
      * 
      * @return LValue of consequent expression evaluated.
      * 
+     * @throws MSArgumentMismatchException if the cond's predicate is not a predicate (i.e., does not reduce to boolean).
      * @throws MSSemanticException if the conditional does not have an else but requires one (all cases fall through).
      */
     private LValue interpretCond(final MSCondNode condNode, final Environment env) throws MSSemanticException {
@@ -198,13 +200,16 @@ public class MiniSchemeInterpreter {
         for (int i = 0; i < condPredicateList.size(); i++) {
             MSSyntaxTree currPredicate = condPredicateList.get(i);
             LValue currPredicateLValue = this.interpretTree(currPredicate, env);
-            if (currPredicateLValue.getBooleanValue()) {
+            MSSyntaxTree predicateAst = LValue.getAst(currPredicateLValue);
+            if (!predicateAst.isBoolean()) {
+                throw new MSArgumentMismatchException("cond", "predicate/true/false", predicateAst.getStringNodeType());
+            } else if (currPredicateLValue.getBooleanValue()) {
                 return this.interpretTree(condConsequentList.get(i), env);
             }
         }
 
         if (condNode.hasElse()) { return this.interpretTree(condConsequentList.get(condConsequentList.size() - 1), env); }
-        throw new MSSemanticException("Cannot evaluate an undefined expression");
+        throw new MSSemanticException("cannot evaluate an undefined expression");
     }
 
     /**
@@ -250,28 +255,40 @@ public class MiniSchemeInterpreter {
         while (true) {
             // Evaluate the test expression. If true, evaluate the true args and return the LValue of the last.
             LValue testLVal = this.interpretTree(doNode.getDoTest(), doEnv);
-            if (testLVal.getBooleanValue()) {
-                LValue trueLVal = null;
-                for (MSSyntaxTree trueExpr : doNode.getDoTrueExpressions()) {
-                    trueLVal = this.interpretTree(trueExpr, doEnv);
-                }
-                return trueLVal;
-            } else {
-                // Otherwise, evaluate the body then do the step. LValues are irrelevant.
-                LValue body = this.interpretTree(doNode.getDoBody(), doEnv);
-                if (body != null)
-                    System.out.println(body);
-                for (MSSyntaxTree setExpr : doNode.getDoSetExpressions()) {
-                    LValue setLVal = this.interpretTree(setExpr, doEnv);
+            MSSyntaxTree testAst = LValue.getAst(testLVal);
+            if (!testAst.isBoolean()) {
+                throw new MSSemanticException("do test expected predicate/true/false but got " + testAst.getStringNodeType());
+            } else { 
+                if (testLVal.getBooleanValue()) {
+                    LValue trueLVal = null;
+                    for (MSSyntaxTree trueExpr : doNode.getDoTrueExpressions()) {
+                        trueLVal = this.interpretTree(trueExpr, doEnv);
+                    }
+                    return trueLVal;
+                } else {
+                    // Otherwise, evaluate the body then do the step. LValues are irrelevant.
+                    LValue body = this.interpretTree(doNode.getDoBody(), doEnv);
+                    if (body != null) { System.out.println(body); }
+                    for (MSSyntaxTree setExpr : doNode.getDoSetExpressions()) {
+                        LValue setLVal = this.interpretTree(setExpr, doEnv);
+                    }
                 }
             }
         }
     }
 
     /**
-     *
-     * @param applicationNode
-     * @return
+     * Interprets an application node. An application is, effectively the "apply" function in many
+     * Scheme interpreters. It takes the node (which contains the operator and operands/arguments,
+     * as well as an environment to evaluate the arguments in.
+     * 
+     * Each argument is evaluated in env prior to application. A new environment E' is constructed 
+     * with these arguments bound to E'. The body is then evaluated in E'.
+     * 
+     * @param applicationNode AST with operand and arguments. 
+     * @param env Environment to evaluate arguments in, and to create child env.
+     * 
+     * @return LValue of interpreted application.
      */
     private LValue interpretApplication(final MSApplicationNode applicationNode, final Environment env) throws MSSemanticException {
         // First, interpret all the children.
@@ -295,8 +312,7 @@ public class MiniSchemeInterpreter {
 
             // Before we bind, check arity.
             if (lambdaParameters.size() != evaluatedArguments.size()) {
-                throw new MSSemanticException("arity mismatch. Expected: "
-                        + lambdaParameters.size() + ", Got: " + evaluatedArguments.size());
+                throw new MSArgumentMismatchException(lambdaParameters.size(), evaluatedArguments.size());
             }
 
             Environment e1 = lambdaEnvironment.createChildEnvironment(lambdaParameters, evaluatedArguments);
@@ -305,73 +321,102 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     *
-     * @param setNode
-     * @param env
-     * @return
-     * @throws MSSemanticException
+     * Interprets a SET! Scheme procedure. SET! is only used for redefining a variable as a new expression.
+     * With this in mind, the left-hand side can only be a variable - not something that reduces to an 
+     * lvalue. The set expression is evaluated in the current environment, which it is then bound to. We 
+     * bind the value at every environment that is a parent of the current env.
+     * 
+     * @param setNode AST with set assignee and expression to assign.
+     * @param env current Environment.
+     * 
+     * @return null, because set expressions never return a value.
+     * 
+     * @throws MSArgumentMisMatchException if the lhs expression is not a variable.
+     * @throws MSUndefinedSymbolException if either the expression throws an exception while evaluating, or the 
+     *                                    variable is not bound in the environment or its parent.
      */
     private LValue interpretSet(final MSSetNode setNode, final Environment env) throws MSSemanticException {
         MSSyntaxTree assignee = setNode.getChild(0);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
-        if (!assignee.isVariable()) { throw new MSArgumentMismatchException("set!", 0, "variable", assignee.getNodeType().toString()); }
+        if (!assignee.isVariable()) { throw new MSArgumentMismatchException("set!", 0, "variable", assignee.getStringNodeType()); }
         String id = ((MSVariableNode) assignee).getIdentifier();
         Environment curr = env;
+        boolean found = false;
         while (curr != null) {
             LValue lookupSymbol = curr.lookup(id);
-            if (lookupSymbol != null) { curr.bind(id, evaluatedExpression); }
+            if (lookupSymbol != null) { found = true; curr.bind(id, evaluatedExpression); }
             curr = curr.getParent();
         }
+        
+        if (!found) { throw new MSUndefinedSymbolException(id); }
         return null;
     }
 
     /**
-     *
-     * @param setNode
-     * @param env
-     * @return
-     * @throws MSSemanticException
+     * Interprets a set-car! expression. set-car! takes an lvalue that is equivalent to a list or cons pair,
+     * then assigns its CAR as the expression in the SetNode AST.
+     * 
+     * @param setNode AST passed as a reference. The list/cons pair, itself, is rebound, rather than the symbol
+     *                in its environment.
+     * @param env current Environment.
+     * 
+     * @return null, because set expressions never return a value.
+     * 
+     * @throws MSArgumentMismatchException if the first argument is not a list or cons pair.
      */
     private LValue interpretSetCar(final MSSetNode setNode, final Environment env) throws MSSemanticException {
         LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
 
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
-        if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-car!", 0, "list/cons pair", assigneeAst.getNodeType().toString()); }
+        if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-car!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
         ((MSListNode) assigneeAst).setCar(LValue.getAst(evaluatedExpression));
         return null;
     }
 
     /**
-     *
-     * @param setNode
-     * @param env
-     * @return
-     * @throws MSSemanticException
+     * Interprets a set-cdr! expression. set-cdr! takes an lvalue that is equivalent to a list or cons pair,
+     * then assigns its CDR as the expression in the SetNode AST.
+     * 
+     * @param setNode AST passed as a reference. The list/cons pair, itself, is rebound, rather than the symbol
+     *                in its environment.
+     * @param env current Environment.
+     * 
+     * @return null, because set expressions never return a value.
+     * 
+     * @throws MSArgumentMismatchException if the first argument is not a list or cons pair.
      */
     private LValue interpretSetCdr(final MSSetNode setNode, final Environment env) throws MSSemanticException {
         LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
 
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
-        if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-cdr!", 0, "list/cons pair", assigneeAst.getNodeType().toString()); }
+        if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-cdr!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
         ((MSListNode) assigneeAst).setCdr(LValue.getAst(evaluatedExpression));
         return null;
     }
 
     /**
-     *
-     * @param setNode
-     * @param env
-     * @return
-     * @throws MSSemanticException
+     * Interprets a vector-set! expression. vector-set! takes an lvalue that is equivalent to a vector,
+     * then assigns the provided index to the evaluated expression.
+     * 
+     * @param setNode AST passed as a reference. The vector, itself, is rebound, rather than the symbol
+     *                in its environment.
+     * @param env current Environment.
+     * 
+     * @return null, because set expressions never return a value.
+     * 
+     * @throws MSArgumentMismatchException if the first argument is not a list or cons pair.
+     *                                     It also throws an exception when vectorIdx is not a number.
      */
     private LValue interpretSetVector(final MSSetNode setNode, final Environment env) throws MSSemanticException {
         LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
         LValue vectorIdx = this.interpretTree(setNode.getChild(1), env);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(2), env);
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
-        if (!assigneeAst.isVector()) { throw new MSArgumentMismatchException("vector-set!", 0, "vector", assigneeAst.getNodeType().toString()); }
+        MSSyntaxTree vectorIdxAst = LValue.getAst(vectorIdx);
+        if (!assigneeAst.isVector()) { throw new MSArgumentMismatchException("vector-set!", 0, "vector", assigneeAst.getStringNodeType()); }
+        else if (!LValue.getAst(vectorIdx).isNumber()) { throw new MSArgumentMismatchException("vector-set!", 1, "number", vectorIdxAst.getStringNodeType()); }
         ((MSVectorNode) assigneeAst).setChild(vectorIdx.getNumberValue().intValue(), LValue.getAst(evaluatedExpression));
         return null;
     }

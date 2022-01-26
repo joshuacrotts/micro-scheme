@@ -37,7 +37,23 @@ public class LValue {
         this.TREE = tree;
         this.ENVIRONMENT = env;
     }
-
+    
+    public LValue(final BigDecimal number, final Environment env) {
+        this(new MSNumberNode(number), env);
+    }
+    
+    public LValue(final boolean bvalue, final Environment env) {
+        this(new MSBooleanNode(bvalue), env);
+    }
+    
+    public LValue(final String svalue, final Environment env) {
+        this(new MSStringNode(svalue), env);
+    }
+    
+    public LValue(final char cvalue, final Environment env) {
+        this(new MSCharacterNode(cvalue), env);
+    }
+    
     /**
      * Returns the corresponding value for an LValue. This is usually just
      * the AST in the underlying LValue for further evaluation.
@@ -75,42 +91,32 @@ public class LValue {
             case VECTOR:
             case LIST: return this.TREE.getStringRep();
             default:
-                throw new MSInterpreterException("Cannot return LValue for " + this.TREE.getNodeType() + " yet.");
+                throw new MSInterpreterException("Cannot return LValue for " + this.TREE.getNodeType() + " yet");
         }
     }
 
     public BigDecimal getNumberValue() {
-        if (this.TREE.getNodeType() == MSNodeType.NUMBER) {
-            return ((MSNumberNode) this.TREE).getValue();
-        }
+        if (this.TREE.getNodeType() == MSNodeType.NUMBER) { return ((MSNumberNode) this.TREE).getValue(); }
         throw new MSInterpreterException("Cannot return number from non-number lvalue " + this.TREE.getNodeType());
     }
 
     public boolean getBooleanValue() {
-        if (this.TREE.getNodeType() == MSNodeType.BOOLEAN) {
-            return ((MSBooleanNode) this.TREE).getValue();
-        }
+        if (this.TREE.getNodeType() == MSNodeType.BOOLEAN) { return ((MSBooleanNode) this.TREE).getValue(); }
         throw new MSInterpreterException("Cannot return boolean from non-boolean lvalue " + this.TREE.getNodeType());
     }
 
     public char getCharacterValue() {
-        if (this.TREE.getNodeType() == MSNodeType.CHARACTER) {
-            return ((MSCharacterNode) this.TREE).getValue();
-        }
+        if (this.TREE.getNodeType() == MSNodeType.CHARACTER) { return ((MSCharacterNode) this.TREE).getValue(); }
         throw new MSInterpreterException("Cannot return character from non-character lvalue " + this.TREE.getNodeType());
     }
 
     public String getStringValue() {
-        if (this.TREE.getNodeType() == MSNodeType.STRING) {
-            return ((MSStringNode) this.TREE).getValue();
-        }
+        if (this.TREE.getNodeType() == MSNodeType.STRING) { return ((MSStringNode) this.TREE).getValue(); }
         throw new MSInterpreterException("Cannot return string from non-string lvalue " + this.TREE.getNodeType());
     }
 
     public MSSyntaxTree getSymbolValue() {
-        if (this.TREE.getNodeType() == MSNodeType.SYMBOL) {
-            return ((MSSymbolNode) this.TREE).getValue();
-        }
+        if (this.TREE.getNodeType() == MSNodeType.SYMBOL) { return ((MSSymbolNode) this.TREE).getValue(); }
         throw new MSInterpreterException("Cannot return symbol from non-symbol lvalue " + this.TREE.getNodeType());
     }
 

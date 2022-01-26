@@ -3,7 +3,7 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 01/26/2022
  *
  *
  *
@@ -12,7 +12,6 @@
 package com.joshuacrotts.minischeme.ast;
 
 import com.joshuacrotts.minischeme.main.MSUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -43,16 +42,16 @@ public class MSSyntaxTree {
         this.CHILDREN.addAll(Arrays.asList(children));
         this.NODE_TYPE = nodeType;
     }
-
+    
+    @Override
+    public String toString() {
+        return this.getNodeType().toString();
+    }
+    
     public MSSyntaxTree copy() {
         MSSyntaxTree t = new MSSyntaxTree(this.NODE_TYPE);
         t.copyHelper(this, t);
         return t;
-    }
-
-    @Override
-    public String toString() {
-        return this.getNodeType().toString();
     }
 
     /**
@@ -119,6 +118,10 @@ public class MSSyntaxTree {
         }
         return sb.toString();
     }
+    
+    public String getStringNodeType() {
+        return this.getNodeType().toString();
+    }
 
     /**
      * Recursive copy helper function.
@@ -143,7 +146,7 @@ public class MSSyntaxTree {
      */
     private StringBuilder printSyntaxTreeHelper(final int indent) {
         StringBuilder sb = new StringBuilder();
-        sb.append(" ".repeat(Math.max(0, indent)));
+        sb.append(MSUtils.repeatString(Math.max(0, indent), " "));
         sb.append(this);
 
         if (!this.CHILDREN.isEmpty()) {

@@ -94,6 +94,19 @@ public class MSUtils {
         }
         return distinct;
     }
+    
+    /**
+     * @param _n
+     * @param _str
+     * @return
+     */
+    public static String repeatString(final int _n, final String _str) {
+        StringBuilder b = new StringBuilder(_n * _str.length());
+        for (int i = 0; i < _n; ++i) {
+            b.append(_str);
+        }
+        return b.toString();
+    }
 
     /**
      * @param _s1
