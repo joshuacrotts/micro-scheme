@@ -1,3 +1,14 @@
+/******************************************************************************
+ *  File: MSSetNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
 import com.joshuacrotts.minischeme.MiniSchemeParser;
@@ -5,11 +16,6 @@ import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 
 import java.util.ArrayList;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/23/2022
- */
 public class MSSetNode extends MSSyntaxTree {
 
     /**

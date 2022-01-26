@@ -1,12 +1,17 @@
+/******************************************************************************
+ *  File: MSBooleanNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *  Represents a boolean literal. Booleans in MiniScheme are #t, #true, #True
+ *  for true, and #f, #false, #False for false.
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
-/**
- * Represents a boolean literal. Booleans in MiniScheme are #t for
- * true, and #f for false.
- *
- * @author Joshua Crotts
- * @version 12/31/2021
- */
 public class MSBooleanNode extends MSSyntaxTree {
 
     /**

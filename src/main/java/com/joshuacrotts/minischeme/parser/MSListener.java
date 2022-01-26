@@ -1,3 +1,14 @@
+/******************************************************************************
+ *  File: MSListener.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.parser;
 
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
@@ -10,9 +21,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.util.ArrayList;
 import java.util.Optional;
 
-/**
- *
- */
 public class MSListener extends MiniSchemeBaseListener {
 
     /**
@@ -41,19 +49,19 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitDecl(MiniSchemeParser.DeclContext ctx) {
+    public void exitDecl(final MiniSchemeParser.DeclContext ctx) {
         super.exitDecl(ctx);
         this.map.put(ctx, this.map.get(ctx.getChild(0)));
     }
 
     @Override
-    public void exitExpr(MiniSchemeParser.ExprContext ctx) {
+    public void exitExpr(final MiniSchemeParser.ExprContext ctx) {
         super.exitExpr(ctx);
         this.map.put(ctx, this.map.get(ctx.getChild(0)));
     }
 
     @Override
-    public void exitBeginExpr(MiniSchemeParser.BeginExprContext ctx) {
+    public void exitBeginExpr(final MiniSchemeParser.BeginExprContext ctx) {
         super.exitBeginExpr(ctx);
         ArrayList<MSSyntaxTree> expressions = new ArrayList<>();
         for (ParseTree pt : ctx.expr()) {
@@ -63,13 +71,13 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitVariableDeclaration(MiniSchemeParser.VariableDeclarationContext ctx) {
+    public void exitVariableDeclaration(final MiniSchemeParser.VariableDeclarationContext ctx) {
         super.exitVariableDeclaration(ctx);
-        this.map.put(ctx, new MSDeclaration(this.map.get(ctx.variable()), this.map.get(ctx.expr())));
+        this.map.put(ctx, new MSDeclarationNode(this.map.get(ctx.variable()), this.map.get(ctx.expr())));
     }
 
     @Override
-    public void exitProcedureDeclaration(MiniSchemeParser.ProcedureDeclarationContext ctx) {
+    public void exitProcedureDeclaration(final MiniSchemeParser.ProcedureDeclarationContext ctx) {
         super.exitProcedureDeclaration(ctx);
         MSSyntaxTree procedureName = this.map.get(ctx.variable());
         ArrayList<MSSyntaxTree> procedureParameters = new ArrayList<>();
@@ -81,11 +89,11 @@ public class MSListener extends MiniSchemeBaseListener {
 
         MSSyntaxTree procedureBody = this.map.get(ctx.expr());
         MSLambdaNode procedureLambda = new MSLambdaNode(procedureParameters, procedureBody);
-        this.map.put(ctx, new MSDeclaration(procedureName, procedureLambda));
+        this.map.put(ctx, new MSDeclarationNode(procedureName, procedureLambda));
     }
 
     @Override
-    public void exitApplicationExpr(MiniSchemeParser.ApplicationExprContext ctx) {
+    public void exitApplicationExpr(final MiniSchemeParser.ApplicationExprContext ctx) {
         super.exitApplicationExpr(ctx);
         MSSyntaxTree lhsExpression = this.map.get(ctx.expr());
         ArrayList<MSSyntaxTree> arguments = new ArrayList<>();
@@ -99,7 +107,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitDoExpr(MiniSchemeParser.DoExprContext ctx) {
+    public void exitDoExpr(final MiniSchemeParser.DoExprContext ctx) {
         super.exitDoExpr(ctx);
         // First, collect the variable declarations and set expressions.
         ArrayList<MSSyntaxTree> doDeclarations = new ArrayList<>();
@@ -107,7 +115,7 @@ public class MSListener extends MiniSchemeBaseListener {
         for (int i = 0; i < ctx.doDecl().size(); i++) {
             MSSyntaxTree varNode = this.map.get(ctx.doDecl().get(i).variable());
             MSSyntaxTree expressionNode = this.map.get(ctx.doDecl().get(i).expr(0));
-            doDeclarations.add(new MSDeclaration(varNode, expressionNode));
+            doDeclarations.add(new MSDeclarationNode(varNode, expressionNode));
             // Check to see if there's a second expression, indicating we need a SET.
             if (ctx.doDecl().get(i).expr(1) != null) {
                 MSSyntaxTree setExpression = this.map.get(ctx.doDecl().get(i).expr(1));
@@ -136,7 +144,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitLetExpr(MiniSchemeParser.LetExprContext ctx) {
+    public void exitLetExpr(final MiniSchemeParser.LetExprContext ctx) {
         super.exitLetExpr(ctx);
         // Convert the let into a lambda as an application.
         ArrayList<MSSyntaxTree> letVariables = new ArrayList<>();
@@ -151,7 +159,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitLetStarExpr(MiniSchemeParser.LetStarExprContext ctx) {
+    public void exitLetStarExpr(final MiniSchemeParser.LetStarExprContext ctx) {
         super.exitLetStarExpr(ctx);
         MSApplicationNode rootApplication = null;
         for (int i = ctx.letParameters().size() - 1; i >= 0; i--) {
@@ -174,7 +182,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitLambdaExpr(MiniSchemeParser.LambdaExprContext ctx) {
+    public void exitLambdaExpr(final MiniSchemeParser.LambdaExprContext ctx) {
         super.exitLambdaExpr(ctx);
         ArrayList<MSSyntaxTree> lambdaParameters = new ArrayList<>();
         if (ctx.lambdaParameters().expr() != null) {
@@ -187,7 +195,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitIfExpr(MiniSchemeParser.IfExprContext ctx) {
+    public void exitIfExpr(final MiniSchemeParser.IfExprContext ctx) {
         super.exitIfExpr(ctx);
         ArrayList<MSSyntaxTree> condPredicateList = new ArrayList<>();
         ArrayList<MSSyntaxTree> condConsequentList = new ArrayList<>();
@@ -204,7 +212,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitCondExpr(MiniSchemeParser.CondExprContext ctx) {
+    public void exitCondExpr(final MiniSchemeParser.CondExprContext ctx) {
         super.exitCondExpr(ctx);
         ArrayList<MSSyntaxTree> condPredicateList = new ArrayList<>();
         ArrayList<MSSyntaxTree> condConsequentList = new ArrayList<>();
@@ -219,14 +227,14 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitSymbolExpr(MiniSchemeParser.SymbolExprContext ctx) {
+    public void exitSymbolExpr(final MiniSchemeParser.SymbolExprContext ctx) {
         super.exitSymbolExpr(ctx);
         // If it's just one symbol datum, then just return that.
         this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.symbolDatum())));
     }
 
     @Override
-    public void exitSymbolDatum(MiniSchemeParser.SymbolDatumContext ctx) {
+    public void exitSymbolDatum(final MiniSchemeParser.SymbolDatumContext ctx) {
         super.exitSymbolDatum(ctx);
         // First, check to see if it's a list of expressions. If so, make it a MSListNode.
         if (ctx.variable() == null && ctx.constant() == null) {
@@ -246,7 +254,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitSetExpr(MiniSchemeParser.SetExprContext ctx) {
+    public void exitSetExpr(final MiniSchemeParser.SetExprContext ctx) {
         super.exitSetExpr(ctx);
         ArrayList<MSSyntaxTree> setData = new ArrayList<>();
         setData.add(this.map.get(ctx.variable()));
@@ -255,7 +263,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitSetListExpr(MiniSchemeParser.SetListExprContext ctx) {
+    public void exitSetListExpr(final MiniSchemeParser.SetListExprContext ctx) {
         super.exitSetListExpr(ctx);
         ArrayList<MSSyntaxTree> setData = new ArrayList<>();
         for (ParseTree pt : ctx.expr()) { setData.add(this.map.get(pt)); }
@@ -263,7 +271,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitConstant(MiniSchemeParser.ConstantContext ctx) {
+    public void exitConstant(final MiniSchemeParser.ConstantContext ctx) {
         super.exitConstant(ctx);
         int tokenType = ((TerminalNode) ctx.getChild(0)).getSymbol().getType();
         MSSyntaxTree constantNode;
@@ -288,7 +296,7 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
-    public void exitVariable(MiniSchemeParser.VariableContext ctx) {
+    public void exitVariable(final MiniSchemeParser.VariableContext ctx) {
         super.exitVariable(ctx);
         this.map.put(ctx, new MSVariableNode(ctx.ID().getText()));
     }

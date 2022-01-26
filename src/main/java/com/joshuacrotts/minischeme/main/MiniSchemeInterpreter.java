@@ -1,3 +1,13 @@
+/******************************************************************************
+ *  File: MiniSchemeInterpreter.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.main;
 
 import com.joshuacrotts.minischeme.ast.*;
@@ -7,11 +17,6 @@ import com.joshuacrotts.minischeme.parser.MSSemanticException;
 
 import java.util.ArrayList;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/19/2022
- */
 public class MiniSchemeInterpreter {
 
     /**
@@ -57,7 +62,7 @@ public class MiniSchemeInterpreter {
             case SYMBOL: return this.interpretSymbol((MSSymbolNode) tree);
             case VARIABLE: return this.interpretVariable((MSVariableNode) tree, env);
             case SEQUENCE: return this.interpretSequence((MSSequenceNode) tree, env);
-            case DECLARATION: return this.interpretDeclaration((MSDeclaration) tree, env);
+            case DECLARATION: return this.interpretDeclaration((MSDeclarationNode) tree, env);
             case SET: return this.interpretSet((MSSetNode) tree, env);
             case SETCAR: return this.interpretSetCar((MSSetNode) tree, env);
             case SETCDR: return this.interpretSetCdr((MSSetNode) tree, env);
@@ -150,7 +155,7 @@ public class MiniSchemeInterpreter {
      * 
      * @throws MSSemanticException if an exception is thrown when interpreting the rhs.
      */
-    private LValue interpretDeclaration(final MSDeclaration declarationNode, final Environment env) throws MSSemanticException {
+    private LValue interpretDeclaration(final MSDeclarationNode declarationNode, final Environment env) throws MSSemanticException {
         LValue rExpr = this.interpretTree(declarationNode.getExpression(), env);
         env.bind(declarationNode.getVariable().getStringRep(), rExpr);
         return null;
@@ -235,7 +240,7 @@ public class MiniSchemeInterpreter {
         ArrayList<MSSyntaxTree> doFormals = new ArrayList<>();
         ArrayList<LValue> evalDoArguments = new ArrayList<>();
         for (MSSyntaxTree formal : doNode.getDoDeclarations()) {
-            MSDeclaration declaration = (MSDeclaration) formal;
+            MSDeclarationNode declaration = (MSDeclarationNode) formal;
             doFormals.add(declaration.getVariable());
             evalDoArguments.add(this.interpretTree(declaration.getExpression(), env));
         }

@@ -1,3 +1,14 @@
+/******************************************************************************
+ *  File: MSSyntaxTree.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
 import com.joshuacrotts.minischeme.main.MSUtils;
@@ -5,11 +16,6 @@ import com.joshuacrotts.minischeme.main.MSUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/19/2022
- */
 public class MSSyntaxTree {
 
     /**
@@ -137,7 +143,7 @@ public class MSSyntaxTree {
      */
     private StringBuilder printSyntaxTreeHelper(final int indent) {
         StringBuilder sb = new StringBuilder();
-        sb.append(MSUtils.repeatString(Math.max(0, indent), " "));
+        sb.append(" ".repeat(Math.max(0, indent)));
         sb.append(this);
 
         if (!this.CHILDREN.isEmpty()) {

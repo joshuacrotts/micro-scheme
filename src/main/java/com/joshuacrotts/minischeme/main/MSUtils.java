@@ -1,3 +1,14 @@
+/******************************************************************************
+ *  File: MSUtils.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.main;
 
 import java.io.IOException;
@@ -68,19 +79,6 @@ public class MSUtils {
         } catch (IOException e) {
             return false;
         }
-    }
-
-    /**
-     * @param _n
-     * @param _str
-     * @return
-     */
-    public static String repeatString(final int _n, final String _str) {
-        StringBuilder b = new StringBuilder(_n * _str.length());
-        for (int i = 0; i < _n; ++i) {
-            b.append(_str);
-        }
-        return b.toString();
     }
 
     /**

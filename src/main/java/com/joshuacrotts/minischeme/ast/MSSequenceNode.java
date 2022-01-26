@@ -1,12 +1,18 @@
+/******************************************************************************
+ *  File: MSSequenceNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
 import java.util.ArrayList;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/19/2022
- */
 public class MSSequenceNode extends MSSyntaxTree {
 
     public MSSequenceNode(ArrayList<MSSyntaxTree> children) {

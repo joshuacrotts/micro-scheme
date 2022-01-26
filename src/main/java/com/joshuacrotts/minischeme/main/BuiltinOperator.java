@@ -1,3 +1,14 @@
+/******************************************************************************
+ *  File: BuiltinOperator.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.main;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
@@ -10,11 +21,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Optional;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/19/2022
- */
 public final class BuiltinOperator {
 
     /**

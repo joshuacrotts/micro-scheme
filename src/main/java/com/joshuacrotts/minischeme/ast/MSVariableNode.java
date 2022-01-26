@@ -1,11 +1,16 @@
+/******************************************************************************
+ *  File: MSVariableNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
-/**
- * Defines an identifier in Scheme.
- *
- * @author Joshua Crotts
- * @version 01/19/2022
- */
 public class MSVariableNode extends MSSyntaxTree {
 
     /**

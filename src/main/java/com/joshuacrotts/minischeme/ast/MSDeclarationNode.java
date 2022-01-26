@@ -1,14 +1,25 @@
+/******************************************************************************
+ *  File: MSDeclarationNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
-public class MSDeclaration extends MSSyntaxTree {
+public class MSDeclarationNode extends MSSyntaxTree {
 
-    public MSDeclaration(MSSyntaxTree variable, MSSyntaxTree expr) {
+    public MSDeclarationNode(MSSyntaxTree variable, MSSyntaxTree expr) {
         super(MSNodeType.DECLARATION, variable, expr);
     }
 
     @Override
     public MSSyntaxTree copy() {
-        return new MSDeclaration(this.getVariable().copy(), this.getExpression().copy());
+        return new MSDeclarationNode(this.getVariable().copy(), this.getExpression().copy());
     }
 
     @Override

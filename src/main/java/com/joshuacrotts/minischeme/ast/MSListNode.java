@@ -1,10 +1,16 @@
+/******************************************************************************
+ *  File: MSListNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/21/2022
- */
 public class MSListNode extends MSSyntaxTree {
 
     /**

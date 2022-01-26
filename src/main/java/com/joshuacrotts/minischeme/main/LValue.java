@@ -1,3 +1,14 @@
+/******************************************************************************
+ *  File: LValue.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.main;
 
 import com.joshuacrotts.minischeme.ast.*;
@@ -5,11 +16,6 @@ import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 
 import java.math.BigDecimal;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/07/2021
- */
 public class LValue {
 
     /**

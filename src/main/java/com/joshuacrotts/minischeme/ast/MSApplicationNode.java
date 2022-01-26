@@ -1,3 +1,17 @@
+/******************************************************************************
+ *  File: MSApplicationNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *  A MSApplicationNode is an AST representing an application of a procedure to
+ *  some arguments. The procedure is either a user-defined lambda or a builtin
+ *  primitive value. Each argument is evaluated prior to evaluating the
+ *  MSApplicationNode.
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
 import java.util.ArrayList;
@@ -9,7 +23,7 @@ public class MSApplicationNode extends MSSyntaxTree {
      */
     private final int NUM_ARGUMENTS;
 
-    public MSApplicationNode(MSSyntaxTree expressionNode, ArrayList<MSSyntaxTree> arguments) {
+    public MSApplicationNode(final MSSyntaxTree expressionNode, ArrayList<MSSyntaxTree> arguments) {
         super(MSNodeType.APPLICATION, expressionNode);
         this.NUM_ARGUMENTS = arguments.size();
         arguments.forEach(this::addChild);

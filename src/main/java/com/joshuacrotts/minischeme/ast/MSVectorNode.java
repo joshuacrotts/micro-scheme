@@ -1,14 +1,19 @@
+/******************************************************************************
+ *  File: MSVectorNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *  A vector is similar to a standard O(1) access-time array in most languages.
+ *  Vectors are not resizable. Vectors can also contain heterogeneous elements.
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
 import java.util.ArrayList;
 
-/**
- * A vector is similar to a standard O(1) access-time array in most
- * languages. As of 1/23/22, vectors are not resizable.
- *
- * @author Joshua Crotts
- * @version 1/23/2022
- */
 public class MSVectorNode extends MSSyntaxTree {
 
     /**

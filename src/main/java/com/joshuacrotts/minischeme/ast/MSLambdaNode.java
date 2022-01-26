@@ -1,19 +1,18 @@
+/******************************************************************************
+ *  File: MSLambdaNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
-import com.joshuacrotts.minischeme.main.BuiltinOperator;
-import com.joshuacrotts.minischeme.main.Environment;
-import org.antlr.v4.runtime.misc.Pair;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/20/2022
- */
 public class MSLambdaNode extends MSSyntaxTree {
 
     /**

@@ -1,19 +1,22 @@
+/******************************************************************************
+ *  File: Environment.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.main;
 
-import com.joshuacrotts.minischeme.ast.MSDeclaration;
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
-import com.joshuacrotts.minischeme.ast.MSVariableNode;
-import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/20/2022
- */
 public class Environment {
 
     /**
@@ -21,9 +24,12 @@ public class Environment {
      */
     private final TreeMap<String, LValue> BINDINGS;
 
-    private Environment PARENT;
+    /**
+     *
+     */
+    private final Environment PARENT;
 
-    public Environment(Environment parent) {
+    public Environment(final Environment parent) {
         this.BINDINGS = new TreeMap<>();
         this.PARENT = parent;
     }
@@ -65,7 +71,8 @@ public class Environment {
      * @param arguments
      * @return
      */
-    public Environment createChildEnvironment(ArrayList<MSSyntaxTree> formals, ArrayList<LValue> arguments) {
+    public Environment createChildEnvironment(final ArrayList<MSSyntaxTree> formals,
+                                              final ArrayList<LValue> arguments) {
         Environment e1 = new Environment(this);
         for (int i = 0; i < formals.size(); i++) {
             e1.bind(formals.get(i).getStringRep(), arguments.get(i));
@@ -78,7 +85,7 @@ public class Environment {
      * @param id
      * @param expr
      */
-    public void bind(String id, LValue expr) {
+    public void bind(final String id, final LValue expr) {
         this.BINDINGS.put(id, expr);
     }
 
@@ -87,7 +94,7 @@ public class Environment {
      * @param id
      * @return
      */
-    public LValue lookup(String id) {
+    public LValue lookup(final String id) {
         LValue l = this.BINDINGS.get(id);
         if (l == null && this.PARENT != null) {
             l = this.PARENT.lookup(id);

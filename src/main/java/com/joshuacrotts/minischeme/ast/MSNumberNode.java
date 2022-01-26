@@ -1,3 +1,14 @@
+/******************************************************************************
+ *  File: MSNumberNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/25/2022
+ *
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
 import ch.obermuhlner.math.big.BigFloat;
@@ -5,11 +16,6 @@ import ch.obermuhlner.math.big.BigFloat;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-/**
- *
- * @author Joshua Crotts
- * @version 01/19/2022
- */
 public class MSNumberNode extends MSSyntaxTree {
 
     /**
