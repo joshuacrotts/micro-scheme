@@ -34,11 +34,6 @@ public class MSCharacterNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        return new MSCharacterNode(this.VALUE);
-    }
-
-    @Override
     public String getStringRep() {
         return String.valueOf(this.VALUE);
     }

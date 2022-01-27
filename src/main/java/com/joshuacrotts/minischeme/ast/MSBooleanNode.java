@@ -30,11 +30,6 @@ public class MSBooleanNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        return new MSBooleanNode(this.VALUE);
-    }
-
-    @Override
     public String getStringRep() {
         return this.VALUE ? "#t" : "#f";
     }

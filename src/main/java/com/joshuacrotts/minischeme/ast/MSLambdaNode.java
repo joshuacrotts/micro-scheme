@@ -29,16 +29,6 @@ public class MSLambdaNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        ArrayList<MSSyntaxTree> lambdaParametersCopy = new ArrayList<>();
-        for (int i = 0; i < this.NUM_LAMBDA_PARAMETERS; i++) {
-            lambdaParametersCopy.add(this.getChild(i).copy());
-        }
-        MSSyntaxTree lambdaBodyCopy = this.getChild(this.getChildrenSize() - 1).copy();
-        return new MSLambdaNode(lambdaParametersCopy, lambdaBodyCopy);
-    }
-
-    @Override
     public String getStringRep() {
         StringBuilder sb = new StringBuilder();
         sb.append("(lambda");

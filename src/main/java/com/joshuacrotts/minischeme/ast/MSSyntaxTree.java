@@ -12,6 +12,8 @@
 package com.joshuacrotts.minischeme.ast;
 
 import com.joshuacrotts.minischeme.main.MSUtils;
+import org.antlr.v4.runtime.ParserRuleContext;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -48,12 +50,6 @@ public class MSSyntaxTree {
         return this.getNodeType().toString();
     }
     
-    public MSSyntaxTree copy() {
-        MSSyntaxTree t = new MSSyntaxTree(this.NODE_TYPE);
-        t.copyHelper(this, t);
-        return t;
-    }
-
     /**
      * Recursively prints the syntax tree.
      */
@@ -121,18 +117,6 @@ public class MSSyntaxTree {
     
     public String getStringNodeType() {
         return this.getNodeType().toString();
-    }
-
-    /**
-     * Recursive copy helper function.
-     *
-     * @param root
-     * @param newTree
-     */
-    private void copyHelper(MSSyntaxTree root, MSSyntaxTree newTree) {
-        for (MSSyntaxTree child : root.getChildren()) {
-            newTree.addChild(child.copy());
-        }
     }
 
     /**

@@ -30,16 +30,6 @@ public class MSListNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        if (this.isEmptyList()) { return MSListNode.EMPTY_LIST; }
-        MSSyntaxTree carCopy = this.getCar();
-        MSSyntaxTree cdrCopy = this.getCdr();
-        if (carCopy != null) { carCopy = carCopy.copy(); }
-        if (cdrCopy != null) { cdrCopy = cdrCopy.copy(); }
-        return new MSListNode(carCopy, cdrCopy);
-    }
-
-    @Override
     public String getStringRep() {
         return this.getListStringRep();
     }

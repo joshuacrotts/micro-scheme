@@ -49,11 +49,6 @@ public class MSNumberNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        return new MSNumberNode(this.VALUE);
-    }
-
-    @Override
     public String getStringRep() {
         if (this.isIntegerValue(this.VALUE)) {
             return this.VALUE.stripTrailingZeros().toPlainString();

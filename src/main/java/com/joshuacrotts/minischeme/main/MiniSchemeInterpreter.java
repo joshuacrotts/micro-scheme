@@ -331,7 +331,7 @@ public class MiniSchemeInterpreter {
      * 
      * @return null, because set expressions never return a value.
      * 
-     * @throws MSArgumentMisMatchException if the lhs expression is not a variable.
+     * @throws MSArgumentMismatchException if the lhs expression is not a variable.
      * @throws MSUndefinedSymbolException if either the expression throws an exception while evaluating, or the 
      *                                    variable is not bound in the environment or its parent.
      */

@@ -28,11 +28,6 @@ public class MSSymbolNode extends MSSyntaxTree {
         return this.VALUE.getStringRep();
     }
 
-    @Override
-    public MSSyntaxTree copy() {
-        return new MSSymbolNode(this.VALUE.copy());
-    }
-
     public MSSyntaxTree getValue() {
         return this.VALUE;
     }

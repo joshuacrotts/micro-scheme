@@ -30,13 +30,6 @@ public class MSSetNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        ArrayList<MSSyntaxTree> setDataCopy = new ArrayList<>();
-        for (int i = 0; i < this.getChildrenSize(); i++) { setDataCopy.add(this.getChild(i).copy()); }
-        return new MSSetNode(this.TYPE, setDataCopy);
-    }
-
-    @Override
     public String getStringRep() {
         return this.getNodeType().toString();
     }

@@ -18,11 +18,6 @@ public class MSDeclarationNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        return new MSDeclarationNode(this.getVariable().copy(), this.getExpression().copy());
-    }
-
-    @Override
     public String getStringRep() {
         return this.getNodeType().toString();
     }

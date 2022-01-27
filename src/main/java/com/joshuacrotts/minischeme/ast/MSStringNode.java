@@ -24,11 +24,6 @@ public class MSStringNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        return new MSStringNode(this.VALUE);
-    }
-
-    @Override
     public String getStringRep() {
         if (this.VALUE.startsWith("\"")
                 && this.VALUE.endsWith("\"")

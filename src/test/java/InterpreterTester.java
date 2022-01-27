@@ -21,18 +21,9 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
-/**
- * Testing file for the parser. This tester is designed to run test cases
- * that are located in the "tests" subdirectory of the main project directory.
- * Valid LittleC programs (which should parse and produce a syntax tree) are
- * tested by method goodFileTest(), and invalid ... program (which should
- * produce null for the syntax tree, indicating an error) are tested by method
- * badFileInput(). See those methods for more information.
- */
-
 public class InterpreterTester {
 
-    private static final int NUM_TESTS = 156;
+    private static final int NUM_TESTS = 158;
 
     /**
      * Helper function to count number of newlines in a string
@@ -50,8 +41,8 @@ public class InterpreterTester {
     }
 
     /**
-     * Compares to byte array token by token, where a "token" is either a
-     * C-style identifier, a number, or an individual character. All whitespace
+     * Compares to byte array token by token, where a "token" is either an
+     * identifier, a number, or an individual character. All whitespace
      * is skipped over and not used for the comparison, so the outputs can
      * be formatted/spaced entirely differently.
      *

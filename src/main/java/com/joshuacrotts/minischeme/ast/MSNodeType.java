@@ -35,7 +35,7 @@ public enum MSNodeType {
         
     private final String STRING_REP;
     
-    private MSNodeType(final String stringRep) {
+    MSNodeType(final String stringRep) {
         this.STRING_REP = stringRep;
     }
     

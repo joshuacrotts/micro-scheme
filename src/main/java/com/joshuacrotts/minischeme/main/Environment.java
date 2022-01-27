@@ -36,9 +36,8 @@ public class Environment {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("<");
         // First, construct the current environment.
-        sb.append("<");
         int idx = 0;
         for (Map.Entry<String, LValue> symbol : this.BINDINGS.entrySet()) {
             sb.append("{");

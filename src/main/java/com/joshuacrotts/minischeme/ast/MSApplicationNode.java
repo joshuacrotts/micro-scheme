@@ -29,16 +29,6 @@ public class MSApplicationNode extends MSSyntaxTree {
         arguments.forEach(this::addChild);
     }
 
-    @Override
-    public MSSyntaxTree copy() {
-        MSSyntaxTree expressionCopy = this.getChild(0).copy();
-        ArrayList<MSSyntaxTree> argumentsCopy = new ArrayList<>();
-        for (int i = 0; i < this.NUM_ARGUMENTS; i++) {
-            argumentsCopy.add(this.getChild(i + 1).copy());
-        }
-        return new MSApplicationNode(expressionCopy, argumentsCopy);
-    }
-
     public MSSyntaxTree getExpression() {
         return this.getChild(0);
     }

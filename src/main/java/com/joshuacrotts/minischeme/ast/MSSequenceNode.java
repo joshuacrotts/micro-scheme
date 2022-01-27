@@ -21,15 +21,6 @@ public class MSSequenceNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        ArrayList<MSSyntaxTree> childrenCopy = new ArrayList<>();
-        for (MSSyntaxTree child : this.getChildren()) {
-            childrenCopy.add(child.copy());
-        }
-        return new MSSequenceNode(childrenCopy);
-    }
-
-    @Override
     public String getStringRep() {
         return this.getNodeType().toString();
     }

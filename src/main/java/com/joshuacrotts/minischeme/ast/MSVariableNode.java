@@ -24,11 +24,6 @@ public class MSVariableNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        return new MSVariableNode(this.IDENTIFIER);
-    }
-
-    @Override
     public String getStringRep() {
         return this.IDENTIFIER;
     }

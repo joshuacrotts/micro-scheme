@@ -28,15 +28,6 @@ public class MSVectorNode extends MSSyntaxTree {
     }
 
     @Override
-    public MSSyntaxTree copy() {
-        ArrayList<MSSyntaxTree> elementsCopy = new ArrayList<>();
-        for (int i = 0; i < this.getChildrenSize(); i++) {
-            elementsCopy.add(this.getChild(i).copy());
-        }
-        return new MSVectorNode(elementsCopy);
-    }
-
-    @Override
     public String getStringRep() {
         StringBuilder sb = new StringBuilder("#(");
         for (int i = 0; i < this.getChildrenSize() - 1; i++) {

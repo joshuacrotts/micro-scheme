@@ -38,20 +38,24 @@ public class LValue {
         this.ENVIRONMENT = env;
     }
     
-    public LValue(final BigDecimal number, final Environment env) {
-        this(new MSNumberNode(number), env);
+    public LValue(final BigDecimal number) {
+        this(new MSNumberNode(number));
+    }
+
+    public LValue(final double number) {
+        this(new MSNumberNode(number));
     }
     
-    public LValue(final boolean bvalue, final Environment env) {
-        this(new MSBooleanNode(bvalue), env);
+    public LValue(final boolean bvalue) {
+        this(new MSBooleanNode(bvalue));
     }
     
-    public LValue(final String svalue, final Environment env) {
-        this(new MSStringNode(svalue), env);
+    public LValue(final String svalue) {
+        this(new MSStringNode(svalue));
     }
-    
-    public LValue(final char cvalue, final Environment env) {
-        this(new MSCharacterNode(cvalue), env);
+
+    public LValue(final char cvalue) {
+        this(new MSCharacterNode(cvalue));
     }
     
     /**
