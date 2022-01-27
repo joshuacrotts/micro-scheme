@@ -23,7 +23,7 @@ public class MSApplicationNode extends MSSyntaxTree {
      */
     private final int NUM_ARGUMENTS;
 
-    public MSApplicationNode(final MSSyntaxTree expressionNode, ArrayList<MSSyntaxTree> arguments) {
+    public MSApplicationNode(final MSSyntaxTree expressionNode, final ArrayList<MSSyntaxTree> arguments) {
         super(MSNodeType.APPLICATION, expressionNode);
         this.NUM_ARGUMENTS = arguments.size();
         arguments.forEach(this::addChild);

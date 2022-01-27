@@ -23,12 +23,12 @@ public class MSCharacterNode extends MSSyntaxTree {
      */
     private final char VALUE;
 
-    public MSCharacterNode(String charInput) {
+    public MSCharacterNode(final String charInput) {
         super(MSNodeType.CHARACTER);
         this.VALUE = charInput.charAt(2);
     }
 
-    public MSCharacterNode(char charInput) {
+    public MSCharacterNode(final char charInput) {
         super(MSNodeType.CHARACTER);
         this.VALUE = charInput;
     }

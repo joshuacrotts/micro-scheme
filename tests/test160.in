@@ -1,0 +1,28 @@
+;
+; Simple foldl, foldr, and map defined in terms of foldr procedures.
+;
+
+(define (foldr func end lst)
+  (if (null? lst)
+      end
+      (func (car lst) (foldr func end (cdr lst)))))
+
+(foldr cons '() '(1 2 3))
+
+(define (foldl func accum lst)
+  (if (null? lst)
+      accum
+      (foldl func (func accum (car lst)) (cdr lst))))
+
+(foldl cons '() '(1 2 3))
+
+(define (map func lst)
+    (foldr (lambda (x y)
+               (cons (func x) y))
+            '() lst))
+
+(define factorial
+    (λ (n)
+        (if (<= n 1) 1 (* n (factorial (- n 1))))))
+
+(map factorial '(1 2 3 4 5 6 7 8))

@@ -93,6 +93,20 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitEvalExpr(MiniSchemeParser.EvalExprContext ctx) {
+        super.exitEvalExpr(ctx);
+        this.map.put(ctx, new MSEvalNode(this.map.get(ctx.expr())));
+    }
+
+    @Override
+    public void exitApplyExpr(MiniSchemeParser.ApplyExprContext ctx) {
+        super.exitApplyExpr(ctx);
+        MSSyntaxTree procedure = this.map.get(ctx.expr(0));
+        MSSyntaxTree argumentList = this.map.get(ctx.expr(1));
+        this.map.put(ctx, new MSApplyNode(procedure, argumentList));
+    }
+
+    @Override
     public void exitApplicationExpr(final MiniSchemeParser.ApplicationExprContext ctx) {
         super.exitApplicationExpr(ctx);
         MSSyntaxTree lhsExpression = this.map.get(ctx.expr());

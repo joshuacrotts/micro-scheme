@@ -3,7 +3,7 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 01/26/2022
  *
  *
  *
@@ -28,14 +28,14 @@ public class MSCondNode extends MSSyntaxTree {
     /**
      *
      */
-    private final boolean hasElse;
+    private final boolean HAS_ELSE;
 
-    public MSCondNode(ArrayList<MSSyntaxTree> condPredicateList,
-                      ArrayList<MSSyntaxTree> condConsequentList) {
+    public MSCondNode(final ArrayList<MSSyntaxTree> condPredicateList,
+                      final ArrayList<MSSyntaxTree> condConsequentList) {
         super(MSNodeType.COND);
         this.NUM_PREDICATES = condPredicateList.size();
         this.NUM_CONSEQUENTS = condConsequentList.size();
-        this.hasElse = this.NUM_CONSEQUENTS - 1 == this.NUM_PREDICATES;
+        this.HAS_ELSE = this.NUM_CONSEQUENTS - 1 == this.NUM_PREDICATES;
         condPredicateList.forEach(this::addChild);
         condConsequentList.forEach(this::addChild);
     }
@@ -67,6 +67,6 @@ public class MSCondNode extends MSSyntaxTree {
     }
 
     public boolean hasElse() {
-        return this.hasElse;
+        return this.HAS_ELSE;
     }
 }

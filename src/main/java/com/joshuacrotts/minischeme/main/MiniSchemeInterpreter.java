@@ -71,6 +71,8 @@ public class MiniSchemeInterpreter {
             case COND: return this.interpretCond((MSCondNode) tree, env);
             case LAMBDA: return this.interpretLambda((MSLambdaNode) tree, env);
             case DO: return this.interpretDo((MSDoNode) tree, env);
+            case EVAL: return this.interpretEval((MSEvalNode) tree, env);
+            case APPLY: return this.interpretApply((MSApplyNode) tree, env);
             case APPLICATION: return this.interpretApplication((MSApplicationNode) tree, env);
             default:
                 throw new MSInterpreterException("Unsupported node type " + tree.getNodeType());
@@ -278,6 +280,67 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * Interprets an eval. An eval simply takes in an expression, quoted or unquoted, and attempts to
+     * evaluate it. If it is a variable, this is resolved to its value in the environment. From there,
+     * if it is a symbol, we remove the quote. Then, there are two choices:
+     *
+     * 1. If the expression is not a list, we just pass down the unquoted symbol.
+     * 2. Otherwise, we create a MSApplyNode with the CAR as the operator and CDR as operand.
+     *
+     * @param evalNode AST.
+     * @param env current environment to evaluate inside.
+     *
+     * @return LValue of interpreting either the unquoted expression or the apply, whichever is applicable.
+     */
+    private LValue interpretEval(final MSEvalNode evalNode, final Environment env) throws MSSemanticException {
+        // First, we want to resolve the expr argument. If it's a variable, retrieve it.
+        MSSyntaxTree expression = evalNode.getExpression();
+        if (expression.isVariable()) { expression = LValue.getAst(this.interpretTree(expression, env)); }
+        // Now, if it's a symbol, resolve that (i.e., get its value).
+        if (expression.isSymbol()) { expression = ((MSSymbolNode) expression).getValue(); }
+        // If it's a list, create an "apply" out of it.
+        if (!expression.isList()) { return this.interpretTree(expression, env); }
+        MSListNode listNode = (MSListNode) expression;
+        return this.interpretTree(new MSApplyNode(listNode.getCar(), listNode.getCdr()), env);
+    }
+
+    /**
+     * Interprets an "apply" node. Apply works very similarly to "application" nodes with the exception
+     * that apply takes an operator and a list rather than separate arguments. The procedure is collectively
+     * applied to (as the name suggests!) each element of the list. To make things easier, after checking
+     * the node, we create a MSApplicationNode since it does all the heavy lifting.
+     *
+     * @param applyNode AST.
+     * @param env current environment to evaluate ApplyNode in.
+     *
+     * @return LValue of creating and interpreting the new MSApplicationNode.
+     *
+     * @throws MSArgumentMismatchException if we try to pass a non list/cons pair to apply.
+     */
+    private LValue interpretApply(final MSApplyNode applyNode, final Environment env) throws MSArgumentMismatchException {
+        // First, we want to resolve the apply node's argument.
+        MSSyntaxTree argument = applyNode.getArgumentList();
+        ArrayList<MSSyntaxTree> applyArguments = new ArrayList<>();
+        if (argument.isVariable()) { argument = LValue.getAst(this.interpretTree(argument, env)); }
+        // Now check to make sure it's a symbol or list.
+        if (argument.isSymbol()) { argument = ((MSSymbolNode) argument).getValue(); }
+        // Finally, check to make sure it's a list.
+        if (!argument.isList()) { throw new MSArgumentMismatchException("apply", 1, "list/cons pair", argument.getStringNodeType()); }
+
+        MSListNode curr = (MSListNode) argument;
+        while (true) {
+            if (curr.isEmptyList()) { break; }
+            else {
+                applyArguments.add(curr.getCar());
+                curr = (MSListNode) curr.getCdr();
+            }
+        }
+
+        MSSyntaxTree procedure = applyNode.getProcedure();
+        return this.interpretTree(new MSApplicationNode(procedure, applyArguments), env);
+    }
+
+    /**
      * Interprets an application node. An application is, effectively the "apply" function in many
      * Scheme interpreters. It takes the node (which contains the operator and operands/arguments,
      * as well as an environment to evaluate the arguments in.
@@ -304,7 +367,10 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree expressionLVal = LValue.getAst(lhsLValue);
         if (BuiltinOperator.isBuiltinOperator(expressionLVal)) { return BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments, env); }
         else {
-            // Create the bindings and interpret the body.
+            // If we're trying to call on a non-lambda, throw an exception.
+            if (!expressionLVal.isLambda()) { throw new MSSemanticException("cannot call " + expressionLVal.getStringRep()); }
+
+            // Otherwise, create the bindings and interpret the body.
             MSLambdaNode lambdaNode = (MSLambdaNode) expressionLVal;
             Environment lambdaEnvironment = lhsLValue.getEnvironment();
             ArrayList<MSSyntaxTree> lambdaParameters = lambdaNode.getLambdaParameters();

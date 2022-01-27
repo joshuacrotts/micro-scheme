@@ -20,8 +20,8 @@ public class MSLambdaNode extends MSSyntaxTree {
      */
     private final int NUM_LAMBDA_PARAMETERS;
 
-    public MSLambdaNode(ArrayList<MSSyntaxTree> lambdaParameters,
-                        MSSyntaxTree lambdaBody) {
+    public MSLambdaNode(final ArrayList<MSSyntaxTree> lambdaParameters,
+                        final MSSyntaxTree lambdaBody) {
         super(MSNodeType.LAMBDA);
         this.NUM_LAMBDA_PARAMETERS = lambdaParameters.size();
         lambdaParameters.forEach(this::addChild);

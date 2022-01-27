@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class MSSequenceNode extends MSSyntaxTree {
 
-    public MSSequenceNode(ArrayList<MSSyntaxTree> children) {
+    public MSSequenceNode(final ArrayList<MSSyntaxTree> children) {
         super(MSNodeType.SEQUENCE);
         children.forEach(this::addChild);
     }

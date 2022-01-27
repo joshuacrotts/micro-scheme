@@ -1,0 +1,26 @@
+;
+; Power-set procedure.
+;
+
+(define map
+    (λ (proc l)
+        (if (null? l)
+            '()
+            (cons (proc (car l)) (map proc (cdr l))))))
+
+(define append
+    (λ (l m)
+        (if (null? l)
+            m
+            (cons (car l) (append (cdr l) m)))))
+
+(define (power-set set)
+  (if (null? set)
+      '(())
+      (let ((rest (power-set (cdr set))))
+        (append (map (lambda (element) (cons (car set) element))
+                     rest)
+                rest))))
+
+(display (power-set (list 1 2 3)))
+(display (power-set (list "A" "C" "E")))

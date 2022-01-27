@@ -13,7 +13,7 @@ package com.joshuacrotts.minischeme.ast;
 
 public class MSDeclarationNode extends MSSyntaxTree {
 
-    public MSDeclarationNode(MSSyntaxTree variable, MSSyntaxTree expr) {
+    public MSDeclarationNode(final MSSyntaxTree variable, final MSSyntaxTree expr) {
         super(MSNodeType.DECLARATION, variable, expr);
     }
 

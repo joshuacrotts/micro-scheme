@@ -3,7 +3,7 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 01/26/2022
  *
  *
  *
@@ -14,14 +14,82 @@ package com.joshuacrotts.minischeme.main;
 import ch.obermuhlner.math.big.BigDecimalMath;
 import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.parser.MSArgumentMismatchException;
+import com.joshuacrotts.minischeme.parser.MSFunction;
 import com.joshuacrotts.minischeme.parser.MSSemanticException;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 
 public final class BuiltinOperator {
+
+    private static final Map<String, MSFunction<ArrayList<LValue>, LValue>> OPERATORS;
+
+    static {
+        OPERATORS = new HashMap<>();
+        OPERATORS.put("display", BuiltinOperator::interpretDisplay);
+        OPERATORS.put("+", BuiltinOperator::interpretAdd);
+        OPERATORS.put("-", BuiltinOperator::interpretSubtract);
+        OPERATORS.put("*", BuiltinOperator::interpretMultiply);
+        OPERATORS.put("/", BuiltinOperator::interpretDivide);
+        OPERATORS.put("**", BuiltinOperator::interpretPower);
+        OPERATORS.put("log", BuiltinOperator::interpretLog);
+        OPERATORS.put("floor", BuiltinOperator::interpretFloor);
+        OPERATORS.put("ceiling", BuiltinOperator::interpretCeiling);
+        OPERATORS.put("round", BuiltinOperator::interpretRound);
+        OPERATORS.put("truncate", BuiltinOperator::interpretTruncate);
+        OPERATORS.put("modulo", BuiltinOperator::interpretModulo);
+        OPERATORS.put("remainder", BuiltinOperator::interpretRemainder);
+        OPERATORS.put("sin", BuiltinOperator::interpretSin);
+        OPERATORS.put("cos", BuiltinOperator::interpretCos);
+        OPERATORS.put("tan", BuiltinOperator::interpretTan);
+        OPERATORS.put("sinh", BuiltinOperator::interpretSinh);
+        OPERATORS.put("cosh", BuiltinOperator::interpretCosh);
+        OPERATORS.put("tanh", BuiltinOperator::interpretTanh);
+        OPERATORS.put("asin", BuiltinOperator::interpretAsin);
+        OPERATORS.put("acos", BuiltinOperator::interpretAcos);
+        OPERATORS.put("atan", BuiltinOperator::interpretAtan);
+        OPERATORS.put("asinh", BuiltinOperator::interpretAsinh);
+        OPERATORS.put("acosh", BuiltinOperator::interpretAcosh);
+        OPERATORS.put("atanh", BuiltinOperator::interpretAtanh);
+        OPERATORS.put("<", BuiltinOperator::interpretLess);
+        OPERATORS.put("<=", BuiltinOperator::interpretLessEqual);
+        OPERATORS.put(">", BuiltinOperator::interpretGreater);
+        OPERATORS.put(">=", BuiltinOperator::interpretGreaterEqual);
+        OPERATORS.put("=", BuiltinOperator::interpretNumericEqual);
+        OPERATORS.put("not", BuiltinOperator::interpretNot);
+        OPERATORS.put("and", BuiltinOperator::interpretAnd);
+        OPERATORS.put("or", BuiltinOperator::interpretOr);
+        OPERATORS.put("equal?", BuiltinOperator::interpretEqualPredicate);
+        OPERATORS.put("eq?", BuiltinOperator::interpretEqPredicate);
+        OPERATORS.put("cons", BuiltinOperator::interpretConsFunction);
+        OPERATORS.put("list", BuiltinOperator::interpretListFunction);
+        OPERATORS.put("car", BuiltinOperator::interpretCarFunction);
+        OPERATORS.put("cdr", BuiltinOperator::interpretCdrFunction);
+        OPERATORS.put("vector", BuiltinOperator::interpretVectorFunction);
+        OPERATORS.put("vector-ref", BuiltinOperator::interpretVectorRefFunction);
+        OPERATORS.put("vector-length", BuiltinOperator::interpretVectorLengthFunction);
+        OPERATORS.put("null?", BuiltinOperator::interpretNullPredicate);
+        OPERATORS.put("number?", BuiltinOperator::interpretNumberPredicate);
+        OPERATORS.put("char?", BuiltinOperator::interpretCharPredicate);
+        OPERATORS.put("string?", BuiltinOperator::interpretStringPredicate);
+        OPERATORS.put("symbol?", BuiltinOperator::interpretSymbolPredicate);
+        OPERATORS.put("pair?", BuiltinOperator::interpretPairPredicate);
+        OPERATORS.put("list?", BuiltinOperator::interpretListPredicate);
+        OPERATORS.put("vector?", BuiltinOperator::interpretVectorPredicate);
+        OPERATORS.put("string-append", BuiltinOperator::interpretStringAppendFunction);
+        OPERATORS.put("string-length", BuiltinOperator::interpretStringLengthFunction);
+        OPERATORS.put("string<?", BuiltinOperator::interpretStringLess);
+        OPERATORS.put("string<=?", BuiltinOperator::interpretStringLessEqual);
+        OPERATORS.put("string>?", BuiltinOperator::interpretStringGreater);
+        OPERATORS.put("string>=?", BuiltinOperator::interpretStringGreaterEqual);
+        OPERATORS.put("number->string", BuiltinOperator::interpretNumberStringFunction);
+        OPERATORS.put("string->number", BuiltinOperator::interpretStringNumberFunction);
+        OPERATORS.put("list->string", BuiltinOperator::interpretListStringFunction);
+        OPERATORS.put("string->list", BuiltinOperator::interpretStringListFunction);
+    }
 
     /**
      *
@@ -29,73 +97,7 @@ public final class BuiltinOperator {
      * @return
      */
     public static boolean isBuiltinOperator(final MSSyntaxTree expressionNode) {
-        switch (expressionNode.getStringRep()) {
-            case "display":
-            case "+":
-            case "-":
-            case "*":
-            case "/":
-            case "**":
-            case "log":
-            case "floor":
-            case "ceiling":
-            case "round":
-            case "truncate":
-            case "modulo":
-            case "remainder":
-            case "sin":
-            case "cos":
-            case "tan":
-            case "asin":
-            case "acos":
-            case "atan":
-            case "sinh":
-            case "cosh":
-            case "tanh":
-            case "asinh":
-            case "acosh":
-            case "atanh":
-            case "<":
-            case "<=":
-            case ">":
-            case ">=":
-            case "=":
-            case "not":
-            case "and":
-            case "or":
-            case "equal?":
-            case "eq?":
-            case "cons":
-            case "list":
-            case "car":
-            case "cdr":
-            case "set-car!":
-            case "set-cdr!":
-            case "vector":
-            case "vector-ref":
-            case "vector-length":
-            case "null?":
-            case "number?":
-            case "char?":
-            case "string?":
-            case "symbol?":
-            case "pair?":
-            case "list?":
-            case "vector?":
-            case "string-append":
-            case "string-length":
-            case "string<?":
-            case "string<=?":
-            case "string>?":
-            case "string>=?":
-            case "number->string":
-            case "string->number":
-            case "list->string":
-            case "string->list":
-                return true;
-            default:
-                return false;
-        }
+        return BuiltinOperator.OPERATORS.containsKey(expressionNode.getStringRep());
     }
 
     /**
@@ -109,70 +111,7 @@ public final class BuiltinOperator {
                                                   final ArrayList<LValue> evalArguments,
                                                   final Environment env) throws MSSemanticException {
         if (!expressionNode.isVariable()) { return null; }
-        switch (expressionNode.getStringRep()) {
-            case "display": return BuiltinOperator.interpretDisplay(evalArguments);
-            case "+": return BuiltinOperator.interpretAdd(evalArguments);
-            case "-": return BuiltinOperator.interpretSubtract(evalArguments);
-            case "*": return BuiltinOperator.interpretMultiply(evalArguments);
-            case "/": return BuiltinOperator.interpretDivide(evalArguments);
-            case "**": return BuiltinOperator.interpretPower(evalArguments);
-            case "log": return BuiltinOperator.interpretLog(evalArguments);
-            case "floor": return BuiltinOperator.interpretFloor(evalArguments);
-            case "ceiling": return BuiltinOperator.interpretCeiling(evalArguments);
-            case "round": return BuiltinOperator.interpretRound(evalArguments);
-            case "truncate": return BuiltinOperator.interpretTruncate(evalArguments);
-            case "modulo": return BuiltinOperator.interpretModulo(evalArguments);
-            case "remainder": return BuiltinOperator.interpretRemainder(evalArguments);
-            case "sin": return BuiltinOperator.interpretSin(evalArguments);
-            case "cos": return BuiltinOperator.interpretCos(evalArguments);
-            case "tan": return BuiltinOperator.interpretTan(evalArguments);
-            case "asin": return BuiltinOperator.interpretAsin(evalArguments);
-            case "acos": return BuiltinOperator.interpretAcos(evalArguments);
-            case "atan": return BuiltinOperator.interpretAtan(evalArguments);
-            case "sinh": return BuiltinOperator.interpretSinh(evalArguments);
-            case "cosh": return BuiltinOperator.interpretCosh(evalArguments);
-            case "tanh": return BuiltinOperator.interpretTanh(evalArguments);
-            case "asinh": return BuiltinOperator.interpretAsinh(evalArguments);
-            case "acosh": return BuiltinOperator.interpretAcosh(evalArguments);
-            case "atanh": return BuiltinOperator.interpretAtanh(evalArguments);
-            case "<": return BuiltinOperator.interpretLess(evalArguments);
-            case "<=": return BuiltinOperator.interpretLessEqual(evalArguments);
-            case ">": return BuiltinOperator.interpretGreater(evalArguments);
-            case ">=": return BuiltinOperator.interpretGreaterEqual(evalArguments);
-            case "=": return BuiltinOperator.interpretNumericEqual(evalArguments);
-            case "not": return BuiltinOperator.interpretNot(evalArguments);
-            case "and": return BuiltinOperator.interpretAnd(evalArguments);
-            case "or": return BuiltinOperator.interpretOr(evalArguments);
-            case "equal?": return BuiltinOperator.interpretEqualFunction(evalArguments);
-            case "eq?": return BuiltinOperator.interpretEqFunction(evalArguments);
-            case "cons": return BuiltinOperator.interpretConsFunction(evalArguments);
-            case "list": return BuiltinOperator.interpretListFunction(evalArguments);
-            case "car": return BuiltinOperator.interpretCarFunction(evalArguments);
-            case "cdr": return BuiltinOperator.interpretCdrFunction(evalArguments);
-            case "vector": return BuiltinOperator.interpretVectorFunction(evalArguments);
-            case "vector-ref": return BuiltinOperator.interpretVectorRefFunction(evalArguments);
-            case "vector-length": return BuiltinOperator.interpretVectorLengthFunction(evalArguments);
-            case "null?": return BuiltinOperator.interpretNullPredicate(evalArguments);
-            case "number?": return BuiltinOperator.interpretNumberPredicate(evalArguments);
-            case "char?": return BuiltinOperator.interpretCharPredicate(evalArguments);
-            case "string?": return BuiltinOperator.interpretStringPredicate(evalArguments);
-            case "symbol?": return BuiltinOperator.interpretSymbolPredicate(evalArguments);
-            case "pair?": return BuiltinOperator.interpretPairPredicate(evalArguments);
-            case "list?": return BuiltinOperator.interpretListPredicate(evalArguments);
-            case "vector?": return BuiltinOperator.interpretVectorPredicate(evalArguments);
-            case "string-append": return BuiltinOperator.interpretStringAppendFunction(evalArguments);
-            case "string-length": return BuiltinOperator.interpretStringLengthFunction(evalArguments);
-            case "string<?": return BuiltinOperator.interpretStringLess(evalArguments);
-            case "string<=?": return BuiltinOperator.interpretStringLessEqual(evalArguments);
-            case "string>?": return BuiltinOperator.interpretStringGreater(evalArguments);
-            case "string>=?": return BuiltinOperator.interpretStringGreaterEqual(evalArguments);
-            case "number->string": return BuiltinOperator.interpretNumberStringFunction(evalArguments);
-            case "string->number": return BuiltinOperator.interpretStringNumberFunction(evalArguments);
-            case "list->string": return BuiltinOperator.interpretListStringFunction(evalArguments);
-            case "string->list": return BuiltinOperator.interpretStringListFunction(evalArguments);
-            default:
-                return null;
-        }
+        return BuiltinOperator.OPERATORS.get(expressionNode.getStringRep()).apply(evalArguments);
     }
 
     /**
@@ -181,8 +120,8 @@ public final class BuiltinOperator {
      * @return
      * @throws MSArgumentMismatchException
      */
-    private static LValue interpretDisplay(final ArrayList<LValue> displayArguments) throws MSArgumentMismatchException {
-        if (displayArguments.size() != 1) { throw new MSArgumentMismatchException("display", 1, displayArguments.size());}
+    private static LValue interpretDisplay(final ArrayList<LValue> displayArguments) {
+        if (displayArguments.size() != 1) { throw new MSArgumentMismatchException("display", 1, displayArguments.size()); }
         return displayArguments.get(0);
     }
 
@@ -570,7 +509,7 @@ public final class BuiltinOperator {
      * @param equalArguments
      * @return
      */
-    private static LValue interpretEqualFunction(final ArrayList<LValue> equalArguments) throws MSArgumentMismatchException {
+    private static LValue interpretEqualPredicate(final ArrayList<LValue> equalArguments) throws MSArgumentMismatchException {
         if (equalArguments.size() != 2) { throw new MSArgumentMismatchException("equal?", 2, equalArguments.size()); }
         LValue lhs = equalArguments.get(0);
         LValue rhs = equalArguments.get(1);
@@ -600,7 +539,7 @@ public final class BuiltinOperator {
      * @return
      * @throws MSArgumentMismatchException
      */
-    private static LValue interpretEqFunction(final ArrayList<LValue> equalArguments) throws MSArgumentMismatchException {
+    private static LValue interpretEqPredicate(final ArrayList<LValue> equalArguments) throws MSArgumentMismatchException {
         if (equalArguments.size() != 2) { throw new MSArgumentMismatchException("eq?", 2, equalArguments.size()); }
         LValue lhs = equalArguments.get(0);
         LValue rhs = equalArguments.get(1);
@@ -627,7 +566,8 @@ public final class BuiltinOperator {
      * @param consArguments
      * @return
      */
-    private static LValue interpretConsFunction(final ArrayList<LValue> consArguments) {
+    private static LValue interpretConsFunction(final ArrayList<LValue> consArguments) throws MSArgumentMismatchException {
+        if (consArguments.size() != 2) { throw new MSArgumentMismatchException("cons", 2, consArguments.size()); }
         MSSyntaxTree lhs = LValue.getAst(consArguments.get(0));
         MSSyntaxTree rhs = LValue.getAst(consArguments.get(1));
         return new LValue(new MSListNode(lhs, rhs));

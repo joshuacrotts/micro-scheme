@@ -1,0 +1,15 @@
+(define Y
+  ((lambda (f)
+     (f f))
+   (lambda (z)
+     (lambda (f)
+       (f (lambda (x) (((z z) f) x)))))))
+
+(define factorial
+  (Y (lambda (recursive-factorial)
+       (lambda (x)
+         (if (<= x 0)
+             1
+             (* x (recursive-factorial (- x 1))))))))
+
+(factorial 5)

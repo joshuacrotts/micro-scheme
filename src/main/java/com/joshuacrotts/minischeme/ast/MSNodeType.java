@@ -31,7 +31,9 @@ public enum MSNodeType {
     SETVECTOR("vector-set!"),
     DO("do"),
     DECLARATION("declaration"),
-    APPLICATION("application");
+    APPLICATION("application"),
+    APPLY("apply"),
+    EVAL("eval");
         
     private final String STRING_REP;
     

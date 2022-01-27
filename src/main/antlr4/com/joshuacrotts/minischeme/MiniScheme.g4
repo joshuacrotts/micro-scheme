@@ -44,6 +44,8 @@ ELSE: 'else';
 LAMBDA: 'lambda' | 'λ';
 BEGIN: 'begin';
 QUOTE: 'quote';
+APPLY: 'apply';
+EVAL: 'eval';
 DO: 'do';
 LET: 'let';
 LETSTAR: 'let*';
@@ -71,6 +73,8 @@ procedureParameters: expr*;
 
 // There are several different types of declarations.
 expr: beginExpr
+    | evalExpr
+    | applyExpr
     | doExpr
     | letExpr
     | letStarExpr
@@ -79,13 +83,18 @@ expr: beginExpr
     | lambdaExpr
     | condExpr
     | ifExpr
-    | applicationExpr
     | symbolExpr
+    | applicationExpr
     | constant
     | variable;
 
 // A begin expression is a sequence of expressions, evaluated from left ro right.
 beginExpr: '(' BEGIN expr+ ')';
+
+evalExpr: '(' EVAL expr ')';
+
+applyExpr: '(' APPLY expr expr ')';
+applyExprList: expr*;
 
 // A do expression takes the form (do ((<var> <expr> <expr>)*) (<test> <expr>) <seq>)
 doExpr: '(' DO '(' doDecl* ')' '(' doTest doTrueExpr* ')' doBody ')';
@@ -122,7 +131,7 @@ condForm: expr expr;
 ifExpr: '(' IF expr expr expr ')';
 
 // Applications take the form (<expr> <expr>*)
-applicationExpr: '(' expr applicationArgs ')';
+applicationExpr: ( '(' expr applicationArgs ')' );
 applicationArgs: expr*;
 
 // Symbols take the form (quote | '(<expr>*) or <expr>)

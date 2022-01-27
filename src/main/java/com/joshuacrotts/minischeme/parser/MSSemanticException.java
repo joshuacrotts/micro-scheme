@@ -11,7 +11,7 @@
 
 package com.joshuacrotts.minischeme.parser;
 
-public class MSSemanticException extends Exception {
+public class MSSemanticException extends RuntimeException {
 
     public MSSemanticException(final String errType, final String msg) {
         super(String.format("%s: %s", errType, msg));

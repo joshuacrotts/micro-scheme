@@ -23,7 +23,7 @@ public class MSSetNode extends MSSyntaxTree {
      */
     private final int TYPE;
 
-    public MSSetNode(int type, ArrayList<MSSyntaxTree> setData) {
+    public MSSetNode(final int type, final ArrayList<MSSyntaxTree> setData) {
         super(MSSetNode.getCorrespondingNodeType(type));
         this.TYPE = type;
         for (MSSyntaxTree setElementData : setData) { this.addChild(setElementData); }

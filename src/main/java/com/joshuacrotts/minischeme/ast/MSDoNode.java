@@ -30,8 +30,8 @@ public class MSDoNode extends MSSyntaxTree {
      */
     private final int NUM_TRUE_EXPRESSIONS;
 
-    public MSDoNode(ArrayList<MSSyntaxTree> doDeclarations, ArrayList<MSSyntaxTree> doSetExpressions,
-                    MSSyntaxTree doTest, ArrayList<MSSyntaxTree> doTrueExpressions, MSSyntaxTree doBody) {
+    public MSDoNode(final ArrayList<MSSyntaxTree> doDeclarations, final ArrayList<MSSyntaxTree> doSetExpressions,
+                    final MSSyntaxTree doTest, final ArrayList<MSSyntaxTree> doTrueExpressions, final MSSyntaxTree doBody) {
         super(MSNodeType.DO);
         this.NUM_DECLARATIONS = doDeclarations.size();
         this.NUM_SET_EXPRESSIONS = doSetExpressions.size();

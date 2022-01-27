@@ -1,0 +1,11 @@
+;
+; Lambda test from StackOverflow
+;
+
+(define x 5)
+(define result
+  (let ((f (lambda (p) (+ p 10)))
+        (y 20))
+    (let ((temp (f x)))
+      (* temp y))))
+(display result)
