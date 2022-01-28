@@ -1,0 +1,9 @@
+;
+; Letrec testing if a number is odd or even recursively.
+;
+
+(define sub1 (lambda (x) (- x 1)))
+(letrec ([even? (λ (n) (if (= n 0) #t (odd?  (sub1 n))))]
+         [odd?  (λ (n) (if (= n 0) #f (even? (sub1 n))))])
+  (list (even? 3)
+        (odd? 5)))

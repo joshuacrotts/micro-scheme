@@ -49,6 +49,7 @@ EVAL: 'eval';
 DO: 'do';
 LET: 'let';
 LETSTAR: 'let*';
+LETREC: 'letrec';
 SET: 'set!';
 SETCAR: 'set-car!';
 SETCDR: 'set-cdr!';
@@ -78,6 +79,7 @@ expr: beginExpr
     | doExpr
     | letExpr
     | letStarExpr
+    | letRecExpr
     | setExpr
     | setListExpr
     | lambdaExpr
@@ -107,8 +109,10 @@ doBody: expr+;
 // Let expression takes the form (let ((<var> <expr>)*) (<expr>))
 letExpr: '(' LET '(' letParameters* ')' expr ')';
 letStarExpr: '(' LETSTAR '(' letParameters* ')' expr ')';
+letRecExpr: '(' LETREC '(' letParameters* ')' expr ')';
 letParameters: ('(' expr expr ')')
              | ('[' expr expr ']');
+
 
 // Set expression takes the form (set! <var> <expr>). <expr> should not be evaluated.
 setExpr: '(' SET variable expr ')';

@@ -1,3 +1,13 @@
+/******************************************************************************
+ *  File: MSEvalNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 01/27/2022
+ *
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.minischeme.ast;
 
 public class MSEvalNode extends MSSyntaxTree {

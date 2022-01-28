@@ -1,0 +1,9 @@
+;
+; Letrec which computes the sum of a list.
+;
+
+(letrec ([sum-of-list (λ (l)
+                        (if (null? l)
+                            0
+                            (+ (car l) (sum-of-list (cdr l)))))])
+  (sum-of-list '(1 2 3 4 5)))

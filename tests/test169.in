@@ -1,0 +1,24 @@
+;
+; Levenshtein distance. Not a DP solution.
+;
+
+(define (zero? x) (= x 0))
+(define (min x y z)
+  (cond ((and (< x y) (< x z)) x)
+        ((and (< y x) (< y z)) y)
+        (else z)))
+
+(define (levenshtein s t)
+    (levenshtein-helper (string->list s) (string-length s) (string->list t) (string-length t)))
+
+(define (levenshtein-helper s sl t tl)
+    (cond ((zero? sl) tl)
+          ((zero? tl) sl)
+          (else
+	    	(min (+ (levenshtein-helper (cdr s) (- sl 1) t tl) 1)
+                 (+ (levenshtein-helper s sl (cdr t) (- tl 1)) 1)
+                 (+ (levenshtein-helper (cdr s) (- sl 1) (cdr t) (- tl 1))
+                (if (equal? (car s) (car t)) 0 1))))))
+
+(display (levenshtein "kitten" "sitting"))
+(display (levenshtein "hiyya" "hello"))

@@ -41,7 +41,7 @@ public class Environment {
         int idx = 0;
         for (Map.Entry<String, LValue> symbol : this.BINDINGS.entrySet()) {
             sb.append("{");
-            sb.append(String.format("%s:%s", symbol.getKey(), symbol.getValue()));
+            sb.append(String.format("%s:%s", symbol.getKey(), symbol.getValue().getTree().isLambda() ? "LAMBDA" : symbol.getValue()));
             sb.append((idx++ != this.BINDINGS.size() - 1 ) ? "}, " : "}");
         }
 
@@ -55,8 +55,8 @@ public class Environment {
             } else {
                 for (Map.Entry<String, LValue> symbol : this.PARENT.BINDINGS.entrySet()) {
                     sb.append("{");
-                    sb.append(String.format("%s:%s", symbol.getKey(), symbol.getValue()));
-                    sb.append((idx++ != this.BINDINGS.size() - 1) ? "}, " : "}");
+                    sb.append(String.format("%s:%s", symbol.getKey(), symbol.getValue().getTree().isLambda() ? "LAMBDA" : symbol.getValue()));
+                    sb.append((idx++ != this.PARENT.BINDINGS.size() - 1) ? "}, " : "}");
                 }
             }
         }
@@ -64,12 +64,6 @@ public class Environment {
         return sb.toString();
     }
 
-    /**
-     *
-     * @param formals
-     * @param arguments
-     * @return
-     */
     public Environment createChildEnvironment(final ArrayList<MSSyntaxTree> formals,
                                               final ArrayList<LValue> arguments) {
         Environment e1 = new Environment(this);
@@ -77,6 +71,13 @@ public class Environment {
             e1.bind(formals.get(i).getStringRep(), arguments.get(i));
         }
         return e1;
+    }
+
+    public void createBindings(final ArrayList<MSSyntaxTree> formals,
+                               final ArrayList<LValue> arguments) {
+        for (int i = 0; i < formals.size(); i++) {
+            this.bind(formals.get(i).getStringRep(), arguments.get(i));
+        }
     }
 
     /**

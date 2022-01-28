@@ -25,6 +25,7 @@ public enum MSNodeType {
     VARIABLE("variable"),
     COND("cond"),
     LAMBDA("lambda"),
+    LETREC("letrec"),
     SET("set!"),
     SETCAR("set-car!"),
     SETCDR("set-cdr!"),

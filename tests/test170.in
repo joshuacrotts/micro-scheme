@@ -1,0 +1,32 @@
+;
+; Account OOP design
+;
+(define cadr (lambda (l) (car (cdr l))))
+(define (make-account)
+   (let ((my-balance 0))
+      (lambda (args)
+          (cond ((eq? (car args) 'balance) my-balance)
+                ((eq? (car args) 'withdraw)
+                    (if (>= my-balance (cadr args))
+                       (begin (set! my-balance (- my-balance (cadr args)))
+                               my-balance)
+                       "Insufficient funds"))
+                ((eq? (car args) 'deposit)
+                    (begin
+                        (set! my-balance (+ my-balance (cadr args)))
+                        my-balance))
+                (else "unknown request")))))
+
+(define account-1 (make-account))
+(account-1 '(deposit 300))
+(account-1 '(balance))
+(account-1 '(withdraw 175))
+(account-1 '(balance))
+(define account-2 (make-account))
+(account-2 '(deposit 1000))
+(account-2 '(balance))
+(account-2 '(deposit 215))
+(account-2 '(balance))
+(account-2 '(withdraw 1065))
+(account-1 '(balance))
+(account-2 '(balance))

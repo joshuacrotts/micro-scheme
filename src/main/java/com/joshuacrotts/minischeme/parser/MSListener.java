@@ -179,12 +179,10 @@ public class MSListener extends MiniSchemeBaseListener {
         for (int i = ctx.letParameters().size() - 1; i >= 0; i--) {
             // Retrieve the variable and its data. Create a lambda node from
             // them and attach it as the body of the next outer lambda.
-            MSSyntaxTree variable = this.map.get(ctx.letParameters().get(i).expr(0));
-            MSSyntaxTree expression = this.map.get(ctx.letParameters().get(i).expr(1));
             ArrayList<MSSyntaxTree> letArgument = new ArrayList<>();
             ArrayList<MSSyntaxTree> letParameter = new ArrayList<>();
-            letParameter.add(variable);
-            letArgument.add(expression);
+            letParameter.add(this.map.get(ctx.letParameters().get(i).expr(0)));
+            letArgument.add(this.map.get(ctx.letParameters().get(i).expr(1)));
             // If we're on the first expression, we need to create the lambda with the body as the expr.
             MSLambdaNode lambdaNode;
             if (i == ctx.letParameters().size() - 1) { lambdaNode = new MSLambdaNode(letParameter, this.map.get(ctx.expr())); }
@@ -194,6 +192,20 @@ public class MSListener extends MiniSchemeBaseListener {
 
         this.map.put(ctx, rootApplication);
     }
+
+    @Override
+    public void exitLetRecExpr(final MiniSchemeParser.LetRecExprContext ctx) {
+        super.exitLetRecExpr(ctx);
+        // Convert the let into a lambda as an application.
+        ArrayList<MSSyntaxTree> letRecBindings = new ArrayList<>();
+        for (int i = 0; i < ctx.letParameters().size(); i++) {
+            MSSyntaxTree variable = this.map.get(ctx.letParameters().get(i).expr(0));
+            MSSyntaxTree expression = this.map.get(ctx.letParameters().get(i).expr(1));
+            letRecBindings.add(new MSDeclarationNode(variable, expression));
+        }
+        this.map.put(ctx, new MSLetRecNode(letRecBindings, this.map.get(ctx.expr())));
+    }
+
 
     @Override
     public void exitLambdaExpr(final MiniSchemeParser.LambdaExprContext ctx) {

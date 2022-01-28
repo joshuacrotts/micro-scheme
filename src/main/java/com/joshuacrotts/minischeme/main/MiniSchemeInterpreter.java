@@ -69,6 +69,7 @@ public class MiniSchemeInterpreter {
             case SETCDR: return this.interpretSetCdr((MSSetNode) tree, env);
             case SETVECTOR: return this.interpretSetVector((MSSetNode) tree, env);
             case COND: return this.interpretCond((MSCondNode) tree, env);
+            case LETREC: return this.interpretLetRec((MSLetRecNode) tree, env);
             case LAMBDA: return this.interpretLambda((MSLambdaNode) tree, env);
             case DO: return this.interpretDo((MSDoNode) tree, env);
             case EVAL: return this.interpretEval((MSEvalNode) tree, env);
@@ -215,11 +216,38 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * Evaluates a letrec expression. A letrec is a recursive let procedure (i.e., allows the programmer to
+     * call a lambda procedure defined in the let declarations inside the body of the let. This probably isn't
+     * the most useful thing in the world, but it's here because it can't be converted into a lambda.
+     *
+     * The bindings are created inside an environment with env as the parent. This environment must be constructed
+     * because any lambdas in the bindings must have their env set as the new environment or they won't be
+     * recognized.
+     *
+     * @param letRecNode AST.
+     * @param env parent Environment to create the child Environment for the let from.
+     * @return LValue of evaluated let body.
+     */
+    private LValue interpretLetRec(final MSLetRecNode letRecNode, final Environment env) {
+        ArrayList<LValue> expressionList = new ArrayList<>();
+
+        // Create the new environment so we can bind our let declarations in it.
+        Environment newEnv = new Environment(env);
+        for (MSSyntaxTree ast : letRecNode.getDeclarationList()) {
+            MSDeclarationNode decl = (MSDeclarationNode) ast;
+            expressionList.add(new LValue(decl.getExpression(), newEnv));
+        }
+
+        newEnv.createBindings(letRecNode.getVariableList(), expressionList);
+        return this.interpretTree(letRecNode.getBody(), newEnv);
+    }
+
+    /**
      * Interprets a lambda AST.
-     * 
+     *
      * @param lambdaNode AST
      * @param env Environment to evaluate the lambda in.
-     * 
+     *
      * @return LValue wrapping the lambda and its current environment.
      */
     private LValue interpretLambda(final MSLambdaNode lambdaNode, final Environment env) {
@@ -228,17 +256,17 @@ public class MiniSchemeInterpreter {
 
     /**
      * Interprets a DO iterative loop. A do loop in Scheme has a declaration section, "variable steps",
-     * a test, a list of "true" expressions, and then the body. 
-     * 
-     * Do sets up the variable bindings in a new local environment. It then evaluates the do test, and 
-     * if it is true, we evaluate the "do true" expressions. Otherwise, we evaluate the body of the 
-     * do loop. Finally, the "variable steps" (i.e., a list of SETs) are processed. 
-     * 
-     * @param doNode AST
+     * a test, a list of "true" expressions, and then the body.
+     *
+     * Do sets up the variable bindings in a new local environment. It then evaluates the do test, and
+     * if it is true, we evaluate the "do true" expressions. Otherwise, we evaluate the body of the
+     * do loop. Finally, the "variable steps" (i.e., a list of SETs) are processed.
+     *
+     * @param doNode AST.
      * @param env parent environment of the do node.
-     * 
+     *
      * @return LValue of the last "true" expression evaluated.
-     * 
+     *
      * @throws MSSemanticException if the "test" is not boolean expression, or a sub-evaluation throws
      *         an exception.
      */
@@ -260,7 +288,7 @@ public class MiniSchemeInterpreter {
             MSSyntaxTree testAst = LValue.getAst(testLVal);
             if (!testAst.isBoolean()) {
                 throw new MSSemanticException("do test expected predicate/true/false but got " + testAst.getStringNodeType());
-            } else { 
+            } else {
                 if (testLVal.getBooleanValue()) {
                     LValue trueLVal = null;
                     for (MSSyntaxTree trueExpr : doNode.getDoTrueExpressions()) {
@@ -339,6 +367,7 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree procedure = applyNode.getProcedure();
         return this.interpretTree(new MSApplicationNode(procedure, applyArguments), env);
     }
+
 
     /**
      * Interprets an application node. An application is, effectively the "apply" function in many

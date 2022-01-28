@@ -19,6 +19,7 @@ import com.joshuacrotts.minischeme.parser.MSSemanticException;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Function;
@@ -132,7 +133,9 @@ public final class BuiltinOperator {
      */
     private static LValue interpretAdd(final ArrayList<LValue> addArguments) {
         BigDecimal result = addArguments.get(0).getNumberValue();
-        for (int i = 1; i < addArguments.size(); i++) { result = result.add(addArguments.get(i).getNumberValue()); }
+        for (int i = 1; i < addArguments.size(); i++) {
+            result = result.add(addArguments.get(i).getNumberValue());
+        }
         return new LValue(result);
     }
 
@@ -143,7 +146,9 @@ public final class BuiltinOperator {
      */
     private static LValue interpretSubtract(final ArrayList<LValue> subtractArguments) {
         BigDecimal result = subtractArguments.get(0).getNumberValue();
-        for (int i = 1; i < subtractArguments.size(); i++) { result = result.subtract(subtractArguments.get(i).getNumberValue()); }
+        for (int i = 1; i < subtractArguments.size(); i++) {
+            result = result.subtract(subtractArguments.get(i).getNumberValue());
+        }
         return new LValue(result);
     }
 
