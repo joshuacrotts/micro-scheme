@@ -26,7 +26,15 @@ import java.util.function.Function;
 
 public final class BuiltinOperator {
 
+    /**
+     * Mapping of string procedure identifiers to their respective function calls.
+     */
     private static final Map<String, MSFunction<ArrayList<LValue>, LValue>> OPERATORS;
+
+    /**
+     * Random object to continuously use throughout interpreter execution.
+     */
+    private static final Random RANDOM = new Random();
 
     static {
         OPERATORS = new HashMap<>();
@@ -86,10 +94,18 @@ public final class BuiltinOperator {
         OPERATORS.put("string<=?", BuiltinOperator::interpretStringLessEqual);
         OPERATORS.put("string>?", BuiltinOperator::interpretStringGreater);
         OPERATORS.put("string>=?", BuiltinOperator::interpretStringGreaterEqual);
+        OPERATORS.put("char<?", BuiltinOperator::interpretCharLess);
+        OPERATORS.put("char<=?", BuiltinOperator::interpretCharLessEqual);
+        OPERATORS.put("char>?", BuiltinOperator::interpretCharGreater);
+        OPERATORS.put("char>=?", BuiltinOperator::interpretCharGreaterEqual);
         OPERATORS.put("number->string", BuiltinOperator::interpretNumberStringFunction);
         OPERATORS.put("string->number", BuiltinOperator::interpretStringNumberFunction);
         OPERATORS.put("list->string", BuiltinOperator::interpretListStringFunction);
         OPERATORS.put("string->list", BuiltinOperator::interpretStringListFunction);
+        OPERATORS.put("random", BuiltinOperator::interpretRandomFunction);
+        OPERATORS.put("random-integer", BuiltinOperator::interpretRandomIntegerFunction);
+        OPERATORS.put("random-double", BuiltinOperator::interpretRandomDoubleFunction);
+        OPERATORS.put("random-set-seed!", BuiltinOperator::interpretRandomSetSeedFunction);
     }
 
     /**
@@ -107,6 +123,7 @@ public final class BuiltinOperator {
      * @param evalArguments
      * @param env
      * @return
+     * @throws MSSemanticException
      */
     public static LValue interpretBuiltinOperator(final MSSyntaxTree expressionNode,
                                                   final ArrayList<LValue> evalArguments,
@@ -115,22 +132,11 @@ public final class BuiltinOperator {
         return BuiltinOperator.OPERATORS.get(expressionNode.getStringRep()).apply(evalArguments);
     }
 
-    /**
-     *
-     * @param displayArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretDisplay(final ArrayList<LValue> displayArguments) {
         if (displayArguments.size() != 1) { throw new MSArgumentMismatchException("display", 1, displayArguments.size()); }
         return displayArguments.get(0);
     }
 
-    /**
-     *
-     * @param addArguments
-     * @return
-     */
     private static LValue interpretAdd(final ArrayList<LValue> addArguments) {
         BigDecimal result = addArguments.get(0).getNumberValue();
         for (int i = 1; i < addArguments.size(); i++) {
@@ -139,35 +145,20 @@ public final class BuiltinOperator {
         return new LValue(result);
     }
 
-    /**
-     *
-     * @param subtractArguments
-     * @return
-     */
     private static LValue interpretSubtract(final ArrayList<LValue> subtractArguments) {
         BigDecimal result = subtractArguments.get(0).getNumberValue();
         for (int i = 1; i < subtractArguments.size(); i++) {
             result = result.subtract(subtractArguments.get(i).getNumberValue());
         }
-        return new LValue(result);
+        return subtractArguments.size() == 1 ? new LValue(result.negate()) : new LValue(result);
     }
 
-    /**
-     *
-     * @param multiplyArguments
-     * @return
-     */
     private static LValue interpretMultiply(final ArrayList<LValue> multiplyArguments) {
         BigDecimal result = multiplyArguments.get(0).getNumberValue();
         for (int i = 1; i < multiplyArguments.size(); i++) { result = result.multiply(multiplyArguments.get(i).getNumberValue()); }
         return new LValue(result);
     }
 
-    /**
-     *
-     * @param divideArguments
-     * @return
-     */
     private static LValue interpretDivide(final ArrayList<LValue> divideArguments) throws MSSemanticException {
         if (divideArguments.size() != 2) { throw new MSArgumentMismatchException("/", 2, divideArguments.size());}
         BigDecimal dividend = divideArguments.get(0).getNumberValue();
@@ -177,12 +168,6 @@ public final class BuiltinOperator {
         return new LValue(dividend.divide(divisor, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param powerArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretPower(final ArrayList<LValue> powerArguments) throws MSArgumentMismatchException {
         if (powerArguments.size() != 2) { throw new MSArgumentMismatchException("**", 2, powerArguments.size()); }
         BigDecimal base = powerArguments.get(0).getNumberValue();
@@ -190,72 +175,36 @@ public final class BuiltinOperator {
         return new LValue(BigDecimalMath.pow(base, power, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param logArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretLog(final ArrayList<LValue> logArguments) throws MSArgumentMismatchException {
         if (logArguments.size() != 1) { throw new MSArgumentMismatchException("log", 1, logArguments.size()); }
         BigDecimal antilogarithm = logArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.log(antilogarithm, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param floorArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretFloor(final ArrayList<LValue> floorArguments) throws MSArgumentMismatchException {
         if (floorArguments.size() != 1) { throw new MSArgumentMismatchException("floor", 1, floorArguments.size()); }
         BigDecimal floorArgument = floorArguments.get(0).getNumberValue();
         return new LValue(floorArgument.setScale(0, RoundingMode.FLOOR));
     }
 
-    /**
-     *
-     * @param ceilingArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretCeiling(final ArrayList<LValue> ceilingArguments) throws MSArgumentMismatchException {
         if (ceilingArguments.size() != 1) { throw new MSArgumentMismatchException("ceiling", 1, ceilingArguments.size()); }
         BigDecimal ceilingArgument = ceilingArguments.get(0).getNumberValue();
         return new LValue(ceilingArgument.setScale(0, RoundingMode.CEILING));
     }
 
-    /**
-     *
-     * @param roundArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretRound(final ArrayList<LValue> roundArguments) throws MSArgumentMismatchException {
         if (roundArguments.size() != 1) { throw new MSArgumentMismatchException("round", 1, roundArguments.size()); }
         BigDecimal roundArgument = roundArguments.get(0).getNumberValue();
         return new LValue(roundArgument.setScale(0, RoundingMode.HALF_UP));
     }
 
-    /**
-     *
-     * @param truncateArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretTruncate(final ArrayList<LValue> truncateArguments) throws MSArgumentMismatchException {
         if (truncateArguments.size() != 1) { throw new MSArgumentMismatchException("truncate", 1, truncateArguments.size()); }
         BigDecimal truncateArgument = truncateArguments.get(0).getNumberValue();
         return new LValue(new BigDecimal(truncateArgument.toBigInteger().intValue()));
     }
 
-    /**
-     *
-     * @param moduloArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretModulo(final ArrayList<LValue> moduloArguments) throws MSArgumentMismatchException {
         if (moduloArguments.size() != 2) { throw new MSArgumentMismatchException("modulo", 2, moduloArguments.size()); }
         BigDecimal dividend = moduloArguments.get(0).getNumberValue();
@@ -263,11 +212,6 @@ public final class BuiltinOperator {
         return new LValue(dividend.remainder(divisor, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param remainderArguments
-     * @return
-     */
     private static LValue interpretRemainder(final ArrayList<LValue> remainderArguments) throws MSArgumentMismatchException {
         if (remainderArguments.size() != 2) { throw new MSArgumentMismatchException("remainder", 2, remainderArguments.size()); }
         BigDecimal dividend = remainderArguments.get(0).getNumberValue();
@@ -276,143 +220,78 @@ public final class BuiltinOperator {
         return new LValue(remainder);
     }
 
-    /**
-     *
-     * @param sinArguments
-     * @return
-     */
     private static LValue interpretSin(final ArrayList<LValue> sinArguments) throws MSArgumentMismatchException {
         if (sinArguments.size() != 1) { throw new MSArgumentMismatchException("sin", 1, sinArguments.size()); }
         BigDecimal argument = sinArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.sin(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param cosArguments
-     * @return
-     */
     private static LValue interpretCos(final ArrayList<LValue> cosArguments) throws MSArgumentMismatchException {
         if (cosArguments.size() != 1) { throw new MSArgumentMismatchException("cos", 1, cosArguments.size()); }
         BigDecimal argument = cosArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.cos(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param tanArguments
-     * @return
-     */
     private static LValue interpretTan(final ArrayList<LValue> tanArguments) throws MSArgumentMismatchException {
         if (tanArguments.size() != 1) { throw new MSArgumentMismatchException("tan", 1, tanArguments.size()); }
         BigDecimal argument = tanArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.tan(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param sinArguments
-     * @return
-     */
     private static LValue interpretAsin(final ArrayList<LValue> sinArguments) throws MSArgumentMismatchException {
         if (sinArguments.size() != 1) { throw new MSArgumentMismatchException("asin", 1, sinArguments.size()); }
         BigDecimal argument = sinArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.asin(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param cosArguments
-     * @return
-     */
     private static LValue interpretAcos(final ArrayList<LValue> cosArguments) throws MSArgumentMismatchException {
         if (cosArguments.size() != 1) { throw new MSArgumentMismatchException("acos", 1, cosArguments.size()); }
         BigDecimal argument = cosArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.acos(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param tanArguments
-     * @return
-     */
     private static LValue interpretAtan(final ArrayList<LValue> tanArguments) throws MSArgumentMismatchException {
         if (tanArguments.size() != 1) { throw new MSArgumentMismatchException("atan", 1, tanArguments.size()); }
         BigDecimal argument = tanArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.atan(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param sinhArguments
-     * @return
-     */
     private static LValue interpretSinh(final ArrayList<LValue> sinhArguments) throws MSArgumentMismatchException {
         if (sinhArguments.size() != 1) { throw new MSArgumentMismatchException("sinh", 1, sinhArguments.size()); }
         BigDecimal argument = sinhArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.sinh(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param coshArguments
-     * @return
-     */
     private static LValue interpretCosh(final ArrayList<LValue> coshArguments) throws MSArgumentMismatchException {
         if (coshArguments.size() != 1) { throw new MSArgumentMismatchException("cosh", 1, coshArguments.size()); }
         BigDecimal argument = coshArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.cosh(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param tanhArguments
-     * @return
-     */
     private static LValue interpretTanh(final ArrayList<LValue> tanhArguments) throws MSArgumentMismatchException {
         if (tanhArguments.size() != 1) { throw new MSArgumentMismatchException("tanh", 1, tanhArguments.size()); }
         BigDecimal argument = tanhArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.tanh(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param sinhArguments
-     * @return
-     */
     private static LValue interpretAsinh(final ArrayList<LValue> sinhArguments) throws MSArgumentMismatchException {
         if (sinhArguments.size() != 1) { throw new MSArgumentMismatchException("asinh", 1, sinhArguments.size()); }
         BigDecimal argument = sinhArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.asinh(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param coshArguments
-     * @return
-     */
     private static LValue interpretAcosh(final ArrayList<LValue> coshArguments) throws MSArgumentMismatchException {
         if (coshArguments.size() != 1) { throw new MSArgumentMismatchException("acosh", 1, coshArguments.size()); }
         BigDecimal argument = coshArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.acosh(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param tanhArguments
-     * @return
-     */
     private static LValue interpretAtanh(final ArrayList<LValue> tanhArguments) throws MSArgumentMismatchException {
         if (tanhArguments.size() != 1) { throw new MSArgumentMismatchException("atanh", 1, tanhArguments.size()); }
         BigDecimal argument = tanhArguments.get(0).getNumberValue();
         return new LValue(BigDecimalMath.atanh(argument, MSNumberNode.PRECISION));
     }
 
-    /**
-     *
-     * @param lessArguments
-     * @return
-     */
     private static LValue interpretLess(final ArrayList<LValue> lessArguments) throws MSArgumentMismatchException {
         if (lessArguments.size() != 2) { throw new MSArgumentMismatchException("<", 2, lessArguments.size()); }
         BigDecimal lhs = lessArguments.get(0).getNumberValue();
@@ -420,11 +299,6 @@ public final class BuiltinOperator {
         return new LValue(lhs.compareTo(rhs) < 0);
     }
 
-    /**
-     *
-     * @param lessEqualArguments
-     * @return
-     */
     private static LValue interpretLessEqual(final ArrayList<LValue> lessEqualArguments) throws MSArgumentMismatchException {
         if (lessEqualArguments.size() != 2) { throw new MSArgumentMismatchException("<=", 2, lessEqualArguments.size()); }
         BigDecimal lhs = lessEqualArguments.get(0).getNumberValue();
@@ -432,11 +306,6 @@ public final class BuiltinOperator {
         return new LValue(lhs.compareTo(rhs) <= 0);
     }
 
-    /**
-     *
-     * @param greaterArguments
-     * @return
-     */
     private static LValue interpretGreater(final ArrayList<LValue> greaterArguments) throws MSArgumentMismatchException {
         if (greaterArguments.size() != 2) { throw new MSArgumentMismatchException(">", 2, greaterArguments.size()); }
         BigDecimal lhs = greaterArguments.get(0).getNumberValue();
@@ -444,11 +313,6 @@ public final class BuiltinOperator {
         return new LValue(lhs.compareTo(rhs) > 0);
     }
 
-    /**
-     *
-     * @param greaterEqualArguments
-     * @return
-     */
     private static LValue interpretGreaterEqual(final ArrayList<LValue> greaterEqualArguments) throws MSArgumentMismatchException {
         if (greaterEqualArguments.size() != 2) { throw new MSArgumentMismatchException(">=", 2, greaterEqualArguments.size()); }
         BigDecimal lhs = greaterEqualArguments.get(0).getNumberValue();
@@ -456,11 +320,6 @@ public final class BuiltinOperator {
         return new LValue(lhs.compareTo(rhs) >= 0);
     }
 
-    /**
-     *
-     * @param numericEqualArguments
-     * @return
-     */
     private static LValue interpretNumericEqual(final ArrayList<LValue> numericEqualArguments) throws MSArgumentMismatchException {
         if (numericEqualArguments.size() != 2) { throw new MSArgumentMismatchException("=", 2, numericEqualArguments.size()); }
         BigDecimal lhs = numericEqualArguments.get(0).getNumberValue();
@@ -468,22 +327,12 @@ public final class BuiltinOperator {
         return new LValue(lhs.compareTo(rhs) == 0);
     }
 
-    /**
-     *
-     * @param notArguments
-     * @return
-     */
     private static LValue interpretNot(final ArrayList<LValue> notArguments) throws MSArgumentMismatchException {
         if (notArguments.size() != 1) { throw new MSArgumentMismatchException("not", 2, notArguments.size()); }
         LValue booleanArgument = notArguments.get(0);
         return new LValue(!booleanArgument.getBooleanValue());
     }
 
-    /**
-     *
-     * @param andArguments
-     * @return
-     */
     private static LValue interpretAnd(final ArrayList<LValue> andArguments) {
         if (andArguments.isEmpty()) { return new LValue(false); }
         for (LValue argument : andArguments) {
@@ -494,11 +343,6 @@ public final class BuiltinOperator {
         return new LValue(true);
     }
 
-    /**
-     *
-     * @param orArguments
-     * @return
-     */
     private static LValue interpretOr(final ArrayList<LValue> orArguments) {
         if (orArguments.isEmpty()) { return new LValue(false); }
         for (LValue argument : orArguments) {
@@ -509,11 +353,6 @@ public final class BuiltinOperator {
         return new LValue(false);
     }
 
-    /**
-     *
-     * @param equalArguments
-     * @return
-     */
     private static LValue interpretEqualPredicate(final ArrayList<LValue> equalArguments) throws MSArgumentMismatchException {
         if (equalArguments.size() != 2) { throw new MSArgumentMismatchException("equal?", 2, equalArguments.size()); }
         LValue lhs = equalArguments.get(0);
@@ -538,12 +377,6 @@ public final class BuiltinOperator {
         return new LValue(false);
     }
 
-    /**
-     *
-     * @param equalArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretEqPredicate(final ArrayList<LValue> equalArguments) throws MSArgumentMismatchException {
         if (equalArguments.size() != 2) { throw new MSArgumentMismatchException("eq?", 2, equalArguments.size()); }
         LValue lhs = equalArguments.get(0);
@@ -566,11 +399,6 @@ public final class BuiltinOperator {
         return new LValue(false);
     }
 
-    /**
-     *
-     * @param consArguments
-     * @return
-     */
     private static LValue interpretConsFunction(final ArrayList<LValue> consArguments) throws MSArgumentMismatchException {
         if (consArguments.size() != 2) { throw new MSArgumentMismatchException("cons", 2, consArguments.size()); }
         MSSyntaxTree lhs = LValue.getAst(consArguments.get(0));
@@ -578,11 +406,6 @@ public final class BuiltinOperator {
         return new LValue(new MSListNode(lhs, rhs));
     }
 
-    /**
-     *
-     * @param listArguments
-     * @return
-     */
     private static LValue interpretListFunction(final ArrayList<LValue> listArguments) {
         MSListNode rootList = null;
         MSListNode currList = null;
@@ -595,11 +418,6 @@ public final class BuiltinOperator {
         return new LValue(rootList);
     }
 
-    /**
-     *
-     * @param carArguments
-     * @return
-     */
     private static LValue interpretCarFunction(final ArrayList<LValue> carArguments) throws MSArgumentMismatchException {
         if (carArguments.size() != 1) { throw new MSArgumentMismatchException("car", 1, carArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(carArguments.get(0));
@@ -610,11 +428,6 @@ public final class BuiltinOperator {
         return new LValue(listArgument.getCar());
     }
 
-    /**
-     *
-     * @param cdrArguments
-     * @return
-     */
     private static LValue interpretCdrFunction(final ArrayList<LValue> cdrArguments) throws MSArgumentMismatchException {
         if (cdrArguments.size() != 1) { throw new MSArgumentMismatchException("cdr", 1, cdrArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(cdrArguments.get(0));
@@ -625,23 +438,12 @@ public final class BuiltinOperator {
         return new LValue(listArgument.getCdr());
     }
 
-    /**
-     *
-     * @param vectorArguments
-     * @return
-     */
     private static LValue interpretVectorFunction(final ArrayList<LValue> vectorArguments) {
         ArrayList<MSSyntaxTree> vectorElements = new ArrayList<>();
         for (LValue lval : vectorArguments) { vectorElements.add(LValue.getAst(lval)); }
         return new LValue(new MSVectorNode(vectorElements));
     }
 
-    /**
-     *
-     * @param vectorRefArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretVectorRefFunction(final ArrayList<LValue> vectorRefArguments) throws MSArgumentMismatchException {
         if (vectorRefArguments.size() != 2) { throw new MSArgumentMismatchException("vector-ref", 2, vectorRefArguments.size()); }
         MSSyntaxTree vector = LValue.getAst(vectorRefArguments.get(0));
@@ -649,23 +451,12 @@ public final class BuiltinOperator {
         return new LValue(vector.getChild(index.getNumberValue().intValue()));
     }
 
-    /**
-     *
-     * @param vectorLengthArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretVectorLengthFunction(final ArrayList<LValue> vectorLengthArguments) throws MSArgumentMismatchException {
         if (vectorLengthArguments.size() != 1) { throw new MSArgumentMismatchException("vector-length", 1, vectorLengthArguments.size()); }
         MSSyntaxTree vector = LValue.getAst(vectorLengthArguments.get(0));
         return new LValue(((MSVectorNode) vector).size());
     }
 
-    /**
-     *
-     * @param nullArguments
-     * @return
-     */
     private static LValue interpretNullPredicate(final ArrayList<LValue> nullArguments) throws MSArgumentMismatchException {
         if (nullArguments.size() != 1) { throw new MSArgumentMismatchException("null?", 1, nullArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(nullArguments.get(0));
@@ -673,55 +464,30 @@ public final class BuiltinOperator {
         return new LValue(((MSListNode) argument).isEmptyList());
     }
 
-    /**
-     *
-     * @param numberArguments
-     * @return
-     */
     private static LValue interpretNumberPredicate(final ArrayList<LValue> numberArguments) throws MSArgumentMismatchException {
         if (numberArguments.size() != 1) { throw new MSArgumentMismatchException("number?", 1, numberArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(numberArguments.get(0));
         return new LValue(argument.isNumber());
     }
 
-    /**
-     *
-     * @param characterArguments
-     * @return
-     */
     private static LValue interpretCharPredicate(final ArrayList<LValue> characterArguments) throws MSArgumentMismatchException {
         if (characterArguments.size() != 1) { throw new MSArgumentMismatchException("character?", 1, characterArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(characterArguments.get(0));
         return new LValue(argument.isCharacter());
     }
 
-    /**
-     *
-     * @param stringArguments
-     * @return
-     */
     private static LValue interpretStringPredicate(final ArrayList<LValue> stringArguments) throws MSArgumentMismatchException {
         if (stringArguments.size() != 1) { throw new MSArgumentMismatchException("string?", 1, stringArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(stringArguments.get(0));
         return new LValue(argument.isString());
     }
 
-    /**
-     *
-     * @param symbolArguments
-     * @return
-     */
     private static LValue interpretSymbolPredicate(final ArrayList<LValue> symbolArguments) throws MSArgumentMismatchException {
         if (symbolArguments.size() != 1) { throw new MSArgumentMismatchException("symbol?", 1, symbolArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(symbolArguments.get(0));
         return new LValue(argument.isSymbol() || argument.isVariable());
     }
 
-    /**
-     *
-     * @param pairArguments
-     * @return
-     */
     private static LValue interpretPairPredicate(final ArrayList<LValue> pairArguments) throws MSArgumentMismatchException {
         if (pairArguments.size() != 1) { throw new MSArgumentMismatchException("pair?", 1, pairArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(pairArguments.get(0));
@@ -730,11 +496,6 @@ public final class BuiltinOperator {
         return new LValue(!listArgument.isEmptyList());
     }
 
-    /**
-     *
-     * @param listArguments
-     * @return
-     */
     private static LValue interpretListPredicate(final ArrayList<LValue> listArguments) throws MSArgumentMismatchException {
         if (listArguments.size() != 1) { throw new MSArgumentMismatchException("list?", 1, listArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(listArguments.get(0));
@@ -743,23 +504,12 @@ public final class BuiltinOperator {
         return new LValue(listArgument.isProper());
     }
 
-    /**
-     *
-     * @param vectorArguments
-     * @return
-     */
     private static LValue interpretVectorPredicate(final ArrayList<LValue> vectorArguments) throws MSArgumentMismatchException {
         if (vectorArguments.size() != 1) { throw new MSArgumentMismatchException("vector?", 1, vectorArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(vectorArguments.get(0));
         return new LValue(argument.isVector());
     }
 
-    /**
-     *
-     * @param stringAppendArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretStringAppendFunction(final ArrayList<LValue> stringAppendArguments) throws MSArgumentMismatchException {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < stringAppendArguments.size(); i++) {
@@ -772,24 +522,12 @@ public final class BuiltinOperator {
         return new LValue(stringBuilder.toString());
     }
 
-    /**
-     *
-     * @param stringLengthArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretStringLengthFunction(final ArrayList<LValue> stringLengthArguments) throws MSArgumentMismatchException {
         if (stringLengthArguments.size() != 1) { throw new MSArgumentMismatchException("string-length", 1, stringLengthArguments.size()); }
         MSStringNode stringArgument = (MSStringNode) LValue.getAst(stringLengthArguments.get(0));
         return new LValue(stringArgument.length());
     }
 
-    /**
-     *
-     * @param stringLessArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretStringLess(final ArrayList<LValue> stringLessArguments) throws MSArgumentMismatchException {
         if (stringLessArguments.size() != 2) { throw new MSArgumentMismatchException("string<?", 2, stringLessArguments.size()); }
         String leftArgument = stringLessArguments.get(0).getStringValue();
@@ -797,12 +535,6 @@ public final class BuiltinOperator {
         return new LValue(leftArgument.compareTo(rightArgument) < 0);
     }
 
-    /**
-     *
-     * @param stringLessEqualArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretStringLessEqual(final ArrayList<LValue> stringLessEqualArguments) throws MSArgumentMismatchException {
         if (stringLessEqualArguments.size() != 2) { throw new MSArgumentMismatchException("string<=?", 2, stringLessEqualArguments.size()); }
         String leftArgument = stringLessEqualArguments.get(0).getStringValue();
@@ -810,12 +542,6 @@ public final class BuiltinOperator {
         return new LValue(leftArgument.compareTo(rightArgument) <= 0);
     }
 
-    /**
-     *
-     * @param stringGreaterArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretStringGreater(final ArrayList<LValue> stringGreaterArguments) throws MSArgumentMismatchException {
         if (stringGreaterArguments.size() != 2) { throw new MSArgumentMismatchException("string>?", 2, stringGreaterArguments.size()); }
         String leftArgument = stringGreaterArguments.get(0).getStringValue();
@@ -823,12 +549,6 @@ public final class BuiltinOperator {
         return new LValue(leftArgument.compareTo(rightArgument) > 0);
     }
 
-    /**
-     *
-     * @param stringGreaterEqualArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretStringGreaterEqual(final ArrayList<LValue> stringGreaterEqualArguments) throws MSArgumentMismatchException {
         if (stringGreaterEqualArguments.size() != 2) { throw new MSArgumentMismatchException("string>=?", 2, stringGreaterEqualArguments.size()); }
         String leftArgument = stringGreaterEqualArguments.get(0).getStringValue();
@@ -836,36 +556,46 @@ public final class BuiltinOperator {
         return new LValue(leftArgument.compareTo(rightArgument) >= 0);
     }
 
-    /**
-     *
-     * @param numberStringArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
+    private static LValue interpretCharLess(final ArrayList<LValue> charLessArguments) throws MSArgumentMismatchException {
+        if (charLessArguments.size() != 2) { throw new MSArgumentMismatchException("char<?", 2, charLessArguments.size()); }
+        char leftArgument = charLessArguments.get(0).getCharacterValue();
+        char rightArgument = charLessArguments.get(1).getCharacterValue();
+        return new LValue(leftArgument < rightArgument);
+    }
+
+    private static LValue interpretCharLessEqual(final ArrayList<LValue> charLessEqualArguments) throws MSArgumentMismatchException {
+        if (charLessEqualArguments.size() != 2) { throw new MSArgumentMismatchException("char<=?", 2, charLessEqualArguments.size()); }
+        char leftArgument = charLessEqualArguments.get(0).getCharacterValue();
+        char rightArgument = charLessEqualArguments.get(1).getCharacterValue();
+        return new LValue(leftArgument <= rightArgument);
+    }
+
+    private static LValue interpretCharGreater(final ArrayList<LValue> charGreaterArguments) throws MSArgumentMismatchException {
+        if (charGreaterArguments.size() != 2) { throw new MSArgumentMismatchException("char>?", 2, charGreaterArguments.size()); }
+        char leftArgument = charGreaterArguments.get(0).getCharacterValue();
+        char rightArgument = charGreaterArguments.get(1).getCharacterValue();
+        return new LValue(leftArgument > rightArgument);
+    }
+
+    private static LValue interpretCharGreaterEqual(final ArrayList<LValue> charGreaterEqualArguments) throws MSArgumentMismatchException {
+        if (charGreaterEqualArguments.size() != 2) { throw new MSArgumentMismatchException("char>=?", 2, charGreaterEqualArguments.size()); }
+        char leftArgument = charGreaterEqualArguments.get(0).getCharacterValue();
+        char rightArgument = charGreaterEqualArguments.get(1).getCharacterValue();
+        return new LValue(leftArgument >= rightArgument);
+    }
+
     private static LValue interpretNumberStringFunction(final ArrayList<LValue> numberStringArguments) throws MSArgumentMismatchException {
         if (numberStringArguments.size() != 1) { throw new MSArgumentMismatchException("number->string", 1, numberStringArguments.size()); }
         LValue argument = numberStringArguments.get(0);
         return new LValue(argument.getNumberValue().toPlainString());
     }
 
-    /**
-     *
-     * @param stringNumberArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretStringNumberFunction(final ArrayList<LValue> stringNumberArguments) throws MSArgumentMismatchException {
         if (stringNumberArguments.size() != 1) { throw new MSArgumentMismatchException("string->number", 1, stringNumberArguments.size()); }
         LValue argument = stringNumberArguments.get(0);
         return new LValue(argument.getStringValue());
     }
 
-    /**
-     *
-     * @param listStringArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretListStringFunction(final ArrayList<LValue> listStringArguments) throws MSArgumentMismatchException {
         if (listStringArguments.size() != 1) { throw new MSArgumentMismatchException("list->string", 1, listStringArguments.size()); }
         MSListNode curr = (MSListNode) LValue.getAst(listStringArguments.get(0));
@@ -879,12 +609,6 @@ public final class BuiltinOperator {
         return new LValue(sb.toString());
     }
 
-    /**
-     *
-     * @param stringListArguments
-     * @return
-     * @throws MSArgumentMismatchException
-     */
     private static LValue interpretStringListFunction(final ArrayList<LValue> stringListArguments) throws MSArgumentMismatchException {
         if (stringListArguments.size() != 1) { throw new MSArgumentMismatchException("string->list", 1, stringListArguments.size()); }
         // Grab each character, convert it to a MSCharacterNode, then add it to the pair.
@@ -897,5 +621,31 @@ public final class BuiltinOperator {
         }
         // If they enter the empty list, then we need to add a "blank" list node.
         return new LValue(Optional.ofNullable(prevList).orElse(MSListNode.EMPTY_LIST));
+    }
+
+    private static LValue interpretRandomFunction(final ArrayList<LValue> randomArguments) {
+        if (randomArguments.size() != 0) { throw new MSArgumentMismatchException("random", 0, randomArguments.size()); }
+        return new LValue(BuiltinOperator.RANDOM.nextDouble());
+    }
+
+    private static LValue interpretRandomIntegerFunction(final ArrayList<LValue> randomIntegerArguments) {
+        if (randomIntegerArguments.size() != 2) { throw new MSArgumentMismatchException("random-integer", 2, randomIntegerArguments.size()); }
+        int min = randomIntegerArguments.get(0).getNumberValue().intValue();
+        int max = randomIntegerArguments.get(1).getNumberValue().intValue();
+        return new LValue(BuiltinOperator.RANDOM.nextInt((max - min) + 1) + min);
+    }
+
+    private static LValue interpretRandomDoubleFunction(final ArrayList<LValue> randomDoubleArguments) {
+        if (randomDoubleArguments.size() != 2) { throw new MSArgumentMismatchException("random-double", 2, randomDoubleArguments.size()); }
+        double min = randomDoubleArguments.get(0).getNumberValue().doubleValue();
+        double max = randomDoubleArguments.get(1).getNumberValue().doubleValue();
+        return new LValue(min + (max - min) * BuiltinOperator.RANDOM.nextDouble());
+    }
+
+    private static LValue interpretRandomSetSeedFunction(final ArrayList<LValue> randomSetSeedArguments) {
+        if (randomSetSeedArguments.size() != 1) { throw new MSArgumentMismatchException("random-set-seed", 1, randomSetSeedArguments.size()); }
+        long seed = randomSetSeedArguments.get(0).getNumberValue().longValue();
+        BuiltinOperator.RANDOM.setSeed(seed);
+        return new LValue("random-set-seed!");
     }
 }
