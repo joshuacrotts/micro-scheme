@@ -4,8 +4,7 @@ grammar MiniScheme;
 
 /* Miscellaneous and skippable lexemes. */
 WHITESPACE: [ \r\n\t]+ -> skip;
-COMMENT:
-	';' (.)*? NEWLINE -> skip; // Match any text that has ; preceding.
+COMMENT: ';' (.)*? NEWLINE -> skip; // Match any text that has ; preceding.
 fragment DIGIT: [0-9];
 fragment UPPER_CASE_LTR: [a-z];
 fragment LOWER_CASE_LTR: [A-Z];
@@ -20,7 +19,6 @@ fragment TAB: '\t';
 fragment NULL_CHAR: '\\0';
 fragment ESCAPED_CHAR: ('\\' .);
 fragment ANYCHAR_MOD: (.+?);
-// Requires at least ONE character, whether it's special or not. If it's an empty char, that's the parser's problem.
 
 // Arbitrary tokens.
 OPEN_PAREN: '(';
@@ -32,6 +30,7 @@ BACK_TICK: '`';
 COMMA: ',';
 HASH: '#';
 ATSIGN: '@';
+PERIOD: '.';
 
 // Literals.
 NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
@@ -143,12 +142,12 @@ applicationExpr: ( '(' expr applicationArgs ')' );
 applicationArgs: expr*;
 
 // Symbols take the form (quote | '(<expr>*) or <expr>)
-symbolExpr: (QUOTE | SINGLE_QUOTE) symbolDatum;
-symbolDatum: constant | variable | '(' symbolDatum* ')';
+symbolExpr: (QUOTE | SINGLE_QUOTE | BACK_TICK) symbolDatum;
+symbolDatum: constant | variable | '(' symbolDatum PERIOD symbolDatum ')' | '(' symbolDatum* ')';
 
 // A quasi-quoted symbol is a normal quoted symbol with 'unquote' sections.
 quasiSymbolExpr: BACK_TICK quasiSymbolDatum;
-quasiSymbolDatum: ((COMMA | (COMMA ATSIGN))? (constant | variable | symbolExpr | '(' quasiSymbolDatum* ')'));
+quasiSymbolDatum: ((COMMA | (COMMA ATSIGN))? (constant | variable | symbolExpr | applicationExpr | '(' quasiSymbolDatum* ')'));
 
 // Variables are, realistically, any symbol.
 constant: STRINGLIT | CHARLIT | BOOLLIT | NUMBERLIT;

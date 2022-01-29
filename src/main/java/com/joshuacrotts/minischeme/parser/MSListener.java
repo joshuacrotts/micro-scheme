@@ -206,7 +206,6 @@ public class MSListener extends MiniSchemeBaseListener {
         this.map.put(ctx, new MSLetRecNode(letRecBindings, this.map.get(ctx.expr())));
     }
 
-
     @Override
     public void exitLambdaExpr(final MiniSchemeParser.LambdaExprContext ctx) {
         super.exitLambdaExpr(ctx);
@@ -262,7 +261,7 @@ public class MSListener extends MiniSchemeBaseListener {
     public void exitSymbolDatum(final MiniSchemeParser.SymbolDatumContext ctx) {
         super.exitSymbolDatum(ctx);
         // First, check to see if it's a list of expressions. If so, make it a MSListNode.
-        if (ctx.variable() == null && ctx.constant() == null) {
+        if (ctx.variable() == null && ctx.constant() == null && ctx.PERIOD() == null) {
             MSSyntaxTree parentList;
             MSSyntaxTree currList = null;
             for (int i = ctx.symbolDatum().size() - 1; i >= 0; i--) {
@@ -272,6 +271,11 @@ public class MSListener extends MiniSchemeBaseListener {
 
             parentList = Optional.ofNullable(currList).orElse(MSListNode.EMPTY_LIST);
             this.map.put(ctx, parentList);
+        } else if (ctx.PERIOD() != null) {
+            // Test to see if we're using dot notation to make pairs.
+            MSSyntaxTree lhsExpression = this.map.get(ctx.symbolDatum(0));
+            MSSyntaxTree rhsExpression = this.map.get(ctx.symbolDatum(1));
+            this.map.put(ctx, new MSListNode(lhsExpression, rhsExpression));
         } else {
             // Otherwise, just take the child that's there (either a variable or constant).
             this.map.put(ctx, this.map.get(ctx.getChild(0)));
@@ -287,14 +291,16 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitQuasiSymbolDatum(MiniSchemeParser.QuasiSymbolDatumContext ctx) {
         super.exitQuasiSymbolDatum(ctx);
-        if (ctx.variable() == null && ctx.constant() == null && ctx.symbolExpr() == null) {
+        // If it's the '(' datum* ')', construct it.
+        if (ctx.variable() == null && ctx.constant() == null && ctx.symbolExpr() == null && ctx.applicationExpr() == null) {
             ArrayList<MSSyntaxTree> elements = new ArrayList<>();
             for (int i = 0; i < ctx.quasiSymbolDatum().size(); i++) {
                 elements.add(this.map.get(ctx.quasiSymbolDatum(i)));
             }
             this.map.put(ctx, new MSQuasiSymbolNode(elements));
         } else {
-            // If it's just a normal symbol, then just take the child.
+            // If it's just a normal symbol, then just take the child. We need to determine if it's
+            // a "quasi at".
             if (ctx.COMMA() != null) {
                 if (ctx.ATSIGN() != null) {
                     this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.getChild(2)), true));
@@ -302,7 +308,6 @@ public class MSListener extends MiniSchemeBaseListener {
                     this.map.put(ctx, this.map.get(ctx.getChild(1)));
                 }
             } else {
-                System.out.println("Comma IS null");
                 this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.getChild(0))));
             }
         }

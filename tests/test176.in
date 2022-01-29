@@ -1,0 +1,5 @@
+;
+; Simple test constructing a list with quasiquote. Treats it as normal symbol
+;
+
+`(1 2 3)

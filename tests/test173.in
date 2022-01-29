@@ -1,0 +1,7 @@
+;
+; Easy/medium quasiquote.
+;
+
+(define x 9)
+(define z (car `(,(+ 4 x))))
+(display `(- + "hi" ,(- x z)))

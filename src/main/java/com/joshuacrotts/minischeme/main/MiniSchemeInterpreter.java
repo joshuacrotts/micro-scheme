@@ -133,33 +133,52 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretSymbol(final MSSymbolNode symbolNode) { return new LValue(symbolNode.getValue()); }
 
+    /**
+     * Interprets a quasi-symbol. A quasi-symbol is just a quoted expression that has the potential to have
+     * "unquote" sections. An unquoted section is a section that should get evaluated when interpreting the
+     * parent expression.
+     *
+     * Example: `(1 2 ,(+ 3 4) 5) evaluates to (1 2 7 5) because the , indicates that the next expression
+     *          is to be evaluated.
+     *
+     * List splicing is also supported. List splicing allows elements of a sublist to be added to the current
+     * list.
+     *
+     * Example: `(1 2 ,@(list 3 4 5) 6) evaluates to (1 2 3 4 5 6) because the list expands outward. If we
+     *          did not have the @ operator, it would evaluate to (1 2 (3 4 5) 6).
+     *
+     * @param quasiSymbolNode AST.
+     * @param env Environment to evaluate this quasi-symbol in.
+     * @return LValue containing the list constructed from this quasi quote.
+     */
     private LValue interpretQuasiSymbol(final MSQuasiSymbolNode quasiSymbolNode, final Environment env) {
         // If it's a quasi-list, we need to create a new list and interpret each element that is unquoted.
         ArrayList<MSSyntaxTree> quasiNodes = quasiSymbolNode.getSymbolList();
-        MSListNode parentList = null;
         MSListNode currList = null;
         for (int i = quasiNodes.size() - 1; i >= 0; i--) {
             MSSyntaxTree quasi = quasiNodes.get(i);
-            if (!quasi.isSymbol()) {
-                quasi = LValue.getAst(this.interpretTree(quasi, env));
-            }
-            else if (quasi.isSymbol() && ((MSSymbolNode) quasi).isQuasiAtSymbol()) {
-                MSSymbolNode s = (MSSymbolNode) quasi;
-                MSSyntaxTree val = LValue.getAst(this.interpretTree(s.getValue(), env));
-                if (!val.isList()) {
-                    throw new MSArgumentMismatchException(",@", "list/cons pair", val.getStringNodeType());
+            // If it's not a symbol, we just need to evaluate it.
+            if (!quasi.isSymbol()) { quasi = LValue.getAst(this.interpretTree(quasi, env)); }
+            else {
+                MSSymbolNode symbol = (MSSymbolNode) quasi;
+                // If it's a "quasi-at-symbol", then we need to store its elements *inside* the list.
+                if (symbol.isQuasiAtSymbol()) {
+                    MSSyntaxTree symbolValue = LValue.getAst(this.interpretTree(symbol.getValue(), env));
+                    if (!symbolValue.isList()) {
+                        throw new MSArgumentMismatchException(",@", "list/cons pair", symbolValue.getStringNodeType());
+                    }
+                    // Extract each element from the symbol list and append it to the curr list.
+                    ArrayList<MSSyntaxTree> symbolList = ((MSListNode) symbolValue).getListAsArrayList();
+                    for (int j = symbolList.size() - 1; j >= 0; j--) {
+                        MSSyntaxTree rhsElement = symbolList.get(j);
+                        currList = new MSListNode(rhsElement, currList);
+                    }
+                    continue;
                 }
-                ArrayList<MSSyntaxTree> l = ((MSListNode) val).getListAsArrayList();
-                for (int j = l.size() - 1; j >= 0; j--) {
-                    MSSyntaxTree rhs = l.get(j);
-                    currList = new MSListNode(rhs, currList);
-                }
-                continue;
             }
             currList = new MSListNode(quasi, currList);
         }
-        parentList = Optional.ofNullable(currList).orElse(MSListNode.EMPTY_LIST);
-        return new LValue(parentList, env);
+        return new LValue(Optional.ofNullable(currList).orElse(MSListNode.EMPTY_LIST), env);
     }
 
     /**
@@ -197,13 +216,38 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * Interprets an eval. An eval simply takes in an expression, quoted or unquoted, and attempts to
+     * evaluate it. If it is a variable, this is resolved to its value in the environment. From there,
+     * if it is a symbol, we remove the quote. Then, there are two choices:
+     *
+     * 1. If the expression is not a list, we just pass down the unquoted symbol.
+     * 2. Otherwise, we create a MSApplyNode with the CAR as the operator and CDR as operand.
+     *
+     * @param evalNode AST.
+     * @param env current environment to evaluate inside.
+     *
+     * @return LValue of interpreting either the unquoted expression or the apply, whichever is applicable.
+     */
+    private LValue interpretEval(final MSEvalNode evalNode, final Environment env) throws MSSemanticException {
+        // First, we want to resolve the expr argument. If it's a variable, retrieve it.
+        MSSyntaxTree expression = evalNode.getExpression();
+        if (expression.isVariable()) { expression = LValue.getAst(this.interpretTree(expression, env)); }
+        // Now, if it's a symbol, resolve that (i.e., get its value).
+        if (expression.isSymbol()) { expression = ((MSSymbolNode) expression).getValue(); }
+        // If it's a list, create an "apply" out of it.
+        if (!expression.isList()) { return this.interpretTree(expression, env); }
+        MSListNode listNode = (MSListNode) expression;
+        return this.interpretTree(new MSApplyNode(listNode.getCar(), listNode.getCdr()), env);
+    }
+
+    /**
      * Interprets a sequence of expressions.
-     * 
+     *
      * @param sequence AST
      * @param env Environment to interpret the sequence of expressions in.
-     * 
+     *
      * @return LValue of last expression evaluated in the sequence.
-     * 
+     *
      * @throws MSSemanticException if an exception is thrown when interpreting the sequence.
      */
     private LValue interpretSequence(final MSSequenceNode sequence, final Environment env) throws MSSemanticException {
@@ -218,12 +262,12 @@ public class MiniSchemeInterpreter {
      * Interprets a conditional (cond or if). Each conditional is evaluated from left-to-right, and if
      * this conditional is true, we evaluate its corresponding consequent expression. If there is an
      * else expression and none of the cond expressions are true, it is evaluated last.
-     * 
+     *
      * @param condNode AST of either a COND or an IF.
      * @param env Environment to evaluate the conditionals in.
-     * 
+     *
      * @return LValue of consequent expression evaluated.
-     * 
+     *
      * @throws MSArgumentMismatchException if the cond's predicate is not a predicate (i.e., does not reduce to boolean).
      * @throws MSSemanticException if the conditional does not have an else but requires one (all cases fall through).
      */
@@ -244,45 +288,6 @@ public class MiniSchemeInterpreter {
 
         if (condNode.hasElse()) { return this.interpretTree(condConsequentList.get(condConsequentList.size() - 1), env); }
         throw new MSSemanticException("cannot evaluate an undefined expression");
-    }
-
-    /**
-     * Evaluates a letrec expression. A letrec is a recursive let procedure (i.e., allows the programmer to
-     * call a lambda procedure defined in the let declarations inside the body of the let. This probably isn't
-     * the most useful thing in the world, but it's here because it can't be converted into a lambda.
-     *
-     * The bindings are created inside an environment with env as the parent. This environment must be constructed
-     * because any lambdas in the bindings must have their env set as the new environment or they won't be
-     * recognized.
-     *
-     * @param letRecNode AST.
-     * @param env parent Environment to create the child Environment for the let from.
-     * @return LValue of evaluated let body.
-     */
-    private LValue interpretLetRec(final MSLetRecNode letRecNode, final Environment env) {
-        ArrayList<LValue> expressionList = new ArrayList<>();
-
-        // Create the new environment so we can bind our let declarations in it.
-        Environment newEnv = new Environment(env);
-        for (MSSyntaxTree ast : letRecNode.getDeclarationList()) {
-            MSDeclarationNode decl = (MSDeclarationNode) ast;
-            expressionList.add(new LValue(decl.getExpression(), newEnv));
-        }
-
-        newEnv.createBindings(letRecNode.getVariableList(), expressionList);
-        return this.interpretTree(letRecNode.getBody(), newEnv);
-    }
-
-    /**
-     * Interprets a lambda AST.
-     *
-     * @param lambdaNode AST
-     * @param env Environment to evaluate the lambda in.
-     *
-     * @return LValue wrapping the lambda and its current environment.
-     */
-    private LValue interpretLambda(final MSLambdaNode lambdaNode, final Environment env) {
-        return new LValue(lambdaNode, env);
     }
 
     /**
@@ -339,28 +344,42 @@ public class MiniSchemeInterpreter {
     }
 
     /**
-     * Interprets an eval. An eval simply takes in an expression, quoted or unquoted, and attempts to
-     * evaluate it. If it is a variable, this is resolved to its value in the environment. From there,
-     * if it is a symbol, we remove the quote. Then, there are two choices:
+     * Evaluates a letrec expression. A letrec is a recursive let procedure (i.e., allows the programmer to
+     * call a lambda procedure defined in the let declarations inside the body of the let. This probably isn't
+     * the most useful thing in the world, but it's here because it can't be converted into a lambda.
      *
-     * 1. If the expression is not a list, we just pass down the unquoted symbol.
-     * 2. Otherwise, we create a MSApplyNode with the CAR as the operator and CDR as operand.
+     * The bindings are created inside an environment with env as the parent. This environment must be constructed
+     * because any lambdas in the bindings must have their env set as the new environment or they won't be
+     * recognized.
      *
-     * @param evalNode AST.
-     * @param env current environment to evaluate inside.
-     *
-     * @return LValue of interpreting either the unquoted expression or the apply, whichever is applicable.
+     * @param letRecNode AST.
+     * @param env parent Environment to create the child Environment for the let from.
+     * @return LValue of evaluated let body.
      */
-    private LValue interpretEval(final MSEvalNode evalNode, final Environment env) throws MSSemanticException {
-        // First, we want to resolve the expr argument. If it's a variable, retrieve it.
-        MSSyntaxTree expression = evalNode.getExpression();
-        if (expression.isVariable()) { expression = LValue.getAst(this.interpretTree(expression, env)); }
-        // Now, if it's a symbol, resolve that (i.e., get its value).
-        if (expression.isSymbol()) { expression = ((MSSymbolNode) expression).getValue(); }
-        // If it's a list, create an "apply" out of it.
-        if (!expression.isList()) { return this.interpretTree(expression, env); }
-        MSListNode listNode = (MSListNode) expression;
-        return this.interpretTree(new MSApplyNode(listNode.getCar(), listNode.getCdr()), env);
+    private LValue interpretLetRec(final MSLetRecNode letRecNode, final Environment env) {
+        ArrayList<LValue> expressionList = new ArrayList<>();
+
+        // Create the new environment so we can bind our let declarations in it.
+        Environment newEnv = new Environment(env);
+        for (MSSyntaxTree ast : letRecNode.getDeclarationList()) {
+            MSDeclarationNode decl = (MSDeclarationNode) ast;
+            expressionList.add(new LValue(decl.getExpression(), newEnv));
+        }
+
+        newEnv.createBindings(letRecNode.getVariableList(), expressionList);
+        return this.interpretTree(letRecNode.getBody(), newEnv);
+    }
+
+    /**
+     * Interprets a lambda AST.
+     *
+     * @param lambdaNode AST
+     * @param env Environment to evaluate the lambda in.
+     *
+     * @return LValue wrapping the lambda and its current environment.
+     */
+    private LValue interpretLambda(final MSLambdaNode lambdaNode, final Environment env) {
+        return new LValue(lambdaNode, env);
     }
 
     /**

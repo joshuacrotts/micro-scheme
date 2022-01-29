@@ -1,0 +1,6 @@
+;
+; Dot notation pair test #4.
+;
+
+(define l '((1 . 2) . (3 . 4)))
+(equal? 3 (car (cdr l)))

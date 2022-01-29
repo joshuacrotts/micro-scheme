@@ -1,0 +1,6 @@
+;
+; Very simple quasiquote.
+;
+
+(define c 3)
+`(1 2 ,c)

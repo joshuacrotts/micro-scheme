@@ -1,0 +1,5 @@
+;
+; Create a pair using dot notation.
+;
+
+'(1 . 2)

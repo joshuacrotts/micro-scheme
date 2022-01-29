@@ -1,0 +1,9 @@
+;
+; Medium-ish quasi quote.
+;
+
+(define c1 `((+ 6 7) ,(* 9 10)))
+(define c2 `,(car (cdr c1)))
+(define c3 `(+ 14 ,@'(8)))
+(define c4 (car (cdr (cdr c3))))
+(display (+ c4 c2))
