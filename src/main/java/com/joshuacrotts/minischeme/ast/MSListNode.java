@@ -11,6 +11,8 @@
 
 package com.joshuacrotts.minischeme.ast;
 
+import java.util.ArrayList;
+
 public class MSListNode extends MSSyntaxTree {
 
     /**
@@ -66,6 +68,16 @@ public class MSListNode extends MSSyntaxTree {
 
     public boolean isEmptyList() {
         return this.getChildrenSize() == 0 || this == MSListNode.EMPTY_LIST;
+    }
+
+    public ArrayList<MSSyntaxTree> getListAsArrayList() {
+        ArrayList<MSSyntaxTree> elementsList = new ArrayList<>();
+        MSListNode curr = this;
+        while (!curr.isEmptyList()) {
+            elementsList.add(curr.getCar());
+            curr = (MSListNode) curr.getCdr();
+        }
+        return elementsList;
     }
 
     /**

@@ -255,7 +255,6 @@ public class MSListener extends MiniSchemeBaseListener {
     @Override
     public void exitSymbolExpr(final MiniSchemeParser.SymbolExprContext ctx) {
         super.exitSymbolExpr(ctx);
-        // If it's just one symbol datum, then just return that.
         this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.symbolDatum())));
     }
 
@@ -276,6 +275,36 @@ public class MSListener extends MiniSchemeBaseListener {
         } else {
             // Otherwise, just take the child that's there (either a variable or constant).
             this.map.put(ctx, this.map.get(ctx.getChild(0)));
+        }
+    }
+
+    @Override
+    public void exitQuasiSymbolExpr(final MiniSchemeParser.QuasiSymbolExprContext ctx) {
+        super.exitQuasiSymbolExpr(ctx);
+        this.map.put(ctx, this.map.get(ctx.quasiSymbolDatum()));
+    }
+
+    @Override
+    public void exitQuasiSymbolDatum(MiniSchemeParser.QuasiSymbolDatumContext ctx) {
+        super.exitQuasiSymbolDatum(ctx);
+        if (ctx.variable() == null && ctx.constant() == null && ctx.symbolExpr() == null) {
+            ArrayList<MSSyntaxTree> elements = new ArrayList<>();
+            for (int i = 0; i < ctx.quasiSymbolDatum().size(); i++) {
+                elements.add(this.map.get(ctx.quasiSymbolDatum(i)));
+            }
+            this.map.put(ctx, new MSQuasiSymbolNode(elements));
+        } else {
+            // If it's just a normal symbol, then just take the child.
+            if (ctx.COMMA() != null) {
+                if (ctx.ATSIGN() != null) {
+                    this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.getChild(2)), true));
+                } else {
+                    this.map.put(ctx, this.map.get(ctx.getChild(1)));
+                }
+            } else {
+                System.out.println("Comma IS null");
+                this.map.put(ctx, new MSSymbolNode(this.map.get(ctx.getChild(0))));
+            }
         }
     }
 

@@ -28,7 +28,10 @@ CLOSE_PAREN: ')';
 OPEN_BRACKET: '[';
 CLOSE_BRACKET: ']';
 SINGLE_QUOTE: '\'';
+BACK_TICK: '`';
+COMMA: ',';
 HASH: '#';
+ATSIGN: '@';
 
 // Literals.
 NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
@@ -86,6 +89,7 @@ expr: beginExpr
     | condExpr
     | ifExpr
     | symbolExpr
+    | quasiSymbolExpr
     | applicationExpr
     | constant
     | variable;
@@ -93,10 +97,11 @@ expr: beginExpr
 // A begin expression is a sequence of expressions, evaluated from left ro right.
 beginExpr: '(' BEGIN expr+ ')';
 
+// An eval expression is just EVAL followed by the expression.
 evalExpr: '(' EVAL expr ')';
 
+// Apply is an operator/procedure followed by a list.
 applyExpr: '(' APPLY expr expr ')';
-applyExprList: expr*;
 
 // A do expression takes the form (do ((<var> <expr> <expr>)*) (<test> <expr>) <seq>)
 doExpr: '(' DO '(' doDecl* ')' '(' doTest doTrueExpr* ')' doBody ')';
@@ -112,7 +117,6 @@ letStarExpr: '(' LETSTAR '(' letParameters* ')' expr ')';
 letRecExpr: '(' LETREC '(' letParameters* ')' expr ')';
 letParameters: ('(' expr expr ')')
              | ('[' expr expr ']');
-
 
 // Set expression takes the form (set! <var> <expr>). <expr> should not be evaluated.
 setExpr: '(' SET variable expr ')';
@@ -141,6 +145,10 @@ applicationArgs: expr*;
 // Symbols take the form (quote | '(<expr>*) or <expr>)
 symbolExpr: (QUOTE | SINGLE_QUOTE) symbolDatum;
 symbolDatum: constant | variable | '(' symbolDatum* ')';
+
+// A quasi-quoted symbol is a normal quoted symbol with 'unquote' sections.
+quasiSymbolExpr: BACK_TICK quasiSymbolDatum;
+quasiSymbolDatum: ((COMMA | (COMMA ATSIGN))? (constant | variable | symbolExpr | '(' quasiSymbolDatum* ')'));
 
 // Variables are, realistically, any symbol.
 constant: STRINGLIT | CHARLIT | BOOLLIT | NUMBERLIT;

@@ -20,6 +20,7 @@ public enum MSNodeType {
     BOOLEAN("boolean"),
     CHARACTER("char"),
     SYMBOL("symbol"),
+    QUASISYMBOL("quasisymbol"),
     LIST("list"),
     VECTOR("vector"),
     VARIABLE("variable"),

@@ -17,6 +17,7 @@ import com.joshuacrotts.minischeme.parser.MSSemanticException;
 import com.joshuacrotts.minischeme.parser.MSUndefinedSymbolException;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class MiniSchemeInterpreter {
 
@@ -61,6 +62,7 @@ public class MiniSchemeInterpreter {
             case CHARACTER: return this.interpretCharacter((MSCharacterNode) tree);
             case STRING: return this.interpretString((MSStringNode) tree);
             case SYMBOL: return this.interpretSymbol((MSSymbolNode) tree);
+            case QUASISYMBOL: return this.interpretQuasiSymbol((MSQuasiSymbolNode) tree, env);
             case VARIABLE: return this.interpretVariable((MSVariableNode) tree, env);
             case SEQUENCE: return this.interpretSequence((MSSequenceNode) tree, env);
             case DECLARATION: return this.interpretDeclaration((MSDeclarationNode) tree, env);
@@ -130,6 +132,35 @@ public class MiniSchemeInterpreter {
      * @return LValue with symbol.
      */
     private LValue interpretSymbol(final MSSymbolNode symbolNode) { return new LValue(symbolNode.getValue()); }
+
+    private LValue interpretQuasiSymbol(final MSQuasiSymbolNode quasiSymbolNode, final Environment env) {
+        // If it's a quasi-list, we need to create a new list and interpret each element that is unquoted.
+        ArrayList<MSSyntaxTree> quasiNodes = quasiSymbolNode.getSymbolList();
+        MSListNode parentList = null;
+        MSListNode currList = null;
+        for (int i = quasiNodes.size() - 1; i >= 0; i--) {
+            MSSyntaxTree quasi = quasiNodes.get(i);
+            if (!quasi.isSymbol()) {
+                quasi = LValue.getAst(this.interpretTree(quasi, env));
+            }
+            else if (quasi.isSymbol() && ((MSSymbolNode) quasi).isQuasiAtSymbol()) {
+                MSSymbolNode s = (MSSymbolNode) quasi;
+                MSSyntaxTree val = LValue.getAst(this.interpretTree(s.getValue(), env));
+                if (!val.isList()) {
+                    throw new MSArgumentMismatchException(",@", "list/cons pair", val.getStringNodeType());
+                }
+                ArrayList<MSSyntaxTree> l = ((MSListNode) val).getListAsArrayList();
+                for (int j = l.size() - 1; j >= 0; j--) {
+                    MSSyntaxTree rhs = l.get(j);
+                    currList = new MSListNode(rhs, currList);
+                }
+                continue;
+            }
+            currList = new MSListNode(quasi, currList);
+        }
+        parentList = Optional.ofNullable(currList).orElse(MSListNode.EMPTY_LIST);
+        return new LValue(parentList, env);
+    }
 
     /**
      * Interprets a variable in the provided environment. If it is not found in the passed environment or its
@@ -367,7 +398,6 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree procedure = applyNode.getProcedure();
         return this.interpretTree(new MSApplicationNode(procedure, applyArguments), env);
     }
-
 
     /**
      * Interprets an application node. An application is, effectively the "apply" function in many
