@@ -449,6 +449,7 @@ public final class BuiltinOperator {
         if (vectorRefArguments.size() != 2) { throw new MSArgumentMismatchException("vector-ref", 2, vectorRefArguments.size()); }
         MSSyntaxTree vector = LValue.getAst(vectorRefArguments.get(0));
         LValue index = vectorRefArguments.get(1);
+        if (!vector.isVector()) { throw new MSArgumentMismatchException("vector-ref", 0, "vector", vector.getStringNodeType()); }
         return new LValue(vector.getChild(index.getNumberValue().intValue()));
     }
 

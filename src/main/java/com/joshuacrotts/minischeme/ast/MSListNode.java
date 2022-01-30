@@ -11,6 +11,8 @@
 
 package com.joshuacrotts.minischeme.ast;
 
+import com.joshuacrotts.minischeme.main.LValue;
+
 import java.util.ArrayList;
 
 public class MSListNode extends MSSyntaxTree {
@@ -25,6 +27,25 @@ public class MSListNode extends MSSyntaxTree {
         super(MSNodeType.LIST);
         if (car != null) { this.addChild(car); }
         if (cdr != null) { this.addChild(cdr); }
+    }
+
+    /**
+     * Constructs a MSListNode with a list of nodes. Each element is the cdr of
+     * the preceding element.
+     * @param nodes
+     */
+    public MSListNode(final ArrayList<LValue> nodes) {
+        super(MSNodeType.LIST);
+        ArrayList<MSSyntaxTree> syntaxTrees = new ArrayList<>();
+        for (LValue lval : nodes) { syntaxTrees.add(LValue.getAst(lval)); }
+        MSListNode curr = null;
+        for (int i = nodes.size() - 1; i > 0; i--) {
+            MSSyntaxTree next = syntaxTrees.get(i);
+            curr = new MSListNode(next, curr);
+        }
+
+        if (!nodes.isEmpty()) { this.addChild(syntaxTrees.get(0)); }
+        if (curr != null) { this.addChild(curr); }
     }
 
     private MSListNode() {

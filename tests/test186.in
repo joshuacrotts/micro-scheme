@@ -1,0 +1,8 @@
+;
+; Another variable arguments test.
+;
+
+(define display-all
+    (lambda (args ...) (display (apply string-append args))))
+
+(display-all "Hi" " " "there" " " "how" " " "are" " " "you?")

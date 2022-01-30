@@ -73,7 +73,8 @@ decl: variableDeclaration
 variableDeclaration: '(' DEFINE variable expr ')';
 
 // Procedure declarations take the form (define (<var> <expr>*) <expr>)
-procedureDeclaration: '(' DEFINE '(' variable procedureParameters ')' expr ')';
+procedureDeclaration: ('(' DEFINE '(' variable procedureParameters ')' expr ')')
+                    | ('(' DEFINE  '(' variable PERIOD procedureParameters ')' expr ')' );
 procedureParameters: expr*;
 
 // There are several different types of declarations.
@@ -128,7 +129,8 @@ letParameters: ('(' expr expr ')')
              | ('[' expr expr ']');
 
 // Lambda expressions take the form (lambda (<params>) <body>).
-lambdaExpr: '(' LAMBDA '(' lambdaParameters ')' expr ')';
+lambdaExpr: ('(' LAMBDA '(' lambdaParameters ')' expr ')')
+          | ('(' LAMBDA '(' lambdaParameters PERIOD PERIOD PERIOD ')' expr ')');
 lambdaParameters: expr*;
 
 // A do expression takes the form (do ((<var> <expr> <expr>)*) (<test> <expr>) <seq>)

@@ -17,6 +17,7 @@ import com.joshuacrotts.minischeme.parser.MSSemanticException;
 import com.joshuacrotts.minischeme.parser.MSUndefinedSymbolException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 
 public class MiniSchemeInterpreter {
@@ -454,13 +455,22 @@ public class MiniSchemeInterpreter {
             ArrayList<MSSyntaxTree> lambdaParameters = lambdaNode.getLambdaParameters();
             MSSyntaxTree lambdaBody = lambdaNode.getLambdaBody();
 
-            // Before we bind, check arity.
-            if (lambdaParameters.size() != evaluatedArguments.size()) {
-                throw new MSArgumentMismatchException(lambdaParameters.size(), evaluatedArguments.size());
-            }
+            // Create the new child environment.
+            Environment childEnvironment;
 
-            Environment e1 = lambdaEnvironment.createChildEnvironment(lambdaParameters, evaluatedArguments);
-            return this.interpretTree(lambdaBody, e1);
+            // Check to see if this lambda is a varargs lambda. If so, convert the arguments to a list.
+            if (lambdaNode.isVariableArguments()) {
+                childEnvironment = new Environment(lambdaEnvironment);
+                childEnvironment.createBindings(lambdaParameters, new ArrayList<>
+                        (Collections.singletonList(new LValue(new MSListNode(evaluatedArguments), lambdaEnvironment))));
+            } else {
+                // Before we bind, check arity.
+                if (lambdaParameters.size() != evaluatedArguments.size()) {
+                    throw new MSArgumentMismatchException(lambdaParameters.size(), evaluatedArguments.size());
+                }
+                childEnvironment = lambdaEnvironment.createChildEnvironment(lambdaParameters, evaluatedArguments);
+            }
+            return this.interpretTree(lambdaBody, childEnvironment);
         }
     }
 

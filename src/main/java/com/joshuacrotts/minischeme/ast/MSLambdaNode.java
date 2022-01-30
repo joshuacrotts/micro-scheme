@@ -20,9 +20,20 @@ public class MSLambdaNode extends MSSyntaxTree {
      */
     private final int NUM_LAMBDA_PARAMETERS;
 
+    /**
+     * Do we use variable arguments for this procedure?
+     */
+    private final boolean VAR_ARGS;
+
     public MSLambdaNode(final ArrayList<MSSyntaxTree> lambdaParameters,
                         final MSSyntaxTree lambdaBody) {
+        this(lambdaParameters, lambdaBody, false);
+    }
+
+    public MSLambdaNode(final ArrayList<MSSyntaxTree> lambdaParameters,
+                        final MSSyntaxTree lambdaBody, final boolean isVarArguments) {
         super(MSNodeType.LAMBDA);
+        this.VAR_ARGS = isVarArguments;
         this.NUM_LAMBDA_PARAMETERS = lambdaParameters.size();
         lambdaParameters.forEach(this::addChild);
         this.addChild(lambdaBody);
@@ -65,5 +76,9 @@ public class MSLambdaNode extends MSSyntaxTree {
 
     public MSSyntaxTree getLambdaBody() {
         return this.getChild(this.getChildrenSize() - 1);
+    }
+
+    public boolean isVariableArguments() {
+        return this.VAR_ARGS;
     }
 }

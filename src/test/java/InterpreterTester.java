@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 public class InterpreterTester {
 
-    private static final int NUM_TESTS = 184;
+    private static final int NUM_TESTS = 186;
 
     /**
      * Helper function to count number of newlines in a string
@@ -132,7 +132,7 @@ public class InterpreterTester {
         } catch (IOException e) {
             throw new AssertionFailedError("Missing expected output file " + expName);
         }
-        //compare(actual, expected);
+        compare(actual, expected);
         assertTimeoutPreemptively(Duration.ofSeconds(2), () ->
                 compare(actual, expected));
         InterpreterTester.cleanup();

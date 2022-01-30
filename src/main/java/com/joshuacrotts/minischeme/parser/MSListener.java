@@ -92,8 +92,9 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
 
+        // Check to see if it's varargs.
         MSSyntaxTree procedureBody = this.map.get(ctx.expr());
-        MSLambdaNode procedureLambda = new MSLambdaNode(procedureParameters, procedureBody);
+        MSLambdaNode procedureLambda = new MSLambdaNode(procedureParameters, procedureBody, ctx.PERIOD() != null);
         this.map.put(ctx, new MSDeclarationNode(procedureName, procedureLambda));
     }
 
@@ -221,7 +222,7 @@ public class MSListener extends MiniSchemeBaseListener {
             }
         }
         MSSyntaxTree lambdaBody = this.map.get(ctx.expr());
-        this.map.put(ctx, new MSLambdaNode(lambdaParameters, lambdaBody));
+        this.map.put(ctx, new MSLambdaNode(lambdaParameters, lambdaBody, !ctx.PERIOD().isEmpty()));
     }
 
     @Override
