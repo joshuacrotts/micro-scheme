@@ -134,7 +134,8 @@ public final class BuiltinOperator {
 
     private static LValue interpretDisplay(final ArrayList<LValue> displayArguments) {
         if (displayArguments.size() != 1) { throw new MSArgumentMismatchException("display", 1, displayArguments.size()); }
-        return displayArguments.get(0);
+        System.out.println(displayArguments.get(0));
+        return null;
     }
 
     private static LValue interpretAdd(final ArrayList<LValue> addArguments) {

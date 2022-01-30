@@ -46,6 +46,8 @@ ELSE: 'else';
 LAMBDA: 'lambda' | 'λ';
 BEGIN: 'begin';
 QUOTE: 'quote';
+WHEN: 'when';
+UNLESS: 'unless';
 APPLY: 'apply';
 EVAL: 'eval';
 DO: 'do';
@@ -78,15 +80,17 @@ procedureParameters: expr*;
 expr: beginExpr
     | evalExpr
     | applyExpr
-    | doExpr
+    | whenExpr
+    | unlessExpr
+    | setExpr
+    | setListExpr
     | letExpr
     | letStarExpr
     | letRecExpr
-    | setExpr
-    | setListExpr
     | lambdaExpr
     | condExpr
     | ifExpr
+    | doExpr
     | symbolExpr
     | quasiSymbolExpr
     | applicationExpr
@@ -102,13 +106,19 @@ evalExpr: '(' EVAL expr ')';
 // Apply is an operator/procedure followed by a list.
 applyExpr: '(' APPLY expr expr ')';
 
-// A do expression takes the form (do ((<var> <expr> <expr>)*) (<test> <expr>) <seq>)
-doExpr: '(' DO '(' doDecl* ')' '(' doTest doTrueExpr* ')' doBody ')';
-doDecl: '(' variable expr ')'
-      | '(' variable expr expr ')';
-doTest: expr;
-doTrueExpr: expr;
-doBody: expr+;
+// When expression takes the form (WHEN expr seq)
+whenExpr: '(' WHEN whenCond expr+ ')';
+whenCond: expr;
+
+// Unless expression takes the same form as WHEN.
+unlessExpr: '(' UNLESS unlessCond expr+ ')';
+unlessCond: expr;
+
+// Set expression takes the form (set! <var> <expr>). <expr> should not be evaluated.
+setExpr: '(' SET variable expr ')';
+
+// Set-list expressions are either set-car, set-cdr, or vector-set.
+setListExpr: '(' (SETCAR | SETCDR | SETVECTOR) expr+')';
 
 // Let expression takes the form (let ((<var> <expr>)*) (<expr>))
 letExpr: '(' LET '(' letParameters* ')' expr ')';
@@ -117,15 +127,17 @@ letRecExpr: '(' LETREC '(' letParameters* ')' expr ')';
 letParameters: ('(' expr expr ')')
              | ('[' expr expr ']');
 
-// Set expression takes the form (set! <var> <expr>). <expr> should not be evaluated.
-setExpr: '(' SET variable expr ')';
-
-// Set-list expressions are either set-car, set-cdr, or vector-set.
-setListExpr: '(' (SETCAR | SETCDR | SETVECTOR) expr+')';
-
 // Lambda expressions take the form (lambda (<params>) <body>).
 lambdaExpr: '(' LAMBDA '(' lambdaParameters ')' expr ')';
 lambdaParameters: expr*;
+
+// A do expression takes the form (do ((<var> <expr> <expr>)*) (<test> <expr>) <seq>)
+doExpr: '(' DO '(' doDecl* ')' '(' doTest doTrueExpr* ')' doBody ')';
+doDecl: '(' variable expr ')'
+      | '(' variable expr expr ')';
+doTest: expr;
+doTrueExpr: expr;
+doBody: expr+;
 
 // Cond expressions take the form (cond (<condForm>))
 condExpr: '(' COND ('(' condForm ')')+ ')'
@@ -135,7 +147,7 @@ condExpr: '(' COND ('(' condForm ')')+ ')'
 condForm: expr expr;
 
 // If expressions take the form (if expr expr expr).
-ifExpr: '(' IF expr expr expr ')';
+ifExpr: '(' IF expr expr expr? ')';
 
 // Applications take the form (<expr> <expr>*)
 applicationExpr: ( '(' expr applicationArgs ')' );

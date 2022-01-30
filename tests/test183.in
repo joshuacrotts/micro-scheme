@@ -1,0 +1,8 @@
+;
+; Test with unless.
+;
+
+(unless (= 1 1)
+    (display 5)
+    (display 6))
+(display 10)

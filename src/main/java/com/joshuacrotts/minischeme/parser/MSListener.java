@@ -13,7 +13,12 @@ package com.joshuacrotts.minischeme.parser;
 
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
+import com.joshuacrotts.minischeme.MiniSchemeParser.UnlessCondContext;
+import com.joshuacrotts.minischeme.MiniSchemeParser.UnlessExprContext;
+import com.joshuacrotts.minischeme.MiniSchemeParser.WhenCondContext;
+import com.joshuacrotts.minischeme.MiniSchemeParser.WhenExprContext;
 import com.joshuacrotts.minischeme.ast.*;
+import java.lang.reflect.Array;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -220,17 +225,41 @@ public class MSListener extends MiniSchemeBaseListener {
     }
 
     @Override
+    public void exitWhenExpr(final MiniSchemeParser.WhenExprContext ctx) {
+        super.exitWhenExpr(ctx);
+        ArrayList<MSSyntaxTree> condCondList = new ArrayList<>();
+        ArrayList<MSSyntaxTree> condBodyList = new ArrayList<>();
+        ArrayList<MSSyntaxTree> sequenceList = new ArrayList<>();
+        for (ParseTree pt : ctx.expr()) { sequenceList.add(this.map.get(pt)); }
+        condCondList.add(this.map.get(ctx.whenCond().expr()));
+        condBodyList.add(new MSSequenceNode(sequenceList));
+        this.map.put(ctx, new MSCondNode(condCondList, condBodyList));
+    }
+
+    @Override
+    public void exitUnlessExpr(final MiniSchemeParser.UnlessExprContext ctx) {
+        super.exitUnlessExpr(ctx);
+        ArrayList<MSSyntaxTree> condCondList = new ArrayList<>();
+        ArrayList<MSSyntaxTree> condBodyList = new ArrayList<>();
+        ArrayList<MSSyntaxTree> sequenceList = new ArrayList<>();
+        for (ParseTree pt : ctx.expr()) { sequenceList.add(this.map.get(pt)); }
+        // We need to negate the condition.
+        ArrayList<MSSyntaxTree> notApplicationList = new ArrayList<>();
+        notApplicationList.add(this.map.get(ctx.unlessCond().expr()));
+        condCondList.add(new MSApplicationNode(new MSVariableNode("not"), notApplicationList));
+        condBodyList.add(new MSSequenceNode(sequenceList));
+        this.map.put(ctx, new MSCondNode(condCondList, condBodyList));
+    }
+
+    @Override
     public void exitIfExpr(final MiniSchemeParser.IfExprContext ctx) {
         super.exitIfExpr(ctx);
         ArrayList<MSSyntaxTree> condPredicateList = new ArrayList<>();
         ArrayList<MSSyntaxTree> condConsequentList = new ArrayList<>();
-
         // Add the if statement.
         condPredicateList.add(this.map.get(ctx.expr(0)));
-
         // Add the if consequent.
         condConsequentList.add(this.map.get(ctx.expr(1)));
-
         // If there's an alternative add that.
         if (ctx.expr(2) != null) { condConsequentList.add(this.map.get(ctx.expr(2))); }
         this.map.put(ctx, new MSCondNode(condPredicateList, condConsequentList));

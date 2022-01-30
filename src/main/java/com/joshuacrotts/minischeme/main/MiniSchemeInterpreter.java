@@ -287,7 +287,7 @@ public class MiniSchemeInterpreter {
         }
 
         if (condNode.hasElse()) { return this.interpretTree(condConsequentList.get(condConsequentList.size() - 1), env); }
-        throw new MSSemanticException("cannot evaluate an undefined expression");
+        return null;
     }
 
     /**

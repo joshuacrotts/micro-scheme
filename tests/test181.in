@@ -1,0 +1,8 @@
+;
+; Simple test with when.
+;
+
+(when (= 1 1)
+  (display 5)
+  (display 6))
+(display 10)
