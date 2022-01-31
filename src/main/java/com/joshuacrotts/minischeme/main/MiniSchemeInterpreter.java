@@ -202,7 +202,9 @@ public class MiniSchemeInterpreter {
 
     /**
      * Interprets a declaration. We first evaluate the right-hand side, then bind it to the passed environment.
-     * 
+     *
+     * TODO add code to make sure the lhs isn't a builtin operator.
+     *
      * @param declarationNode AST.
      * @param env Environment to store declaration in.
      * 
@@ -324,7 +326,7 @@ public class MiniSchemeInterpreter {
             LValue testLVal = this.interpretTree(doNode.getDoTest(), doEnv);
             MSSyntaxTree testAst = LValue.getAst(testLVal);
             if (!testAst.isBoolean()) {
-                throw new MSSemanticException("do test expected predicate/true/false but got " + testAst.getStringNodeType());
+                throw new MSArgumentMismatchException("do test", "predicate/true/false", testAst.getStringNodeType());
             } else {
                 if (testLVal.getBooleanValue()) {
                     LValue trueLVal = null;
@@ -449,13 +451,11 @@ public class MiniSchemeInterpreter {
             // If we're trying to call on a non-lambda, throw an exception.
             if (!expressionLVal.isLambda()) { throw new MSSemanticException("cannot call " + expressionLVal.getStringRep()); }
 
-            // Otherwise, create the bindings and interpret the body.
+            // Otherwise, create the new environment, child bindings, and interpret the body.
             MSLambdaNode lambdaNode = (MSLambdaNode) expressionLVal;
             Environment lambdaEnvironment = lhsLValue.getEnvironment();
             ArrayList<MSSyntaxTree> lambdaParameters = lambdaNode.getLambdaParameters();
             MSSyntaxTree lambdaBody = lambdaNode.getLambdaBody();
-
-            // Create the new child environment.
             Environment childEnvironment;
 
             // Check to see if this lambda is a varargs lambda. If so, convert the arguments to a list.

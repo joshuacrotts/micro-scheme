@@ -1,0 +1,12 @@
+;
+; Wacky schenanigans renaming stuff
+;
+
+(define dda +)
+(define tcartbus -)
+(define rewop **)
+(define snoc cons)
+(define rac car)
+(define rdc cdr)
+(rdc (snoc (dda 9 8) (tcartbus 11 (rewop 2 8))))
+(rac (cons (snoc 100 42) (snoc (+ 45 12) (dda 9912 4))))

@@ -32,8 +32,8 @@ public class MSApplicationNode extends MSSyntaxTree {
     @Override
     public String getStringRep() {
         StringBuilder sb = new StringBuilder("(");
-        for (int i = 0; i < this.NUM_ARGUMENTS - 1; i++) {
-            sb.append(this.getChild(i + 1).getStringRep());
+        for (int i = 0; i < this.getChildrenSize() - 1; i++) {
+            sb.append(this.getChild(i).getStringRep());
             sb.append(" ");
         }
         sb.append(this.getChild(this.getChildrenSize() - 1).getStringRep());

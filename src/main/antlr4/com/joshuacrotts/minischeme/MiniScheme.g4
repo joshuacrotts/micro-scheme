@@ -59,7 +59,7 @@ SETCAR: 'set-car!';
 SETCDR: 'set-cdr!';
 SETVECTOR: 'vector-set!';
 
-ID: [-+*/<>=a-zA-Z_][-+*/<>=?!a-zA-Z0-9_]*;
+ID: [-+*/<>=a-zA-Z_$][-+*/<>=?!a-zA-Z0-9_$]*;
 
 // ================= Parser rules. ==================== //
 
@@ -74,9 +74,10 @@ decl: variableDeclaration
 variableDeclaration: '(' DEFINE variable expr ')';
 
 // Procedure declarations take the form (define (<var> <expr>*) <expr>)
-procedureDeclaration: ('(' DEFINE '(' variable procedureParameters ')' expr ')')
-                    | ('(' DEFINE  '(' variable PERIOD procedureParameters ')' expr ')' );
+procedureDeclaration: ('(' DEFINE '(' variable procedureParameters ')' procedureBody ')')
+                    | ('(' DEFINE  '(' variable PERIOD procedureParameters ')' procedureBody ')' );
 procedureParameters: expr*;
+procedureBody: expr+;
 
 // There are several different types of declarations.
 expr: beginExpr
@@ -123,16 +124,18 @@ setExpr: '(' SET variable expr ')';
 setListExpr: '(' (SETCAR | SETCDR | SETVECTOR) expr+')';
 
 // Let expression takes the form (let ((<var> <expr>)*) (<expr>))
-letExpr: '(' LET '(' letParameters* ')' expr ')';
-letStarExpr: '(' LETSTAR '(' letParameters* ')' expr ')';
-letRecExpr: '(' LETREC '(' letParameters* ')' expr ')';
+letExpr: '(' LET '(' letParameters* ')' letBody ')';
+letStarExpr: '(' LETSTAR '(' letParameters* ')' letBody ')';
+letRecExpr: '(' LETREC '(' letParameters* ')' letBody ')';
 letParameters: ('(' expr expr ')')
              | ('[' expr expr ']');
+letBody: expr+;
 
 // Lambda expressions take the form (lambda (<params>) <body>).
-lambdaExpr: ('(' LAMBDA '(' lambdaParameters ')' expr ')')
-          | ('(' LAMBDA '(' lambdaParameters PERIOD PERIOD PERIOD ')' expr ')');
+lambdaExpr: ('(' LAMBDA '(' lambdaParameters ')' lambdaBody ')')
+          | ('(' LAMBDA '(' lambdaParameters PERIOD PERIOD PERIOD ')' lambdaBody ')');
 lambdaParameters: expr*;
+lambdaBody: expr+;
 
 // A do expression takes the form (do ((<var> <expr> <expr>)*) (<test> <expr>) <seq>)
 doExpr: '(' DO '(' doDecl* ')' '(' doTest doTrueExpr* ')' doBody ')';

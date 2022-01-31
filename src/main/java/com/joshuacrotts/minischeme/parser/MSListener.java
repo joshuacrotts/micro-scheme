@@ -93,8 +93,9 @@ public class MSListener extends MiniSchemeBaseListener {
         }
 
         // Check to see if it's varargs.
-        MSSyntaxTree procedureBody = this.map.get(ctx.expr());
-        MSLambdaNode procedureLambda = new MSLambdaNode(procedureParameters, procedureBody, ctx.PERIOD() != null);
+        ArrayList<MSSyntaxTree> procedureBodyList = new ArrayList<>();
+        for (ParseTree pt : ctx.procedureBody().expr()) { procedureBodyList.add(this.map.get(pt)); }
+        MSLambdaNode procedureLambda = new MSLambdaNode(procedureParameters, new MSSequenceNode(procedureBodyList), ctx.PERIOD() != null);
         this.map.put(ctx, new MSDeclarationNode(procedureName, procedureLambda));
     }
 
@@ -173,8 +174,10 @@ public class MSListener extends MiniSchemeBaseListener {
             letVariables.add(this.map.get(ctx.letParameters().get(i).expr(0)));
             letBindings.add(this.map.get(ctx.letParameters().get(i).expr(1)));
         }
-        MSSyntaxTree letBody = this.map.get(ctx.expr());
-        MSLambdaNode lambdaNode = new MSLambdaNode(letVariables, letBody);
+
+        ArrayList<MSSyntaxTree> letBodyList = new ArrayList<>();
+        for (ParseTree pt : ctx.letBody().expr()) { letBodyList.add(this.map.get(pt)); }
+        MSLambdaNode lambdaNode = new MSLambdaNode(letVariables, new MSSequenceNode(letBodyList));
         this.map.put(ctx, new MSApplicationNode(lambdaNode, letBindings));
     }
 
@@ -191,7 +194,9 @@ public class MSListener extends MiniSchemeBaseListener {
             letArgument.add(this.map.get(ctx.letParameters().get(i).expr(1)));
             // If we're on the first expression, we need to create the lambda with the body as the expr.
             MSLambdaNode lambdaNode;
-            if (i == ctx.letParameters().size() - 1) { lambdaNode = new MSLambdaNode(letParameter, this.map.get(ctx.expr())); }
+            ArrayList<MSSyntaxTree> letStarBodyList = new ArrayList<>();
+            for (ParseTree pt : ctx.letBody().expr()) { letStarBodyList.add(this.map.get(pt)); }
+            if (i == ctx.letParameters().size() - 1) { lambdaNode = new MSLambdaNode(letParameter, new MSSequenceNode(letStarBodyList)); }
             else { lambdaNode = new MSLambdaNode(letParameter, rootApplication); }
             rootApplication = new MSApplicationNode(lambdaNode, letArgument);
         }
@@ -209,7 +214,9 @@ public class MSListener extends MiniSchemeBaseListener {
             MSSyntaxTree expression = this.map.get(ctx.letParameters().get(i).expr(1));
             letRecBindings.add(new MSDeclarationNode(variable, expression));
         }
-        this.map.put(ctx, new MSLetRecNode(letRecBindings, this.map.get(ctx.expr())));
+        ArrayList<MSSyntaxTree> letRecBodyList = new ArrayList<>();
+        for (ParseTree pt : ctx.letBody().expr()) { letRecBodyList.add(this.map.get(pt)); }
+        this.map.put(ctx, new MSLetRecNode(letRecBindings, new MSSequenceNode(letRecBodyList)));
     }
 
     @Override
@@ -217,12 +224,12 @@ public class MSListener extends MiniSchemeBaseListener {
         super.exitLambdaExpr(ctx);
         ArrayList<MSSyntaxTree> lambdaParameters = new ArrayList<>();
         if (ctx.lambdaParameters().expr() != null) {
-            for (ParseTree pt : ctx.lambdaParameters().expr()) {
-                lambdaParameters.add(this.map.get(pt));
-            }
+            for (ParseTree pt : ctx.lambdaParameters().expr()) { lambdaParameters.add(this.map.get(pt)); }
         }
-        MSSyntaxTree lambdaBody = this.map.get(ctx.expr());
-        this.map.put(ctx, new MSLambdaNode(lambdaParameters, lambdaBody, !ctx.PERIOD().isEmpty()));
+
+        ArrayList<MSSyntaxTree> lambdaBodyList = new ArrayList<>();
+        for (ParseTree pt : ctx.lambdaBody().expr()) { lambdaBodyList.add(this.map.get(pt)); }
+        this.map.put(ctx, new MSLambdaNode(lambdaParameters, new MSSequenceNode(lambdaBodyList), !ctx.PERIOD().isEmpty()));
     }
 
     @Override
