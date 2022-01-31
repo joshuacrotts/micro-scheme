@@ -11,6 +11,8 @@
 
 package com.joshuacrotts.minischeme.ast;
 
+import java.util.ArrayList;
+
 public class MSSymbolNode extends MSSyntaxTree {
 
     /**
@@ -18,12 +20,13 @@ public class MSSymbolNode extends MSSyntaxTree {
      */
     private final MSSyntaxTree VALUE;
 
+    /**
+     *
+     */
     private final boolean IS_QUASI_AT;
 
     public MSSymbolNode(final MSSyntaxTree symbol) {
-        super(MSNodeType.SYMBOL);
-        this.VALUE = symbol;
-        this.IS_QUASI_AT = false;
+        this(symbol, false);
     }
 
     public MSSymbolNode(final MSSyntaxTree symbol, final boolean isQuasiAt) {

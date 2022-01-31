@@ -66,6 +66,7 @@ ID: [-+*/<>=a-zA-Z_][-+*/<>=?!a-zA-Z0-9_]*;
 // This is the root rule applied.
 miniScheme: (decl | expr)*;
 
+// Declarations are definitions - either variables or procedures.
 decl: variableDeclaration
     | procedureDeclaration;
 
@@ -156,12 +157,19 @@ applicationExpr: ( '(' expr applicationArgs ')' );
 applicationArgs: expr*;
 
 // Symbols take the form (quote | '(<expr>*) or <expr>)
-symbolExpr: (QUOTE | SINGLE_QUOTE | BACK_TICK) symbolDatum;
-symbolDatum: constant | variable | '(' symbolDatum PERIOD symbolDatum ')' | '(' symbolDatum* ')';
+symbolExpr: (QUOTE | SINGLE_QUOTE | BACK_TICK) symbolDatumRep;
+symbolDatum: constant | variable;
+symbolDatumRep: (symbolDatum
+                | ('(' symbolDatumRep PERIOD symbolDatumRep ')')
+                | ('(' symbolDatumRep* ')'));
 
 // A quasi-quoted symbol is a normal quoted symbol with 'unquote' sections.
-quasiSymbolExpr: BACK_TICK quasiSymbolDatum;
-quasiSymbolDatum: ((COMMA | (COMMA ATSIGN))? (constant | variable | symbolExpr | applicationExpr | '(' quasiSymbolDatum* ')'));
+quasiSymbolExpr: BACK_TICK quasiSymbolDatumRep;
+quasiSymbolDatum: (constant | variable | symbolExpr | evalExpr | applyExpr | applicationExpr);
+quasiSymbolDatumRep: ((COMMA | (COMMA ATSIGN))?
+                      (quasiSymbolDatum
+                      | ('(' quasiSymbolDatumRep PERIOD quasiSymbolDatumRep ')')
+                      | ('(' quasiSymbolDatumRep* ')')));
 
 // Variables are, realistically, any symbol.
 constant: STRINGLIT | CHARLIT | BOOLLIT | NUMBERLIT;

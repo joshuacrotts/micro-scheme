@@ -1,0 +1,6 @@
+;
+; Slightly harder quasi-quote
+;
+
+(define v '(+ 2 3))
+`(,(eval v) ,(** 2 8) (+ 9 a b))

@@ -29,6 +29,17 @@ public class MSApplicationNode extends MSSyntaxTree {
         arguments.forEach(this::addChild);
     }
 
+    @Override
+    public String getStringRep() {
+        StringBuilder sb = new StringBuilder("(");
+        for (int i = 0; i < this.NUM_ARGUMENTS - 1; i++) {
+            sb.append(this.getChild(i + 1).getStringRep());
+            sb.append(" ");
+        }
+        sb.append(this.getChild(this.getChildrenSize() - 1).getStringRep());
+        return sb.append(")").toString();
+    }
+
     public MSSyntaxTree getExpression() {
         return this.getChild(0);
     }
