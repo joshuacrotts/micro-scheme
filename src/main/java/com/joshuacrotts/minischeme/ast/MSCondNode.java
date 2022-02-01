@@ -16,17 +16,17 @@ import java.util.ArrayList;
 public class MSCondNode extends MSSyntaxTree {
 
     /**
-     *
+     * Number of predicates (conditionals) in this COND node.
      */
     private final int NUM_PREDICATES;
 
     /**
-     *
+     * Number of consequents (bodies) in this COND node.
      */
     private final int NUM_CONSEQUENTS;
 
     /**
-     *
+     * Does this COND have an alternative body?
      */
     private final boolean HAS_ELSE;
 

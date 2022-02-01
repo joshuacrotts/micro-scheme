@@ -11,6 +11,8 @@
 
 package com.joshuacrotts.minischeme.parser;
 
+import ch.obermuhlner.math.big.BigComplex;
+import ch.obermuhlner.math.big.BigComplexMath;
 import com.joshuacrotts.minischeme.MiniSchemeBaseListener;
 import com.joshuacrotts.minischeme.MiniSchemeParser;
 import com.joshuacrotts.minischeme.MiniSchemeParser.UnlessCondContext;
@@ -375,7 +377,7 @@ public class MSListener extends MiniSchemeBaseListener {
         MSSyntaxTree constantNode;
         switch (tokenType) {
             case MiniSchemeParser.NUMBERLIT:
-                constantNode = new MSNumberNode(ctx.getText());
+                constantNode = new MSNumberNode(MSNumberNode.extractComplexFromString(ctx.getText()));
                 break;
             case MiniSchemeParser.BOOLLIT:
                 constantNode = new MSBooleanNode(ctx.getText());

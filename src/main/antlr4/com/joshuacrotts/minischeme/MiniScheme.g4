@@ -33,7 +33,7 @@ ATSIGN: '@';
 PERIOD: '.';
 
 // Literals.
-NUMBERLIT: [+-]?[0-9]+('.'[0-9]*)?;
+NUMBERLIT: [-]?[0-9]+('.'[0-9]*)?([+-]?[0-9]+('.'[0-9]*)?[Ii])?;
 STRINGLIT: '"' ( QUOTCHAR | ~ ["\\] )* '"';
 CHARLIT: HASH '\\' ANYCHAR_MOD;
 BOOLLIT: HASH ([tf] | ([Tt]'rue') | ([Ff]'alse'));
@@ -46,6 +46,8 @@ ELSE: 'else';
 LAMBDA: 'lambda' | 'λ';
 BEGIN: 'begin';
 QUOTE: 'quote';
+UNQUOTE: 'unquote';
+UNQUOTESPLICING: 'unquote-splicing';
 WHEN: 'when';
 UNLESS: 'unless';
 APPLY: 'apply';

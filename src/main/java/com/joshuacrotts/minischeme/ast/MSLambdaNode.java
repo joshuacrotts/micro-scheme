@@ -3,7 +3,7 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 01/31/2022
  *
  *
  *
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class MSLambdaNode extends MSSyntaxTree {
 
     /**
-     *
+     * Number of parameters that this lambda takes in.
      */
     private final int NUM_LAMBDA_PARAMETERS;
 

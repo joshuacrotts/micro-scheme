@@ -11,6 +11,7 @@
 
 package com.joshuacrotts.minischeme.main;
 
+import ch.obermuhlner.math.big.BigComplex;
 import com.joshuacrotts.minischeme.ast.*;
 import com.joshuacrotts.minischeme.parser.MSInterpreterException;
 
@@ -38,18 +39,20 @@ public class LValue {
         this.ENVIRONMENT = env;
     }
     
-    public LValue(final BigDecimal number) {
+    public LValue(final BigComplex number) {
         this(new MSNumberNode(number));
     }
+
+    public LValue(final BigDecimal number) { this(new MSNumberNode(number)); }
 
     public LValue(final double number) {
         this(new MSNumberNode(number));
     }
-    
+
     public LValue(final boolean bvalue) {
         this(new MSBooleanNode(bvalue));
     }
-    
+
     public LValue(final String svalue) {
         this(new MSStringNode(svalue));
     }
@@ -99,7 +102,7 @@ public class LValue {
         }
     }
 
-    public BigDecimal getNumberValue() {
+    public BigComplex getNumberValue() {
         if (this.TREE.getNodeType() == MSNodeType.NUMBER) { return ((MSNumberNode) this.TREE).getValue(); }
         throw new MSInterpreterException("Cannot return number from non-number lvalue " + this.TREE.getNodeType());
     }

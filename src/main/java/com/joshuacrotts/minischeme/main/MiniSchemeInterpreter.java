@@ -571,7 +571,7 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree vectorIdxAst = LValue.getAst(vectorIdx);
         if (!assigneeAst.isVector()) { throw new MSArgumentMismatchException("vector-set!", 0, "vector", assigneeAst.getStringNodeType()); }
         else if (!LValue.getAst(vectorIdx).isNumber()) { throw new MSArgumentMismatchException("vector-set!", 1, "number", vectorIdxAst.getStringNodeType()); }
-        ((MSVectorNode) assigneeAst).setChild(vectorIdx.getNumberValue().intValue(), LValue.getAst(evaluatedExpression));
+        ((MSVectorNode) assigneeAst).setChild(vectorIdx.getNumberValue().re.intValue(), LValue.getAst(evaluatedExpression));
         return null;
     }
 

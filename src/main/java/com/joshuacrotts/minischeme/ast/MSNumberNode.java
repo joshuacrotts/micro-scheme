@@ -11,6 +11,7 @@
 
 package com.joshuacrotts.minischeme.ast;
 
+import ch.obermuhlner.math.big.BigComplex;
 import ch.obermuhlner.math.big.BigFloat;
 
 import java.math.BigDecimal;
@@ -26,39 +27,83 @@ public class MSNumberNode extends MSSyntaxTree {
     /**
      * Number associated with this node.
      */
-    private final BigDecimal VALUE;
+    private final BigComplex VALUE;
 
-    public MSNumberNode(final String stringRep) {
+    public MSNumberNode(final BigComplex bigComplex) {
         super(MSNodeType.NUMBER);
-        this.VALUE = new BigDecimal(stringRep);
+        this.VALUE = bigComplex;
     }
 
     public MSNumberNode(final BigDecimal bigDecimal) {
         super(MSNodeType.NUMBER);
-        this.VALUE = bigDecimal;
+        this.VALUE = BigComplex.valueOf(bigDecimal);
+    }
+
+    public MSNumberNode(final String stringRep) {
+        this(new BigDecimal(stringRep));
     }
 
     public MSNumberNode(final int number) {
-        super(MSNodeType.NUMBER);
-        this.VALUE = new BigDecimal(number);
+        this(new BigDecimal(number));
     }
 
     public MSNumberNode(final double number) {
-        super(MSNodeType.NUMBER);
-        this.VALUE = new BigDecimal(number);
+        this(new BigDecimal(number));
+    }
+
+    public static BigComplex extractComplexFromString(String number) {
+        if (number.endsWith("i")) {
+            number = number.substring(0, number.length() - 1);
+            boolean firstNegative = false;
+            boolean secondNegative = false;
+            if (number.startsWith("-")) firstNegative = true;
+            if (number.substring(1).contains("-")) secondNegative = true;
+            // Cases where both cannot be negative.
+            BigComplex val;
+            if (!firstNegative || !secondNegative) {
+                if (firstNegative) {
+                    number = number.substring(1);
+                }
+                String[] parts = number.split("[+-]");
+                BigDecimal lhs = new BigDecimal(parts[0]);
+                BigDecimal rhs = secondNegative ? new BigDecimal(parts[1]).negate() : new BigDecimal(parts[1]);
+                return BigComplex.valueOf(lhs, rhs);
+            } else {
+                // Case where both are negative.
+                number = number.substring(1);
+                String[] parts = number.split("-");
+                return BigComplex.valueOf(new BigDecimal(parts[0]).negate(), new BigDecimal(parts[1]).negate());
+            }
+        } else {
+            return BigComplex.valueOf(new BigDecimal(number));
+        }
     }
 
     @Override
     public String getStringRep() {
-        if (this.isIntegerValue(this.VALUE)) {
-            return this.VALUE.stripTrailingZeros().toPlainString();
+        if (this.isInteger()) {
+            return this.VALUE.re.stripTrailingZeros().toPlainString();
+        } else if (this.VALUE.isReal()) {
+            return this.VALUE.re.toString();
         } else {
             return this.VALUE.toString();
         }
     }
 
-    public BigDecimal getValue() {
+    public BigComplex getValue() {
         return this.VALUE;
+    }
+
+    public boolean isInteger() {
+        return this.VALUE.isReal() && this.isIntegerValue(this.VALUE.re);
+    }
+
+    public boolean isReal() {
+        return this.VALUE.isReal();
+    }
+
+    public boolean isComplex() {
+        return true;
     }
 
     private boolean isIntegerValue(BigDecimal bd) {

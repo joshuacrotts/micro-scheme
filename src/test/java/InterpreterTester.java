@@ -1,5 +1,6 @@
 import com.joshuacrotts.minischeme.ast.MSSyntaxTree;
 import com.joshuacrotts.minischeme.main.MiniSchemeInterpreter;
+import com.joshuacrotts.minischeme.main.MiniSchemeRunner;
 import com.joshuacrotts.minischeme.main.MiniSchemeTester;
 import com.joshuacrotts.minischeme.parser.MSListener;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -117,7 +118,7 @@ public class InterpreterTester {
         ByteArrayOutputStream captureOut = new ByteArrayOutputStream();
         System.setOut(new PrintStream(captureOut));
         System.setErr(new PrintStream(captureOut));
-        MSListener parser = MiniSchemeTester.parseFromFile(inName);
+        MSListener parser = MiniSchemeRunner.parseFromFile(inName);
         if (parser == null) { throw new AssertionFailedError("Failed reading test input file " + inName); }
         MSSyntaxTree syntaxTree = parser.getSyntaxTree();
         MiniSchemeInterpreter interpreter = new MiniSchemeInterpreter(syntaxTree);
