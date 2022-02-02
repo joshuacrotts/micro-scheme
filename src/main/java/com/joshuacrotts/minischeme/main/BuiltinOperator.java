@@ -270,6 +270,7 @@ public final class BuiltinOperator {
         BigDecimal rhs = BigDecimalMath.cosh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.sin(arg.im, MSNumberNode.PRECISION));
         return new LValue(BigComplex.valueOf(lhs, rhs));
     }
+
     private static LValue interpretCosh(final ArrayList<LValue> coshArguments) throws MSArgumentMismatchException {
         if (coshArguments.size() != 1) { throw new MSArgumentMismatchException("cosh", 1, coshArguments.size()); }
         BigComplex arg = coshArguments.get(0).getNumberValue();
@@ -285,8 +286,9 @@ public final class BuiltinOperator {
         BigDecimal topRhs = BigDecimalMath.cosh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.sin(arg.im, MSNumberNode.PRECISION));
         BigDecimal botLhs = BigDecimalMath.cosh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.cos(arg.im, MSNumberNode.PRECISION));
         BigDecimal botRhs = BigDecimalMath.sinh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.sin(arg.im, MSNumberNode.PRECISION));
-        return new LValue(BigComplex.valueOf(topLhs.add(topRhs).divide(botLhs.add(botRhs, MSNumberNode.PRECISION))));
+        return new LValue(BigComplex.valueOf(topLhs.add(topRhs).divide(botLhs.add(botRhs), MSNumberNode.PRECISION)));
     }
+
     private static LValue interpretAsinh(final ArrayList<LValue> sinhArguments) throws MSArgumentMismatchException {
         if (sinhArguments.size() != 1) { throw new MSArgumentMismatchException("asinh", 1, sinhArguments.size()); }
         BigComplex argument = sinhArguments.get(0).getNumberValue();
@@ -360,9 +362,7 @@ public final class BuiltinOperator {
     private static LValue interpretAnd(final ArrayList<LValue> andArguments) {
         if (andArguments.isEmpty()) { return new LValue(false); }
         for (LValue argument : andArguments) {
-            if (!argument.getBooleanValue()) {
-                return new LValue(false);
-            }
+            if (!argument.getBooleanValue()) {return new LValue(false);}
         }
         return new LValue(true);
     }
@@ -370,9 +370,7 @@ public final class BuiltinOperator {
     private static LValue interpretOr(final ArrayList<LValue> orArguments) {
         if (orArguments.isEmpty()) { return new LValue(false); }
         for (LValue argument : orArguments) {
-            if (argument.getBooleanValue()) {
-                return new LValue(true);
-            }
+            if (argument.getBooleanValue()) { return new LValue(true); }
         }
         return new LValue(false);
     }

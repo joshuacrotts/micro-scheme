@@ -35,9 +35,6 @@ public class MiniSchemeInterpreter {
         this(null);
     }
 
-    /**
-     *
-     */
     public void execute() {
         Environment globals = new Environment(null);
         for (int i = 0; i < this.tree.getChildrenSize(); i++) {
@@ -52,9 +49,13 @@ public class MiniSchemeInterpreter {
     }
 
     /**
+     * Evaluates a tree in a given environment.
      *
-     * @param tree
-     * @return
+     * @param tree AST.
+     * @param env Environment to use.
+     * @return LValue of interpreted tree.
+     *
+     * @throws MSSemanticException if one of the submethod calls throws an exception.
      */
     private LValue interpretTree(final MSSyntaxTree tree, final Environment env) throws MSSemanticException {
         switch (tree.getNodeType()) {
@@ -203,8 +204,6 @@ public class MiniSchemeInterpreter {
     /**
      * Interprets a declaration. We first evaluate the right-hand side, then bind it to the passed environment.
      *
-     * TODO add code to make sure the lhs isn't a builtin operator.
-     *
      * @param declarationNode AST.
      * @param env Environment to store declaration in.
      * 
@@ -214,6 +213,9 @@ public class MiniSchemeInterpreter {
      */
     private LValue interpretDeclaration(final MSDeclarationNode declarationNode, final Environment env) throws MSSemanticException {
         LValue rExpr = this.interpretTree(declarationNode.getExpression(), env);
+        if (BuiltinOperator.isBuiltinOperator(declarationNode.getVariable())) {
+            throw new MSSemanticException("cannot define variable with builtin name " + declarationNode.getVariable().getStringRep());
+        }
         env.bind(declarationNode.getVariable().getStringRep(), rExpr);
         return null;
     }
@@ -464,7 +466,7 @@ public class MiniSchemeInterpreter {
                 childEnvironment.createBindings(lambdaParameters, new ArrayList<>
                         (Collections.singletonList(new LValue(new MSListNode(evaluatedArguments), lambdaEnvironment))));
             } else {
-                // Before we bind, check arity.
+                // Before we bind, check arity (only on non-varargs procedures).
                 if (lambdaParameters.size() != evaluatedArguments.size()) {
                     throw new MSArgumentMismatchException(lambdaParameters.size(), evaluatedArguments.size());
                 }
@@ -571,7 +573,7 @@ public class MiniSchemeInterpreter {
         MSSyntaxTree vectorIdxAst = LValue.getAst(vectorIdx);
         if (!assigneeAst.isVector()) { throw new MSArgumentMismatchException("vector-set!", 0, "vector", assigneeAst.getStringNodeType()); }
         else if (!LValue.getAst(vectorIdx).isNumber()) { throw new MSArgumentMismatchException("vector-set!", 1, "number", vectorIdxAst.getStringNodeType()); }
-        ((MSVectorNode) assigneeAst).setChild(vectorIdx.getNumberValue().re.intValue(), LValue.getAst(evaluatedExpression));
+        assigneeAst.setChild(vectorIdx.getNumberValue().re.intValue(), LValue.getAst(evaluatedExpression));
         return null;
     }
 

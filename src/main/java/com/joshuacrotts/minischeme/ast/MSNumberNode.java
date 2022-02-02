@@ -51,6 +51,14 @@ public class MSNumberNode extends MSSyntaxTree {
         this(new BigDecimal(number));
     }
 
+    /**
+     * Constructs a complex number from a string. The user must enter
+     * a value in the form a +- bi, where a is the real component and
+     * b is the imaginary component.
+     *
+     * @param number string representation of number.
+     * @return BigComplex of string rep.
+     */
     public static BigComplex extractComplexFromString(String number) {
         if (number.endsWith("i")) {
             number = number.substring(0, number.length() - 1);
@@ -86,7 +94,8 @@ public class MSNumberNode extends MSSyntaxTree {
         } else if (this.VALUE.isReal()) {
             return this.VALUE.re.toString();
         } else {
-            return this.VALUE.toString();
+            // Remove all spaces and parentheses from the complex number.
+            return this.VALUE.toString().replaceAll("[()\\s]", "");
         }
     }
 

@@ -1,0 +1,13 @@
+;
+; Compute factors of a number
+;
+
+(define (factors-helper d n)
+    (cond ((> d n) (list))
+      ((= (modulo n d) 0) (cons d (factors-helper (+ d 1) n)))
+      (else (factors-helper (+ d 1) n))))
+
+(define (factors n)
+    (factors-helper 1 n))
+
+(display (factors 912))

@@ -1,0 +1,7 @@
+;
+; Random number generation with set seed
+;
+(random-set-seed! 1337439)
+(do ((i 1 (+ i 1)))
+    ((> i 10) (display "done"))
+    (random-integer 1 100))

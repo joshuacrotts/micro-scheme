@@ -39,27 +39,27 @@ CHARLIT: HASH '\\' ANYCHAR_MOD;
 BOOLLIT: HASH ([tf] | ([Tt]'rue') | ([Ff]'alse'));
 
 // Special keywords.
-DEFINE: 'define';
-IF:  'if';
-COND: 'cond';
-ELSE: 'else';
-LAMBDA: 'lambda' | 'λ';
-BEGIN: 'begin';
-QUOTE: 'quote';
-UNQUOTE: 'unquote';
-UNQUOTESPLICING: 'unquote-splicing';
-WHEN: 'when';
-UNLESS: 'unless';
-APPLY: 'apply';
-EVAL: 'eval';
-DO: 'do';
-LET: 'let';
-LETSTAR: 'let*';
-LETREC: 'letrec';
-SET: 'set!';
-SETCAR: 'set-car!';
-SETCDR: 'set-cdr!';
-SETVECTOR: 'vector-set!';
+DEFINE: 'define' | 'DEFINE';
+IF:  'if' | 'IF';
+COND: 'cond' | 'COND';
+ELSE: 'else' | 'ELSE';
+LAMBDA: 'lambda' | 'LAMBDA' | 'λ';
+BEGIN: 'begin' | 'BEGIN';
+QUOTE: 'quote' | 'QUOTE';
+UNQUOTE: 'unquote' | 'UNQUOTE';
+UNQUOTESPLICING: 'unquote-splicing' | 'UNQUOTE-SPLICING';
+WHEN: 'when' | 'WHEN';
+UNLESS: 'unless' | 'UNLESS';
+APPLY: 'apply' | 'APPLY';
+EVAL: 'eval' | 'EVAL';
+DO: 'do' | 'DO';
+LET: 'let' | 'LET';
+LETSTAR: 'let*' | 'LET*';
+LETREC: 'letrec' | 'LETREC';
+SET: 'set!' | 'SET!';
+SETCAR: 'set-car!' | 'SET-CAR!';
+SETCDR: 'set-cdr!' | 'SET-CDR!';
+SETVECTOR: 'vector-set!' | 'VECTOR-SET!';
 
 ID: [-+*/<>=a-zA-Z_$][-+*/<>=?!a-zA-Z0-9_$]*;
 

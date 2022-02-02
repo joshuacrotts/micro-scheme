@@ -1,0 +1,5 @@
+;
+; Simple complex number math
+;
+
+(+ 9+4i (* 8.25-4.275i 6.5) 12.45-14i)

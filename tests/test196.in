@@ -1,0 +1,6 @@
+;
+; Harder complex number math
+;
+
+(define c1 18+9i)
+(asin (acos (+ c1 3.125-11.9i)))
