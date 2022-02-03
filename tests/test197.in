@@ -1,0 +1,15 @@
+(define map
+    (lambda (p l)
+        (if (null? l)
+            '()
+            (cons (p (car l)) (map p (cdr l))))))
+
+(define (append list1 list2)
+    (if (null? list1)
+        list2
+        (cons (car list1) (append (cdr list1) list2))))
+
+(let ((a 5))
+  (map (lambda (e) (* a e)) '(1 2 3 4)))
+
+(apply + '(1 2 3))

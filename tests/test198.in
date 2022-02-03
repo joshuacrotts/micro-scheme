@@ -1,0 +1,10 @@
+;
+; multiplication table
+;
+
+(define multiplication-table
+    (do ((i 1 (+ i 1)))
+        ((> i 12))
+            (do ((j 1 (+ j 1)))
+                ((> j 12))
+                    (display (string-append (number->string i) " x " (number->string j) " = " (number->string (* i j)))))))

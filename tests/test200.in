@@ -1,0 +1,19 @@
+;
+; Alternate syntax for bubble sort
+;
+
+(define cadr (lambda (l) (car (cdr l))))
+(define cddr (lambda (l) (cdr (cdr l))))
+
+(define (dosort l gt?)
+    (cond   ((null? (cdr l)) l)
+            ((gt? (car l) (cadr l)) (cons (cadr l) (dosort (cons (car l) (cddr l)) gt?)))
+            (else (cons (car l) (dosort (cdr l) gt?)))))
+
+(define (bsort l gt?)
+  (let ((try (dosort l gt?)))
+    (if (equal? l try)
+        l
+        (bsort try gt?))))
+
+(bsort '(2 4 6 2) >)
