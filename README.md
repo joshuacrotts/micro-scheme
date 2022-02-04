@@ -24,7 +24,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 - Quasiquote Expressions
 - Random Number Generators
 
-## Example MicroScheme Programs
+## Example μScheme Programs
 
 1. Defining a variable:
 
@@ -72,7 +72,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 ```
 (define sum-from-iterative
     (λ (a b) 
-        (do ((i a) (total 0)) ((i (+ i 1)))
+        (do ((i a (+ i 1) (total 0))
             ((> i b) total)
             (set! total (+ total i))
         )))
@@ -83,8 +83,8 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 >>> 5050
 (sum-from-iterative 55 10000)
 >>> 50003515
-(sum-from-iterative 77 97231)
->>> 4.72697937E9
+c
+>>> 4726979370
 ```
 
 6. Filter procedure:
