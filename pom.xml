@@ -84,7 +84,7 @@
     </properties>
 
     <groupId>groupId</groupId>
-    <artifactId>MiniScheme-Interpreter</artifactId>
+    <artifactId>MicroScheme-Interpreter</artifactId>
     <version>0.1</version>
 
 
