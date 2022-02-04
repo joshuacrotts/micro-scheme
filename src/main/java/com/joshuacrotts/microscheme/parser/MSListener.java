@@ -20,11 +20,11 @@ import com.joshuacrotts.microscheme.MicroSchemeParser.UnlessExprContext;
 import com.joshuacrotts.microscheme.MicroSchemeParser.WhenCondContext;
 import com.joshuacrotts.microscheme.MicroSchemeParser.WhenExprContext;
 import com.joshuacrotts.microscheme.ast.*;
-import java.lang.reflect.Array;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -262,6 +262,16 @@ public class MSListener extends MicroSchemeBaseListener {
     }
 
     @Override
+    public void exitBooleanExpr(MicroSchemeParser.BooleanExprContext ctx) {
+        super.exitBooleanExpr(ctx);
+        ArrayList<MSSyntaxTree> exprList = new ArrayList<>();
+        if (ctx.expr() != null) {
+            for (ParseTree pt : ctx.expr()) { exprList.add(this.map.get(pt)); }
+        }
+        this.map.put(ctx, ctx.AND() != null ? new MSAndNode(exprList) : new MSOrNode(exprList));
+    }
+
+    @Override
     public void exitIfExpr(final MicroSchemeParser.IfExprContext ctx) {
         super.exitIfExpr(ctx);
         ArrayList<MSSyntaxTree> condPredicateList = new ArrayList<>();
@@ -329,15 +339,19 @@ public class MSListener extends MicroSchemeBaseListener {
     public void exitQuasiSymbolDatumRep(MicroSchemeParser.QuasiSymbolDatumRepContext ctx) {
         super.exitQuasiSymbolDatumRep(ctx);
         // If it's the '(' datum* ')', construct it.
-        if (ctx.quasiSymbolDatum() == null) {
+        if (ctx.PERIOD() != null) {
+            // Test to see if we're using dot notation to make pairs.
+            MSVariableNode var = new MSVariableNode("cons");
+            ArrayList<MSSyntaxTree> consArgs = new ArrayList<>();
+            MSSyntaxTree lhsExpression = this.map.get(ctx.quasiSymbolDatumRep(0));
+            MSSyntaxTree rhsExpression = this.map.get(ctx.quasiSymbolDatumRep(1));
+            consArgs.add(lhsExpression);
+            consArgs.add(rhsExpression);
+            this.map.put(ctx, new MSApplicationNode(var, consArgs));
+        } else if (ctx.quasiSymbolDatum() == null) {
             ArrayList<MSSyntaxTree> elements = new ArrayList<>();
             for (ParseTree pt : ctx.quasiSymbolDatumRep()) { elements.add(this.map.get(pt)); }
             this.map.put(ctx, new MSQuasiSymbolNode(elements));
-        } else if (ctx.PERIOD() != null) {
-            // Test to see if we're using dot notation to make pairs.
-            MSSyntaxTree lhsExpression = this.map.get(ctx.quasiSymbolDatumRep(0));
-            MSSyntaxTree rhsExpression = this.map.get(ctx.quasiSymbolDatumRep(1));
-            this.map.put(ctx, new MSListNode(lhsExpression, rhsExpression));
         } else {
             MSSyntaxTree child = this.map.get(ctx.quasiSymbolDatum().getChild(0));
             // If it's just a normal symbol, then just take the child. We need to determine if it's a "quasi at".

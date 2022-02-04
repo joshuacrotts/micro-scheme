@@ -1,0 +1,8 @@
+;
+; Slightly harder quasiquote cons.
+;
+
+(define p (list 1 2 3))
+(define q (+ (car (cdr p)) 10))
+(define r 77)
+(display `(,@p ,q ,p))

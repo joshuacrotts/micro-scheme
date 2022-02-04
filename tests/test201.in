@@ -1,0 +1,7 @@
+;
+; Simple quasi-quote expression with dotted list
+;
+
+(define x 1)
+(define y 2)
+`(,x . ,y)

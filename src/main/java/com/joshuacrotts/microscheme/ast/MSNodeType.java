@@ -21,6 +21,8 @@ public enum MSNodeType {
     CHARACTER("char"),
     SYMBOL("symbol"),
     QUASISYMBOL("quasisymbol"),
+    AND("and"),
+    OR("or"),
     LIST("list"),
     VECTOR("vector"),
     VARIABLE("variable"),

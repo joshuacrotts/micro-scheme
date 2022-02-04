@@ -72,6 +72,8 @@ public class MicroSchemeInterpreter {
             case SETCAR: return this.interpretSetCar((MSSetNode) tree, env);
             case SETCDR: return this.interpretSetCdr((MSSetNode) tree, env);
             case SETVECTOR: return this.interpretSetVector((MSSetNode) tree, env);
+            case AND: return this.interpretAnd((MSAndNode) tree, env);
+            case OR: return this.interpretOr((MSOrNode) tree, env);
             case COND: return this.interpretCond((MSCondNode) tree, env);
             case LETREC: return this.interpretLetRec((MSLetRecNode) tree, env);
             case LAMBDA: return this.interpretLambda((MSLambdaNode) tree, env);
@@ -257,10 +259,40 @@ public class MicroSchemeInterpreter {
      */
     private LValue interpretSequence(final MSSequenceNode sequence, final Environment env) throws MSSemanticException {
         LValue returnValue = null;
-        for (int i = 0; i < sequence.getChildrenSize(); i++) {
-            returnValue = this.interpretTree(sequence.getChild(i), env);
-        }
+        for (int i = 0; i < sequence.getChildrenSize(); i++) { returnValue = this.interpretTree(sequence.getChild(i), env); }
         return returnValue;
+    }
+
+    /**
+     * Interprets a boolean AND node. Short-circuits the operands; if one expression is false,
+     * the remaining expressions are not evaluated.
+     *
+     * @param andNode AST.
+     * @param env Environment to evaluate AND in.
+     * @return LValue true if all expressions evaluate to true, false otherwise.
+     */
+    private LValue interpretAnd(final MSAndNode andNode, final Environment env) {
+        for (MSSyntaxTree operand : andNode.getChildren()) {
+            LValue lhs = this.interpretTree(operand, env);
+            if (!lhs.getBooleanValue()) { return new LValue(false); }
+        }
+        return new LValue(true);
+    }
+
+    /**
+     * Interprets a boolean OR node. Short-circuits the operands; if one expression is true,
+     * the remaining expressions are not evaluated.
+     *
+     * @param orNode AST.
+     * @param env Environment to evaluate OR in.
+     * @return LValue true if at least one expression evaluates to true, false otherwise.
+     */
+    private LValue interpretOr(final MSOrNode orNode, final Environment env) {
+        for (MSSyntaxTree operand : orNode.getChildren()) {
+            LValue lhs = this.interpretTree(operand, env);
+            if (lhs.getBooleanValue()) { return new LValue(true); }
+        }
+        return new LValue(false);
     }
 
     /**
@@ -284,9 +316,9 @@ public class MicroSchemeInterpreter {
             MSSyntaxTree currPredicate = condPredicateList.get(i);
             LValue currPredicateLValue = this.interpretTree(currPredicate, env);
             MSSyntaxTree predicateAst = LValue.getAst(currPredicateLValue);
-            if (!predicateAst.isBoolean()) {
-                throw new MSArgumentMismatchException("cond", "predicate/true/false", predicateAst.getStringNodeType());
-            } else if (currPredicateLValue.getBooleanValue()) {
+            // If they don't enter a boolean, instead of throwing a type error, just interpret
+            // it as true.
+            if (!predicateAst.isBoolean() || currPredicateLValue.getBooleanValue()) {
                 return this.interpretTree(condConsequentList.get(i), env);
             }
         }

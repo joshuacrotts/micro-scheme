@@ -42,6 +42,8 @@ BOOLLIT: HASH ([tf] | ([Tt]'rue') | ([Ff]'alse'));
 DEFINE: 'define' | 'DEFINE';
 IF:  'if' | 'IF';
 COND: 'cond' | 'COND';
+OR: 'or' | 'OR';
+AND: 'and' | 'AND';
 ELSE: 'else' | 'ELSE';
 LAMBDA: 'lambda' | 'LAMBDA' | 'λ';
 BEGIN: 'begin' | 'BEGIN';
@@ -93,6 +95,7 @@ expr: beginExpr
     | letStarExpr
     | letRecExpr
     | lambdaExpr
+    | booleanExpr
     | condExpr
     | ifExpr
     | doExpr
@@ -104,6 +107,9 @@ expr: beginExpr
 
 // A begin expression is a sequence of expressions, evaluated from left ro right.
 beginExpr: '(' BEGIN expr+ ')';
+
+// We have to define AND and OR as expressions to prevent their evaluation.
+booleanExpr: '(' (AND | OR) expr* ')';
 
 // An eval expression is just EVAL followed by the expression.
 evalExpr: '(' EVAL expr ')';

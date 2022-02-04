@@ -68,8 +68,6 @@ public final class BuiltinOperator {
         OPERATORS.put(">=", BuiltinOperator::interpretGreaterEqual);
         OPERATORS.put("=", BuiltinOperator::interpretNumericEqual);
         OPERATORS.put("not", BuiltinOperator::interpretNot);
-        OPERATORS.put("and", BuiltinOperator::interpretAnd);
-        OPERATORS.put("or", BuiltinOperator::interpretOr);
         OPERATORS.put("equal?", BuiltinOperator::interpretEqualPredicate);
         OPERATORS.put("eq?", BuiltinOperator::interpretEqPredicate);
         OPERATORS.put("cons", BuiltinOperator::interpretConsFunction);
@@ -87,6 +85,7 @@ public final class BuiltinOperator {
         OPERATORS.put("pair?", BuiltinOperator::interpretPairPredicate);
         OPERATORS.put("list?", BuiltinOperator::interpretListPredicate);
         OPERATORS.put("vector?", BuiltinOperator::interpretVectorPredicate);
+        OPERATORS.put("procedure?", BuiltinOperator::interpretProcedurePredicate);
         OPERATORS.put("string-append", BuiltinOperator::interpretStringAppendFunction);
         OPERATORS.put("string-length", BuiltinOperator::interpretStringLengthFunction);
         OPERATORS.put("string<?", BuiltinOperator::interpretStringLess);
@@ -359,22 +358,6 @@ public final class BuiltinOperator {
         return new LValue(!booleanArgument.getBooleanValue());
     }
 
-    private static LValue interpretAnd(final ArrayList<LValue> andArguments) {
-        if (andArguments.isEmpty()) { return new LValue(false); }
-        for (LValue argument : andArguments) {
-            if (!argument.getBooleanValue()) {return new LValue(false);}
-        }
-        return new LValue(true);
-    }
-
-    private static LValue interpretOr(final ArrayList<LValue> orArguments) {
-        if (orArguments.isEmpty()) { return new LValue(false); }
-        for (LValue argument : orArguments) {
-            if (argument.getBooleanValue()) { return new LValue(true); }
-        }
-        return new LValue(false);
-    }
-
     private static LValue interpretEqualPredicate(final ArrayList<LValue> equalArguments) throws MSArgumentMismatchException {
         if (equalArguments.size() != 2) { throw new MSArgumentMismatchException("equal?", 2, equalArguments.size()); }
         LValue lhs = equalArguments.get(0);
@@ -531,6 +514,12 @@ public final class BuiltinOperator {
         if (vectorArguments.size() != 1) { throw new MSArgumentMismatchException("vector?", 1, vectorArguments.size()); }
         MSSyntaxTree argument = LValue.getAst(vectorArguments.get(0));
         return new LValue(argument.isVector());
+    }
+
+    private static LValue interpretProcedurePredicate(final ArrayList<LValue> procedureArguments) throws MSArgumentMismatchException {
+        if (procedureArguments.size() != 1) { throw new MSArgumentMismatchException("procedure?", 1, procedureArguments.size()); }
+        MSSyntaxTree argument = LValue.getAst(procedureArguments.get(0));
+        return new LValue(isBuiltinOperator(argument) || argument.isApplication());
     }
 
     private static LValue interpretStringAppendFunction(final ArrayList<LValue> stringAppendArguments) throws MSArgumentMismatchException {
