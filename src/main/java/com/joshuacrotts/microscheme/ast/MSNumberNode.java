@@ -12,7 +12,6 @@
 package com.joshuacrotts.microscheme.ast;
 
 import ch.obermuhlner.math.big.BigComplex;
-import ch.obermuhlner.math.big.BigFloat;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -64,14 +63,11 @@ public class MSNumberNode extends MSSyntaxTree {
             number = number.substring(0, number.length() - 1);
             boolean firstNegative = false;
             boolean secondNegative = false;
-            if (number.startsWith("-")) firstNegative = true;
-            if (number.substring(1).contains("-")) secondNegative = true;
+            if (number.startsWith("-")) { firstNegative = true; }
+            if (number.substring(1).contains("-")) { secondNegative = true; }
             // Cases where both cannot be negative.
-            BigComplex val;
             if (!firstNegative || !secondNegative) {
-                if (firstNegative) {
-                    number = number.substring(1);
-                }
+                if (firstNegative) { number = number.substring(1); }
                 String[] parts = number.split("[+-]");
                 BigDecimal lhs = new BigDecimal(parts[0]);
                 BigDecimal rhs = secondNegative ? new BigDecimal(parts[1]).negate() : new BigDecimal(parts[1]);
@@ -92,7 +88,7 @@ public class MSNumberNode extends MSSyntaxTree {
         if (this.isInteger()) {
             return this.VALUE.re.stripTrailingZeros().toPlainString();
         } else if (this.VALUE.isReal()) {
-            return this.VALUE.re.toString();
+            return this.VALUE.re().toString();
         } else {
             // Remove all spaces and parentheses from the complex number.
             return this.VALUE.toString().replaceAll("[()\\s]", "");

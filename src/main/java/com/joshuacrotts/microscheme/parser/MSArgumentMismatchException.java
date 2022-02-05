@@ -15,7 +15,12 @@ public class MSArgumentMismatchException extends MSSemanticException {
 
     private static final String TYPE_MISMATCH = "Argument Type Mismatch";
     private static final String ARITY_MISMATCH = "Arity Mismatch";
-    
+    private static final String MISMATCH = "Argument Mismatch";
+
+    public MSArgumentMismatchException(final String message) {
+        super(MISMATCH, message);
+    }
+
     public MSArgumentMismatchException(final String preamble, final int expectedArity, final int receivedArity) {
         super(ARITY_MISMATCH, String.format("Procedure %s; expected: %d, received: %d", preamble, expectedArity, receivedArity));
     }

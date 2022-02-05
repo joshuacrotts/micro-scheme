@@ -142,7 +142,7 @@ public class MicroSchemeInterpreter {
      * "unquote" sections. An unquoted section is a section that should get evaluated when interpreting the
      * parent expression.
      *
-     * Example: `(1 2 ,(+ 3 4) 5) evaluates to (1 2 7 5) because the , indicates that the next expression
+     * Example: `(1 2 ,(+ 3 4) 5) evaluates to (1 2 7 5) because the comma (,) indicates that the next expression
      *          is to be evaluated.
      *
      * List splicing is also supported. List splicing allows elements of a sublist to be added to the current
@@ -316,8 +316,7 @@ public class MicroSchemeInterpreter {
             MSSyntaxTree currPredicate = condPredicateList.get(i);
             LValue currPredicateLValue = this.interpretTree(currPredicate, env);
             MSSyntaxTree predicateAst = LValue.getAst(currPredicateLValue);
-            // If they don't enter a boolean, instead of throwing a type error, just interpret
-            // it as true.
+            // If they don't enter a boolean, instead of throwing a type error, just interpret it as true.
             if (!predicateAst.isBoolean() || currPredicateLValue.getBooleanValue()) {
                 return this.interpretTree(condConsequentList.get(i), env);
             }
@@ -362,6 +361,7 @@ public class MicroSchemeInterpreter {
             if (!testAst.isBoolean()) {
                 throw new MSArgumentMismatchException("do test", "predicate/true/false", testAst.getStringNodeType());
             } else {
+                // If the do loop test passes, evaluate each "true" expression.
                 if (testLVal.getBooleanValue()) {
                     LValue trueLVal = null;
                     for (MSSyntaxTree trueExpr : doNode.getDoTrueExpressions()) {
@@ -527,6 +527,7 @@ public class MicroSchemeInterpreter {
         MSSyntaxTree assignee = setNode.getChild(0);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
         if (!assignee.isVariable()) { throw new MSArgumentMismatchException("set!", 0, "variable", assignee.getStringNodeType()); }
+        // Walk up the environment tree to find the identifier.
         String id = ((MSVariableNode) assignee).getIdentifier();
         Environment curr = env;
         boolean found = false;

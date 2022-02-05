@@ -7,7 +7,7 @@ package com.joshuacrotts.microscheme.turtle;
  *
  ******************************************************************************/
 
-import java.awt.Color;
+import java.awt.*;
 
 public class StdTurtle {
     private double x, y;     // turtle is at (x, y)

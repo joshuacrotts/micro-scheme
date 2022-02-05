@@ -1,0 +1,7 @@
+;
+; Simple printf test.
+;
+(define val "Hello, world!")
+(printf "Hello, world!")
+(printf "~s" "Hello, world!")
+(printf "~s" val)

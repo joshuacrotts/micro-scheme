@@ -38,6 +38,7 @@ public final class BuiltinOperator {
     static {
         OPERATORS = new HashMap<>();
         OPERATORS.put("display", BuiltinOperator::interpretDisplay);
+        OPERATORS.put("printf", BuiltinOperator::interpretPrintf);
         OPERATORS.put("+", BuiltinOperator::interpretAdd);
         OPERATORS.put("-", BuiltinOperator::interpretSubtract);
         OPERATORS.put("*", BuiltinOperator::interpretMultiply);
@@ -92,6 +93,7 @@ public final class BuiltinOperator {
         OPERATORS.put("string<=?", BuiltinOperator::interpretStringLessEqual);
         OPERATORS.put("string>?", BuiltinOperator::interpretStringGreater);
         OPERATORS.put("string>=?", BuiltinOperator::interpretStringGreaterEqual);
+        OPERATORS.put("substring", BuiltinOperator::interpretSubstring);
         OPERATORS.put("char<?", BuiltinOperator::interpretCharLess);
         OPERATORS.put("char<=?", BuiltinOperator::interpretCharLessEqual);
         OPERATORS.put("char>?", BuiltinOperator::interpretCharGreater);
@@ -134,6 +136,39 @@ public final class BuiltinOperator {
         if (displayArguments.size() != 1) { throw new MSArgumentMismatchException("display", 1, displayArguments.size()); }
         System.out.println(displayArguments.get(0));
         return null;
+    }
+
+    private static LValue interpretPrintf(final ArrayList<LValue> printfArguments) {
+        if (printfArguments.isEmpty()) { throw new MSArgumentMismatchException("printf expected at least one argument but got 0"); }
+        if (!printfArguments.get(0).getTree().isString()) { throw new MSArgumentMismatchException("printf", 1, "string", printfArguments.get(0).getTree().getStringNodeType()); }
+        String formatStr = printfArguments.get(0).getStringValue();
+        StringBuilder output = new StringBuilder();
+
+        // Traverse the string and replace each format with the argument.
+        int formatIdx = 1;
+        for (int c = 0; c < formatStr.length(); c++) {
+            if (formatStr.charAt(c) != '~') { output.append(formatStr.charAt(c)); }
+            else {
+                // TODO check argument type with format type.
+                LValue lval = printfArguments.get(formatIdx);
+                switch (formatStr.charAt(c + 1)) {
+                    case 'x': output.append(lval.getNumberValue().re.toBigInteger().toString(16)); break;
+                    case 'o': output.append(lval.getNumberValue().re.toBigInteger().toString(8)); break;
+                    case 'b': output.append(lval.getNumberValue().re.toBigInteger().toString(2)); break;
+                    case 'g': output.append(lval.getBooleanValue()); break;
+                    case 'c': output.append(lval.getCharacterValue()); break;
+                    case 'y': output.append(lval.getSymbolValue().getStringRep()); break;
+                    case 's':
+                    case 'd':
+                    case 'l': output.append(lval.getTree().getStringRep()); break;
+                    default:
+                        throw new MSArgumentMismatchException("Unknown printf format specifier ~" + formatStr.charAt(c + 1));
+                }
+                formatIdx++;
+                c++;
+            }
+        }
+        return new LValue(output.toString());
     }
 
     private static LValue interpretAdd(final ArrayList<LValue> addArguments) {
@@ -566,6 +601,22 @@ public final class BuiltinOperator {
         String leftArgument = stringGreaterEqualArguments.get(0).getStringValue();
         String rightArgument = stringGreaterEqualArguments.get(1).getStringValue();
         return new LValue(leftArgument.compareTo(rightArgument) >= 0);
+    }
+
+    private static LValue interpretSubstring(final ArrayList<LValue> substringArguments) {
+        if (substringArguments.size() != 3) { throw new MSArgumentMismatchException("substring", 3, substringArguments.size()); }
+        MSSyntaxTree stringNode = LValue.getAst(substringArguments.get(0));
+        MSSyntaxTree startIdxNode = LValue.getAst(substringArguments.get(1));
+        MSSyntaxTree endIdxNode = LValue.getAst(substringArguments.get(2));
+        if (!stringNode.isString()) { throw new MSArgumentMismatchException("substring", 1, "string", stringNode.getStringNodeType()); }
+        if (!startIdxNode.isNumber()) { throw new MSArgumentMismatchException("substring", 2, "number", startIdxNode.getStringNodeType()); }
+        if (!endIdxNode.isNumber()) { throw new MSArgumentMismatchException("substring", 3, "number", endIdxNode.getStringNodeType()); }
+        // Make sure the indices are not invalid.
+        String string = stringNode.getStringRep();
+        int startIdx = ((MSNumberNode) startIdxNode).getValue().re.intValue();
+        int endIdx = ((MSNumberNode) endIdxNode).getValue().re.intValue();
+        if (endIdx < startIdx) { throw new MSArgumentMismatchException(String.format("substring start index %d cannot be greater than end index %d", startIdx, endIdx)); }
+        return new LValue(string.substring(startIdx, endIdx));
     }
 
     private static LValue interpretCharLess(final ArrayList<LValue> charLessArguments) throws MSArgumentMismatchException {

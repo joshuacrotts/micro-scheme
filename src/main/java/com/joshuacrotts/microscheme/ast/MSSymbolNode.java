@@ -11,8 +11,6 @@
 
 package com.joshuacrotts.microscheme.ast;
 
-import java.util.ArrayList;
-
 public class MSSymbolNode extends MSSyntaxTree {
 
     /**
