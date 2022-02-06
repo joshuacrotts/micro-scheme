@@ -88,11 +88,16 @@ public class MSNumberNode extends MSSyntaxTree {
         if (this.isInteger()) {
             return this.VALUE.re.stripTrailingZeros().toPlainString();
         } else if (this.VALUE.isReal()) {
-            return this.VALUE.re().toString();
+            return this.VALUE.re.toString();
         } else {
             // Remove all spaces and parentheses from the complex number.
             return this.VALUE.toString().replaceAll("[()\\s]", "");
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.getStringRep();
     }
 
     public BigComplex getValue() {
