@@ -152,12 +152,18 @@ public final class BuiltinOperator {
                 // TODO check argument type with format type.
                 LValue lval = printfArguments.get(formatIdx);
                 switch (formatStr.charAt(c + 1)) {
-                    case 'x': output.append(lval.getNumberValue().re.toBigInteger().toString(16)); break;
-                    case 'o': output.append(lval.getNumberValue().re.toBigInteger().toString(8)); break;
-                    case 'b': output.append(lval.getNumberValue().re.toBigInteger().toString(2)); break;
-                    case 'g': output.append(lval.getBooleanValue()); break;
-                    case 'c': output.append(lval.getCharacterValue()); break;
-                    case 'y': output.append(lval.getSymbolValue().getStringRep()); break;
+                    case 'x': output.append(lval.getNumberValue().re.toBigInteger().toString(16));
+                              break;
+                    case 'o': output.append(lval.getNumberValue().re.toBigInteger().toString(8));
+                              break;
+                    case 'b': output.append(lval.getNumberValue().re.toBigInteger().toString(2));
+                              break;
+                    case 'g': output.append(lval.getBooleanValue());
+                              break;
+                    case 'c': output.append(lval.getCharacterValue());
+                              break;
+                    case 'y': output.append(lval.getSymbolValue().getStringRep());
+                              break;
                     case 's':
                     case 'd':
                     case 'l': output.append(lval.getTree().getStringRep()); break;
