@@ -41,11 +41,7 @@ public class MSListener extends MicroSchemeBaseListener {
     @Override
     public void exitMicroScheme(final MicroSchemeParser.MicroSchemeContext ctx) {
         super.exitMicroScheme(ctx);
-        for (int i = 0; i < ctx.children.size(); i++) {
-            if (ctx.getChild(i) != null) {
-                this.root.addChild(this.map.get(ctx.getChild(i)));
-            }
-        }
+        ctx.children.forEach(pt -> this.root.addChild(this.map.get(pt)));
     }
 
     @Override
@@ -64,9 +60,7 @@ public class MSListener extends MicroSchemeBaseListener {
     public void exitBeginExpr(final MicroSchemeParser.BeginExprContext ctx) {
         super.exitBeginExpr(ctx);
         ArrayList<MSSyntaxTree> expressions = new ArrayList<>();
-        for (ParseTree pt : ctx.expr()) {
-            expressions.add(this.map.get(pt));
-        }
+        ctx.expr().forEach(c -> expressions.add(this.map.get(c)));
         this.map.put(ctx, new MSSequenceNode(expressions));
     }
 
@@ -81,15 +75,9 @@ public class MSListener extends MicroSchemeBaseListener {
         super.exitProcedureDeclaration(ctx);
         MSSyntaxTree procedureName = this.map.get(ctx.variable());
         ArrayList<MSSyntaxTree> procedureParameters = new ArrayList<>();
-        if (ctx.procedureParameters().expr() != null) {
-            for (ParseTree pt : ctx.procedureParameters().expr()) {
-                procedureParameters.add(this.map.get(pt));
-            }
-        }
-
-        // Check to see if it's varargs.
+        ctx.procedureParameters().expr().forEach(pt -> procedureParameters.add(this.map.get(pt)));
         ArrayList<MSSyntaxTree> procedureBodyList = new ArrayList<>();
-        for (ParseTree pt : ctx.procedureBody().expr()) { procedureBodyList.add(this.map.get(pt)); }
+        ctx.procedureBody().expr().forEach(pt -> procedureBodyList.add(this.map.get(pt)));
         MSLambdaNode procedureLambda = new MSLambdaNode(procedureParameters, new MSSequenceNode(procedureBodyList), ctx.PERIOD() != null);
         this.map.put(ctx, new MSDeclarationNode(procedureName, procedureLambda));
     }
@@ -113,12 +101,7 @@ public class MSListener extends MicroSchemeBaseListener {
         super.exitApplicationExpr(ctx);
         MSSyntaxTree lhsExpression = this.map.get(ctx.expr());
         ArrayList<MSSyntaxTree> arguments = new ArrayList<>();
-        if (ctx.expr() != null) {
-            for (ParseTree pt : ctx.applicationArgs().expr()) {
-                arguments.add(this.map.get(pt));
-            }
-        }
-
+        ctx.applicationArgs().expr().forEach(pt -> arguments.add(this.map.get(pt)));
         this.map.put(ctx, new MSApplicationNode(lhsExpression, arguments));
     }
 
@@ -151,9 +134,7 @@ public class MSListener extends MicroSchemeBaseListener {
 
         // Finally, retrieve the body.
         ArrayList<MSSyntaxTree> doBodyList = new ArrayList<>();
-        for (int i = 0; i < ctx.doBody().expr().size(); i++) {
-            doBodyList.add(this.map.get(ctx.doBody().expr().get(i)));
-        }
+        ctx.doBody().expr().forEach(pt -> doBodyList.add(this.map.get(pt)));
 
         MSSequenceNode doBody = new MSSequenceNode(doBodyList);
         this.map.put(ctx, new MSDoNode(doDeclarations, doSetExpressions, doTestExpression, doTrueExpressions, doBody));
@@ -171,7 +152,7 @@ public class MSListener extends MicroSchemeBaseListener {
         }
 
         ArrayList<MSSyntaxTree> letBodyList = new ArrayList<>();
-        for (ParseTree pt : ctx.letBody().expr()) { letBodyList.add(this.map.get(pt)); }
+        ctx.letBody().expr().forEach(pt -> letBodyList.add(this.map.get(pt)));
         MSLambdaNode lambdaNode = new MSLambdaNode(letVariables, new MSSequenceNode(letBodyList));
         this.map.put(ctx, new MSApplicationNode(lambdaNode, letBindings));
     }
@@ -190,7 +171,7 @@ public class MSListener extends MicroSchemeBaseListener {
             // If we're on the first expression, we need to create the lambda with the body as the expr.
             MSLambdaNode lambdaNode;
             ArrayList<MSSyntaxTree> letStarBodyList = new ArrayList<>();
-            for (ParseTree pt : ctx.letBody().expr()) { letStarBodyList.add(this.map.get(pt)); }
+            ctx.letBody().expr().forEach(pt -> letStarBodyList.add(this.map.get(pt)));
             if (i == ctx.letParameters().size() - 1) { lambdaNode = new MSLambdaNode(letParameter, new MSSequenceNode(letStarBodyList)); }
             else { lambdaNode = new MSLambdaNode(letParameter, rootApplication); }
             rootApplication = new MSApplicationNode(lambdaNode, letArgument);
@@ -210,7 +191,7 @@ public class MSListener extends MicroSchemeBaseListener {
             letRecBindings.add(new MSDeclarationNode(variable, expression));
         }
         ArrayList<MSSyntaxTree> letRecBodyList = new ArrayList<>();
-        for (ParseTree pt : ctx.letBody().expr()) { letRecBodyList.add(this.map.get(pt)); }
+        ctx.letBody().expr().forEach(pt -> letRecBodyList.add(this.map.get(pt)));
         this.map.put(ctx, new MSLetRecNode(letRecBindings, new MSSequenceNode(letRecBodyList)));
     }
 
@@ -218,12 +199,9 @@ public class MSListener extends MicroSchemeBaseListener {
     public void exitLambdaExpr(final MicroSchemeParser.LambdaExprContext ctx) {
         super.exitLambdaExpr(ctx);
         ArrayList<MSSyntaxTree> lambdaParameters = new ArrayList<>();
-        if (ctx.lambdaParameters().expr() != null) {
-            for (ParseTree pt : ctx.lambdaParameters().expr()) { lambdaParameters.add(this.map.get(pt)); }
-        }
-
+        ctx.lambdaParameters().expr().forEach(pt -> lambdaParameters.add(this.map.get(pt)));
         ArrayList<MSSyntaxTree> lambdaBodyList = new ArrayList<>();
-        for (ParseTree pt : ctx.lambdaBody().expr()) { lambdaBodyList.add(this.map.get(pt)); }
+        ctx.lambdaBody().expr().forEach(pt -> lambdaBodyList.add(this.map.get(pt)));
         this.map.put(ctx, new MSLambdaNode(lambdaParameters, new MSSequenceNode(lambdaBodyList), !ctx.PERIOD().isEmpty()));
     }
 
@@ -233,7 +211,7 @@ public class MSListener extends MicroSchemeBaseListener {
         ArrayList<MSSyntaxTree> condCondList = new ArrayList<>();
         ArrayList<MSSyntaxTree> condBodyList = new ArrayList<>();
         ArrayList<MSSyntaxTree> sequenceList = new ArrayList<>();
-        for (ParseTree pt : ctx.expr()) { sequenceList.add(this.map.get(pt)); }
+        ctx.expr().forEach(pt -> sequenceList.add(this.map.get(pt)));
         condCondList.add(this.map.get(ctx.whenCond().expr()));
         condBodyList.add(new MSSequenceNode(sequenceList));
         this.map.put(ctx, new MSCondNode(condCondList, condBodyList));
@@ -245,7 +223,7 @@ public class MSListener extends MicroSchemeBaseListener {
         ArrayList<MSSyntaxTree> condCondList = new ArrayList<>();
         ArrayList<MSSyntaxTree> condBodyList = new ArrayList<>();
         ArrayList<MSSyntaxTree> sequenceList = new ArrayList<>();
-        for (ParseTree pt : ctx.expr()) { sequenceList.add(this.map.get(pt)); }
+        ctx.expr().forEach(pt -> sequenceList.add(this.map.get(pt)));
         // We need to negate the condition.
         ArrayList<MSSyntaxTree> notApplicationList = new ArrayList<>();
         notApplicationList.add(this.map.get(ctx.unlessCond().expr()));
@@ -258,9 +236,7 @@ public class MSListener extends MicroSchemeBaseListener {
     public void exitBooleanExpr(MicroSchemeParser.BooleanExprContext ctx) {
         super.exitBooleanExpr(ctx);
         ArrayList<MSSyntaxTree> exprList = new ArrayList<>();
-        if (ctx.expr() != null) {
-            for (ParseTree pt : ctx.expr()) { exprList.add(this.map.get(pt)); }
-        }
+        ctx.expr().forEach(pt -> exprList.add(this.map.get(pt)));
         this.map.put(ctx, ctx.AND() != null ? new MSAndNode(exprList) : new MSOrNode(exprList));
     }
 
@@ -269,9 +245,7 @@ public class MSListener extends MicroSchemeBaseListener {
         super.exitIfExpr(ctx);
         ArrayList<MSSyntaxTree> condPredicateList = new ArrayList<>();
         ArrayList<MSSyntaxTree> condConsequentList = new ArrayList<>();
-        // Add the if statement.
         condPredicateList.add(this.map.get(ctx.expr(0)));
-        // Add the if consequent.
         condConsequentList.add(this.map.get(ctx.expr(1)));
         // If there's an alternative add that.
         if (ctx.expr(2) != null) { condConsequentList.add(this.map.get(ctx.expr(2))); }
@@ -343,7 +317,7 @@ public class MSListener extends MicroSchemeBaseListener {
             this.map.put(ctx, new MSApplicationNode(var, consArgs));
         } else if (ctx.quasiSymbolDatum() == null) {
             ArrayList<MSSyntaxTree> elements = new ArrayList<>();
-            for (ParseTree pt : ctx.quasiSymbolDatumRep()) { elements.add(this.map.get(pt)); }
+            ctx.quasiSymbolDatumRep().forEach(pt -> elements.add(this.map.get(pt)));
             this.map.put(ctx, new MSQuasiSymbolNode(elements));
         } else {
             MSSyntaxTree child = this.map.get(ctx.quasiSymbolDatum().getChild(0));
@@ -373,7 +347,7 @@ public class MSListener extends MicroSchemeBaseListener {
     public void exitSetListExpr(final MicroSchemeParser.SetListExprContext ctx) {
         super.exitSetListExpr(ctx);
         ArrayList<MSSyntaxTree> setData = new ArrayList<>();
-        for (ParseTree pt : ctx.expr()) { setData.add(this.map.get(pt)); }
+        ctx.expr().forEach(pt -> setData.add(this.map.get(pt)));
         this.map.put(ctx, new MSSetNode(((TerminalNode) ctx.getChild(1)).getSymbol().getType(), setData));
     }
 
