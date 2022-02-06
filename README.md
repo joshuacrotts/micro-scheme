@@ -23,6 +23,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 - Quoted Expressions
 - Quasiquote Expressions
 - Random Number Generators
+- Format String Printing
 
 ## Example μScheme Programs
 
@@ -63,8 +64,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 (define length 
     (λ (l)
         (cond [(null? l) 0]
-              [else (+ 1 (length (cdr l))))]
-        )))
+              [else (+ 1 (length (cdr l))))])))
 ```
 
 5. Iteration with `do` loop:
@@ -74,8 +74,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
     (λ (a b) 
         (do ((i a (+ i 1) (total 0))
             ((> i b) total)
-            (set! total (+ total i))
-        )))
+            (set! total (+ total i)))))
 
 (sum-from-iterative 1 10)
 >>> 55
@@ -96,8 +95,7 @@ c
           [(predicate (car sequence))
           (cons (car sequence)
                 (filter predicate (cdr sequence)))]
-          [else (filter predicate (cdr sequence))]
-    ))
+          [else (filter predicate (cdr sequence))]))
     
 (filter odd? (list 1 2 3 4 5))
 >>> (1 3 5)
@@ -116,6 +114,18 @@ c
 >>> 15
 ```
 
+8. Format printing via `printf`:
+```
+(define val 3.1415+0.75i)
+(define val2 78.55)
+(define val3 65093)
+(printf "The ~s of ~d and ~d is ~d." "sum" val val2 (+ val val2))
+(printf "~d in hex is ~x, in binary is ~b, in octal is ~o." val3 val3 val3 val3)
+
+>>> The sum of 3.1415+0.75i and 78.55 is 81.6915+0.75i."
+    65073 in hex is fe45, in binary is 1111111001000101, in octal is 177105. 
+```
+
 ## Planned Features
 
 The following is a list of features that I'd like to include in the interpreter, but are not guaranteed.
@@ -123,7 +133,6 @@ The following is a list of features that I'd like to include in the interpreter,
 - Drawing capabilities (i.e., drawing shapes, images and other functionality)
 - Structs (user-defined objects)
 - File I/O
-- Format printing
 - Call stack optimization
 
 ## Dependencies
