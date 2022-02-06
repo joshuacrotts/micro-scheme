@@ -80,6 +80,7 @@ public final class BuiltinOperator {
         OPERATORS.put("vector-length", BuiltinOperator::interpretVectorLengthFunction);
         OPERATORS.put("null?", BuiltinOperator::interpretNullPredicate);
         OPERATORS.put("number?", BuiltinOperator::interpretNumberPredicate);
+        OPERATORS.put("real?", BuiltinOperator::interpretRealPredicate);
         OPERATORS.put("char?", BuiltinOperator::interpretCharPredicate);
         OPERATORS.put("string?", BuiltinOperator::interpretStringPredicate);
         OPERATORS.put("symbol?", BuiltinOperator::interpretSymbolPredicate);
@@ -391,6 +392,13 @@ public final class BuiltinOperator {
         BigComplex lhs = numericEqualArguments.get(0).getNumberValue();
         BigComplex rhs = numericEqualArguments.get(1).getNumberValue();
         return new LValue(lhs.re.compareTo(rhs.re) == 0 && lhs.im.compareTo(rhs.im) == 0);
+    }
+
+    private static LValue interpretRealPredicate(final ArrayList<LValue> realArguments) {
+        if (realArguments.size() != 1) { throw new MSArgumentMismatchException("real?", 1, realArguments.size()); }
+        LValue number = realArguments.get(0);
+        if (!number.getTree().isNumber()) { throw new MSArgumentMismatchException("real", 1, "number", number.getTree().getStringNodeType()); }
+        return new LValue(((MSNumberNode) number.getTree()).isReal());
     }
 
     private static LValue interpretNot(final ArrayList<LValue> notArguments) throws MSArgumentMismatchException {
