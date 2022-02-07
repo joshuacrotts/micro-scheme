@@ -20,7 +20,7 @@ public class MSStringNode extends MSSyntaxTree {
 
     public MSStringNode(final String value) {
         super(MSNodeType.STRING);
-        this.VALUE = value;
+        this.VALUE = this.unescapeString(value);
     }
 
     @Override
@@ -44,5 +44,40 @@ public class MSStringNode extends MSSyntaxTree {
 
     public int length() {
         return this.getStringRep().length();
+    }
+
+    private String unescapeString(final String str) {
+        StringBuilder sb = new StringBuilder("\"");
+        int j = str.endsWith("\"") ? str.length() - 1 : str.length();
+        for (int i = str.startsWith("\"") ? 1 : 0; i < j; i++) {
+            char ch = str.charAt(i);
+            if (ch == '\\') {
+                // Get next char and compare it.
+                i++;
+                switch (str.charAt(i)) {
+                    case 'n': sb.append('\n');
+                              break;
+                    case 't': sb.append('\t');
+                              break;
+                    case 'b': sb.append('\b');
+                              break;
+                    case 'r': sb.append('\r');
+                              break;
+                    case 'f': sb.append('\f');
+                              break;
+                    case '\'': sb.append('\'');
+                               break;
+                    case '\"': sb.append('\"');
+                               break;
+                    case '\\': sb.append('\\');
+                               break;
+                    default:
+                        throw new IllegalArgumentException("Unknown escape character " + str.charAt(i));
+                }
+            } else {
+                sb.append(ch);
+            }
+        }
+        return sb.append("\"").toString();
     }
 }

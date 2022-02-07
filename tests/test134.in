@@ -40,7 +40,7 @@ z
 (define (make-rat n d) (cons n d))
 (define (numer x) (car x))
 (define (denom x) (cdr x))
-(define (print-rat x) (display (string-append (number->string (truncate (numer x))) "/" (number->string (truncate (denom x))))))
+(define (print-rat x) (displayln (string-append (number->string (truncate (numer x))) "/" (number->string (truncate (denom x))))))
 (define one-half (make-rat 1 2))
 (print-rat one-half)
 ; expect 1/2

@@ -2,8 +2,7 @@
 ; Recursive fizz-buzz.
 ;
 (define (fizzbuzz x y)
-
-  (display
+  (displayln
     (cond (( = (modulo x 15) 0 ) "FizzBuzz")
           (( = (modulo x 3) 0 ) "Fizz")
           (( = (modulo x 5) 0 ) "Buzz")

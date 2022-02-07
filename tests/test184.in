@@ -3,6 +3,6 @@
 ;
 
 (unless (= 1 0)
-    (display 5)
-    (display 6))
-(display 10)
+    (displayln 5)
+    (displayln 6))
+(displayln 10)

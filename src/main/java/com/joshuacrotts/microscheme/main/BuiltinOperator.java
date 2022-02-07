@@ -38,6 +38,7 @@ public final class BuiltinOperator {
     static {
         OPERATORS = new HashMap<>();
         OPERATORS.put("display", BuiltinOperator::interpretDisplay);
+        OPERATORS.put("displayln", BuiltinOperator::interpretDisplayln);
         OPERATORS.put("printf", BuiltinOperator::interpretPrintf);
         OPERATORS.put("+", BuiltinOperator::interpretAdd);
         OPERATORS.put("-", BuiltinOperator::interpretSubtract);
@@ -135,7 +136,13 @@ public final class BuiltinOperator {
 
     private static LValue interpretDisplay(final ArrayList<LValue> displayArguments) {
         if (displayArguments.size() != 1) { throw new MSArgumentMismatchException("display", 1, displayArguments.size()); }
-        System.out.println(displayArguments.get(0));
+        System.out.print(displayArguments.get(0));
+        return null;
+    }
+
+    private static LValue interpretDisplayln(final ArrayList<LValue> displaylnArguments) {
+        if (displaylnArguments.size() != 1) { throw new MSArgumentMismatchException("displayln", 1, displaylnArguments.size()); }
+        System.out.println(displaylnArguments.get(0));
         return null;
     }
 

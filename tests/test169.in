@@ -20,5 +20,5 @@
                  (+ (levenshtein-helper (cdr s) (- sl 1) (cdr t) (- tl 1))
                 (if (equal? (car s) (car t)) 0 1))))))
 
-(display (levenshtein "kitten" "sitting"))
-(display (levenshtein "hiyya" "hello"))
+(displayln (levenshtein "kitten" "sitting"))
+(displayln (levenshtein "hiyya" "hello"))
