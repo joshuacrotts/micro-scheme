@@ -20,6 +20,7 @@ import com.joshuacrotts.microscheme.parser.MSFunction;
 import com.joshuacrotts.microscheme.parser.MSSemanticException;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.*;
 
@@ -213,20 +214,20 @@ public final class BuiltinOperator {
         BigComplex divisor = divideArguments.get(1).getNumberValue();
 
         if (divisor.equals(BigComplex.ZERO)) { throw new MSSemanticException("division by zero"); }
-        return new LValue(dividend.divide(divisor, MSNumberNode.PRECISION));
+        return new LValue(dividend.divide(divisor, MathContext.DECIMAL128));
     }
 
     private static LValue interpretPower(final ArrayList<LValue> powerArguments) throws MSArgumentMismatchException {
         if (powerArguments.size() != 2) { throw new MSArgumentMismatchException("**", 2, powerArguments.size()); }
         BigComplex base = powerArguments.get(0).getNumberValue();
         BigComplex power = powerArguments.get(1).getNumberValue();
-        return new LValue(BigComplexMath.pow(base, power, MSNumberNode.PRECISION));
+        return new LValue(BigComplexMath.pow(base, power, MathContext.DECIMAL128));
     }
 
     private static LValue interpretLog(final ArrayList<LValue> logArguments) throws MSArgumentMismatchException {
         if (logArguments.size() != 1) { throw new MSArgumentMismatchException("log", 1, logArguments.size()); }
         BigComplex antilogarithm = logArguments.get(0).getNumberValue();
-        return new LValue(BigComplexMath.log(antilogarithm, MSNumberNode.PRECISION));
+        return new LValue(BigComplexMath.log(antilogarithm, MathContext.DECIMAL128));
     }
 
     private static LValue interpretFloor(final ArrayList<LValue> floorArguments) throws MSArgumentMismatchException {
@@ -263,7 +264,7 @@ public final class BuiltinOperator {
         BigComplex divisor = moduloArguments.get(1).getNumberValue();
         if (!dividend.isReal()) { throw new MSArgumentMismatchException("modulo", 0, "integer", dividend.toString()); }
         if (!dividend.isReal()) { throw new MSArgumentMismatchException("modulo", 1, "integer", divisor.toString()); }
-        return new LValue(dividend.re.remainder(divisor.re, MSNumberNode.PRECISION));
+        return new LValue(dividend.re.remainder(divisor.re, MathContext.DECIMAL128));
     }
 
     private static LValue interpretRemainder(final ArrayList<LValue> remainderArguments) throws MSArgumentMismatchException {
@@ -272,90 +273,90 @@ public final class BuiltinOperator {
         BigComplex divisor = remainderArguments.get(1).getNumberValue();
         if (!dividend.isReal()) { throw new MSArgumentMismatchException("remainder", 0, "integer", dividend.toString()); }
         if (!dividend.isReal()) { throw new MSArgumentMismatchException("remainder", 1, "integer", divisor.toString()); }
-        return new LValue(dividend.re.remainder(divisor.re, MSNumberNode.PRECISION).multiply(BigDecimal.valueOf(dividend.re.signum())));
+        return new LValue(dividend.re.remainder(divisor.re, MathContext.DECIMAL128).multiply(BigDecimal.valueOf(dividend.re.signum())));
     }
 
     private static LValue interpretSin(final ArrayList<LValue> sinArguments) throws MSArgumentMismatchException {
         if (sinArguments.size() != 1) { throw new MSArgumentMismatchException("sin", 1, sinArguments.size()); }
         BigComplex argument = sinArguments.get(0).getNumberValue();
-        return new LValue(BigComplexMath.sin(argument, MSNumberNode.PRECISION));
+        return new LValue(BigComplexMath.sin(argument, MathContext.DECIMAL128));
     }
 
     private static LValue interpretCos(final ArrayList<LValue> cosArguments) throws MSArgumentMismatchException {
         if (cosArguments.size() != 1) { throw new MSArgumentMismatchException("cos", 1, cosArguments.size()); }
         BigComplex argument = cosArguments.get(0).getNumberValue();
-        return new LValue(BigComplexMath.cos(argument, MSNumberNode.PRECISION));
+        return new LValue(BigComplexMath.cos(argument, MathContext.DECIMAL128));
     }
 
     private static LValue interpretTan(final ArrayList<LValue> tanArguments) throws MSArgumentMismatchException {
         if (tanArguments.size() != 1) { throw new MSArgumentMismatchException("tan", 1, tanArguments.size()); }
         BigComplex argument = tanArguments.get(0).getNumberValue();
-        return new LValue(BigComplexMath.tan(argument, MSNumberNode.PRECISION));
+        return new LValue(BigComplexMath.tan(argument, MathContext.DECIMAL128));
     }
 
     private static LValue interpretAsin(final ArrayList<LValue> sinArguments) throws MSArgumentMismatchException {
         if (sinArguments.size() != 1) { throw new MSArgumentMismatchException("asin", 1, sinArguments.size()); }
         BigComplex argument = sinArguments.get(0).getNumberValue();
-        return new LValue(BigComplexMath.asin(argument, MSNumberNode.PRECISION));
+        return new LValue(BigComplexMath.asin(argument, MathContext.DECIMAL128));
     }
 
     private static LValue interpretAcos(final ArrayList<LValue> cosArguments) throws MSArgumentMismatchException {
         if (cosArguments.size() != 1) { throw new MSArgumentMismatchException("acos", 1, cosArguments.size()); }
         BigComplex argument = cosArguments.get(0).getNumberValue();
-        return new LValue(BigComplexMath.acos(argument, MSNumberNode.PRECISION));
+        return new LValue(BigComplexMath.acos(argument, MathContext.DECIMAL128));
     }
 
     private static LValue interpretAtan(final ArrayList<LValue> tanArguments) throws MSArgumentMismatchException {
         if (tanArguments.size() != 1) { throw new MSArgumentMismatchException("atan", 1, tanArguments.size()); }
         BigComplex argument = tanArguments.get(0).getNumberValue();
-        return new LValue(BigComplexMath.atan(argument, MSNumberNode.PRECISION));
+        return new LValue(BigComplexMath.atan(argument, MathContext.DECIMAL128));
     }
 
     private static LValue interpretSinh(final ArrayList<LValue> sinhArguments) throws MSArgumentMismatchException {
         if (sinhArguments.size() != 1) { throw new MSArgumentMismatchException("sinh", 1, sinhArguments.size()); }
         BigComplex arg = sinhArguments.get(0).getNumberValue();
-        BigDecimal lhs = BigDecimalMath.sinh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.cos(arg.im, MSNumberNode.PRECISION));
-        BigDecimal rhs = BigDecimalMath.cosh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.sin(arg.im, MSNumberNode.PRECISION));
+        BigDecimal lhs = BigDecimalMath.sinh(arg.re, MathContext.DECIMAL128).multiply(BigDecimalMath.cos(arg.im, MathContext.DECIMAL128));
+        BigDecimal rhs = BigDecimalMath.cosh(arg.re, MathContext.DECIMAL128).multiply(BigDecimalMath.sin(arg.im, MathContext.DECIMAL128));
         return new LValue(BigComplex.valueOf(lhs, rhs));
     }
 
     private static LValue interpretCosh(final ArrayList<LValue> coshArguments) throws MSArgumentMismatchException {
         if (coshArguments.size() != 1) { throw new MSArgumentMismatchException("cosh", 1, coshArguments.size()); }
         BigComplex arg = coshArguments.get(0).getNumberValue();
-        BigDecimal lhs = BigDecimalMath.cosh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.cos(arg.im, MSNumberNode.PRECISION));
-        BigDecimal rhs = BigDecimalMath.sinh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.sin(arg.im, MSNumberNode.PRECISION));
+        BigDecimal lhs = BigDecimalMath.cosh(arg.re, MathContext.DECIMAL128).multiply(BigDecimalMath.cos(arg.im, MathContext.DECIMAL128));
+        BigDecimal rhs = BigDecimalMath.sinh(arg.re, MathContext.DECIMAL128).multiply(BigDecimalMath.sin(arg.im, MathContext.DECIMAL128));
         return new LValue(BigComplex.valueOf(lhs, rhs));
     }
 
     private static LValue interpretTanh(final ArrayList<LValue> tanhArguments) throws MSArgumentMismatchException {
         if (tanhArguments.size() != 1) { throw new MSArgumentMismatchException("tanh", 1, tanhArguments.size()); }
         BigComplex arg = tanhArguments.get(0).getNumberValue();
-        BigDecimal topLhs = BigDecimalMath.sinh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.cos(arg.re, MSNumberNode.PRECISION));
-        BigDecimal topRhs = BigDecimalMath.cosh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.sin(arg.im, MSNumberNode.PRECISION));
-        BigDecimal botLhs = BigDecimalMath.cosh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.cos(arg.im, MSNumberNode.PRECISION));
-        BigDecimal botRhs = BigDecimalMath.sinh(arg.re, MSNumberNode.PRECISION).multiply(BigDecimalMath.sin(arg.im, MSNumberNode.PRECISION));
-        return new LValue(BigComplex.valueOf(topLhs.add(topRhs).divide(botLhs.add(botRhs), MSNumberNode.PRECISION)));
+        BigDecimal topLhs = BigDecimalMath.sinh(arg.re, MathContext.DECIMAL128).multiply(BigDecimalMath.cos(arg.re, MathContext.DECIMAL128));
+        BigDecimal topRhs = BigDecimalMath.cosh(arg.re, MathContext.DECIMAL128).multiply(BigDecimalMath.sin(arg.im, MathContext.DECIMAL128));
+        BigDecimal botLhs = BigDecimalMath.cosh(arg.re, MathContext.DECIMAL128).multiply(BigDecimalMath.cos(arg.im, MathContext.DECIMAL128));
+        BigDecimal botRhs = BigDecimalMath.sinh(arg.re, MathContext.DECIMAL128).multiply(BigDecimalMath.sin(arg.im, MathContext.DECIMAL128));
+        return new LValue(BigComplex.valueOf(topLhs.add(topRhs).divide(botLhs.add(botRhs), MathContext.DECIMAL128)));
     }
 
     private static LValue interpretAsinh(final ArrayList<LValue> sinhArguments) throws MSArgumentMismatchException {
         if (sinhArguments.size() != 1) { throw new MSArgumentMismatchException("asinh", 1, sinhArguments.size()); }
         BigComplex argument = sinhArguments.get(0).getNumberValue();
         if (!argument.isReal()) { throw new MSArgumentMismatchException("asinh", 1, "real", argument.toString()); }
-        return new LValue(BigDecimalMath.asinh(argument.re, MSNumberNode.PRECISION));
+        return new LValue(BigDecimalMath.asinh(argument.re, MathContext.DECIMAL128));
     }
 
     private static LValue interpretAcosh(final ArrayList<LValue> coshArguments) throws MSArgumentMismatchException {
         if (coshArguments.size() != 1) { throw new MSArgumentMismatchException("acosh", 1, coshArguments.size()); }
         BigComplex argument = coshArguments.get(0).getNumberValue();
         if (!argument.isReal()) { throw new MSArgumentMismatchException("acosh", 1, "real", argument.toString()); }
-        return new LValue(BigDecimalMath.acosh(argument.re, MSNumberNode.PRECISION));
+        return new LValue(BigDecimalMath.acosh(argument.re, MathContext.DECIMAL128));
     }
 
     private static LValue interpretAtanh(final ArrayList<LValue> tanhArguments) throws MSArgumentMismatchException {
         if (tanhArguments.size() != 1) { throw new MSArgumentMismatchException("atanh", 1, tanhArguments.size()); }
         BigComplex argument = tanhArguments.get(0).getNumberValue();
         if (!argument.isReal()) { throw new MSArgumentMismatchException("atanh", 1, "real", argument.toString()); }
-        return new LValue(BigDecimalMath.atanh(argument.re, MSNumberNode.PRECISION));
+        return new LValue(BigDecimalMath.atanh(argument.re, MathContext.DECIMAL128));
     }
 
     private static LValue interpretLess(final ArrayList<LValue> lessArguments) throws MSArgumentMismatchException {

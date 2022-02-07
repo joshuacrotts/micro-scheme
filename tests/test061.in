@@ -1,5 +1,3 @@
-; Fails because we can't pass expressions to
-
 (define abs (lambda (x) (if (<= x 0) (* x -1) x)))
 (define square (lambda (x) (* x x)))
 

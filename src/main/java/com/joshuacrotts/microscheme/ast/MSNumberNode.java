@@ -19,11 +19,6 @@ import java.math.MathContext;
 public class MSNumberNode extends MSSyntaxTree {
 
     /**
-     *
-     */
-    public static final MathContext PRECISION = new MathContext(24);
-
-    /**
      * Number associated with this node.
      */
     private final BigComplex VALUE;

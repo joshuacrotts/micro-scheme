@@ -3,7 +3,7 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 02/07/2022
  *
  *
  *
@@ -16,17 +16,17 @@ import java.util.ArrayList;
 public class MSDoNode extends MSSyntaxTree {
 
     /**
-     *
+     * Number of declarations inside this Do Node.
      */
     private final int NUM_DECLARATIONS;
 
     /**
-     *
+     * Number of set expressions. A set expression is a "next" step.
      */
     private final int NUM_SET_EXPRESSIONS;
 
     /**
-     *
+     * Number of "true" expressions to evaluate once the loop terminates.
      */
     private final int NUM_TRUE_EXPRESSIONS;
 
