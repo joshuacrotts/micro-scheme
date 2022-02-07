@@ -3,7 +3,7 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 02/06/2022
  *
  *
  *
@@ -18,14 +18,8 @@ import java.util.ArrayList;
 
 public class MSSetNode extends MSSyntaxTree {
 
-    /**
-     *
-     */
-    private final int TYPE;
-
     public MSSetNode(final int type, final ArrayList<MSSyntaxTree> setData) {
         super(MSSetNode.getCorrespondingNodeType(type));
-        this.TYPE = type;
         for (MSSyntaxTree setElementData : setData) { this.addChild(setElementData); }
     }
 
