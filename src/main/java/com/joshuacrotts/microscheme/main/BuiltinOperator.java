@@ -70,6 +70,8 @@ public final class BuiltinOperator {
         OPERATORS.put(">", BuiltinOperator::interpretGreater);
         OPERATORS.put(">=", BuiltinOperator::interpretGreaterEqual);
         OPERATORS.put("=", BuiltinOperator::interpretNumericEqual);
+        OPERATORS.put("real-part", BuiltinOperator::interpretRealPartFunction);
+        OPERATORS.put("imag-part", BuiltinOperator::interpretImagPartFunction);
         OPERATORS.put("not", BuiltinOperator::interpretNot);
         OPERATORS.put("equal?", BuiltinOperator::interpretEqualPredicate);
         OPERATORS.put("eq?", BuiltinOperator::interpretEqPredicate);
@@ -407,6 +409,20 @@ public final class BuiltinOperator {
         LValue number = realArguments.get(0);
         if (!number.getTree().isNumber()) { throw new MSArgumentMismatchException("real", 1, "number", number.getTree().getStringNodeType()); }
         return new LValue(((MSNumberNode) number.getTree()).isReal());
+    }
+
+    private static LValue interpretRealPartFunction(final ArrayList<LValue> realPartArguments) {
+        if (realPartArguments.size() != 1) { throw new MSArgumentMismatchException("real-part", 1, realPartArguments.size()); }
+        LValue argument = realPartArguments.get(0);
+        if (!argument.getTree().isNumber()) { throw new MSArgumentMismatchException("real-part", 1, "number", argument.getTree().getStringNodeType()); }
+        return new LValue(argument.getNumberValue().re);
+    }
+
+    private static LValue interpretImagPartFunction(final ArrayList<LValue> imagPartArguments) {
+        if (imagPartArguments.size() != 1) { throw new MSArgumentMismatchException("imag-part", 1, imagPartArguments.size()); }
+        LValue argument = imagPartArguments.get(0);
+        if (!argument.getTree().isNumber()) { throw new MSArgumentMismatchException("imag-part", 1, "number", argument.getTree().getStringNodeType()); }
+        return new LValue(argument.getNumberValue().im);
     }
 
     private static LValue interpretNot(final ArrayList<LValue> notArguments) throws MSArgumentMismatchException {

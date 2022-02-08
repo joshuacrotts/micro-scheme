@@ -1,0 +1,8 @@
+;
+; testing imag-part and real-part
+;
+
+(real-part 5+4i)
+(imag-part 5+4i)
+(real-part (+ 5+4i 6-7.5i))
+(imag-part (+ 5+4i 6-7.5i))
