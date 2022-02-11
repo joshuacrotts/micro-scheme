@@ -27,6 +27,11 @@ public class MicroSchemeInterpreter {
      */
     private MSSyntaxTree tree;
 
+    /**
+     * Starting time of interpreter. Reset each time we go to a new node in the AST.
+     */
+    private long startTime;
+
     public MicroSchemeInterpreter(final MSSyntaxTree interpreterTree) {
         this.tree = interpreterTree;
     }
@@ -38,6 +43,7 @@ public class MicroSchemeInterpreter {
     public void execute() {
         Environment globals = new Environment(null);
         for (int i = 0; i < this.tree.getChildrenSize(); i++) {
+            this.startTime = System.nanoTime();
             MSSyntaxTree currNode = this.tree.getChild(i);
             try {
                 LValue result = this.interpretTree(currNode, globals);
@@ -58,6 +64,10 @@ public class MicroSchemeInterpreter {
      * @throws MSSemanticException if one of the submethod calls throws an exception.
      */
     private LValue interpretTree(final MSSyntaxTree tree, final Environment env) throws MSSemanticException {
+        if (System.nanoTime() - this.startTime > MicroSchemeRunner.interpreterTimeout) {
+            System.err.println("Computation timed out!");
+            System.exit(1);
+        }
         switch (tree.getNodeType()) {
             case NUMBER: return this.interpretNumber((MSNumberNode) tree);
             case BOOLEAN: return this.interpretBoolean((MSBooleanNode) tree);

@@ -27,6 +27,8 @@ import java.nio.file.NoSuchFileException;
 
 public class MicroSchemeRunner {
 
+    public static long interpreterTimeout = 10_000_000_000L;
+
     /**
      * Command line interface -- one argument is filename, and if omitted then input is taken from
      * standard input.
