@@ -45,14 +45,14 @@ public class MSListener extends MicroSchemeBaseListener {
     }
 
     @Override
-    public void exitDecl(final MicroSchemeParser.DeclContext ctx) {
-        super.exitDecl(ctx);
+    public void exitExpr(final MicroSchemeParser.ExprContext ctx) {
+        super.exitExpr(ctx);
         this.map.put(ctx, this.map.get(ctx.getChild(0)));
     }
 
     @Override
-    public void exitExpr(final MicroSchemeParser.ExprContext ctx) {
-        super.exitExpr(ctx);
+    public void exitDeclExpr(final MicroSchemeParser.DeclExprContext ctx) {
+        super.exitDeclExpr(ctx);
         this.map.put(ctx, this.map.get(ctx.getChild(0)));
     }
 
@@ -67,7 +67,9 @@ public class MSListener extends MicroSchemeBaseListener {
     @Override
     public void exitVariableDeclaration(final MicroSchemeParser.VariableDeclarationContext ctx) {
         super.exitVariableDeclaration(ctx);
-        this.map.put(ctx, new MSDeclarationNode(this.map.get(ctx.variable()), this.map.get(ctx.expr())));
+        ArrayList<MSSyntaxTree> body = new ArrayList<>();
+        ctx.variableBody().expr().forEach(e -> body.add(this.map.get(e)));
+        this.map.put(ctx, new MSDeclarationNode(this.map.get(ctx.variable()), new MSSequenceNode(body)));
     }
 
     @Override

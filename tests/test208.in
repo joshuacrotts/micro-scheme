@@ -1,0 +1,76 @@
+;
+; Knights tour
+;
+
+(define map
+    (lambda (p l)
+        (if (null? l)
+            '()
+            (cons (p (car l)) (map p (cdr l))))))
+
+(define (append list1 list2)
+    (if (null? list1)
+        list2
+        (cons (car list1) (append (cdr list1) list2))))
+
+(define (reverse l)
+  (if (null? l) '()
+     (append (reverse (cdr l)) (list (car l)))))
+
+(define (member x l)
+    (cond
+        ((null? l) #f)
+        ((equal? x (car l)) #t)
+        (else (member x (cdr l)))))
+
+(define (filter predicate sequence)
+  (cond ((null? sequence) '())
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+
+(define (div x y)
+    (floor (/ x y)))
+
+(define X 8)
+(define Y 8)
+;;position is an integer that could be decoded into the x coordinate and y coordinate
+ (define(decode position)
+  (cons (div position Y) (remainder position Y)))
+ ;;record the paths and number of territories you have conquered
+ (define dictionary '())
+ (define counter 1)
+ ;;define the forbiddend territories(conquered and cul-de-sac)
+ (define forbiddened '())
+ ;;renew when havn't conquered the world.
+ (define (renew position)
+  (define possible
+   (let ((rules (list (+ (* 2 Y) 1 position)
+                      (+ (* 2 Y) -1 position)
+                      (+ (* -2 Y) 1 position)
+                      (+ (* -2 Y) -1 position)
+                      (+ Y 2 position)
+                      (+ Y -2 position)
+                      (- position Y 2)
+                      (- position Y -2))))
+    (filter (lambda(x) (not (or (member x forbiddened) (< x 0) (>= x (* X Y))))) rules)))
+  (if (null? possible)
+   (begin (set! forbiddened (cons (car dictionary) forbiddened))
+          (set! dictionary (cdr dictionary))
+          (set! counter (- counter 1))
+          (car dictionary))
+   (begin (set! dictionary (cons (car possible) dictionary))
+          (set! forbiddened dictionary)
+          (set! counter (+ counter 1))
+          (car possible))))
+;;go to search
+(define (go position)
+ (define result 0)
+ (if (= counter (* X Y))
+  (begin
+  (set! result (reverse dictionary))
+  (display (map (lambda(x) (decode x)) result)))
+  (go (renew position))))
+
+(go 35)

@@ -1,0 +1,8 @@
+Move[A, B]
+Move[A, C]
+Move[B, C]
+Move[A, B]
+Move[C, A]
+Move[C, B]
+Move[A, B]
+done
