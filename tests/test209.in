@@ -1,0 +1,12 @@
+;
+; List ref test
+;
+
+(define (list-ref-helper l i now)
+    (if (= i now)
+        (car l)
+        (list-ref-helper (cdr l) i (+ now 1))))
+
+(define (list-ref l i) (list-ref-helper l i 0))
+
+(list-ref '(3 12 3 4 1 23 93 12 431 12389 34 12) 8))

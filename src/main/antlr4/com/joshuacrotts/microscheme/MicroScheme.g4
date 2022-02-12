@@ -68,14 +68,11 @@ ID: [-+*/<>=a-zA-Z_$][-+*/<>=?!a-zA-Z0-9_$]*;
 // ================= Parser rules. ==================== //
 
 // This is the root rule applied.
-microScheme: (decl | expr)*;
-
-// Declarations are definitions - either variables or procedures.
-decl: variableDeclaration
-    | procedureDeclaration;
+microScheme: expr*;
 
 // Variable declarations take the form (define <var> <expr>.
-variableDeclaration: '(' DEFINE variable expr ')';
+variableDeclaration: '(' DEFINE variable variableBody ')';
+variableBody: expr+;
 
 // Procedure declarations take the form (define (<var> <expr>*) <expr>)
 procedureDeclaration: ('(' DEFINE '(' variable procedureParameters ')' procedureBody ')')
@@ -83,8 +80,13 @@ procedureDeclaration: ('(' DEFINE '(' variable procedureParameters ')' procedure
 procedureParameters: expr*;
 procedureBody: expr+;
 
+// Declarations are definitions - either variables or procedures.
+declExpr: variableDeclaration
+        | procedureDeclaration;
+
 // There are several different types of declarations.
-expr: beginExpr
+expr: declExpr
+    | beginExpr
     | evalExpr
     | applyExpr
     | whenExpr
