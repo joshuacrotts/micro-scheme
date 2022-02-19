@@ -488,6 +488,9 @@ public final class BuiltinOperator {
         MSListNode rootList = null;
         MSListNode currList = null;
         for (int i = listArguments.size() - 1; i >= 0; i--) {
+            if (listArguments.get(i) == null) {
+                break;
+            }
             MSSyntaxTree rhsExpression = LValue.getAst(listArguments.get(i));
             currList = new MSListNode(rhsExpression, currList);
         }

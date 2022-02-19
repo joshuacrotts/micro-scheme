@@ -15,6 +15,7 @@ import com.joshuacrotts.microscheme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.microscheme.parser.MSInterpreterException;
 import com.joshuacrotts.microscheme.parser.MSSemanticException;
 import com.joshuacrotts.microscheme.parser.MSUndefinedSymbolException;
+import com.joshuacrotts.microscheme.turtle.TurtleOperator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -209,7 +210,7 @@ public class MicroSchemeInterpreter {
     private LValue interpretVariable(final MSVariableNode variableNode, final Environment env) throws MSSemanticException {
         LValue variableData = env.lookup(variableNode.getIdentifier());
         if (variableData != null) { return variableData; }
-        else if (BuiltinOperator.isBuiltinOperator(variableNode)) { return new LValue(variableNode, env); }
+        else if (BuiltinOperator.isBuiltinOperator(variableNode) || TurtleOperator.isTurtleOperator(variableNode)) { return new LValue(variableNode, env); }
         else { throw new MSUndefinedSymbolException(variableNode.getStringRep()); }
     }
 
@@ -247,7 +248,7 @@ public class MicroSchemeInterpreter {
      */
     private LValue interpretEval(final MSEvalNode evalNode, final Environment env) throws MSSemanticException {
         // First, we want to resolve the expr argument. If it's a variable, retrieve it.
-        MSSyntaxTree expression = evalNode.getExpression();
+        MSSyntaxTree expression = LValue.getAst(this.interpretTree(evalNode.getExpression(), env));
         if (expression.isVariable()) { expression = LValue.getAst(this.interpretTree(expression, env)); }
         // Now, if it's a symbol, resolve that (i.e., get its value).
         if (expression.isSymbol()) { expression = ((MSSymbolNode) expression).getValue(); }
@@ -491,6 +492,7 @@ public class MicroSchemeInterpreter {
         LValue lhsLValue = this.interpretTree(applicationNode.getExpression(), env);
         MSSyntaxTree expressionLVal = LValue.getAst(lhsLValue);
         if (BuiltinOperator.isBuiltinOperator(expressionLVal)) { return BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments, env); }
+        else if (TurtleOperator.isTurtleOperator(expressionLVal)) { return TurtleOperator.interpretTurtleOperator(expressionLVal, evaluatedArguments, env); }
         else {
             // If we're trying to call on a non-lambda, throw an exception.
             if (!expressionLVal.isLambda()) { throw new MSSemanticException("cannot call " + expressionLVal.getStringRep()); }
