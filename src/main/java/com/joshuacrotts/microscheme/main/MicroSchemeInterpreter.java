@@ -445,6 +445,9 @@ public class MicroSchemeInterpreter {
     private LValue interpretApply(final MSApplyNode applyNode, final Environment env) throws MSArgumentMismatchException {
         // First, we want to resolve the apply node's argument.
         MSSyntaxTree argument = applyNode.getArgumentList();
+        if (argument.isApplication()) {
+            argument = LValue.getAst(this.interpretTree(argument, env));
+        }
         ArrayList<MSSyntaxTree> applyArguments = new ArrayList<>();
         if (argument.isVariable()) { argument = LValue.getAst(this.interpretTree(argument, env)); }
         // Now check to make sure it's a symbol or list.

@@ -1,0 +1,9 @@
+;
+; Random stuff
+;
+
+(define (caddddr l) (car (cdr (cdr (cdr (cdr l))))))
+(define (cadr l) (car (cdr l)))
+(define ops (list + car '* '/ '(1 2 3 4 5 6)))
+(apply '* (caddddr ops))
+((cadr ops) (caddddr ops))

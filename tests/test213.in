@@ -1,0 +1,10 @@
+;
+; More eval testing and some other stuff
+;
+(define l (list (eval '(+ 300 200))))
+(car l)
+(cdr l)
+(define m (list car cdr))
+((car m) l)
+((car (cdr m)) l)
+(apply + '(1 2 3))
