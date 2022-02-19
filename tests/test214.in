@@ -1,1 +1,10 @@
-(+ 2 3)
+(define (add a_list)
+    (cond
+        ((null? a_list) 0)
+        (else (eval (eval (cons '+ a_list))))))
+
+(add '(3 4 8 12 30))
+
+(define (add2 a_list)
+  (apply + a_list))
+(add2 '(3 4 8 12 30))
