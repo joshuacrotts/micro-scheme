@@ -98,9 +98,9 @@ public class MicroSchemeInterpreter {
 
     /**
      * Converts a MSNumberNode AST into an LValue.
-     *  
+     *
      * @param numberNode AST
-     * 
+     *
      * @return LValue with number.
      */
     private LValue interpretNumber(final MSNumberNode numberNode) {
@@ -109,9 +109,9 @@ public class MicroSchemeInterpreter {
 
     /**
      * Converts a MSBooleanNode AST into an LValue.
-     * 
+     *
      * @param booleanNode AST
-     * 
+     *
      * @return LValue with boolean.
      */
     private LValue interpretBoolean(final MSBooleanNode booleanNode) {
@@ -120,9 +120,9 @@ public class MicroSchemeInterpreter {
 
     /**
      * Converts a MSStringNode AST into an LValue.
-     * 
+     *
      * @param stringNode AST
-     * 
+     *
      * @return LValue with string.
      */
     private LValue interpretString(final MSStringNode stringNode) {
@@ -131,18 +131,18 @@ public class MicroSchemeInterpreter {
 
     /**
      * Converts a MSCharacterNode AST into an LValue.
-     * 
+     *
      * @param characterNode AST
-     * 
+     *
      * @return LValue with character.
      */
     private LValue interpretCharacter(final MSCharacterNode characterNode) { return new LValue(characterNode); }
 
     /**
      * Converts a MSSymbolNode AST into an LValue.
-     * 
+     *
      * @param symbolNode AST
-     * 
+     *
      * @return LValue with symbol.
      */
     private LValue interpretSymbol(final MSSymbolNode symbolNode) { return new LValue(symbolNode.getValue()); }
@@ -198,12 +198,12 @@ public class MicroSchemeInterpreter {
     /**
      * Interprets a variable in the provided environment. If it is not found in the passed environment or its
      * parent and it's not an operator, an error is displayed.
-     * 
+     *
      * @param variableNode AST
      * @param env Environment to look variable up in
-     * 
+     *
      * @return LValue of variable data in environment. If it is a builtin operator, we just return the variableNode.
-     * 
+     *
      * @throws MSSemanticException if variableNode is not found in env and it's not builtin.
      */
     private LValue interpretVariable(final MSVariableNode variableNode, final Environment env) throws MSSemanticException {
@@ -218,9 +218,9 @@ public class MicroSchemeInterpreter {
      *
      * @param declarationNode AST.
      * @param env Environment to store declaration in.
-     * 
+     *
      * @return null (declarations do not return any values).
-     * 
+     *
      * @throws MSSemanticException if an exception is thrown when interpreting the rhs.
      */
     private LValue interpretDeclaration(final MSDeclarationNode declarationNode, final Environment env) throws MSSemanticException {
@@ -247,7 +247,7 @@ public class MicroSchemeInterpreter {
      */
     private LValue interpretEval(final MSEvalNode evalNode, final Environment env) throws MSSemanticException {
         // First, we want to resolve the expr argument. If it's a variable, retrieve it.
-        MSSyntaxTree expression = evalNode.getExpression();
+        MSSyntaxTree expression = LValue.getAst(this.interpretTree(evalNode.getExpression(), env));
         if (expression.isVariable()) { expression = LValue.getAst(this.interpretTree(expression, env)); }
         // Now, if it's a symbol, resolve that (i.e., get its value).
         if (expression.isSymbol()) { expression = ((MSSymbolNode) expression).getValue(); }
@@ -469,13 +469,13 @@ public class MicroSchemeInterpreter {
      * Interprets an application node. An application is, effectively the "apply" function in many
      * Scheme interpreters. It takes the node (which contains the operator and operands/arguments,
      * as well as an environment to evaluate the arguments in.
-     * 
-     * Each argument is evaluated in env prior to application. A new environment E' is constructed 
+     *
+     * Each argument is evaluated in env prior to application. A new environment E' is constructed
      * with these arguments bound to E'. The body is then evaluated in E'.
-     * 
-     * @param applicationNode AST with operand and arguments. 
+     *
+     * @param applicationNode AST with operand and arguments.
      * @param env Environment to evaluate arguments in, and to create child env.
-     * 
+     *
      * @return LValue of interpreted application.
      */
     private LValue interpretApplication(final MSApplicationNode applicationNode, final Environment env) throws MSSemanticException {

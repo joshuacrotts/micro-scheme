@@ -1,0 +1,9 @@
+;
+; Eval test
+;
+
+(define l '((+ 200 300)))
+(car l)
+(eval (car l))
+(define z (car l))
+(eval z)
