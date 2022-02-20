@@ -32,6 +32,8 @@ public final class TurtleOperator {
         TURTLE_OPERATORS.put("forward", TurtleOperator::interpretTurtleForward);
         TURTLE_OPERATORS.put("turn-left", TurtleOperator::interpretTurtleTurnLeft);
         TURTLE_OPERATORS.put("set-pen-down", TurtleOperator::interpretTurtleSetPenDown);
+        TURTLE_OPERATORS.put("set-pen-filled", TurtleOperator::interpretTurtleSetPenFilled);
+        TURTLE_OPERATORS.put("change-pen-width", TurtleOperator::interpretTurtleChangePenWidth);
         TURTLE_OPERATORS.put("change-color", TurtleOperator::interpretTurtleChangeColor);
         TURTLE_OPERATORS.put("change-bg-color", TurtleOperator::interpretTurtleChangeBgColor);
     }
@@ -83,6 +85,20 @@ public final class TurtleOperator {
         return null;
     }
 
+    public static LValue interpretTurtleSetPenFilled(final ArrayList<LValue> setPenFilledOperands) {
+        if (setPenFilledOperands.size() != 1) { throw new MSArgumentMismatchException("set-pen-filled", 1, setPenFilledOperands.size()); }
+        boolean penFilled = setPenFilledOperands.get(0).getBooleanValue();
+        turtleFrame.getTurtle().setPenFilled(penFilled);
+        return null;
+    }
+
+    public static LValue interpretTurtleChangePenWidth(final ArrayList<LValue> changePenWidthOperands) {
+        if (changePenWidthOperands.size() != 1) { throw new MSArgumentMismatchException("change-pen-width", 1, changePenWidthOperands.size()); }
+        int penWidth = changePenWidthOperands.get(0).getNumberValue().re.intValue();
+        turtleFrame.getTurtle().setPenWidth(penWidth);
+        return null;
+    }
+
     public static LValue interpretTurtleChangeColor(final ArrayList<LValue> changeColorOperands) {
         if (changeColorOperands.size() != 1) { throw new MSArgumentMismatchException("change-color", 1, changeColorOperands.size()); }
         String sColor = changeColorOperands.get(0).getTree().getStringRep();
@@ -92,12 +108,8 @@ public final class TurtleOperator {
 
     public static LValue interpretTurtleChangeBgColor(final ArrayList<LValue> changeBgColorOperands) {
         if (changeBgColorOperands.size() != 1) { throw new MSArgumentMismatchException("change-bg-color", 1, changeBgColorOperands.size()); }
-        String color = changeBgColorOperands.get(0).getTree().getStringRep();
-        try {
-            turtleFrame.getPanel().setBgColor((Color) Class.forName("java.awt.Color").getField(color).get(null));
-        } catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        String sColor = changeBgColorOperands.get(0).getTree().getStringRep();
+        turtleFrame.getPanel().setBgColor(MSUtils.extractStringHexColor(sColor));
         return null;
     }
 }

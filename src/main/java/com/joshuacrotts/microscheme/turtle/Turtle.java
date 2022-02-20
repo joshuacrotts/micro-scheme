@@ -32,7 +32,7 @@ public class Turtle {
     private double angle;
 
     /**
-     *
+     * Current width/stroke of the pen.
      */
     private int penWidth;
 
@@ -42,7 +42,7 @@ public class Turtle {
     private Color color;
 
     /**
-     * Flag to keep track of if the pen is down.
+     * Flag to keep track of if the pen is down. True by default.
      */
     private boolean isPenDown;
 
@@ -56,17 +56,23 @@ public class Turtle {
         this.cx = cx;
         this.cy = cy;
         this.angle = angle;
-        this.isPenDown = false;
+        this.isPenDown = true;
         this.isPenFilled = false;
         this.penWidth = this.DEFAULT_PEN_WIDTH;
         this.color = Color.BLACK;
     }
 
     public void drawTurtle(Graphics2D g2) {
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setStroke(new BasicStroke(this.penWidth));
-        for (Pair<Shape, Color> s : this.SHAPES) {
+        for (int i = 0; i < this.SHAPES.size(); i++) {
+            Pair<Shape, Color> s = this.SHAPES.get(i);
             g2.setColor(s.b);
-            g2.draw(s.a);
+            if (this.isPenFilled) {
+                g2.fill(s.a);
+            } else {
+                g2.draw(s.a);
+            }
         }
         g2.setColor(Color.BLACK);
         g2.rotate(Math.toRadians(this.angle), cx, cy);
@@ -74,10 +80,7 @@ public class Turtle {
         poly.moveTo(cx - 4, cy - 4);
         poly.lineTo(cx - 4, cy + 4);
         poly.lineTo(cx + 9, cy);
-        if (this.isPenFilled)
-            g2.fill(poly);
-        else
-            g2.draw(poly);
+        g2.fill(poly);
         g2.rotate(-Math.toRadians(this.angle), cx, cy);
     }
 
@@ -103,7 +106,7 @@ public class Turtle {
         this.isPenDown = down;
     }
 
-    public void setFill(boolean fill) {
+    public void setPenFilled(boolean fill) {
         this.isPenFilled = fill;
     }
 
