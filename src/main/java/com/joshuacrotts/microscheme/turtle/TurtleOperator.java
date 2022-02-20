@@ -4,6 +4,7 @@ import com.joshuacrotts.microscheme.ast.MSSyntaxTree;
 import com.joshuacrotts.microscheme.main.BuiltinOperator;
 import com.joshuacrotts.microscheme.main.Environment;
 import com.joshuacrotts.microscheme.main.LValue;
+import com.joshuacrotts.microscheme.main.MSUtils;
 import com.joshuacrotts.microscheme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.microscheme.parser.MSFunction;
 import com.joshuacrotts.microscheme.parser.MSSemanticException;
@@ -85,11 +86,7 @@ public final class TurtleOperator {
     public static LValue interpretTurtleChangeColor(final ArrayList<LValue> changeColorOperands) {
         if (changeColorOperands.size() != 1) { throw new MSArgumentMismatchException("change-color", 1, changeColorOperands.size()); }
         String sColor = changeColorOperands.get(0).getTree().getStringRep();
-        try {
-            turtleFrame.getTurtle().setPenColor((Color)Color.class.getField(sColor).get(null));
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
+        turtleFrame.getTurtle().setPenColor(MSUtils.extractStringHexColor(sColor));
         return null;
     }
 

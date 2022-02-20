@@ -11,6 +11,7 @@
 
 package com.joshuacrotts.microscheme.main;
 
+import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -115,5 +116,15 @@ public class MSUtils {
      */
     public static int sbCompareTo(final StringBuilder _s1, final StringBuilder _s2) {
         return _s1.toString().compareTo(_s2.toString());
+    }
+
+    public static Color extractStringHexColor(String hex) {
+        if (!hex.startsWith("#")) {
+            throw new IllegalArgumentException("Hex string must start with #");
+        } else if (hex.length() != 7 && hex.length() != 9) {
+            throw new IllegalArgumentException("Hex string must be 24 or 32bit");
+        } else {
+            return new Color(Integer.parseInt(hex.substring(1), 16));
+        }
     }
 }
