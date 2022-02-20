@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 public class Turtle {
 
+    private final int DEFAULT_PEN_WIDTH = 1;
+
     /**
      * Current list of shapes drawn by this turtle.
      */
@@ -30,6 +32,11 @@ public class Turtle {
     private double angle;
 
     /**
+     *
+     */
+    private int penWidth;
+
+    /**
      * Current color of pen.
      */
     private Color color;
@@ -39,28 +46,38 @@ public class Turtle {
      */
     private boolean isPenDown;
 
+    /**
+     * Flag to keep track of if we fill polygons or not.
+     */
+    private boolean isPenFilled;
+
     public Turtle(final double cx, final double cy, final double angle) {
         this.SHAPES = new ArrayList<>();
         this.cx = cx;
         this.cy = cy;
         this.angle = angle;
         this.isPenDown = false;
+        this.isPenFilled = false;
+        this.penWidth = this.DEFAULT_PEN_WIDTH;
         this.color = Color.BLACK;
     }
 
     public void drawTurtle(Graphics2D g2) {
+        g2.setStroke(new BasicStroke(this.penWidth));
         for (Pair<Shape, Color> s : this.SHAPES) {
             g2.setColor(s.b);
             g2.draw(s.a);
         }
         g2.setColor(Color.BLACK);
         g2.rotate(Math.toRadians(this.angle), cx, cy);
-        g2.setColor(Color.RED);
         Path2D poly = new Path2D.Double();
         poly.moveTo(cx - 4, cy - 4);
         poly.lineTo(cx - 4, cy + 4);
         poly.lineTo(cx + 9, cy);
-        g2.fill(poly);
+        if (this.isPenFilled)
+            g2.fill(poly);
+        else
+            g2.draw(poly);
         g2.rotate(-Math.toRadians(this.angle), cx, cy);
     }
 
@@ -84,5 +101,13 @@ public class Turtle {
 
     public void setPenDown(boolean down) {
         this.isPenDown = down;
+    }
+
+    public void setFill(boolean fill) {
+        this.isPenFilled = fill;
+    }
+
+    public void setPenWidth(int width) {
+        this.penWidth = width;
     }
 }
