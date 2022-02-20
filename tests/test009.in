@@ -3,10 +3,7 @@
 ;
 
 (define (zero? x)
-    (if (= x 0) #t
-                #f
-    )
-)
+    (if (= x 0) #t #f))
 
 (define x 0)
 (zero? x)

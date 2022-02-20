@@ -2,8 +2,6 @@
 ; Simple procedure.
 ;
 
-(define (reverse-subtract x y)
-    (- y x)
-)
+(define (reverse-subtract x y) (- y x))
 
 (reverse-subtract 7 10)

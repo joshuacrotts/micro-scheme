@@ -2,8 +2,6 @@
 
 (define (heron a b c)
     (let ((s (/ (+ a b c) 2 )))
-        (sqrt (* s (- s a) (- s b) (- s c)))
-    )
-)
+        (sqrt (* s (- s a) (- s b) (- s c)))))
 
 (heron 4 13 15)

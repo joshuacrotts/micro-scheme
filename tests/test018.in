@@ -4,8 +4,6 @@
 
 (define (countdown n)
     (if (= n 0) '()
-        (cons n (countdown (- n 1)))
-    )
-)
+        (cons n (countdown (- n 1)))))
 
 (countdown 5)

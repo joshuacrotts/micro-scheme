@@ -4,7 +4,5 @@
 
 (define (add1 l)
 	(cond   [(null? l) '()]
-    	    [else (cons (+ 1 (car l)) (add1 (cdr l)))]
-    )
-)
+    	    [else (cons (+ 1 (car l)) (add1 (cdr l)))]))
 ((lambda (x) (add1 (list 1 2 3 4 x))) 20)

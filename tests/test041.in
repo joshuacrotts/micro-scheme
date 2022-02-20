@@ -2,9 +2,7 @@
 (define (append list1 list2)
     (if (null? list1)
         list2
-        (cons (car list1) (append (cdr list1) list2))
-    )
-)
+        (cons (car list1) (append (cdr list1) list2))))
 
 
 ;;
@@ -17,11 +15,7 @@
         [else
             (cond
                 [(< n (car alon)) (cons n alon)]
-                [else (cons (car alon) (insert n (cdr alon)))]
-            )
-        ]
-    )
-)
+                [else (cons (car alon) (insert n (cdr alon)))])]))
 
 
 ;; sort : list-of-numbers -> list-of-numbers
@@ -32,18 +26,14 @@
     (cond
         [(null? alon) '()]
         [(pair? alon) (insert (car alon) (sort (cdr alon)))]
-        [else '()]
-    )
-)
+        [else '()]))
 
 
 ;; reverse : list -> list
 ;; reverses the elements of a list
 (define (reverse l)
   (if (null? l) '()
-     (append (reverse (cdr l)) (list (car l)))
-  )
-)
+     (append (reverse (cdr l)) (list (car l)))))
 
 
 (define num (** 2 8))

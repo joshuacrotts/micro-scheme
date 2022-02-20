@@ -5,24 +5,16 @@
 (define (length-helper l acc) 
     (if (null? l)
         acc
-        (length-helper (cdr l) (+ 1 acc))
-    )
-)
+        (length-helper (cdr l) (+ 1 acc))))
 
-(define (length l)
-    (length-helper l 0)
-)
+(define (length l) (length-helper l 0))
 
 (define (convert-binary-helper l acc val)
     (cond [(null? l) val]
           [(equal? (car l) 1) (convert-binary-helper (cdr l) (- acc 1) (+ val (** 2 (- acc 1))))]
-          [else (convert-binary-helper (cdr l) (- acc 1) val)]
-    )
-)
+          [else (convert-binary-helper (cdr l) (- acc 1) val)]))
 
-(define (convert-binary val)
-    (convert-binary-helper val (length val) 0)
-)
+(define (convert-binary val) (convert-binary-helper val (length val) 0))
 
 (define four '(1 0 0))
 (define sixty-four '(1 0 0 0 0 0 0))

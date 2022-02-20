@@ -1,0 +1,19 @@
+;
+; Problem 5 A6 B521
+;
+
+(define remv-first-9*
+  (lambda (ls)
+    (cond
+      [(null? ls) '()]
+      [(pair? (car ls))
+       (cond
+         [(equal? (car ls) (remv-first-9* (car ls)))
+          (cons (car ls) (remv-first-9* (cdr ls)))]
+         [else (cons (remv-first-9* (car ls)) (cdr ls))])]
+      [(eq? (car ls) '9) (cdr ls)]
+      [else (cons (car ls) (remv-first-9* (cdr ls)))])))
+
+(remv-first-9* '((1 2 (3) 9)))
+(remv-first-9* '(9 (9 (9 (9)))))
+(remv-first-9* '(((((9) 9) 9) 9) 9))

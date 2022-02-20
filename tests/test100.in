@@ -4,6 +4,4 @@
 
 (define sqrt (lambda (x) (** x 0.5)))
 
-(let ((f (lambda (b) (+ (sqrt 5) (sqrt b)))))
-    (f 10)
-)
+(let ((f (lambda (b) (+ (sqrt 5) (sqrt b))))) (f 10))

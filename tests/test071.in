@@ -1,5 +1,3 @@
 (let ([x "Hi"] [y " there"])
     (let ([z "! How are you "] [w " doing "])
-        (string-append x y z w "today?")
-    )
-)
+        (string-append x y z w "today?")))

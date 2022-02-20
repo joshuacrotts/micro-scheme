@@ -16,8 +16,7 @@
 
 (define x 5)
 (+ (let ((x 3))
-     (+ x (* x 10)))
-   x)
+     (+ x (* x 10))) x)
 ; expect 38
 
 (let ((x 3)

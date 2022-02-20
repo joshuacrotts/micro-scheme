@@ -2,14 +2,10 @@
 ; Tests calling a procedure inside a recursive procedure.
 ;
 
-(define (add1 x)
-	(+ x 1)
-)
+(define (add1 x) (+ x 1))
 
 (define (map-add l)
 	(cond [(null? l) '()]
-		  [else (cons (add1 (car l)) (map-add (cdr l)))]
-	)
-)
+		  [else (cons (add1 (car l)) (map-add (cdr l)))]))
 
 (map-add '(1 2 3 4 5))

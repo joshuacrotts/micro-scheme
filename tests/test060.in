@@ -6,6 +6,4 @@
 
 (let ([x 5] [y 20])
    (let ([a (bar)] [b (baz)])
-      (quux (foo (/ (bar) (baz))) (quux (/ x a) (+ y b)))
-   )
-)
+      (quux (foo (/ (bar) (baz))) (quux (/ x a) (+ y b)))))

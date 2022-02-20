@@ -1,0 +1,13 @@
+;
+; Problem 10 A6 B521
+;
+(define unfold
+  (lambda (p f g seed)
+    ((lambda (h)
+       ((h h) seed '()))
+     (lambda (h)
+       (lambda (seed ans)
+	 (if (p seed)
+	     ans
+	     ((h h) (g seed) (cons (f seed) ans))))))))
+(unfold null? car cdr '(a b c d e))

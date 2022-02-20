@@ -1,0 +1,22 @@
+;
+; Problems 2&3 A6 B521
+;
+
+(define (zero? x) (= x 0))
+
+(define star
+  (lambda (m)
+    (lambda (n)
+      (* m n))))
+
+((star 2) 3)
+((star ((star 2) 3)) 5)
+
+(define times
+  (lambda (ls)
+    (cond
+      [(null? ls) 1]
+      [(zero? (car ls)) 0]
+      [else (* (car ls) (times (cdr ls)))])))
+(times '(1 2 3 4 5))
+(times '(1 2 3 0 3))

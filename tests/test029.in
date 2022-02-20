@@ -3,9 +3,6 @@
 ;
 
 (define (reverse-subtract z)
-    (lambda (x y)
-        (- z y x)
-    )
-)
+    (lambda (x y) (- z y x)))
 
 ((reverse-subtract 3) 7 10)

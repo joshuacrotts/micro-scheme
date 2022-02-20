@@ -1,8 +1,7 @@
 (define (bar? x y) (= x y))
 
 (define (foo x y)
-    (if (bar? x y) (* x y) (+ x y))
-)
+    (if (bar? x y) (* x y) (+ x y)))
 
 (foo 20 20)
 (foo 20 1)

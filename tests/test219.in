@@ -1,0 +1,13 @@
+;
+; Problem 6 A6 B521
+;
+(define (add1 x) (+ x 1))
+
+(define cons-cell-count
+  (lambda (ls)
+    (cond
+      [(pair? ls)
+       (add1 (+ (cons-cell-count (car ls)) (cons-cell-count (cdr ls))))]
+      [else 0])))
+(cons-cell-count '(1 2 3 4))
+(cons-cell-count '(1 2 (3 (4) 5) 4 ()))

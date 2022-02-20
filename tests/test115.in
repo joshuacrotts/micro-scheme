@@ -6,6 +6,4 @@
     ((> a 3))
     (do ((b 1 (+ b 1)))
         ((> b 3))
-        (display (list a b))
-    )
-)
+        (display (list a b))))

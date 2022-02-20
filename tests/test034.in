@@ -4,9 +4,7 @@
 
 (define (proc x y)
     ((lambda (z)
-        (+ ((lambda (w) (* w x)) x) z y x)
-    ) (- x y))
-)
+        (+ ((lambda (w) (* w x)) x) z y x)) (- x y)))
 
 (define val (proc 5 10))
 val

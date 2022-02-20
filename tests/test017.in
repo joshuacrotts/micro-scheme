@@ -4,12 +4,8 @@
 
 (define (map proc l)
 	(cond [(null? l) '()]
-		  [else (cons (proc (car l)) (map proc (cdr l)))]
-	)
-)
+		  [else (cons (proc (car l)) (map proc (cdr l)))]))
 
-(define (add1 x)
-	(+ x 1)
-)
+(define (add1 x) (+ x 1))
 
 (map add1 '(1 2 3 4 5))

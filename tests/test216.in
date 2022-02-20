@@ -1,0 +1,13 @@
+;
+; Problem 1 from A6 B521
+;
+
+(define binary-to-decimal
+  (lambda (n)
+    (cond
+      [(null? n) 0]
+      [else (+ (car n) (* 2 (binary-to-decimal (cdr n))))])))
+(binary-to-decimal '())
+(binary-to-decimal '(1))
+(binary-to-decimal '(0 1))
+(binary-to-decimal '(1 1 0 1))

@@ -6,8 +6,7 @@
     (λ (a b) 
         (do ((i a (+ i 1)) (total 0))
             ((> i b) total)
-            (set! total (+ total i))
-        )))
+            (set! total (+ total i)))))
 
 (sum-from-iterative 1 10) ;55
 (sum-from-iterative 1 100) ;5050
