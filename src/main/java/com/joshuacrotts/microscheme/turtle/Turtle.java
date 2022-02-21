@@ -14,7 +14,7 @@ public class Turtle {
     /**
      * Current list of shapes drawn by this turtle.
      */
-    private final ArrayList<Pair<Shape, Color>> SHAPES;
+    private final ArrayList<TurtleShape> SHAPES;
 
     /**
      * Center x coordinate of turtle.
@@ -64,14 +64,14 @@ public class Turtle {
 
     public void drawTurtle(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setStroke(new BasicStroke(this.penWidth));
         for (int i = 0; i < this.SHAPES.size(); i++) {
-            Pair<Shape, Color> s = this.SHAPES.get(i);
-            g2.setColor(s.b);
-            if (this.isPenFilled) {
-                g2.fill(s.a);
+            TurtleShape s = this.SHAPES.get(i);
+            g2.setStroke(s.stroke);
+            g2.setColor(s.color);
+            if (s.filled) {
+                g2.fill(s.shape);
             } else {
-                g2.draw(s.a);
+                g2.draw(s.shape);
             }
         }
         g2.setColor(Color.BLACK);
@@ -90,7 +90,18 @@ public class Turtle {
         this.cx += (delta * Math.cos(Math.toRadians(this.angle)));
         this.cy += (delta * Math.sin(Math.toRadians(this.angle)));
         if (this.isPenDown) {
-            this.SHAPES.add(new Pair<>(new Line2D.Double(oldCX, oldCY, this.cx, this.cy), this.color));
+            this.SHAPES.add(new TurtleShape(new Line2D.Double(oldCX, oldCY, this.cx, this.cy),
+                    this.color, new BasicStroke(this.penWidth), this.isPenFilled));
+        }
+    }
+
+    public void goTo(double newX, double newY) {
+        double oldCX = this.cx;
+        double oldCY = this.cy;
+        this.cx = newX;
+        this.cy = newY;
+        if (this.isPenDown) {
+            this.SHAPES.add(new TurtleShape(new Line2D.Double(oldCX, oldCY, this.cx, this.cy), this.color, new BasicStroke(this.penWidth), this.isPenFilled));
         }
     }
 
@@ -112,5 +123,19 @@ public class Turtle {
 
     public void setPenWidth(int width) {
         this.penWidth = width;
+    }
+
+    private static class TurtleShape {
+        private Shape shape;
+        private Color color;
+        private Stroke stroke;
+        private boolean filled;
+
+        public TurtleShape(Shape shape, Color color, Stroke stroke, boolean filled) {
+            this.shape = shape;
+            this.color = color;
+            this.stroke = stroke;
+            this.filled = filled;
+        }
     }
 }

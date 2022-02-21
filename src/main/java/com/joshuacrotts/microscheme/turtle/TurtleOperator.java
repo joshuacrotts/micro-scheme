@@ -30,6 +30,7 @@ public final class TurtleOperator {
         TURTLE_OPERATORS = new HashMap<>();
         TURTLE_OPERATORS.put("turtle-init", TurtleOperator::interpretTurtleInit);
         TURTLE_OPERATORS.put("forward", TurtleOperator::interpretTurtleForward);
+        TURTLE_OPERATORS.put("goto", TurtleOperator::interpretTurtleGoTo);
         TURTLE_OPERATORS.put("turn-left", TurtleOperator::interpretTurtleTurnLeft);
         TURTLE_OPERATORS.put("set-pen-down", TurtleOperator::interpretTurtleSetPenDown);
         TURTLE_OPERATORS.put("set-pen-filled", TurtleOperator::interpretTurtleSetPenFilled);
@@ -68,6 +69,14 @@ public final class TurtleOperator {
         if (forwardOperands.size() != 1) { throw new MSArgumentMismatchException("forward", 1, forwardOperands.size()); }
         int steps = forwardOperands.get(0).getNumberValue().re.intValue();
         turtleFrame.getTurtle().moveForward(steps);
+        return null;
+    }
+
+    public static LValue interpretTurtleGoTo(final ArrayList<LValue> goToOperands) {
+        if (goToOperands.size() != 2) { throw new MSArgumentMismatchException("goto", 1, goToOperands.size()); }
+        double x = goToOperands.get(0).getNumberValue().re.doubleValue();
+        double y = goToOperands.get(1).getNumberValue().re.doubleValue();
+        turtleFrame.getTurtle().goTo(x, y);
         return null;
     }
 
