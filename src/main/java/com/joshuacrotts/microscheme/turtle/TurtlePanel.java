@@ -42,7 +42,7 @@ public class TurtlePanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(this.bgColor);
         g2.fillRect(0, 0, this.getWidth(), this.getHeight());
-        this.TURTLE.drawTurtle(g2);
+        this.TURTLE.draw(g2);
     }
 
     @Override

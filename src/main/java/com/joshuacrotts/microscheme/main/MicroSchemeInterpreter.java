@@ -568,7 +568,6 @@ public class MicroSchemeInterpreter {
     private LValue interpretSetCar(final MSSetNode setNode, final Environment env) throws MSSemanticException {
         LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
-
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
         if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-car!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
         ((MSListNode) assigneeAst).setCar(LValue.getAst(evaluatedExpression));
@@ -590,7 +589,6 @@ public class MicroSchemeInterpreter {
     private LValue interpretSetCdr(final MSSetNode setNode, final Environment env) throws MSSemanticException {
         LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
-
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
         if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-cdr!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
         ((MSListNode) assigneeAst).setCdr(LValue.getAst(evaluatedExpression));

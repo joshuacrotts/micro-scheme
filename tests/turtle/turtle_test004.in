@@ -1,0 +1,29 @@
+(define sqrt (lambda (x) (** x 0.5)))
+(define sq (lambda (x) (* x x)))
+(define (abs-vec2 origin-x origin-y pos-x pos-y)
+	(let ((diff (+ (sq (- origin-x pos-x)) (sq (- origin-y pos-y)))))
+		(if (= diff 0)
+			0
+			(sqrt diff))))
+
+(define (iter i)
+	(if (= i 1)
+		(begin
+			(forward 200)
+			(turn-left 170)
+			(iter 0))
+		(if (>= (abs-vec2 center center (pos-x) (pos-y)) 1)
+			(begin
+				(forward 200)
+				(turn-left 170)
+				(iter 0)))))
+
+(define center 300)
+(turtle-init center center 600 600)
+(set-pen-down #t)
+(set-pen-filled #t)
+(change-color "#ff0000")
+(change-fill-color "#ffff00")
+(begin-fill)
+(iter 1)
+(end-fill)

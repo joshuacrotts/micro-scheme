@@ -20,12 +20,12 @@ import java.util.TreeMap;
 public class Environment {
 
     /**
-     *
+     * Current bindings in this environment. Strings are paired with LValues.
      */
     private final TreeMap<String, LValue> BINDINGS;
 
     /**
-     *
+     * Parent environment of *this* environment. Null if the global env.
      */
     private final Environment PARENT;
 
