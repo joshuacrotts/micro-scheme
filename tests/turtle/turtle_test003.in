@@ -1,0 +1,16 @@
+(turtle-init 300 300 600 600)
+(define COLORS1 (vector "#ff0000" "#00ff00" "#ffff00" "#6a0dad"))
+
+(define sub1 (lambda (x) (- x 1)))
+(define add1 (lambda (x) (+ x 1)))
+(define (spiral c a x times)
+  (if (>= times 0)
+      (begin
+		(forward x)
+		(turn-left a)
+		(change-color (vector-ref COLORS1 (modulo c (vector-length COLORS1))))
+	    (spiral (add1 c) a (+ x 2)(sub1 times)))))
+
+(change-pen-width 2)
+(change-bg-color "#000000")
+(spiral 0 91 1 152)

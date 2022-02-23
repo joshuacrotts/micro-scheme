@@ -1,0 +1,21 @@
+(turtle-init 300 300 600 600)
+(define COLORS2 (vector "#ff0000" "#0000ff" "#00ff00" "#ffff00" "#6a0dad"))
+(define sub1 (lambda (x) (- x 1)))
+(define (side x w a c)
+  (begin
+	(change-pen-width w)
+	(change-color (vector-ref COLORS2 (modulo c (vector-length COLORS2))))
+	(forward x)
+	(turn-left a)))
+
+(define (spiral2 x w a times c)
+  (if (> times 0)
+      (begin
+		(side x w a c)
+		(spiral2 (+ x 5) (+ w 1) a (sub1 times) (+ c 1)))))
+
+(define (spiral-image2)
+	(begin
+		(change-bg-color "#000000")
+		(spiral2 1 1 45 45 0)))
+(spiral-image2)

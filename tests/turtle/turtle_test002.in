@@ -1,0 +1,21 @@
+(turtle-init 300 500 600 600)
+(define COLORS1 (vector "#ff0000" "#00ff00" "#ffff00" "#6a0dad"))
+
+(turn-left (- 90))
+
+(define (y sz level angle)
+	(if (> level 0)
+		(begin
+			(change-bg-color "#ffffff")
+			(change-color "#ff0000")
+			(forward sz)
+			(turn-left (- angle))
+			(y (* 0.8 sz) (- level 1) angle)
+			(change-color "#00ff00")
+			(turn-left (* 2 angle))
+			(y (* 0.8 sz) (- level 1) angle)
+			(change-color "#0000ff")
+			(turn-left (- angle))
+			(forward (- sz)))))
+
+(y 80 15 30)

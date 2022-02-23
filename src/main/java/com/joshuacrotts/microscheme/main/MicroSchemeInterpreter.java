@@ -15,6 +15,7 @@ import com.joshuacrotts.microscheme.parser.MSArgumentMismatchException;
 import com.joshuacrotts.microscheme.parser.MSInterpreterException;
 import com.joshuacrotts.microscheme.parser.MSSemanticException;
 import com.joshuacrotts.microscheme.parser.MSUndefinedSymbolException;
+import com.joshuacrotts.microscheme.turtle.TurtleOperator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -209,7 +210,7 @@ public class MicroSchemeInterpreter {
     private LValue interpretVariable(final MSVariableNode variableNode, final Environment env) throws MSSemanticException {
         LValue variableData = env.lookup(variableNode.getIdentifier());
         if (variableData != null) { return variableData; }
-        else if (BuiltinOperator.isBuiltinOperator(variableNode)) { return new LValue(variableNode, env); }
+        else if (BuiltinOperator.isBuiltinOperator(variableNode) || TurtleOperator.isTurtleOperator(variableNode)) { return new LValue(variableNode, env); }
         else { throw new MSUndefinedSymbolException(variableNode.getStringRep()); }
     }
 
@@ -494,6 +495,7 @@ public class MicroSchemeInterpreter {
         LValue lhsLValue = this.interpretTree(applicationNode.getExpression(), env);
         MSSyntaxTree expressionLVal = LValue.getAst(lhsLValue);
         if (BuiltinOperator.isBuiltinOperator(expressionLVal)) { return BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments, env); }
+        else if (TurtleOperator.isTurtleOperator(expressionLVal)) { return TurtleOperator.interpretTurtleOperator(expressionLVal, evaluatedArguments, env); }
         else {
             // If we're trying to call on a non-lambda, throw an exception.
             if (!expressionLVal.isLambda()) { throw new MSSemanticException("cannot call " + expressionLVal.getStringRep()); }
@@ -569,7 +571,6 @@ public class MicroSchemeInterpreter {
     private LValue interpretSetCar(final MSSetNode setNode, final Environment env) throws MSSemanticException {
         LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
-
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
         if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-car!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
         ((MSListNode) assigneeAst).setCar(LValue.getAst(evaluatedExpression));
@@ -591,7 +592,6 @@ public class MicroSchemeInterpreter {
     private LValue interpretSetCdr(final MSSetNode setNode, final Environment env) throws MSSemanticException {
         LValue evaluatedAssignee = this.interpretTree(setNode.getChild(0), env);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
-
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
         if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-cdr!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
         ((MSListNode) assigneeAst).setCdr(LValue.getAst(evaluatedExpression));
