@@ -16,6 +16,7 @@ import com.joshuacrotts.microscheme.ast.*;
 import com.joshuacrotts.microscheme.parser.MSInterpreterException;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class LValue {
 
@@ -44,6 +45,8 @@ public class LValue {
     }
 
     public LValue(final BigDecimal number) { this(new MSNumberNode(number)); }
+
+    public LValue(final BigInteger number) { this(new MSNumberNode(new BigDecimal(number))); }
 
     public LValue(final double number) {
         this(new MSNumberNode(number));

@@ -14,6 +14,7 @@ package com.joshuacrotts.microscheme.ast;
 import ch.obermuhlner.math.big.BigComplex;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 
 public class MSNumberNode extends MSSyntaxTree {

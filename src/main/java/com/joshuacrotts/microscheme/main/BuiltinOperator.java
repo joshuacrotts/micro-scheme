@@ -20,6 +20,7 @@ import com.joshuacrotts.microscheme.parser.MSFunction;
 import com.joshuacrotts.microscheme.parser.MSSemanticException;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.*;
@@ -53,6 +54,11 @@ public final class BuiltinOperator {
         OPERATORS.put("truncate", BuiltinOperator::interpretTruncate);
         OPERATORS.put("modulo", BuiltinOperator::interpretModulo);
         OPERATORS.put("remainder", BuiltinOperator::interpretRemainder);
+        OPERATORS.put("bitwise-ior", BuiltinOperator::interpretBitwiseIor);
+        OPERATORS.put("bitwise-and", BuiltinOperator::interpretBitwiseAnd);
+        OPERATORS.put("bitwise-xor", BuiltinOperator::interpretBitwiseXor);
+        OPERATORS.put("bitwise-not", BuiltinOperator::interpretBitwiseNot);
+        OPERATORS.put("arithmetic-shift", BuiltinOperator::interpretArithmeticShift);
         OPERATORS.put("sin", BuiltinOperator::interpretSin);
         OPERATORS.put("cos", BuiltinOperator::interpretCos);
         OPERATORS.put("tan", BuiltinOperator::interpretTan);
@@ -276,6 +282,67 @@ public final class BuiltinOperator {
         if (!dividend.isReal()) { throw new MSArgumentMismatchException("remainder", 0, "integer", dividend.toString()); }
         if (!dividend.isReal()) { throw new MSArgumentMismatchException("remainder", 1, "integer", divisor.toString()); }
         return new LValue(dividend.re.remainder(divisor.re, MathContext.DECIMAL128).multiply(BigDecimal.valueOf(dividend.re.signum())));
+    }
+
+    private static LValue interpretBitwiseIor(final ArrayList<LValue> bitwiseIorArguments) throws MSArgumentMismatchException {
+        BigInteger iorResult = BigInteger.ZERO;
+        for (int i = 0; i < bitwiseIorArguments.size(); i++) {
+            MSSyntaxTree argument = bitwiseIorArguments.get(i).getTree();
+            if (!argument.isNumber() || !((MSNumberNode) argument).isInteger()) { throw new MSArgumentMismatchException("bitwise-ior", i, "integer", argument.getStringNodeType()); }
+            else {
+                iorResult = iorResult.or(((MSNumberNode) argument).getValue().im.toBigInteger());
+            }
+        }
+        return new LValue(iorResult);
+    }
+
+    private static LValue interpretBitwiseAnd(final ArrayList<LValue> bitwiseAndArguments) throws MSArgumentMismatchException {
+        if (bitwiseAndArguments.isEmpty()) { return new LValue(0); }
+        BigInteger andResult = BigInteger.ZERO;
+        for (int i = 0; i < bitwiseAndArguments.size(); i++) {
+            MSSyntaxTree argument = bitwiseAndArguments.get(i).getTree();
+            if (!argument.isNumber() || !((MSNumberNode) argument).isInteger()) { throw new MSArgumentMismatchException("bitwise-and", i, "integer", argument.getStringNodeType()); }
+            else {
+                BigInteger value = bitwiseAndArguments.get(i).getNumberValue().re.toBigInteger();
+                andResult = i == 0 ? value : andResult.and(value);
+            }
+        }
+        return new LValue(andResult);
+    }
+
+    private static LValue interpretBitwiseXor(final ArrayList<LValue> bitwiseXorArguments) throws MSArgumentMismatchException {
+        if (bitwiseXorArguments.isEmpty()) { return new LValue(0); }
+        BigInteger xorResult = BigInteger.ZERO;
+        for (int i = 0; i < bitwiseXorArguments.size(); i++) {
+            MSSyntaxTree argument = bitwiseXorArguments.get(i).getTree();
+            if (!argument.isNumber() || !((MSNumberNode) argument).isInteger()) { throw new MSArgumentMismatchException("bitwise-xor", i, "integer", argument.getStringNodeType()); }
+            else {
+                BigInteger value = bitwiseXorArguments.get(i).getNumberValue().re.toBigInteger();
+                xorResult = i == 0 ? value : xorResult.xor(value);
+            }
+        }
+        return new LValue(xorResult);
+    }
+
+    private static LValue interpretBitwiseNot(final ArrayList<LValue> bitwiseNotArguments) throws MSArgumentMismatchException {
+        if (bitwiseNotArguments.size() != 1) { throw new MSArgumentMismatchException("bitwise-not", 1, bitwiseNotArguments.size()); }
+        else if (!bitwiseNotArguments.get(0).getTree().isNumber() || !((MSNumberNode) bitwiseNotArguments.get(0).getTree()).isInteger()) {
+            throw new MSArgumentMismatchException("bitwise-not", 0, "integer", bitwiseNotArguments.get(0).getTree().getStringNodeType());
+        }
+        return new LValue(((MSNumberNode) bitwiseNotArguments.get(0).getTree()).getValue().re.toBigInteger().not());
+    }
+
+    private static LValue interpretArithmeticShift(final ArrayList<LValue> arithmeticShiftArguments) throws MSArgumentMismatchException {
+        if (arithmeticShiftArguments.size() != 2) { throw new MSArgumentMismatchException("arithmetic-shift", 2, arithmeticShiftArguments.size()); }
+        MSSyntaxTree shiftee = arithmeticShiftArguments.get(0).getTree();
+        MSSyntaxTree shifter = arithmeticShiftArguments.get(1).getTree();
+        if (!shiftee.isNumber() || !((MSNumberNode) shiftee).isInteger()) { throw new MSArgumentMismatchException("arithmetic-shift", 0, "integer", shiftee.getStringNodeType()); }
+        else if (!shifter.isNumber() || !((MSNumberNode) shifter).isInteger()) { throw new MSArgumentMismatchException("arithmetic-shift", 1, "integer", shifter.getStringNodeType()); }
+
+        BigInteger intShiftee = ((MSNumberNode) shiftee).getValue().re.toBigInteger();
+        int intShifter = ((MSNumberNode) shifter).getValue().re.intValue();
+
+        return new LValue(intShifter < 0 ? intShiftee.shiftRight(Math.abs(intShifter)) : intShiftee.shiftLeft(intShifter));
     }
 
     private static LValue interpretSin(final ArrayList<LValue> sinArguments) throws MSArgumentMismatchException {
