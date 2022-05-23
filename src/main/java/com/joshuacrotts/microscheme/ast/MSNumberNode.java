@@ -3,9 +3,10 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  A number node is constructed whenever the user types any type of number,
+ *  whether it is real or complex.
  *
  ******************************************************************************/
 
@@ -16,7 +17,7 @@ import ch.obermuhlner.math.big.BigComplex;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-public class MSNumberNode extends MSSyntaxTree {
+public final class MSNumberNode extends MSSyntaxTree {
 
     /**
      * Number associated with this node.

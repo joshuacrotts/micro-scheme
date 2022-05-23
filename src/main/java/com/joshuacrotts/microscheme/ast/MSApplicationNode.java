@@ -16,7 +16,7 @@ package com.joshuacrotts.microscheme.ast;
 
 import java.util.ArrayList;
 
-public class MSApplicationNode extends MSSyntaxTree {
+public final class MSApplicationNode extends MSSyntaxTree {
 
     /**
      * The number of arguments that this application has.

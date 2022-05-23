@@ -1,10 +1,24 @@
+/******************************************************************************
+ *  File: MSAndNode.java
+ *
+ *  Author: Joshua Crotts
+ *
+ *  Last Updated: 05/22/2022
+ *
+ *  MSAndNodes are constructed when the "and" keyword is used. It uses
+ *  short-circuiting wherein if a condition is false, the rest are not evaluated.
+ *  If all the expressions are true then it is true, false otherwise.
+ *  Ex. (and ...)
+ *
+ ******************************************************************************/
+
 package com.joshuacrotts.microscheme.ast;
 
 import java.util.ArrayList;
 
-public class MSAndNode extends MSSyntaxTree {
+public final class MSAndNode extends MSSyntaxTree {
 
-    public MSAndNode(ArrayList<MSSyntaxTree> andArguments) {
+    public MSAndNode(final ArrayList<MSSyntaxTree> andArguments) {
         super(MSNodeType.AND);
         andArguments.forEach(this::addChild);
     }

@@ -3,9 +3,9 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  Each MSSyntaxTree has a node type and this file defines each.
  *
  ******************************************************************************/
 

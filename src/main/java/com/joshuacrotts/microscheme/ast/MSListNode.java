@@ -3,9 +3,11 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  A list is either a cons pair or quoted parentheses, e.g., (cons 1 2) = (1 . 2)
+ *  e.g., '(1 2 3) = (1 2 3) = (1 . (2 . (3 . ()))). A list that does not end with
+ *  the empty list is improper and contains dots when printed.
  *
  ******************************************************************************/
 
@@ -15,7 +17,7 @@ import com.joshuacrotts.microscheme.main.LValue;
 
 import java.util.ArrayList;
 
-public class MSListNode extends MSSyntaxTree {
+public final class MSListNode extends MSSyntaxTree {
 
     /**
      * Creates a global "empty list" to use. These can, realistically,

@@ -3,9 +3,10 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/26/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  Generic abstract syntax tree node - all nodes extend this. We keep track of
+ *  its children and the type of this syntax tree.
  *
  ******************************************************************************/
 

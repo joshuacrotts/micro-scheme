@@ -12,7 +12,7 @@
 
 package com.joshuacrotts.microscheme.ast;
 
-public class MSBooleanNode extends MSSyntaxTree {
+public final class MSBooleanNode extends MSSyntaxTree {
 
     /**
      * Boolean associated with this node.

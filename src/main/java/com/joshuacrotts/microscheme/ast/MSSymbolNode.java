@@ -3,9 +3,10 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  Symbols, aka atoms, are any type of variable, operator, or identifier that
+ *  can be quoted.
  *
  ******************************************************************************/
 
@@ -19,7 +20,7 @@ public class MSSymbolNode extends MSSyntaxTree {
     private final MSSyntaxTree VALUE;
 
     /**
-     *
+     * Keeps track of whether this is the @ symbol for quasi-quotes.
      */
     private final boolean IS_QUASI_AT;
 

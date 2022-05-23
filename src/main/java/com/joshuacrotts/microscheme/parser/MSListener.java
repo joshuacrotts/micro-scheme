@@ -3,9 +3,10 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  MSListener is the parser listener for MicroScheme. Each parser rule
+ *  recursively constructs the abstract syntax tree for the input.
  *
  ******************************************************************************/
 
@@ -14,7 +15,6 @@ package com.joshuacrotts.microscheme.parser;
 import com.joshuacrotts.microscheme.MicroSchemeBaseListener;
 import com.joshuacrotts.microscheme.MicroSchemeParser;
 import com.joshuacrotts.microscheme.ast.*;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 

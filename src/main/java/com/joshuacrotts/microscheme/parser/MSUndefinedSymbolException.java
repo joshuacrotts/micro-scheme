@@ -3,9 +3,11 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/26/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  MSUndefinedSymbolExceptions are thrown when an unknown symbol is encountered.
+ *  Undefined implies it is not in the current environment or in any parent
+ *  environments.
  *
  ******************************************************************************/
 

@@ -3,9 +3,11 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 02/06/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  A "set" node corresponds to set-car! set-cdr! set-vector! or set!, in other words,
+ *  functions with side effects that change elements of a list/vector or a value
+ *  in an environment.
  *
  ******************************************************************************/
 

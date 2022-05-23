@@ -3,9 +3,11 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/31/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  MSLambdaNode is a procedure - it takes the form (lambda (<arg>)* <body>). Named
+ *  procedures are syntactic sugar for lambdas. let and let* are also syntactic sugar
+ *  for lambdas.
  *
  ******************************************************************************/
 
@@ -13,7 +15,7 @@ package com.joshuacrotts.microscheme.ast;
 
 import java.util.ArrayList;
 
-public class MSLambdaNode extends MSSyntaxTree {
+public final class MSLambdaNode extends MSSyntaxTree {
 
     /**
      * Number of parameters that this lambda takes in.

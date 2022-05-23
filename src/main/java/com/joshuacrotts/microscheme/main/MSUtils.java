@@ -3,24 +3,19 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  MSUtils is a list of static functions for other files to use, e.g.,
+ *  random numbers and repeating strings n times (Java 8 does not have a built-in
+ *  function).
  *
  ******************************************************************************/
 
 package com.joshuacrotts.microscheme.main;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class MSUtils {
+public final class MSUtils {
 
     /**
      * Returns a random integer between min and max.
@@ -61,41 +56,6 @@ public class MSUtils {
     }
 
     /**
-     * Determines if there is a connection to the internet (as the name implies!). Sends a
-     * connection request to google.com (which we assume is always online :D) and if it finds the
-     * connection, we return true and false otherwise.
-     *
-     * @return
-     */
-    public static boolean connectedToNet() {
-        try {
-            final URL url = new URL("http://www.google.com");
-            final URLConnection conn = url.openConnection();
-            conn.connect();
-            conn.getInputStream().close();
-            return true;
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    /**
-     * @param sets
-     * @param <T>
-     * @return
-     */
-    @SafeVarargs
-    public static <T> Set<T> union(final Collection<T>... sets) {
-        Set<T> distinct = new HashSet<T>();
-        for (Collection<T> list : sets) {
-            distinct.addAll(list);
-        }
-        return distinct;
-    }
-    
-    /**
      * @param _n
      * @param _str
      * @return
@@ -106,14 +66,5 @@ public class MSUtils {
             b.append(_str);
         }
         return b.toString();
-    }
-
-    /**
-     * @param _s1
-     * @param _s2
-     * @return
-     */
-    public static int sbCompareTo(final StringBuilder _s1, final StringBuilder _s2) {
-        return _s1.toString().compareTo(_s2.toString());
     }
 }

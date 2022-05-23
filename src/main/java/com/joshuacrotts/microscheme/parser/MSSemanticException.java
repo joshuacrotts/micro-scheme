@@ -3,9 +3,10 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/26/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  A semantic exception is a type of runtime exception. These can occur for
+ *  a variety of reasons, e.g., arity mismatch, type mismatch...
  *
  ******************************************************************************/
 

@@ -3,9 +3,9 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 02/06/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  Strings are an immutable sequence of characters... not much more to say.
  *
  ******************************************************************************/
 

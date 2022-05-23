@@ -3,15 +3,16 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  A declaration consists of the variable and the expression to-be-evaluated.
+ *  This variable is stored in the current environment.
  *
  ******************************************************************************/
 
 package com.joshuacrotts.microscheme.ast;
 
-public class MSDeclarationNode extends MSSyntaxTree {
+public final class MSDeclarationNode extends MSSyntaxTree {
 
     public MSDeclarationNode(final MSSyntaxTree variable, final MSSyntaxTree expr) {
         super(MSNodeType.DECLARATION, variable, expr);

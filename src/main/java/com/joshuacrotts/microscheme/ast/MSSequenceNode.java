@@ -3,9 +3,9 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  SequenceNodes are simply a collection of nodes to evaluate.
  *
  ******************************************************************************/
 

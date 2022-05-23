@@ -3,9 +3,12 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  Environments keep track of two things:
+ *      1. Binding of identifiers to LValues in a map.
+ *      2. The parent environment of this environment. This is useful when searching
+ *         for a variable definition.
  *
  ******************************************************************************/
 
@@ -20,12 +23,12 @@ import java.util.TreeMap;
 public class Environment {
 
     /**
-     *
+     * Bindings of identifiers to LValue objects.
      */
     private final TreeMap<String, LValue> BINDINGS;
 
     /**
-     *
+     * Environments keep track of their "parent". The root environment has a parent of NULL.
      */
     private final Environment PARENT;
 
@@ -80,20 +83,10 @@ public class Environment {
         }
     }
 
-    /**
-     *
-     * @param id
-     * @param expr
-     */
     public void bind(final String id, final LValue expr) {
         this.BINDINGS.put(id, expr);
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
     public LValue lookup(final String id) {
         LValue l = this.BINDINGS.get(id);
         if (l == null && this.PARENT != null) {

@@ -3,9 +3,13 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/26/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  MSCondNode is a condition expression; it takes the form
+ *  (cond (<expr> <body-when-true>)+). Cond expressions will continuously
+ *  evaluate the expression(s) until it finds one that is true. It is analogous
+ *  to an if/else if in imperative languages. MSCondNodes also construct (if ...)
+ *  nodes as syntactic sugar.
  *
  ******************************************************************************/
 
@@ -13,7 +17,7 @@ package com.joshuacrotts.microscheme.ast;
 
 import java.util.ArrayList;
 
-public class MSCondNode extends MSSyntaxTree {
+public final class MSCondNode extends MSSyntaxTree {
 
     /**
      * Number of predicates (conditionals) in this COND node.

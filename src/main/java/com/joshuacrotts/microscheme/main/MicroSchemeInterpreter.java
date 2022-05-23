@@ -3,18 +3,13 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/26/2022
- *
- *
+ *  Last Updated: 05/22/2022
  ******************************************************************************/
 
 package com.joshuacrotts.microscheme.main;
 
 import com.joshuacrotts.microscheme.ast.*;
-import com.joshuacrotts.microscheme.parser.MSArgumentMismatchException;
-import com.joshuacrotts.microscheme.parser.MSInterpreterException;
-import com.joshuacrotts.microscheme.parser.MSSemanticException;
-import com.joshuacrotts.microscheme.parser.MSUndefinedSymbolException;
+import com.joshuacrotts.microscheme.parser.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -179,7 +174,7 @@ public class MicroSchemeInterpreter {
                 if (symbol.isQuasiAtSymbol()) {
                     MSSyntaxTree symbolValue = LValue.getAst(this.interpretTree(symbol.getValue(), env));
                     if (!symbolValue.isList()) {
-                        throw new MSArgumentMismatchException(",@", "list/cons pair", symbolValue.getStringNodeType());
+                        throw new MSArgumentTypeMismatchException(",@", "list/cons pair", symbolValue.getStringNodeType());
                     }
                     // Extract each element from the symbol list and append it to the curr list.
                     ArrayList<MSSyntaxTree> symbolList = ((MSListNode) symbolValue).getListAsArrayList();
@@ -369,7 +364,7 @@ public class MicroSchemeInterpreter {
             LValue testLVal = this.interpretTree(doNode.getDoTest(), doEnv);
             MSSyntaxTree testAst = LValue.getAst(testLVal);
             if (!testAst.isBoolean()) {
-                throw new MSArgumentMismatchException("do test", "predicate/true/false", testAst.getStringNodeType());
+                throw new MSArgumentTypeMismatchException("do test", "predicate/true/false", testAst.getStringNodeType());
             } else {
                 // If the do loop test passes, evaluate each "true" expression.
                 if (testLVal.getBooleanValue()) {
@@ -453,7 +448,7 @@ public class MicroSchemeInterpreter {
         // Now check to make sure it's a symbol or list.
         if (argument.isSymbol()) { argument = ((MSSymbolNode) argument).getValue(); }
         // Finally, check to make sure it's a list.
-        if (!argument.isList()) { throw new MSArgumentMismatchException("apply", 1, "list/cons pair", argument.getStringNodeType()); }
+        if (!argument.isList()) { throw new MSArgumentTypeMismatchException("apply", 1, "list/cons pair", argument.getStringNodeType()); }
 
         MSListNode curr = (MSListNode) argument;
         while (true) {
@@ -496,7 +491,7 @@ public class MicroSchemeInterpreter {
         if (BuiltinOperator.isBuiltinOperator(expressionLVal)) { return BuiltinOperator.interpretBuiltinOperator(expressionLVal, evaluatedArguments, env); }
         else {
             // If we're trying to call on a non-lambda, throw an exception.
-            if (!expressionLVal.isLambda()) { throw new MSSemanticException("cannot call " + expressionLVal.getStringRep()); }
+            if (!expressionLVal.isLambda()) { throw new MSSemanticException("cannot call non-procedure " + expressionLVal.getStringRep()); }
 
             // Otherwise, create the new environment, child bindings, and interpret the body.
             MSLambdaNode lambdaNode = (MSLambdaNode) expressionLVal;
@@ -513,7 +508,7 @@ public class MicroSchemeInterpreter {
             } else {
                 // Before we bind, check arity (only on non-varargs procedures).
                 if (lambdaParameters.size() != evaluatedArguments.size()) {
-                    throw new MSArgumentMismatchException(lambdaParameters.size(), evaluatedArguments.size());
+                    throw new MSArgumentArityMismatchException(lambdaParameters.size(), evaluatedArguments.size());
                 }
                 childEnvironment = lambdaEnvironment.createChildEnvironment(lambdaParameters, evaluatedArguments);
             }
@@ -539,7 +534,7 @@ public class MicroSchemeInterpreter {
     private LValue interpretSet(final MSSetNode setNode, final Environment env) throws MSSemanticException {
         MSSyntaxTree assignee = setNode.getChild(0);
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
-        if (!assignee.isVariable()) { throw new MSArgumentMismatchException("set!", 0, "variable", assignee.getStringNodeType()); }
+        if (!assignee.isVariable()) { throw new MSArgumentTypeMismatchException("set!", 0, "variable", assignee.getStringNodeType()); }
         // Walk up the environment tree to find the identifier.
         String id = ((MSVariableNode) assignee).getIdentifier();
         Environment curr = env;
@@ -571,7 +566,7 @@ public class MicroSchemeInterpreter {
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
 
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
-        if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-car!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
+        if (!assigneeAst.isList()) { throw new MSArgumentTypeMismatchException("set-car!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
         ((MSListNode) assigneeAst).setCar(LValue.getAst(evaluatedExpression));
         return null;
     }
@@ -593,7 +588,7 @@ public class MicroSchemeInterpreter {
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(1), env);
 
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
-        if (!assigneeAst.isList()) { throw new MSArgumentMismatchException("set-cdr!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
+        if (!assigneeAst.isList()) { throw new MSArgumentTypeMismatchException("set-cdr!", 0, "list/cons pair", assigneeAst.getStringNodeType()); }
         ((MSListNode) assigneeAst).setCdr(LValue.getAst(evaluatedExpression));
         return null;
     }
@@ -617,8 +612,8 @@ public class MicroSchemeInterpreter {
         LValue evaluatedExpression = this.interpretTree(setNode.getChild(2), env);
         MSSyntaxTree assigneeAst = LValue.getAst(evaluatedAssignee);
         MSSyntaxTree vectorIdxAst = LValue.getAst(vectorIdx);
-        if (!assigneeAst.isVector()) { throw new MSArgumentMismatchException("vector-set!", 0, "vector", assigneeAst.getStringNodeType()); }
-        else if (!LValue.getAst(vectorIdx).isNumber()) { throw new MSArgumentMismatchException("vector-set!", 1, "number", vectorIdxAst.getStringNodeType()); }
+        if (!assigneeAst.isVector()) { throw new MSArgumentTypeMismatchException("vector-set!", 0, "vector", assigneeAst.getStringNodeType()); }
+        else if (!LValue.getAst(vectorIdx).isNumber()) { throw new MSArgumentTypeMismatchException("vector-set!", 1, "number", vectorIdxAst.getStringNodeType()); }
         assigneeAst.setChild(vectorIdx.getNumberValue().re.intValue(), LValue.getAst(evaluatedExpression));
         return null;
     }

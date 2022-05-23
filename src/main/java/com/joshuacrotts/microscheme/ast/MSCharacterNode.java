@@ -3,15 +3,16 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/25/2022
+ *  Last Updated: 05/22/2022
  *
- *
+ *  MSCharacterNodes are single characters designated via a pound/octothorpe/hashtag and a backslash.
+ *  Example: #\a is the literal 'a'.
  *
  ******************************************************************************/
 
 package com.joshuacrotts.microscheme.ast;
 
-public class MSCharacterNode extends MSSyntaxTree {
+public final class MSCharacterNode extends MSSyntaxTree {
 
     /**
      * Char value associated with this character node.

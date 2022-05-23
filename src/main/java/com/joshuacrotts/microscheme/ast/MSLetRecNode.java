@@ -3,8 +3,9 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 01/27/2022
+ *  Last Updated: 05/22/2022
  *
+ *  LetRec nodes are constructed for recursive let environments.
  *
  ******************************************************************************/
 

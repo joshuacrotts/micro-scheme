@@ -3,9 +3,11 @@
  *
  *  Author: Joshua Crotts
  *
- *  Last Updated: 02/07/2022
+ *  Last Updated: 05/22/2022
  *
+ *  MSDoNodes are iterative statements in MicroScheme. They take the form
  *
+ *  (do ((<var> <expr> <step-expr>)*) (<test> <when-true-expr>) <seq>)
  *
  ******************************************************************************/
 
@@ -13,7 +15,7 @@ package com.joshuacrotts.microscheme.ast;
 
 import java.util.ArrayList;
 
-public class MSDoNode extends MSSyntaxTree {
+public final class MSDoNode extends MSSyntaxTree {
 
     /**
      * Number of declarations inside this Do Node.
