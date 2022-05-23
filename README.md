@@ -72,7 +72,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 ```
 (define sum-from-iterative
     (λ (a b) 
-        (do ((i a (+ i 1) (total 0))
+        (do ((i a (+ i 1)) (total 0))
             ((> i b) total)
             (set! total (+ total i)))))
 
