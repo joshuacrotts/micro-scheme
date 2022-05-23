@@ -1,0 +1,21 @@
+;
+; Simple lexical closures
+;
+
+(define make-counter
+    (lambda ()
+       (let ((count 0))
+          (lambda ()
+             (set! count (+ count 1)) count))))
+
+(define c1 (make-counter))
+(define c2 (make-counter))
+(define c3 (make-counter))
+(c1)
+(c1)
+(c1)
+(c2)
+(c3)
+(c2)
+(c1)
+(c3)

@@ -37,8 +37,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 
 ```
 (define (factorial n)
-    (if (<= n 1)
-        1
+    (if (<= n 1) 1
         (* n (factorial (- n 1)))))
         
 (factorial 6) 
@@ -50,8 +49,7 @@ This is a small Scheme-subset interpreter written in Java with the ANTLR4 parsin
 ```
 (define fib
     (λ (n)
-       (if (<= n 2)
-           1
+       (if (<= n 2) 1
            (+ (fib (- n 1)) (fib (- n 2))))))
 
 (fib 5)
@@ -93,8 +91,8 @@ c
 (define (filter predicate sequence)
     (cond [(null? sequence) '()]
           [(predicate (car sequence))
-          (cons (car sequence)
-                (filter predicate (cdr sequence)))]
+              (cons (car sequence)
+              (filter predicate (cdr sequence)))]
           [else (filter predicate (cdr sequence))]))
     
 (filter odd? (list 1 2 3 4 5))
@@ -105,8 +103,7 @@ c
 
 ```
 (define (accumulate op initial sequence)
-  (if (null? sequence)
-      initial
+  (if (null? sequence) initial
       (op (car sequence)
           (accumulate op initial (cdr sequence)))))
                               
@@ -122,8 +119,43 @@ c
 (printf "The ~s of ~d and ~d is ~d." "sum" val val2 (+ val val2))
 (printf "~d in hex is ~x, in binary is ~b, in octal is ~o." val3 val3 val3 val3)
 
->>> The sum of 3.1415+0.75i and 78.55 is 81.6915+0.75i."
+>>> The sum of 3.1415+0.75i and 78.55 is 81.6915+0.75i.
     65073 in hex is fe45, in binary is 1111111001000101, in octal is 177105. 
+```
+
+9. Variadic arguments:
+```
+(define length 
+    (λ (l)
+        (cond ((null? l) 0)
+            (else (+ 1 (length (cdr l)))))))
+(define (alt-length . args)
+    (length args))
+    
+(alt-length 10 'apple 'orange 20 (+ 2 3 4 5) 'grapes)
+>>> 6
+```
+
+10. Closure with lexical scoping:
+```
+(define make-counter
+    (lambda ()
+       (let ((count 0))
+          (lambda ()
+             (set! count (+ count 1)) count))))
+
+(define c1 (make-counter))
+(define c2 (make-counter))
+(define c3 (make-counter))
+(c1)
+(c1)
+(c1)
+(c2)
+(c3)
+(c2)
+(c1)
+(c3)
+>>> (separated by new lines) 1 2 3 1 1 2 4 2
 ```
 
 ## Planned Features
