@@ -1,8 +1,6 @@
 (turtle-init 300 500 600 600)
 (define COLORS1 (vector "#ff0000" "#00ff00" "#ffff00" "#6a0dad"))
 
-(turn-left (- 90))
-
 (define (y sz level angle)
 	(if (> level 0)
 		(begin

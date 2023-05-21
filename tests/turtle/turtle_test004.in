@@ -16,14 +16,13 @@
 			(begin
 				(forward 200)
 				(turn-left 170)
-				(iter 0)))))
+				(iter 0))
+            #f)))
 
 (define center 300)
 (turtle-init center center 600 600)
 (set-pen-down #t)
-(set-pen-filled #t)
+(set-pen-filled #f)
 (change-color "#ff0000")
 (change-fill-color "#ffff00")
-(begin-fill)
 (iter 1)
-(end-fill)

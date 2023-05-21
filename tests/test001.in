@@ -2,4 +2,17 @@
 ; Exponent.
 ;
 
-(** 2 3)
+(define fact-tr
+ (lambda (n acc)
+  (cond
+   [(= n 0) acc]
+   [else (fact-tr (- n 1) (* n acc))])))
+
+(define fact
+ (lambda (n)
+  (cond
+   [(= n 0) 1]
+   [else (* n (fact (- n 1)))])))
+
+(fact-tr 100000 1)
+;(fact 500)
